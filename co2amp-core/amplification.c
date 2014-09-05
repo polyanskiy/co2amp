@@ -25,30 +25,6 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         gainSpectrum[n1] = 0;
 
 
-    /*sigma[0][0][0][3]=0;
-    sigma[0][0][0][4]=0;
-    sigma[0][0][0][6]=0;
-    sigma[0][0][0][8]=0;
-    sigma[0][0][0][10]=0;
-    sigma[0][0][0][12]=0;
-    sigma[0][0][0][14]=0;
-    sigma[0][0][0][16]=0;
-    sigma[0][0][0][18]=0;
-    sigma[0][0][0][22]=0;
-    sigma[0][0][0][24]=0;
-    sigma[0][0][0][26]=0;
-    sigma[0][0][0][28]=0;
-    sigma[0][0][0][30]=0;
-    sigma[0][0][0][32]=0;
-    sigma[0][0][0][34]=0;
-    sigma[0][0][0][36]=0;
-    sigma[0][0][0][38]=0;
-    sigma[0][0][0][40]=0;
-    sigma[0][0][0][42]=0;
-    sigma[0][0][0][44]=0;*/
-
-
-
 
     // ====================== AMPLIFICATIOIN ======================
 

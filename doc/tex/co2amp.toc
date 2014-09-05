@@ -18,6 +18,6 @@
 \contentsline {section}{\numberline {3.2}Amplification}{15}{section.3.2}
 \contentsline {section}{\numberline {3.3}Molecular constants}{16}{section.3.3}
 \contentsline {section}{\numberline {3.4}Propagation}{16}{section.3.4}
-\contentsline {section}{\numberline {3.5}Optical elements}{23}{section.3.5}
-\contentsline {section}{\numberline {3.6}Properties of optical materials}{24}{section.3.6}
-\contentsline {chapter}{Bibliography}{26}{chapter*.17}
+\contentsline {section}{\numberline {3.5}Optical elements}{24}{section.3.5}
+\contentsline {section}{\numberline {3.6}Properties of optical materials}{25}{section.3.6}
+\contentsline {chapter}{Bibliography}{27}{chapter*.17}

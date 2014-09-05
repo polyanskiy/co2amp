@@ -346,7 +346,7 @@ public:
         scrollArea_input->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         scrollAreaWidgetContents_2 = new QWidget();
         scrollAreaWidgetContents_2->setObjectName(QStringLiteral("scrollAreaWidgetContents_2"));
-        scrollAreaWidgetContents_2->setGeometry(QRect(-395, 0, 844, 557));
+        scrollAreaWidgetContents_2->setGeometry(QRect(0, 0, 844, 557));
         gridLayout_20 = new QGridLayout(scrollAreaWidgetContents_2);
         gridLayout_20->setObjectName(QStringLiteral("gridLayout_20"));
         groupBox_comments = new QGroupBox(scrollAreaWidgetContents_2);
@@ -1718,8 +1718,11 @@ public:
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">Version</span><span style=\" font-size:10pt;\"><br /><br />2014-06-10<br /><br /><br /></span><span style=\" font-size:10pt; font-weight:600;\">Authors</span><span style=\" font-size:10pt;\"><br /><br /></span><a href=\"mailto:Mikhail Polyanskiy &lt;polyanskiy@bnl.gov&gt;\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">Mikhail N. Polyanskiy</span></a><span style=\" font-size:10pt;\">, Brookhaven National Laboratory, USA<br />Initially based on the Mathcad code by Viktor T. Plato"
-                        "nenko, Moscow State University, Russia<br /><br /><br /><br /></span><span style=\" font-size:10pt; font-weight:600;\">License</span><span style=\" font-size:10pt;\"><br /><br /></span><a href=\"http://www.gnu.org/licenses/gpl.html\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">GPL</span></a></p></body></html>", 0));
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">Version: </span><span style=\" font-size:10pt;\">2014-09-05<br /></span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">Documentation: </span><a href=\"https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">Manual and detailed program description (PDF)</span></a></p>\n"
+"<p style="
+                        "\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\"><br /></span><span style=\" font-size:10pt; font-weight:600;\">License: </span><a href=\"http://www.gnu.org/licenses/gpl.html\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">GPL</span></a></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\"><br /></span><span style=\" font-size:10pt; font-weight:600;\">Authors:</span><span style=\" font-size:10pt;\"><br /></span><a href=\"mailto:Mikhail Polyanskiy &lt;polyanskiy@bnl.gov&gt;\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">Mikhail N. Polyanskiy</span></a><span style=\" font-size:10pt;\">, Brookhaven National Laboratory, USA<br />Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia<br /></span></p></body></html>", 0));
         groupBox->setTitle(QApplication::translate("MainWindowClass", "DEBUGGING", 0));
         label_2->setText(QApplication::translate("MainWindowClass", "Debug level:", 0));
         label_3->setText(QApplication::translate("MainWindowClass", "Bands:", 0));

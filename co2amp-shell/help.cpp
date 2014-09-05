@@ -21,7 +21,7 @@ void MainWindow::on_toolButton_components_clicked()
     list << "MASK: mask radius in cm";
     list << "ABSORBER: transmittance";
     list << "LENS: focal length in cm";
-    list << "WINDOW: param1 - material (KCl, NaCl, ZnSe, Ge, GaAs, Diamond, CdTe); param2 - thickness in cm";
+    list << "WINDOW: param1 - material (CdTe, GaAs, Ge, KCl, NaCl, Si or ZnSe); param2 - thickness in cm";
     list << "STRETCHER: pulse chirping factor in ps/THz (positive for red chirp)";
     str = list.join("\n");
     QMessageBox mb( "Hint - co2amp", str, QMessageBox::Information, QMessageBox::Ok, 0, 0);

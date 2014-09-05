@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
     debug_level = 1;
-    printf("co2amp-core v.2014-06-06\n\n");
+    printf("co2amp-core v.2014-09-05\n\n");
     fflush(stdout);
     #pragma omp parallel // counting processors (for parallel computing)
 	if (omp_get_thread_num() == 0)

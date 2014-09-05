@@ -7,7 +7,7 @@
 ;General
 SetCompressor lzma
 Name "co2amp"
-OutFile "co2amp_v.20140610_setup.exe"
+OutFile "co2amp_v.20140905_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES\co2amp"          ;default
@@ -74,8 +74,7 @@ Section "Section_01" Sec01
   SetOutPath "$INSTDIR\src"
   File "installer.nsi"
   SetOutPath "$INSTDIR\doc"
-  File "doc\co2amp.pdf"
-  File "doc\co2amp-manual.docx*"
+  File "doc\tex\co2amp.pdf"
   SetOutPath "$INSTDIR\doc\tex"
   File "doc\tex\*.tex"
   File "doc\tex\*.bib"
