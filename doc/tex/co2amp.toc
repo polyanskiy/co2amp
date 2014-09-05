@@ -1,24 +1,23 @@
-\contentsline {chapter}{\numberline {1}General notes}{2}
-\contentsline {section}{\numberline {1.1}Program capabilities}{2}
-\contentsline {section}{\numberline {1.2}Availability}{3}
-\contentsline {section}{\numberline {1.3}Acknowledgements}{3}
-\contentsline {chapter}{\numberline {2}Program description}{4}
-\contentsline {section}{\numberline {2.1}Molecular dynamics}{4}
-\contentsline {subsection}{\numberline {2.1.1}Pumping by electric discharge}{4}
-\contentsline {subsection}{\numberline {2.1.2}Pumping and vibrational relaxation dynamics}{8}
-\contentsline {section}{\numberline {2.2}Amplification}{10}
-\contentsline {section}{\numberline {2.3}Propagation}{11}
-\contentsline {section}{\numberline {2.4}Optical elements}{12}
-\contentsline {subsection}{\numberline {2.4.1}Lens}{12}
-\contentsline {subsection}{\numberline {2.4.2}Absorber}{12}
-\contentsline {subsection}{\numberline {2.4.3}Mask}{12}
-\contentsline {chapter}{\numberline {3}Getting started manual}{13}
-\contentsline {section}{\numberline {3.1}Basic concepts}{13}
-\contentsline {section}{\numberline {3.2}Input pulse and calculation grid}{14}
-\contentsline {section}{\numberline {3.3}Optical layout and beam propagation}{14}
-\contentsline {subsection}{\numberline {3.3.1}Components}{14}
-\contentsline {subsection}{\numberline {3.3.2}Layout}{15}
-\contentsline {subsection}{\numberline {3.3.3}Beam propagation}{16}
-\contentsline {section}{\numberline {3.4}Active medium and amplification}{17}
-\contentsline {section}{\numberline {3.5}Program output}{17}
-\contentsline {chapter}{Bibliography}{18}
+\contentsline {chapter}{\numberline {1}General notes}{2}{chapter.1}
+\contentsline {section}{\numberline {1.1}Program capabilities}{2}{section.1.1}
+\contentsline {section}{\numberline {1.2}Availability}{3}{section.1.2}
+\contentsline {section}{\numberline {1.3}Acknowledgements}{3}{section.1.3}
+\contentsline {chapter}{\numberline {2}Getting started manual}{4}{chapter.2}
+\contentsline {section}{\numberline {2.1}Basic concepts}{4}{section.2.1}
+\contentsline {section}{\numberline {2.2}Input pulse and calculation grid}{5}{section.2.2}
+\contentsline {section}{\numberline {2.3}Optical layout and beam propagation}{5}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Components}{5}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Layout}{6}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}Beam propagation}{7}{subsection.2.3.3}
+\contentsline {section}{\numberline {2.4}Active medium and amplification}{8}{section.2.4}
+\contentsline {section}{\numberline {2.5}Program output}{8}{section.2.5}
+\contentsline {chapter}{\numberline {3}Models}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}Molecular dynamics}{9}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}Pumping by electric discharge}{9}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}Pumping and vibrational relaxation dynamics}{13}{subsection.3.1.2}
+\contentsline {section}{\numberline {3.2}Amplification}{15}{section.3.2}
+\contentsline {section}{\numberline {3.3}Molecular constants}{16}{section.3.3}
+\contentsline {section}{\numberline {3.4}Propagation}{16}{section.3.4}
+\contentsline {section}{\numberline {3.5}Optical elements}{23}{section.3.5}
+\contentsline {section}{\numberline {3.6}Properties of optical materials}{24}{section.3.6}
+\contentsline {chapter}{Bibliography}{26}{chapter*.17}

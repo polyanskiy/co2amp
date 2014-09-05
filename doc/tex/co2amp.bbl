@@ -87,4 +87,51 @@ R.~D. Hake and A.~V. Phelps.
   all that.
 \newblock {\em arXiv:physics/0202029}, 2002.
 
+\bibitem{DeBell-1979}
+A.~G. DeBell, E.~L. Dereniak, J.~Harvey, J.~Palmer J.~Nissley, A.~Selvarajan,
+  and W.~L. Wolfe.
+\newblock Cryogenic refractive indices and temperature coefficients of cadmium
+  telluride from 6 $\mu$m to 22 $\mu$m.
+\newblock {\em Appl. Opt.}, 18:3114--3115, 1979.
+
+\bibitem{Sheik-Bahae-1991}
+M.~Sheik-Bahae.
+\newblock Dispersion of bound electron nonlinear refraction in solids.
+\newblock {\em IEEE J. Quant. Electron.}, 27:1296--1309, 1991.
+
+\bibitem{Skauli-2003}
+T.~Skauli, P.~S. Kuo, K.~L. Vodopyanov, T.~J. Pinguet, O.~Levi, L.~A. Eyres,
+  J.~S. Harris, M.~M. Fejer, L.~Becouarn B.~Gerard, and E.~Lallier.
+\newblock Improved dispersion relations for gaas and applications to nonlinear
+  optics.
+\newblock {\em J. Appl. Opt.}, 94:6447--6455, 2003.
+
+\bibitem{Barnes-1979}
+N.~P. Barnes and M.~S. Piltch.
+\newblock Temperature-dependent sellmeier coefficients and nonlinear optics
+  average power limit for germanium.
+\newblock {\em J. Opt. Soc. Am.}, 69:178--180, 1979.
+
+\bibitem{Li-1976}
+H.~H. Li.
+\newblock Refractive index of alkali halides and its wavelength and temperature
+  derivatives.
+\newblock {\em J. Phys. Chem. Ref. Data}, 5:329--528, 1976.
+
+\bibitem{Edwards-1980}
+D.~F. Edwards and E.~Ochoa.
+\newblock Infrared refractive index of silicon.
+\newblock {\em Appl. Opt.}, 19:4130--4131, 1980.
+
+\bibitem{Bristow-2007}
+A.~D. Bristow, N.~Rotenberg, and H.~M. van Driel.
+\newblock Two-photon absorption and kerr coefficients of silicon for 850–2200
+  nm.
+\newblock {\em Appl. Phys. Lett.}, 90:191104, 2007.
+
+\bibitem{Tatian-1984}
+B.~Tatian.
+\newblock Fitting refractive-index data with the sellmeier dispersion formula.
+\newblock {\em Appl. Opt.}, 23:4477--4485, 1984.
+
 \end{thebibliography}

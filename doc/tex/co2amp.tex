@@ -1,6 +1,7 @@
 \documentclass{report}
-\usepackage{fullpage,cite,amssymb,amsmath,graphicx,tabularx}
+\usepackage{fullpage,cite,amssymb,amsmath,graphicx,tabularx,rotating}
 \usepackage[utf8]{inputenc}
+\usepackage[hidelinks]{hyperref}
 \usepackage[nottoc]{tocbibind}
 
 \begin{document}
@@ -42,12 +43,164 @@
 \end{enumerate}
 
 \section{Availability}
-The latest version (currently 2014-xx-xx) of the co2amp program is freely available under the terms of the General Public License (GPL v.3) [] at http://www/bnl.gov/download/co2amp. The package is provided in the form of a compressed source code and as a Windows installer. The installer contains pre-compiled executables, documentation and the source-code (all found in the installation directory). User interface is built using a cross-platform library (QT by Digia []) and thus should compile under other platforms supported by QT (MacOS, Linux). Third-party components used in the package (gnuplot, 7zip) are also freely available for multiple platforms.
+The entire code base of the \texttt{co2amp} program is published in the GitHub website (\url{https://github.com/polyanskiy/co2amp}) and is freely available for use, modification and re-distribution under the terms of the General Public License (GPL) (\url{http://www.gnu.org/copyleft/gpl.html}). The binary package is provided in the form of a Windows installer that contains pre-compiled executables, documentation and the source-code (all found in the installation directory after installation) at \url{https://github.com/polyanskiy/co2amp/releases}. User interface is built using a cross-platform library QT (\url{http://qt-project.org/}) and thus should compile under other platforms supported by QT (MacOS, Linux). Third-party components used in the package (\texttt{gnuplot}, \texttt{7-zip}) are also freely available for multiple platforms (\url{http://www.gnuplot.info/}, \url{http://www.7-zip.org/}).
 
 \section{Acknowledgements}
 Viktor Platonenko provided the Mathcad code for pulse amplification in the CO$_2$ active medium that was used as a starting point of the development of the \texttt{co2amp} code; he also provided valuable input on the early stage of the work.
 
-\chapter{Program description}
+
+
+
+\chapter{Getting started manual}
+
+\section{Basic concepts}
+The \texttt{co2amp} code allows simulating propagation of an ultrashort pulse through an arbitrary optical system that can include CO$_2$ amplifiers. Pulse amplification and fast molecular dynamics (stimulated transitions, rotational relaxation) calculations are performed in time domain in the time-frame moving with the pulse. Processes that are much slower than the pulse duration (discharge pumping, vibrational relaxation) are modelled separately in the laboratory time-frame.
+The program input parameters include initial pulse characteristics, optical configuration, active medium composition and excitation parameters (e.g. discharge profile), and number of nodes in the calculation grids for the time- (pulse time frame) and space- (radial) coordinates. Axial symmetry is assumed at all times. Optical system can include multiple amplifiers if they have same gas composition and pumping dynamics; sequential amplification in different amplifiers can be modeled using the staging option as described later.
+Temporal pulse shape (averaged across the beam) and beam profile (averaged for the entire pulse duration) at every element of the optical layout are saved and can be accessed in both graphical and tabulated-numerical representation. Complete pulse/beam information (complex field in every node of the time-space calculation grid) at the output of the system can also be saved and used as an input for another system (staging).
+The user interface program allows saving all inputs and outputs of the calculations as a single compressed file ('.co2' or '.co2x' extension). The difference between the two formats is that the files with extension ending with 'x' ("extended") include the complete output field record and thus are suitable for staged calculations.
+Fig. \ref{fig:co2amp} shows the user interface of the \texttt{co2amp} program described in the following sections.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=8cm]{images/co2amp-input}
+\includegraphics[width=8cm]{images/co2amp-output}
+\caption{\texttt{co2amp} user interface: Input- (left) and output- (right) tabs.}\label{fig:co2amp}
+\end{figure}
+
+
+\section{Input pulse and calculation grid}
+Unless the output of another simulation is used as an input (staged calculations), both temporal shape of the input pulse and the input beam profile are assumed to be Gaussian; and the pulse is assumed to be transform-limited (no initial chirping). Pulse energy, duration, central frequency, and beam radius are entered in the corresponding fields in the input tab. "Injection moment" parameter specifies the time-delay between the beginning of the pumping of the active medium and pulse injection into the optical system. It is also possible to simulate amplification of a train of identical and equidistant pulses; number of pulses in the train and time-delay between them must be specified in this case.
+Number of nodes in the calculation grid has to be specified for the radial coordinate and for the fast time-frame associated with the pulse (time-frame for the slow processes uses a fixed 1-ns step and does not require a user input). Number of nodes is always a power of two that allows utilization of fast Fourier transform (FFT) algorithms. Calculations with a larger number of nodes are usually more accurate but, on the other hand, take longer and require more computer memory (both calculation time and required memory are roughly proportional to the product of the number of  nodes in the time- and space- grids). This is therefore recommended to start from running the simulation with a smaller number of nodes and then repeat it several times, each time with a denser grid. Absence of considerable change in the program output with increase of the number of nodes will indicate that the grid density is sufficient.
+Limits of the pulse time-frame ("time range") specify the time interval considered in the calculations. Initially, the pulse is centered at $t=0$ and it tends to shift to the longer delays upon amplification due to the limited medium response time and spectrum modulation. Thus, optimum time range is usually asymmetric with a short negative and a longer positive part. Time-step $\Delta t=(t_{max}-t_{min})/(n_0-1)$, where $t_{max}$ and $t_{min}$ define the time range and $n_0$ is the number of nodes in the time grid, must be small enough to accurately describe the pulse profile at all stages of the propagation through the optical system. It is also important to keep in mind that time range and number of nodes in the time grid also define the range and step in the frequency domain: $\Delta\nu=1/(t_{max}-t_{min})$ and $(\nu_{max}-\nu_{min})=1/\Delta t$. This means that the time range must be long enough to provide sufficient resolution in the frequency domain and at the same time the time step must be sufficiently short to provide a bandwidth that fits the whole spectral region of interest.
+Maximum radial coordinate is defined separately for every element of the optical system. This is described in the next section.
+Identifying an appropriate calculation grid is very important for building an accurate model of an optical system. An effort put in this part of the simulation process will pay off by fast and reliable calculations.
+
+
+\section{Optical layout and beam propagation}
+The \texttt{co2amp} code uses a concept of optical surfaces similar to that employed in the ray-tracing algorithms. In this concept optical system is represented by a series of thin optical components (surfaces) each of which can alter the wave front. Between surfaces, beam propagates undisturbed. In order to specify the optical system one has to 1) describe all optical components and 2) describe the location of the components in respect to each other. In \texttt{co2amp}'s user interface program, this is done by editing text in the two dedicated fields ("Components" and "Layout"). The format of these fields is described below.
+
+\subsection{Components}
+Each optical component is described in a separate line by several tab- or space- separated entries:
+
+\begin{itemize}
+\item Entry 1 '\textit{\textbf{ID}}': An arbitrary user-defined alpha-numeric string for identifying the component;
+\item Entry 2 '\textit{\textbf{Type}}': Type of the component; must be one of the types listed in the table;
+\item Entry 3 '\textit{\textbf{Field}}':  Maximum radial coordinate in centimeters to be considered in the simulations;
+\item Entry 4 '\textit{\textbf{Parameter 1}}' and Entry 5 '\textit{\textbf{Parameter 2}}': Meaning of these fields depend on the type of the component as summarized in the table:
+\end{itemize}
+
+\def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\textwidth}{|l|X|X|X|}
+\hline 
+\textit{\textbf{Type}} & Description & \textit{\textbf{Parameter 1}} & \textit{\textbf{Parameter 2}} \\
+\hline 
+&&&\\
+\texttt{AM}	& Active medium	& Length [cm]	& - \\
+&&&\\
+\texttt{PROBE} & Passive surface, may be used as limiting aperture &	- &	-\\
+&&&\\
+\texttt{MASK} & Opaque circular screen & Radius [cm] & -\\
+&&&\\
+\texttt{ABSORBER} & Absorber & Transmittance & -\\
+&&&\\
+\texttt{LENS} & Ideal lens (no spherical or chromatic aberrations)& Focal length [cm]& -\\
+&&&\\
+\texttt{WINDOW} & Transparent flat window (zero reflection- and absorption- losses) & Window material: KCl, NaCl, ZnSe, GaAs, CdTe, Ge, or Si & Thickness [cm]\\
+
+\texttt{STRETCHER} & Stretcher or compressor & Pulse chirping [ps/THz] (positive for red-chirp) & -\\
+\hline
+\end{tabularx}\\
+
+
+The following example defines several 2.5-cm diameter components: A probe surface, two 120-cm-long amplifier sections, a 5-cm-thick NaCl window and an absorber for modelling 4\% reflection losses:
+
+\bigskip
+\begin{tabular}{lllll}
+\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
+\texttt{am1} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
+\texttt{am2} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
+\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
+\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
+\end{tabular}
+
+\subsection{Layout}
+Optical configuration is specified as a sequence of the components identified by their \textit{\textbf{ID}}’s. All components are separated by non-negative distances expressed in centimeters. Components and distances must be separated by spaces, tabs, new-line symbols or dashes. The following is an example of an optical configuration that uses the components defined in the previews example:
+
+\bigskip
+\texttt{p-0-abs-0-win-0-abs-100-am1-200-am2-100-abs-0-win-0-abs-0-p }
+\bigskip
+
+This example defines the configuration shown in the Fig. \ref{fig:optical-configuration-1}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{images/optical-configuration-1}
+\caption{Example optical configuration.}\label{fig:optical-configuration-1}
+\end{figure}
+
+In this example beam propagates twice through the same amplifier. However, we consider this configuration as two identical but independent active volumes (\texttt{am1} and \texttt{am2}) because at each pass the beam interacts with a different zone of the active medium.
+
+\subsection{Beam propagation}
+When two components of an optical configuration are separated by a non-zero distance, beam propagation between them is simulated using the Huygens-Fresnel diffraction integral in the assumption of axial symmetry. Propagation is simulated separately for each moment of time from the time calculation grid.
+Optical surface model assumes that components of the optical layout are infinitely thin. Propagation is calculated between the middle points of the components; for the purpose of simulating pulse interaction with a prolonged optical element, beam is assumed to be collimated inside this element. For instance, the sequence of calculations for the previews example is:
+
+\begin{enumerate}
+\item Interaction with the window (including reflection losses);
+\item 100 cm propagation to the middle of the first pass through the amplifier (no amplification so far);
+\item Amplification by a 120-cm amplifier section assuming that the beam is collimated;
+\item 200 cm (100$\times$2) propagation to the middle of the second pass through the active volume;
+\item Amplification by the second 120-cm amplifier section assuming that the beam is collimated;
+\item 100 cm propagation to the window;
+\item Interaction with the windows.
+\end{enumerate}
+
+Accuracy of the model can be improved if one divides a long amplifier into several shorter sub-sections. For instance, we can modify our example configuration as shown in the Fig. \ref{fig:optical-configuration-2}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{images/optical-configuration-2}
+\caption{Example configuration modified for improved accuracy.}\label{fig:optical-configuration-2}
+\end{figure}
+ 
+Components and Layout entries for the modified configuration are as follows:
+
+\bigskip
+Components:
+
+\bigskip
+\begin{tabular}{lllll}
+\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
+\texttt{am1a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
+\texttt{am1b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
+\texttt{am2a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
+\texttt{am2b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
+\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
+\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
+\end{tabular}
+\bigskip
+
+Layout:
+
+\bigskip
+\texttt{p-0-abs-0-win-0-abs-70-am1a-60-am1b-140-am2b-60-am2a-70-abs-0-win-0-abs-0-p}
+\bigskip
+
+Population dynamics in all amplifier sections is modeled separately and thus splitting a long amplifier into shorter sections provides also a more realistic model of the active medium.
+
+
+\section{Active medium and amplification}
+All active medium sections used in a single simulation must have same gas composition and pumping conditions (staged simulations can be used for complex systems with two or more non-identical amplifiers).  Composition (including isotopic enrichment of carbon dioxide) and initial temperature of the active medium are specified in the "Gas Mixture" fields of the input tab of the user interface.
+Pumping by electric discharge is the primary pumping scheme of the \texttt{co2amp} code. Rudimentary support for optical pumping is also included but not discussed here. For discharge pumping, geometry of the discharge volume (discharge volume and the distance between electrodes) and discharge profile (tabulated values of discharge current expressed in amperes and voltage in volts at time moments in microseconds) must be provided. Pumping dynamics calculations are done using a Boltzmann equation that takes into account elastic collisions between electrons and molecules and inelastic collisions with molecular rotational-, vibrational- and electronic- excitations and ionization. Tabulated empirical values of corresponding cross-sections as functions of electron energy are used. The Boltzmann equation is solved repeatedly in order to accurately describe the variation of pumping efficiency by the electric field varying during the discharge. 
+
+
+\section{Program output}
+The output of the program is given as a temporal pulse structure and its spectrum (both averaged across the beam) and beam profile (averaged on the duration of the pulse) at each element of the optical layout. The user can chose an optical component to display from the list of all the available components. In the case if the selected component is used several times in the optical configuration, it is also possible to specify which passes through the component will be displayed. Also, integral pulse energy can be provided either at every pass through a selected component or at all passes through all components of the system layout.
+Output for the layout components of type \texttt{AM} (active medium) provides additional information that includes gain, discharge profile, population dynamics, and the dynamics of pumping energy distribution (fractions of discharge energy going into excitation of laser levels and excitation of molecular translations and ionization).
+Right-mouse-click on a figure allows the user to copy either the graphics or the numerical data for future use.
+
+
+
+\chapter{Models}
 
 \section{Molecular dynamics}
 Simulations of active medium pumping by electric discharge and vibrational relaxation are done following Karlov and Konev \cite{Karlov-1978}.
@@ -80,6 +233,9 @@ $B = 2.5 \times 10^{-4}$ is the N$_2$ rotational constant;
 
 Effective crossections are expressed in Å; their numerical values in the nodes are given in the tables below (linear interpolation must be used for determining the values in intermediate points); the data and citations are reproduced from \cite{Karlov-1978}.
 
+\begin{table}
+\centering
+\caption{Tabulated data on the cross-sections for discharge pumping}
 \begin{tabular}{|c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{m1}$ & $u_i$ & $Q_{m2}$ & $u_i$ & $Q_{m3}$ & $u_i$ & $Q$ \\ 
@@ -113,7 +269,11 @@ $u_i$ & $Q_{m1}$ & $u_i$ & $Q_{m2}$ & $u_i$ & $Q_{m3}$ & $u_i$ & $Q$ \\
      &      & 100   & 10   &      &     & 25     & 3.05 \\
 \hline
 \end{tabular}
+\end{table}
 
+\begin{table}
+\centering
+\caption{Tabulated data on the cross-sections for discharge pumping - continued 1}
 \begin{tabular}{|c|c||c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{11}$ & $u_i$ & $Q_{12}$ & $u_i$ & $Q_{13}$ & $u_i$ & $Q_{14}$ & $u_i$ & $Q_{15}$ \\
@@ -175,8 +335,12 @@ $u_i$ & $Q_{16}$ & $u_i$ & $Q_{17}$ & $u_i$ & $Q_{18}$ & $u_i$ & $Q_{19}$ & $u_i
 \multicolumn{2}{c|}{$u_{1,10}=13.8$ eV}\\
 \hline 
 \end{tabular}
+\end{table}
 
-
+\begin{table}
+\centering
+\small
+\caption{Tabulated data on the cross-sections for discharge pumping - continued 2}
 \begin{tabular}{|c|c||c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{21}$ & $u_i$ & $Q_{22}$ & $u_i$ & $Q_{23}$ & $u_i$ & $Q_{24}$ & $u_i$ & $Q_{25}$ \\
@@ -251,7 +415,8 @@ $u_i$ & $Q_{2,11}$ & $u_i$ & $Q_{2,12}$ & $u_i$ & $Q_{2,13}$ & $u_i$ & $Q_{2,14}
 \multicolumn{2}{c||}{$u_{2,14}=14$ eV} &
 \multicolumn{2}{c|}{$u_{2,15}=15.6$ eV}\\
 \hline 
-\end{tabular} 
+\end{tabular}
+\end{table}
 
 The following notation for cross-sections is used:
 
@@ -375,11 +540,10 @@ where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
 
 
 \section{Amplification}
-
 Amplification is simulated using the equations from Volkin’s paper \cite{Volkin-1979}
 
 \begin{align}\label{eq:amplification}
-&\frac{1}{c}\frac{\partial \varepsilon}{\partial t} + \frac{\partial \varepsilon}{\partial z} =  - \sum\limits_J {\rho _J},\nonumber\\
+&\frac{\partial \varepsilon}{\partial z} =  - \sum\limits_J {\rho _J},\nonumber\\
 &\frac{\partial \rho _J}{\partial t} + \left(i(\omega _c-\omega _{0J}) + \frac{1}{T_2} \right)\rho _J =  - \frac{\sigma _J n_J \varepsilon}{2T_2},\\
 &\frac{\partial n_J}{\partial t} + \frac{n_J-n_J^0}{\tau _R} = 4(\rho _J \varepsilon^* + c.c.), \nonumber
 \end{align}
@@ -445,8 +609,455 @@ Useful relations for Lorentzian distribution:
 \end{equation*}
 
 
-\section{Propagation}
+\section{Molecular constants}
+bla-bla
 
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'626'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.134 &   -   & 0.149 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -  \\
+1  &   -   &   -   &   -   &   -   & 0.824 & 0.331 & 0.812 & 0.326 &   -   & 0.108 &   -   & 0.131 &   -   &   -   &   -   &   -  \\
+2  & 0.267 & 0.172 & 0.296 & 0.192 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.179 & 0.137 & 0.216 & 0.167\\
+3  &   -   &   -   &   -   &   -   & 0.493 & 0.369 & 0.486 & 0.364 & 0.191 & 0.150 & 0.230 & 0.182 &   -   &   -   &   -   &   -  \\
+4  & 0.229 & 0.183 & 0.252 & 0.205 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.191 & 0.158 & 0.231 & 0.191\\
+5  &   -   &   -   &   -   &   -   & 0.456 & 0.383 & 0.449 & 0.379 & 0.190 & 0.162 & 0.229 & 0.197 &   -   &   -   &   -   &   -  \\
+6  & 0.218 & 0.188 & 0.240 & 0.211 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.189 & 0.166 & 0.228 & 0.201\\
+7  &   -   &   -   &   -   &   -   & 0.440 & 0.392 & 0.434 & 0.388 & 0.187 & 0.168 & 0.226 & 0.204 &   -   &   -   &   -   &   -  \\
+8  & 0.212 & 0.191 & 0.234 & 0.216 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.186 & 0.170 & 0.224 & 0.207\\
+9  &   -   &   -   &   -   &   -   & 0.432 & 0.396 & 0.425 & 0.394 & 0.185 & 0.171 & 0.223 & 0.209 &   -   &   -   &   -   &   -  \\
+10 & 0.209 & 0.193 & 0.230 & 0.219 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.184 & 0.173 & 0.222 & 0.210\\
+11 &   -   &   -   &   -   &   -   & 0.425 & 0.400 & 0.420 & 0.399 & 0.183 & 0.174 & 0.221 & 0.212 &   -   &   -   &   -   &   -  \\
+12 & 0.206 & 0.194 & 0.227 & 0.221 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.183 & 0.175 & 0.219 & 0.213\\
+13 &   -   &   -   &   -   &   -   & 0.421 & 0.402 & 0.416 & 0.403 & 0.182 & 0.175 & 0.219 & 0.214 &   -   &   -   &   -   &   -  \\
+14 & 0.204 & 0.195 & 0.225 & 0.224 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.181 & 0.176 & 0.218 & 0.215\\
+15 &   -   &   -   &   -   &   -   & 0.417 & 0.404 & 0.413 & 0.406 & 0.181 & 0.177 & 0.217 & 0.216 &   -   &   -   &   -   &   -  \\
+16 & 0.203 & 0.196 & 0.223 & 0.226 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.180 & 0.177 & 0.216 & 0.217\\
+17 &   -   &   -   &   -   &   -   & 0.413 & 0.405 & 0.411 & 0.409 & 0.179 & 0.178 & 0.215 & 0.218 &   -   &   -   &   -   &   -  \\
+18 & 0.201 & 0.197 & 0.221 & 0.228 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.179 & 0.178 & 0.214 & 0.218\\
+19 &   -   &   -   &   -   &   -   & 0.410 & 0.406 & 0.409 & 0.412 & 0.178 & 0.179 & 0.213 & 0.219 &   -   &   -   &   -   &   -  \\
+20 & 0.200 & 0.197 & 0.220 & 0.230 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.178 & 0.179 & 0.213 & 0.220\\
+21 &   -   &   -   &   -   &   -   & 0.407 & 0.407 & 0.408 & 0.415 & 0.177 & 0.180 & 0.212 & 0.220 &   -   &   -   &   -   &   -  \\
+22 & 0.198 & 0.197 & 0.219 & 0.231 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.177 & 0.180 & 0.211 & 0.221\\
+23 &   -   &   -   &   -   &   -   & 0.404 & 0.407 & 0.406 & 0.417 & 0.176 & 0.180 & 0.211 & 0.222 &   -   &   -   &   -   &   -  \\
+24 & 0.197 & 0.197 & 0.218 & 0.233 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.176 & 0.181 & 0.210 & 0.222\\
+25 &   -   &   -   &   -   &   -   & 0.400 & 0.407 & 0.405 & 0.421 & 0.175 & 0.181 & 0.209 & 0.223 &   -   &   -   &   -   &   -  \\
+26 & 0.196 & 0.197 & 0.217 & 0.235 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.175 & 0.181 & 0.209 & 0.223\\
+27 &   -   &   -   &   -   &   -   & 0.397 & 0.407 & 0.404 & 0.423 & 0.174 & 0.182 & 0.208 & 0.224 &   -   &   -   &   -   &   -  \\
+28 & 0.195 & 0.197 & 0.216 & 0.237 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.174 & 0.182 & 0.207 & 0.224\\
+29 &   -   &   -   &   -   &   -   & 0.395 & 0.406 & 0.403 & 0.425 & 0.174 & 0.182 & 0.207 & 0.225 &   -   &   -   &   -   &   -  \\
+30 & 0.193 & 0.197 & 0.215 & 0.238 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.173 & 0.182 & 0.206 & 0.225\\
+31 &   -   &   -   &   -   &   -   & 0.392 & 0.406 & 0.402 & 0.428 & 0.173 & 0.183 & 0.205 & 0.225 &   -   &   -   &   -   &   -  \\
+32 & 0.192 & 0.196 & 0.215 & 0.240 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.172 & 0.183 & 0.205 & 0.226\\
+33 &   -   &   -   &   -   &   -   & 0.388 & 0.406 & 0.402 & 0.431 & 0.172 & 0.183 & 0.204 & 0.226 &   -   &   -   &   -   &   -  \\
+34 & 0.191 & 0.196 & 0.214 & 0.242 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.171 & 0.183 & 0.203 & 0.226\\
+35 &   -   &   -   &   -   &   -   & 0.385 & 0.405 & 0.401 & 0.434 & 0.171 & 0.183 & 0.203 & 0.227 &   -   &   -   &   -   &   -  \\
+36 & 0.189 & 0.196 & 0.213 & 0.244 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.170 & 0.183 & 0.202 & 0.227\\
+37 &   -   &   -   &   -   &   -   & 0.383 & 0.403 & 0.401 & 0.437 & 0.170 & 0.184 & 0.202 & 0.228 &   -   &   -   &   -   &   -  \\
+38 & 0.188 & 0.195 & 0.213 & 0.246 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.169 & 0.184 & 0.201 & 0.228\\
+39 &   -   &   -   &   -   &   -   & 0.380 & 0.402 & 0.400 & 0.439 & 0.169 & 0.184 & 0.201 & 0.229 &   -   &   -   &   -   &   -  \\
+40 & 0.187 & 0.194 & 0.212 & 0.248 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.168 & 0.184 & 0.200 & 0.229\\
+41 &   -   &   -   &   -   &   -   & 0.376 & 0.401 & 0.399 & 0.442 & 0.168 & 0.185 & 0.199 & 0.229 &   -   &   -   &   -   &   -  \\
+42 & 0.185 & 0.194 & 0.212 & 0.249 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.168 & 0.184 & 0.198 & 0.229\\
+43 &   -   &   -   &   -   &   -   & 0.373 & 0.400 & 0.400 & 0.446 & 0.167 & 0.185 & 0.198 & 0.230 &   -   &   -   &   -   &   -  \\
+44 & 0.184 & 0.193 & 0.211 & 0.251 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.167 & 0.185 & 0.197 & 0.230\\
+45 &   -   &   -   &   -   &   -   & 0.369 & 0.398 & 0.400 & 0.448 & 0.167 & 0.185 & 0.197 & 0.231 &   -   &   -   &   -   &   -  \\
+46 & 0.182 & 0.192 & 0.211 & 0.253 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.166 & 0.185 & 0.196 & 0.230\\
+47 &   -   &   -   &   -   &   -   & 0.366 & 0.397 & 0.400 & 0.451 & 0.166 & 0.185 & 0.196 & 0.231 &   -   &   -   &   -   &   -  \\
+48 & 0.181 & 0.191 & 0.210 & 0.255 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.165 & 0.185 & 0.195 & 0.231\\
+49 &   -   &   -   &   -   &   -   & 0.362 & 0.394 & 0.400 & 0.455 & 0.165 & 0.186 & 0.194 & 0.232 &   -   &   -   &   -   &   -  \\
+50 & 0.179 & 0.191 & 0.210 & 0.257 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.164 & 0.185 & 0.193 & 0.232\\
+51 &   -   &   -   &   -   &   -   & 0.359 & 0.393 & 0.399 & 0.458 & 0.164 & 0.186 & 0.193 & 0.232 &   -   &   -   &   -   &   -  \\
+52 & 0.178 & 0.190 & 0.209 & 0.259 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.163 & 0.185 & 0.192 & 0.232\\
+53 &   -   &   -   &   -   &   -   & 0.354 & 0.391 & 0.401 & 0.462 & 0.163 & 0.186 & 0.192 & 0.233 &   -   &   -   &   -   &   -  \\
+54 & 0.176 & 0.189 & 0.209 & 0.262 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.162 & 0.185 & 0.191 & 0.233\\
+55 &   -   &   -   &   -   &   -   & 0.351 & 0.388 & 0.401 & 0.464 & 0.162 & 0.186 & 0.191 & 0.234 &   -   &   -   &   -   &   -  \\
+56 & 0.174 & 0.187 & 0.209 & 0.264 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.161 & 0.186 & 0.189 & 0.233\\
+57 &   -   &   -   &   -   &   -   & 0.347 & 0.385 & 0.400 & 0.467 & 0.161 & 0.186 & 0.189 & 0.234 &   -   &   -   &   -   &   -  \\
+58 & 0.173 & 0.186 & 0.209 & 0.266 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.160 & 0.186 & 0.188 & 0.234\\
+59 &   -   &   -   &   -   &   -   & 0.344 &   -   & 0.401 & 0.471 & 0.160 & 0.186 & 0.188 & 0.234 &   -   &   -   &   -   &   -  \\
+60 & 0.171 &   -   & 0.208 &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   &   -   & 0.159 &   -   & 0.187 &   -  \\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'628'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.101 &   -   & 0.190 & & & & & & & & & & & &\\
+1  & 0.303 & 0.122 & 0.569 & 0.229 & & & & & & & & & & & &\\
+2  & 0.202 & 0.131 & 0.379 & 0.246 & \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}\\
+3  & 0.181 & 0.136 & 0.340 & 0.256 & & & & & & & & & & & &\\
+4  & 0.172 & 0.140 & 0.323 & 0.262 & & & & & & & & & & & &\\
+5  & 0.167 & 0.142 & 0.314 & 0.266 & & & & & & & & & & & &\\
+6  & 0.163 & 0.144 & 0.307 & 0.270 & & & & & & & & & & & &\\
+7  & 0.161 & 0.145 & 0.303 & 0.273 & & & & & & & & & & & &\\
+8  & 0.159 & 0.147 & 0.299 & 0.275 & & & & & & & & & & & &\\
+9  & 0.157 & 0.148 & 0.296 & 0.277 & & & & & & & & & & & &\\
+10 & 0.156 & 0.149 & 0.294 & 0.279 & & & & & & & & & & & &\\
+11 & 0.155 & 0.150 & 0.292 & 0.280 & & & & & & & & & & & &\\
+12 & 0.154 & 0.150 & 0.290 & 0.282 & & & & & & & & & & & &\\
+13 & 0.153 & 0.151 & 0.288 & 0.283 & & & & & & & & & & & &\\
+14 & 0.152 & 0.152 & 0.287 & 0.284 & & & & & & & & & & & &\\
+15 & 0.151 & 0.152 & 0.285 & 0.285 & & & & & & & & & & & &\\
+16 & 0.151 & 0.153 & 0.284 & 0.286 & & & & & & & & & & & &\\
+17 & 0.150 & 0.153 & 0.283 & 0.287 & & & & & & & & & & & &\\
+18 & 0.149 & 0.154 & 0.282 & 0.288 & & & & & & & & & & & &\\
+19 & 0.149 & 0.154 & 0.281 & 0.289 & & & & & & & & & & & &\\
+20 & 0.148 & 0.155 & 0.280 & 0.290 & & & & & & & & & & & &\\
+21 & 0.148 & 0.155 & 0.279 & 0.290 & & & & & & & & & & & &\\
+22 & 0.147 & 0.156 & 0.278 & 0.291 & & & & & & & & & & & &\\
+23 & 0.146 & 0.156 & 0.277 & 0.292 & & & & & & & & & & & &\\
+24 & 0.146 & 0.157 & 0.276 & 0.293 & & & & & & & & & & & &\\
+25 & 0.145 & 0.157 & 0.275 & 0.293 & & & & & & & & & & & &\\
+26 & 0.145 & 0.157 & 0.274 & 0.294 & & & & & & & & & & & &\\
+27 & 0.144 & 0.158 & 0.273 & 0.295 & & & & & & & & & & & &\\
+28 & 0.144 & 0.158 & 0.272 & 0.295 & & & & & & & & & & & &\\
+29 & 0.143 & 0.158 & 0.271 & 0.296 & & & & & & & & & & & &\\
+30 & 0.143 & 0.159 & 0.271 & 0.297 & & & & & & & & & & & &\\
+31 & 0.142 & 0.159 & 0.270 & 0.297 & & & & & & & & & & & &\\
+32 & 0.142 & 0.159 & 0.269 & 0.298 & & & & & & & & & & & &\\
+33 & 0.141 & 0.160 & 0.268 & 0.298 & & & & & & & & & & & &\\
+34 & 0.141 & 0.160 & 0.267 & 0.299 & & & & & & & & & & & &\\
+35 & 0.140 & 0.160 & 0.266 & 0.300 & & & & & & & & & & & &\\
+36 & 0.140 & 0.161 & 0.266 & 0.300 & & & & & & & & & & & &\\
+37 & 0.139 & 0.161 & 0.265 & 0.301 & & & & & & & & & & & &\\
+38 & 0.139 & 0.161 & 0.264 & 0.301 & & & & & & & & & & & &\\
+39 & 0.138 & 0.161 & 0.263 & 0.302 & & & & & & & & & & & &\\
+40 & 0.138 & 0.162 & 0.262 & 0.302 & & & & & & & & & & & &\\
+41 & 0.137 & 0.162 & 0.262 & 0.303 & & & & & & & & & & & &\\
+42 & 0.137 & 0.162 & 0.261 & 0.303 & & & & & & & & & & & &\\
+43 & 0.136 & 0.163 & 0.260 & 0.304 & & & & & & & & & & & &\\
+44 & 0.136 & 0.163 & 0.259 & 0.304 & & & & & & & & & & & &\\
+45 & 0.135 & 0.163 & 0.258 & 0.304 & & & & & & & & & & & &\\
+46 & 0.135 & 0.163 & 0.258 & 0.305 & & & & & & & & & & & &\\
+47 & 0.134 & 0.164 & 0.257 & 0.305 & & & & & & & & & & & &\\
+48 & 0.134 & 0.164 & 0.256 & 0.306 & & & & & & & & & & & &\\
+49 & 0.133 & 0.164 & 0.255 & 0.306 & & & & & & & & & & & &\\
+50 & 0.133 & 0.164 & 0.254 & 0.307 & & & & & & & & & & & &\\
+51 & 0.133 & 0.165 & 0.254 & 0.307 & & & & & & & & & & & &\\
+52 & 0.132 & 0.165 & 0.253 & 0.308 & & & & & & & & & & & &\\
+53 & 0.132 & 0.165 & 0.252 & 0.308 & & & & & & & & & & & &\\
+54 & 0.132 & 0.165 & 0.251 & 0.309 & & & & & & & & & & & &\\
+55 & 0.132 & 0.165 & 0.250 & 0.309 & & & & & & & & & & & &\\
+56 & 0.132 & 0.165 & 0.250 & 0.309 & & & & & & & & & & & &\\
+57 & 0.132 & 0.165 & 0.249 & 0.310 & & & & & & & & & & & &\\
+58 & 0.132 & 0.165 & 0.248 & 0.310 & & & & & & & & & & & &\\
+59 & 0.132 & 0.165 & 0.248 & 0.310 & & & & & & & & & & & &\\
+60 & 0.132 &   -   & 0.248 &   -   & & & & & & & & & & & &\\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'828'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.038 &   -   & 0.121 & & & & & & & & & & & &\\
+1  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+2  & 0.075 & 0.048 & 0.240 & 0.156 & \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}\\
+3  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+4  & 0.064 & 0.051 & 0.204 & 0.166 & & & & & & & & & & & &\\
+5  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+6  & 0.061 & 0.053 & 0.195 & 0.171 & & & & & & & & & & & &\\
+7  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+8  & 0.059 & 0.054 & 0.190 & 0.175 & & & & & & & & & & & &\\
+9  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+10 & 0.059 & 0.054 & 0.187 & 0.178 & & & & & & & & & & & &\\
+11 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+12 & 0.058 & 0.054 & 0.184 & 0.179 & & & & & & & & & & & &\\
+13 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+14 & 0.057 & 0.055 & 0.183 & 0.182 & & & & & & & & & & & &\\
+15 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+16 & 0.057 & 0.055 & 0.181 & 0.183 & & & & & & & & & & & &\\
+17 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+18 & 0.056 & 0.055 & 0.179 & 0.185 & & & & & & & & & & & &\\
+19 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+20 & 0.056 & 0.055 & 0.178 & 0.187 & & & & & & & & & & & &\\
+21 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+22 & 0.056 & 0.055 & 0.178 & 0.187 & & & & & & & & & & & &\\
+23 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+24 & 0.055 & 0.055 & 0.177 & 0.189 & & & & & & & & & & & &\\
+25 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+26 & 0.055 & 0.055 & 0.176 & 0.191 & & & & & & & & & & & &\\
+27 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+28 & 0.055 & 0.055 & 0.175 & 0.192 & & & & & & & & & & & &\\
+29 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+30 & 0.054 & 0.055 & 0.174 & 0.193 & & & & & & & & & & & &\\
+31 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+32 & 0.054 & 0.055 & 0.174 & 0.195 & & & & & & & & & & & &\\
+33 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+34 & 0.054 & 0.055 & 0.174 & 0.196 & & & & & & & & & & & &\\
+35 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+36 & 0.053 & 0.055 & 0.173 & 0.198 & & & & & & & & & & & &\\
+37 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+38 & 0.053 & 0.055 & 0.173 & 0.200 & & & & & & & & & & & &\\
+39 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+40 & 0.052 & 0.054 & 0.172 & 0.201 & & & & & & & & & & & &\\
+41 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+42 & 0.052 & 0.054 & 0.172 & 0.202 & & & & & & & & & & & &\\
+43 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+44 & 0.052 & 0.054 & 0.171 & 0.204 & & & & & & & & & & & &\\
+45 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+46 & 0.051 & 0.054 & 0.171 & 0.205 & & & & & & & & & & & &\\
+47 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+48 & 0.051 & 0.054 & 0.170 & 0.207 & & & & & & & & & & & &\\
+49 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+50 & 0.050 & 0.054 & 0.170 & 0.208 & & & & & & & & & & & &\\
+51 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+52 & 0.050 & 0.053 & 0.170 & 0.210 & & & & & & & & & & & &\\
+53 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+54 & 0.049 & 0.053 & 0.170 & 0.213 & & & & & & & & & & & &\\
+55 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+56 & 0.049 & 0.052 & 0.170 & 0.214 & & & & & & & & & & & &\\
+57 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+58 & 0.049 & 0.052 & 0.170 & 0.216 & & & & & & & & & & & &\\
+59 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+60 & 0.048 &   -   & 0.169 &   -   & & & & & & & & & & & &\\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'636'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.147 &   -   & 0.077 & & & & & & & & & & & &\\
+1  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+2  & 0.293 & 0.189 & 0.153 & 0.099 & \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}\\
+3  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+4  & 0.251 & 0.201 & 0.131 & 0.106 & & & & & & & & & & & &\\
+5  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+6  & 0.239 & 0.207 & 0.124 & 0.109 & & & & & & & & & & & &\\
+7  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+8  & 0.233 & 0.210 & 0.121 & 0.111 & & & & & & & & & & & &\\
+9  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+10 & 0.229 & 0.212 & 0.119 & 0.113 & & & & & & & & & & & &\\
+11 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+12 & 0.226 & 0.214 & 0.118 & 0.114 & & & & & & & & & & & &\\
+13 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+14 & 0.224 & 0.215 & 0.117 & 0.115 & & & & & & & & & & & &\\
+15 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+16 & 0.222 & 0.216 & 0.116 & 0.116 & & & & & & & & & & & &\\
+17 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+18 & 0.220 & 0.216 & 0.115 & 0.117 & & & & & & & & & & & &\\
+19 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+20 & 0.219 & 0.217 & 0.114 & 0.118 & & & & & & & & & & & &\\
+21 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+22 & 0.217 & 0.217 & 0.114 & 0.119 & & & & & & & & & & & &\\
+23 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+24 & 0.216 & 0.217 & 0.113 & 0.120 & & & & & & & & & & & &\\
+25 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+26 & 0.215 & 0.217 & 0.113 & 0.121 & & & & & & & & & & & &\\
+27 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+28 & 0.213 & 0.217 & 0.112 & 0.122 & & & & & & & & & & & &\\
+29 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+30 & 0.212 & 0.217 & 0.112 & 0.122 & & & & & & & & & & & &\\
+31 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+32 & 0.210 & 0.217 & 0.112 & 0.123 & & & & & & & & & & & &\\
+33 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+34 & 0.209 & 0.216 & 0.111 & 0.124 & & & & & & & & & & & &\\
+35 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+36 & 0.207 & 0.216 & 0.111 & 0.125 & & & & & & & & & & & &\\
+37 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+38 & 0.206 & 0.215 & 0.111 & 0.126 & & & & & & & & & & & &\\
+39 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+40 & 0.204 & 0.215 & 0.111 & 0.127 & & & & & & & & & & & &\\
+41 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+42 & 0.203 & 0.214 & 0.110 & 0.128 & & & & & & & & & & & &\\
+43 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+44 & 0.201 & 0.214 & 0.110 & 0.129 & & & & & & & & & & & &\\
+45 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+46 & 0.199 & 0.213 & 0.110 & 0.130 & & & & & & & & & & & &\\
+47 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+48 & 0.198 & 0.212 & 0.110 & 0.131 & & & & & & & & & & & &\\
+49 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+50 & 0.196 & 0.211 & 0.110 & 0.132 & & & & & & & & & & & &\\
+51 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+52 & 0.194 & 0.210 & 0.110 & 0.133 & & & & & & & & & & & &\\
+53 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+54 & 0.192 & 0.209 & 0.109 & 0.133 & & & & & & & & & & & &\\
+55 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+56 & 0.191 & 0.208 & 0.109 & 0.133 & & & & & & & & & & & &\\
+57 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+58 & 0.191 & 0.208 & 0.109 & 0.133 & & & & & & & & & & & &\\
+59 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+60 & 0.191 &   -   & 0.109 &   -   & & & & & & & & & & & &\\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'638'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.382 &   -   & 0.330 & & & & & & & & & & & &\\
+1  & 0.126 & 0.256 & 0.109 & 0.221 & & & & & & & & & & & &\\
+2  & 0.151 & 0.231 & 0.131 & 0.199 & \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}\\
+3  & 0.161 & 0.221 & 0.140 & 0.190 & & & & & & & & & & & &\\
+4  & 0.167 & 0.216 & 0.144 & 0.186 & & & & & & & & & & & &\\
+5  & 0.170 & 0.213 & 0.147 & 0.183 & & & & & & & & & & & &\\
+6  & 0.171 & 0.211 & 0.149 & 0.181 & & & & & & & & & & & &\\
+7  & 0.173 & 0.209 & 0.150 & 0.180 & & & & & & & & & & & &\\
+8  & 0.173 & 0.209 & 0.151 & 0.179 & & & & & & & & & & & &\\
+9  & 0.174 & 0.208 & 0.152 & 0.179 & & & & & & & & & & & &\\
+10 & 0.174 & 0.208 & 0.152 & 0.178 & & & & & & & & & & & &\\
+11 & 0.174 & 0.208 & 0.152 & 0.178 & & & & & & & & & & & &\\
+12 & 0.174 & 0.208 & 0.153 & 0.178 & & & & & & & & & & & &\\
+13 & 0.173 & 0.208 & 0.153 & 0.179 & & & & & & & & & & & &\\
+14 & 0.173 & 0.208 & 0.153 & 0.179 & & & & & & & & & & & &\\
+15 & 0.173 & 0.208 & 0.153 & 0.179 & & & & & & & & & & & &\\
+16 & 0.172 & 0.208 & 0.153 & 0.179 & & & & & & & & & & & &\\
+17 & 0.171 & 0.209 & 0.153 & 0.180 & & & & & & & & & & & &\\
+18 & 0.171 & 0.209 & 0.152 & 0.180 & & & & & & & & & & & &\\
+19 & 0.170 & 0.209 & 0.152 & 0.181 & & & & & & & & & & & &\\
+20 & 0.169 & 0.210 & 0.152 & 0.181 & & & & & & & & & & & &\\
+21 & 0.169 & 0.210 & 0.152 & 0.182 & & & & & & & & & & & &\\
+22 & 0.168 & 0.210 & 0.152 & 0.182 & & & & & & & & & & & &\\
+23 & 0.167 & 0.211 & 0.152 & 0.182 & & & & & & & & & & & &\\
+24 & 0.167 & 0.211 & 0.152 & 0.183 & & & & & & & & & & & &\\
+25 & 0.166 & 0.211 & 0.152 & 0.184 & & & & & & & & & & & &\\
+26 & 0.165 & 0.212 & 0.151 & 0.184 & & & & & & & & & & & &\\
+27 & 0.164 & 0.212 & 0.151 & 0.185 & & & & & & & & & & & &\\
+28 & 0.163 & 0.212 & 0.151 & 0.186 & & & & & & & & & & & &\\
+29 & 0.162 & 0.213 & 0.150 & 0.186 & & & & & & & & & & & &\\
+30 & 0.162 & 0.213 & 0.150 & 0.187 & & & & & & & & & & & &\\
+31 & 0.161 & 0.213 & 0.150 & 0.188 & & & & & & & & & & & &\\
+32 & 0.160 & 0.214 & 0.150 & 0.188 & & & & & & & & & & & &\\
+33 & 0.159 & 0.214 & 0.150 & 0.189 & & & & & & & & & & & &\\
+34 & 0.158 & 0.214 & 0.150 & 0.190 & & & & & & & & & & & &\\
+35 & 0.157 & 0.215 & 0.150 & 0.191 & & & & & & & & & & & &\\
+36 & 0.156 & 0.215 & 0.149 & 0.192 & & & & & & & & & & & &\\
+37 & 0.155 & 0.215 & 0.149 & 0.192 & & & & & & & & & & & &\\
+38 & 0.154 & 0.216 & 0.149 & 0.193 & & & & & & & & & & & &\\
+39 & 0.153 & 0.216 & 0.149 & 0.194 & & & & & & & & & & & &\\
+40 & 0.152 & 0.216 & 0.149 & 0.195 & & & & & & & & & & & &\\
+41 & 0.151 & 0.217 & 0.148 & 0.195 & & & & & & & & & & & &\\
+42 & 0.151 & 0.217 & 0.148 & 0.196 & & & & & & & & & & & &\\
+43 & 0.149 & 0.217 & 0.148 & 0.197 & & & & & & & & & & & &\\
+44 & 0.148 & 0.217 & 0.148 & 0.198 & & & & & & & & & & & &\\
+45 & 0.148 & 0.217 & 0.148 & 0.199 & & & & & & & & & & & &\\
+46 & 0.146 & 0.218 & 0.147 & 0.200 & & & & & & & & & & & &\\
+47 & 0.145 & 0.218 & 0.147 & 0.201 & & & & & & & & & & & &\\
+48 & 0.144 & 0.218 & 0.147 & 0.202 & & & & & & & & & & & &\\
+49 & 0.143 & 0.218 & 0.147 & 0.203 & & & & & & & & & & & &\\
+50 & 0.142 & 0.218 & 0.147 & 0.204 & & & & & & & & & & & &\\
+51 & 0.141 & 0.218 & 0.147 & 0.205 & & & & & & & & & & & &\\
+52 & 0.140 & 0.219 & 0.147 & 0.206 & & & & & & & & & & & &\\
+53 & 0.139 & 0.219 & 0.146 & 0.207 & & & & & & & & & & & &\\
+54 & 0.138 & 0.219 & 0.146 & 0.208 & & & & & & & & & & & &\\
+55 & 0.137 & 0.219 & 0.146 & 0.209 & & & & & & & & & & & &\\
+56 & 0.136 & 0.219 & 0.146 & 0.210 & & & & & & & & & & & &\\
+57 & 0.135 & 0.219 & 0.146 & 0.211 & & & & & & & & & & & &\\
+58 & 0.134 & 0.219 & 0.146 & 0.212 & & & & & & & & & & & &\\
+59 & 0.133 & 0.219 & 0.146 & 0.213 & & & & & & & & & & & &\\
+60 & 0.132 &   -   & 0.145 &   -   & & & & & & & & & & & &\\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'838'} CO$_2$, s$^{-1}$}
+\scriptsize
+\begin{tabular}{|c|cccc|cccc|cccc|cccc|}
+\hline
+& \multicolumn{4}{c|}{Regular}& \multicolumn{4}{c|}{Sequence}& \multicolumn{4}{c|}{Hot-e}& \multicolumn{4}{c|}{Hot-f}\\
+$J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R\\ 
+\hline
+0  &   -   & 0.053 &   -   & 0.070 & & & & & & & & & & & &\\
+1  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+2  & 0.105 & 0.068 & 0.138 & 0.090 & \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}& \multicolumn{4}{c|}{- no data -}\\
+3  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+4  & 0.090 & 0.072 & 0.118 & 0.096 & & & & & & & & & & & &\\
+5  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+6  & 0.086 & 0.074 & 0.112 & 0.098 & & & & & & & & & & & &\\
+7  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+8  & 0.083 & 0.075 & 0.109 & 0.101 & & & & & & & & & & & &\\
+9  &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+10 & 0.082 & 0.076 & 0.107 & 0.102 & & & & & & & & & & & &\\
+11 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+12 & 0.081 & 0.076 & 0.106 & 0.103 & & & & & & & & & & & &\\
+13 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+14 & 0.080 & 0.077 & 0.105 & 0.105 & & & & & & & & & & & &\\
+15 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+16 & 0.080 & 0.077 & 0.104 & 0.105 & & & & & & & & & & & &\\
+17 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+18 & 0.079 & 0.077 & 0.103 & 0.106 & & & & & & & & & & & &\\
+19 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+20 & 0.079 & 0.077 & 0.103 & 0.107 & & & & & & & & & & & &\\
+21 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+22 & 0.078 & 0.077 & 0.102 & 0.108 & & & & & & & & & & & &\\
+23 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+24 & 0.077 & 0.077 & 0.102 & 0.109 & & & & & & & & & & & &\\
+25 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+26 & 0.077 & 0.077 & 0.101 & 0.110 & & & & & & & & & & & &\\
+27 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+28 & 0.077 & 0.077 & 0.101 & 0.111 & & & & & & & & & & & &\\
+29 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+30 & 0.076 & 0.077 & 0.100 & 0.111 & & & & & & & & & & & &\\
+31 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+32 & 0.075 & 0.077 & 0.100 & 0.112 & & & & & & & & & & & &\\
+33 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+34 & 0.075 & 0.077 & 0.100 & 0.113 & & & & & & & & & & & &\\
+35 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+36 & 0.074 & 0.077 & 0.099 & 0.114 & & & & & & & & & & & &\\
+37 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+38 & 0.074 & 0.077 & 0.099 & 0.115 & & & & & & & & & & & &\\
+39 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+40 & 0.073 & 0.076 & 0.099 & 0.116 & & & & & & & & & & & &\\
+41 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+42 & 0.073 & 0.076 & 0.099 & 0.116 & & & & & & & & & & & &\\
+43 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+44 & 0.072 & 0.076 & 0.098 & 0.117 & & & & & & & & & & & &\\
+45 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+46 & 0.071 & 0.075 & 0.098 & 0.118 & & & & & & & & & & & &\\
+47 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+48 & 0.071 & 0.075 & 0.098 & 0.119 & & & & & & & & & & & &\\
+49 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+50 & 0.070 & 0.075 & 0.098 & 0.120 & & & & & & & & & & & &\\
+51 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+52 & 0.070 & 0.075 & 0.098 & 0.121 & & & & & & & & & & & &\\
+53 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+54 & 0.069 & 0.074 & 0.098 & 0.122 & & & & & & & & & & & &\\
+55 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+56 & 0.068 & 0.073 & 0.098 & 0.123 & & & & & & & & & & & &\\
+57 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+58 & 0.068 & 0.073 & 0.098 & 0.124 & & & & & & & & & & & &\\
+59 &   -   &   -   &   -   &   -   & & & & & & & & & & & &\\
+60 & 0.067 &   -   & 0.097 &   -   & & & & & & & & & & & &\\
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+
+\section{Propagation}
 Beam propagation between layout elements is calculated using Huygens-Fresnel integration at each time-step of the pulse time-frame. In the general case, the field in a given position $(x',y')$ of the output plane is calculated by integrating contributions from each point $(x,y)$ of the input plane taken into account the phase delay.
 
 \begin{equation*}
@@ -469,177 +1080,85 @@ E(\rho') = \int_{\rho}E(\rho)\frac{e^{-ikR}}{i\lambda R} J_0(k\Delta R/2) dS
 \end{equation}
 where $dS = \pi(\rho+d\rho/2)^2-\pi(\rho-d\rho/2)^2$ is the area of the ring, $R=(R_{max}+R_{min})/2$, $\Delta R=R_{max}-R_{min}$, $R_{max}=\sqrt{(\rho+\rho')^2+\Delta z^2}$, $R_{min}=\sqrt{(\rho-\rho')^2+\Delta z^2}$, and $J_0$ is the Bessel function.
 
-
 \section{Optical elements}
-Optical elements change the electric field as described by the following formulas. In these formulas $E$ is the field in the input of the element and $E'$ - after passing through the element.
+Optical elements change the electric field as described by the following formulas. In these formulas $E(t,\rho)$ is the field in the input of the element and $E'(t,\rho)$ - after passing through the element.
 
-\subsection{Lens}
-\begin{equation}
-E'(\rho) = E(\rho) e^{2\pi i \frac{\rho^2}{2 \lambda F}},
-\end{equation}
-where $F$ is the focal length of the lens and $\lambda$ is the central wavelength.
+\subsection*{Probe}
+(\textit{Passive surface, may be used as limiting aperture})
+\begin{equation*}
+E'(t,\rho) = E(t,\rho),
+\end{equation*}
 
-\subsection{Absorber}
-\begin{equation}
-E'(\rho) = E(\rho) \sqrt{T},
-\end{equation}
-where $T$ is the transmittance.
-
-\subsection{Mask}
-\begin{align}
-&E'(\rho) = 0, &\rho < R\\
-&E'(\rho) = E(\rho), &\rho \geq R
-\end{align}
+\subsection*{Mask}
+(\textit{Opaque circular screen})
+\begin{align*}
+&E'(t,\rho) = 0, &\rho < R\\
+&E'(t,\rho) = E(t,\rho), &\rho \geq R
+\end{align*}
 where $R$ is the radius of the mask.
 
+\subsection*{Absorber}
+(\textit{Ideal ND filter})
+\begin{equation*}
+E'(t,\rho) = E(t,\rho) \sqrt{T},
+\end{equation*}
+where $T$ is the transmittance.
 
-\chapter{Getting started manual}
+\subsection*{Lens}
+(\textit{Ideal lens without aberrations})
+\begin{equation*}
+E'(t,\rho) = E(t,\rho) \exp\left( \pi i \frac{\rho^2}{\lambda_c F} \right),
+\end{equation*}
+where $F$ is the focal length of the lens and $\lambda_c$ is the central wavelength.
 
+\subsection*{Window}
+(\textit{Flat transparent window with zero reflection- and absorption- losses})
+\subsubsection*{Linear dispersion}
+\begin{align*}
+&\widehat{E}(\nu,\rho) = \mathcal{F}(E(t,\rho)),\\
+&\widehat{E}'(\nu,\rho) = \widehat{E}(\nu,\rho) \exp \left( - 2 \pi i \nu \frac{\Theta}{c} \left(n_0(\nu)-n_0(\nu_c) -\nu_c \frac{d n_0}{d\nu}\right) \right),\\
+&E'(t,\rho) = \mathcal{F}^{-1}(\widehat{E}'(\nu,\rho)),
+\end{align*}
+where $\widehat{E}(\nu,\rho)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ the Fourier transform and inverse Fourier transform functions, $\nu$ the frequency, $\nu_c$ the central frequency, $n_0$ is the linear component of the index of refraction and $\Theta$ is the thickness of the window.
+\subsubsection*{Nonlinear interaction}
+\begin{equation*}
+E'(t,\rho) = E(t,\rho) \exp\left(-2\pi i \nu_c \frac{\Theta}{c} n_2 I(t,\rho)\right),
+\end{equation*}
+where $n_2$ is the nonlinear refractive index and $I(t,\rho)$ is the field intensity.
 
-\section{Basic concepts}
-The \texttt{co2amp} code allows simulating propagation of an ultrashort pulse through an arbitrary optical system that can include CO$_2$ amplifiers. Pulse amplification and fast molecular dynamics (stimulated transitions, rotational relaxation) calculations are performed in time domain in the time-frame moving with the pulse. Processes that are much slower than the pulse duration (discharge pumping, vibrational relaxation) are modelled separately in the laboratory time-frame.
-The program input parameters include initial pulse characteristics, optical configuration, active medium composition and excitation parameters (e.g. discharge profile), and number of nodes in the calculation grids for the time- (pulse time frame) and space- (radial) coordinates. Axial symmetry is assumed at all times. Optical system can include multiple amplifiers if they have same gas composition and pumping dynamics; sequential amplification in different amplifiers can be modeled using the staging option as described later.
-Temporal pulse shape (averaged across the beam) and beam profile (averaged for the entire pulse duration) at every element of the optical layout are saved and can be accessed in both graphical and tabulated-numerical representation. Complete pulse/beam information (complex field in every node of the time-space calculation grid) at the output of the system can also be saved and used as an input for another system (staging).
-The user interface program allows saving all inputs and outputs of the calculations as a single compressed file ('.co2' or '.co2x' extension). The difference between the two formats is that the files with extension ending with 'x' ("extended") include the complete output field record and thus are suitable for staged calculations.
-Fig. \ref{fig:co2amp} shows the user interface of the \texttt{co2amp} program described in the following sections.
+\subsection*{Stretcher}
+(\textit{Stretcher or compressor})
+\begin{align*}
+&\widehat{E}(\nu,\rho) = \mathcal{F}(E(t,\rho)),\\
+&\widehat{E}'(\nu,\rho) = \widehat{E}(\nu,\rho) \exp\left(- \pi i (\nu-\nu_c)^2  S\right),\\
+&E'(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho)),
+\end{align*}
+where $S$ is the stretching factor (in s/Hz, positive for red chirp).
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=8cm]{images/co2amp-input}
-\includegraphics[width=8cm]{images/co2amp-output}
-\caption{\texttt{co2amp} user interface: Input- (left) and output- (right) tabs.}\label{fig:co2amp}
-\end{figure}
+\section{Properties of optical materials}
+The following expressions and values for linear- ($n_0$) and nonlinear- ($n_2$) refractive indexes are used in the program (wavelength $\lambda$ in the dispersion formulas must be expressed in $\mu$m):
 
-
-\section{Input pulse and calculation grid}
-Unless the output of another simulation is used as an input (staged calculations), both temporal shape of the input pulse and the input beam profile are assumed to be Gaussian; and the pulse is assumed to be transform-limited (no initial chirping). Pulse energy, duration, central frequency, and beam radius are entered in the corresponding fields in the input tab. "Injection moment" parameter specifies the time-delay between the beginning of the pumping of the active medium and pulse injection into the optical system. It is also possible to simulate amplification of a train of identical and equidistant pulses; number of pulses in the train and time-delay between them must be specified in this case.
-Number of nodes in the calculation grid has to be specified for the radial coordinate and for the fast time-frame associated with the pulse (time-frame for the slow processes uses a fixed 1-ns step and does not require a user input). Number of nodes is always a power of two that allows utilization of fast Fourier transform (FFT) algorithms. Calculations with a larger number of nodes are usually more accurate but, on the other hand, take longer and require more computer memory (both calculation time and required memory are roughly proportional to the product of the number of  nodes in the time- and space- grids). This is therefore recommended to start from running the simulation with a smaller number of nodes and then repeat it several times, each time with a denser grid. Absence of considerable change in the program output with increase of the number of nodes will indicate that the grid density is sufficient.
-Limits of the pulse time-frame ("time range") specify the time interval considered in the calculations. Initially, the pulse is centered at $t=0$ and it tends to shift to the longer delays upon amplification due to the limited medium response time and spectrum modulation. Thus, optimum time range is usually asymmetric with a short negative and a longer positive part. Time-step $\Delta t=(t_{max}-t_{min})/(n_0-1)$, where $t_{max}$ and $t_{min}$ define the time range and $n_0$ is the number of nodes in the time grid, must be small enough to accurately describe the pulse profile at all stages of the propagation through the optical system. It is also important to keep in mind that time range and number of nodes in the time grid also define the range and step in the frequency domain: $\Delta\nu=1/(t_{max}-t_{min})$ and $(\nu_{max}-\nu_{min})=1/\Delta t$. This means that the time range must be long enough to provide sufficient resolution in the frequency domain and at the same time the time step must be sufficiently short to provide a bandwidth that fits the whole spectral region of interest.
-Maximum radial coordinate is defined separately for every element of the optical system. This is described in the next section.
-Identifying an appropriate calculation grid is very important for building an accurate model of an optical system. An effort put in this part of the simulation process will pay off by fast and reliable calculations.
-
-
-\section{Optical layout and beam propagation}
-The \texttt{co2amp} code uses a concept of optical surfaces similar to that employed in the ray-tracing algorithms. In this concept optical system is represented by a series of thin optical components (surfaces) each of which can alter the wave front. Between surfaces, beam propagates undisturbed. In order to specify the optical system one has to 1) describe all optical components and 2) describe the location of the components in respect to each other. In \texttt{co2amp}'s user interface program, this is done by editing text in the two dedicated fields ("Components" and "Layout"). The format of these fields is described below.
-
-\subsection{Components}
-Each optical component is described in a separate line by several tab- or space- separated entries:
-
-\begin{itemize}
-\item Entry 1 '\textit{\textbf{ID}}': An arbitrary user-defined alpha-numeric string for identifying the component;
-\item Entry 2 '\textit{\textbf{Type}}': Type of the component; must be one of the types listed in the table;
-\item Entry 3 '\textit{\textbf{Field}}':  Maximum radial coordinate in centimeters to be considered in the simulations;
-\item Entry 4 '\textit{\textbf{Parameter 1}}' and Entry 5 '\textit{\textbf{Parameter 2}}': Meaning of these fields depend on the type of the component as summarized in the table:
-\end{itemize}
-
-\def\tabularxcolumn#1{m{#1}}
-\begin{tabularx}{\textwidth}{|l|X|X|X|}
-\hline 
-\textit{\textbf{Type}} & Description & \textit{\textbf{Parameter 1}} & \textit{\textbf{Parameter 2}} \\
-\hline 
-&&&\\
-\texttt{AM}	& Active medium	& Length [cm]	& - \\
-&&&\\
-\texttt{PROBE} & Passive surface, may be used as limiting aperture &	- &	-\\
-&&&\\
-\texttt{MASK} & Opaque circular screen & Radius [cm] & -\\
-&&&\\
-\texttt{ABSORBER} & Absorber & Transmittance & -\\
-&&&\\
-\texttt{LENS} & Ideal lens (no spherical or chromatic aberrations)& Focal length [cm]& -\\
-&&&\\
-\texttt{WINDOW} & Transparent flat window (zero reflection- and absorption- losses) & Window material: KCl, NaCl, ZnSe, Ge, GaAs, Diamond, or CdTe & Thickness [cm]\\
-
-\texttt{STRETCHER} & Stretcher or compressor & Pulse chirping [ps/THz] (positive for red-chirp) & -\\
-\hline
-\end{tabularx}\\
-
-
-The following example defines several 2.5-cm diameter components: A probe surface, two 120-cm-long amplifier sections, a 5-cm-thick NaCl window and an absorber for modelling 4\% reflection losses:
-
-\bigskip
-\begin{tabular}{lllll}
-\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
-\texttt{am1} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
-\texttt{am2} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
-\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
-\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
-\end{tabular}
-
-\subsection{Layout}
-Optical configuration is specified as a sequence of the components identified by their \textit{\textbf{ID}}’s. All components are separated by non-negative distances expressed in centimeters. Components and distances must be separated by spaces, tabs, new-line symbols or dashes. The following is an example of an optical configuration that uses the components defined in the previews example:
-
-\bigskip
-\texttt{p-0-abs-0-win-0-abs-100-am1-200-am2-100-abs-0-win-0-abs-0-p }
-\bigskip
-
-This example defines the configuration shown in the Fig. \ref{fig:optical-configuration-1}.
-
-\begin{figure}[ht]
-\centering
-\includegraphics{images/optical-configuration-1}
-\caption{Example optical configuration.}\label{fig:optical-configuration-1}
-\end{figure}
-
-In this example beam propagates twice through the same amplifier. However, we consider this configuration as two identical but independent active volumes (\texttt{am1} and \texttt{am2}) because at each pass the beam interacts with a different zone of the active medium.
-
-\subsection{Beam propagation}
-When two components of an optical configuration are separated by a non-zero distance, beam propagation between them is simulated using the Huygens-Fresnel diffraction integral in the assumption of axial symmetry. Propagation is simulated separately for each moment of time from the time calculation grid.
-Optical surface model assumes that components of the optical layout are infinitely thin. Propagation is calculated between the middle points of the components; for the purpose of simulating pulse interaction with a prolonged optical element, beam is assumed to be collimated inside this element. For instance, the sequence of calculations for the previews example is:
-
-\begin{enumerate}
-\item Interaction with the window (including reflection losses);
-\item 100 cm propagation to the middle of the first pass through the amplifier (no amplification so far);
-\item Amplification by a 120-cm amplifier section assuming that the beam is collimated;
-\item 200 cm (100$\times$2) propagation to the middle of the second pass through the active volume;
-\item Amplification by the second 120-cm amplifier section assuming that the beam is collimated;
-\item 100 cm propagation to the window;
-\item Interaction with the windows.
-\end{enumerate}
-
-Accuracy of the model can be improved if one divides a long amplifier into several shorter sub-sections. For instance, we can modify our example configuration as shown in the Fig. \ref{fig:optical-configuration-2}.
-
-\begin{figure}[ht]
-\centering
-\includegraphics{images/optical-configuration-2}
-\caption{Example configuration modified for improved accuracy.}\label{fig:optical-configuration-2}
-\end{figure}
- 
-Components and Layout entries for the modified configuration are as follows:
-
-\bigskip
-Components:
-
-\bigskip
-\begin{tabular}{lllll}
-\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
-\texttt{am1a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am1b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am2a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am2b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
-\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
-\end{tabular}
-\bigskip
-
-Layout:
-
-\bigskip
-\texttt{p-0-abs-0-win-0-abs-70-am1a-60-am1b-140-am2b-60-am2a-70-abs-0-win-0-abs-0-p}
-\bigskip
-
-Population dynamics in all amplifier sections is modeled separately and thus splitting a long amplifier into shorter sections provides also a more realistic model of the active medium.
-
-
-\section{Active medium and amplification}
-All active medium sections used in a single simulation must have same gas composition and pumping conditions (staged simulations can be used for complex systems with two or more non-identical amplifiers).  Composition (including isotopic enrichment of carbon dioxide) and initial temperature of the active medium are specified in the "Gas Mixture" fields of the input tab of the user interface.
-Pumping by electric discharge is the primary pumping scheme of the \texttt{co2amp} code. Rudimentary support for optical pumping is also included but not discussed here. For discharge pumping, geometry of the discharge volume (discharge volume and the distance between electrodes) and discharge profile (tabulated values of discharge current expressed in amperes and voltage in volts at time moments in microseconds) must be provided. Pumping dynamics calculations are done using a Boltzmann equation that takes into account elastic collisions between electrons and molecules and inelastic collisions with molecular rotational-, vibrational- and electronic- excitations and ionization. Tabulated empirical values of corresponding cross-sections as functions of electron energy are used. The Boltzmann equation is solved repeatedly in order to accurately describe the variation of pumping efficiency by the electric field varying during the discharge. 
-
-
-\section{Program output}
-The output of the program is given as a temporal pulse structure and its spectrum (both averaged across the beam) and beam profile (averaged on the duration of the pulse) at each element of the optical layout. The user can chose an optical component to display from the list of all the available components. In the case if the selected component is used several times in the optical configuration, it is also possible to specify which passes through the component will be displayed. Also, integral pulse energy can be provided either at every pass through a selected component or at all passes through all components of the system layout.
-Output for the layout components of type \texttt{AM} (active medium) provides additional information that includes gain, discharge profile, population dynamics, and the dynamics of pumping energy distribution (fractions of discharge energy going into excitation of laser levels and excitation of molecular translations and ionization).
-Right-mouse-click on a figure allows the user to copy either the graphics or the numerical data for future use.
+\subsection*{CdTe}
+$n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ \cite{DeBell-1979}\\
+$n_2 = -2.95\times 10^{-13}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+\subsection*{GaAs}
+$n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ \cite{Skauli-2003}\\
+$n_2 = -3.26\times 10^{-13}$ m$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+\subsection*{Ge}
+$n_0=\sqrt{9.28156+\frac{6.72880\lambda^2}{\lambda^2-0.44105}+\frac{0.21307\lambda^2}{\lambda^2-3870.1}}$ \cite{Barnes-1979}\\
+$n_2 = 2.83\times 10^{-13}$ cm$^2$/W at 10.6 $\mu$m \cite{Sheik-Bahae-1991}
+\subsection*{KCl}
+$n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ \cite{Li-1976}\\
+$n_2 = 5.62\times 10^{-16}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+\subsection*{NaCl}
+$n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$ \cite{Li-1976}\\
+$n_2 = 4.38\times 10^{-16}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+\subsection*{Si}
+$n_0=3.41983+\frac{0.159906}{\lambda^2-0.028}-0.123109\left(\frac{1}{\lambda^2-0.028}\right)^2+1.26878\times 10^{-6}\lambda^2-1.95104\times 10^{-9}\lambda^4$ \cite{Edwards-1980}\\
+$n_2 = 1.0\times 10^{-13}$ cm$^2$/W at 2.2 $\mu$m \cite{Bristow-2007}
+\subsection*{ZnSe}
+$n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ \cite{Tatian-1984}\\
+$n_2 = 2.87\times 10^{-14}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
 
                           
 \bibliographystyle{unsrt}
