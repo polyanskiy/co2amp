@@ -1,7 +1,7 @@
 co2amp
 ======
 
-Modelling the dynamics of ultrashort mid-IR laser pulses in optical systems with CO2 amplifiers
+A software program for modeling the dynamics of ultrashort pulses in optical systems with CO2 amplifiers
 
 Download
 --------
