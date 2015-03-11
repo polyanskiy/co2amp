@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[hidelinks]{hyperref}
 \usepackage[nottoc]{tocbibind}
+\usepackage[toc,page]{appendix}
 
 \begin{document}
 
@@ -16,79 +17,91 @@
 
 \section{Program capabilities}
 \begin{enumerate}
-\item Ultrashort pulse amplification in CO$_2$ active medium
-\subitem Rotational numbers up to J=60
-\subitem Hot- and sequence- bands
-\subitem Isotopic CO$_2$
+\item Ultrashort pulse amplification in {CO$_2$} active medium
+\subitem Rotational numbers up to $J=60$
+\subitem Regular, hot and sequence bands
+\subitem Isotopic {CO$_2$}
 \item Molecular dynamics
 \subitem Realistic pumping
 \subitem Collisional relaxation processes
 \subitem Stimulated transitions
-\subitem Independent consideration of active media regions at different elongation from optical axis
+\subitem Independent consideration of active medium regions at different elongations from the optical axis
 \item Diffraction-based beam propagation
 \subitem Beam manipulation with common optical elements
-\subitem Arbitrary optical configuration
+\subitem Arbitrary optical configurations
 \item Linear dispersion and non-linear effects in optical materials
 \subitem Pulse chirping
 \subitem Kerr lensing
 \subitem Self-phase modulation
 \item Advanced optics
 \subitem Chirped-pulse amplification
+\subitem Spectral filtering
 \subitem Trains of pulses
 \subitem Staging (program output as an input for the next stage stage)
 \item User's interface
-\subitem Easy parameter specification
+\subitem Easy specification of parameters
 \subitem Graphical output
-\subitem Save/recall your work
+\subitem Project save/recall
 \end{enumerate}
 
-\section{Availability}
-The entire code base of the \texttt{co2amp} program is published in the GitHub website (\url{https://github.com/polyanskiy/co2amp}) and is freely available for use, modification and re-distribution under the terms of the General Public License (GPL) (\url{http://www.gnu.org/copyleft/gpl.html}). The binary package is provided in the form of a Windows installer that contains pre-compiled executables, documentation and the source-code (all found in the installation directory after installation) at \url{https://github.com/polyanskiy/co2amp/releases}. User interface is built using a cross-platform library QT (\url{http://qt-project.org/}) and thus should compile under other platforms supported by QT (MacOS, Linux). Third-party components used in the package (\texttt{gnuplot}, \texttt{7-zip}) are also freely available for multiple platforms (\url{http://www.gnuplot.info/}, \url{http://www.7-zip.org/}).
+\section{Availability and used software}
+The core of the \texttt{co2amp} code is written in \texttt{C} programming language; \texttt{C++} language is used for programming the user interface. Windows executables are built using the \texttt{MinGW} compiler (\url{http://www.mingw.org}). The entire code base of \texttt{co2amp} is published in the GitHub website (\url{https://github.com/polyanskiy/co2amp}) and is freely available for use, modification, and redistribution under the terms of the GNU General Public License (GPL) (\url{http://www.gnu.org/copyleft/gpl.html}). A binary package is provided in the form of a Windows installer that contains pre-compiled executables, documentation, and the source-code (all found in the installation directory after installation) at \url{https://github.com/polyanskiy/co2amp/releases/}. The user interface is built using a cross-platform library \texttt{QT} (\url{http://qt.io}) and thus should compile under other platforms supported by \texttt{QT} (MacOS, Linux). Third-party components used in the package (\texttt{gnuplot}, \texttt{7-zip}) also are freely available for multiple platforms (\url{http://www.gnuplot.info}, \url{http://www.7-zip.org}). The installer is built using the \texttt{Nullsoft Scriptable Install System} (\texttt{NSIS}, \url{http://nsis.sourceforge.net}), also an open-source software. Finally, the documentation is mostly written in {\LaTeX} (http://www.latex-project.org).
 
 \section{Acknowledgements}
-Viktor Platonenko provided the Mathcad code for pulse amplification in the CO$_2$ active medium that was used as a starting point of the development of the \texttt{co2amp} code; he also provided valuable input on the early stage of the work.
+Viktor Platonenko from Moscow State University (Russia) provided a \texttt{Mathcad} code for pulse amplification in the {CO$_2$} active medium that was used as the  starting point for developing the \texttt{co2amp} program; Dr.~Platonenko also offered valuable input in the early stages of the work.
 
 
 
-
-\chapter{Getting started manual}
+\chapter{Program description}
 
 \section{Basic concepts}
-The \texttt{co2amp} code allows simulating propagation of an ultrashort pulse through an arbitrary optical system that can include CO$_2$ amplifiers. Pulse amplification and fast molecular dynamics (stimulated transitions, rotational relaxation) calculations are performed in time domain in the time-frame moving with the pulse. Processes that are much slower than the pulse duration (discharge pumping, vibrational relaxation) are modelled separately in the laboratory time-frame.
-The program input parameters include initial pulse characteristics, optical configuration, active medium composition and excitation parameters (e.g. discharge profile), and number of nodes in the calculation grids for the time- (pulse time frame) and space- (radial) coordinates. Axial symmetry is assumed at all times. Optical system can include multiple amplifiers if they have same gas composition and pumping dynamics; sequential amplification in different amplifiers can be modeled using the staging option as described later.
-Temporal pulse shape (averaged across the beam) and beam profile (averaged for the entire pulse duration) at every element of the optical layout are saved and can be accessed in both graphical and tabulated-numerical representation. Complete pulse/beam information (complex field in every node of the time-space calculation grid) at the output of the system can also be saved and used as an input for another system (staging).
-The user interface program allows saving all inputs and outputs of the calculations as a single compressed file ('.co2' or '.co2x' extension). The difference between the two formats is that the files with extension ending with 'x' ("extended") include the complete output field record and thus are suitable for staged calculations.
-Fig. \ref{fig:co2amp} shows the user interface of the \texttt{co2amp} program described in the following sections.
+The \texttt{co2amp} code allows simulating propagation of an ultrashort pulse through an arbitrary optical system that can include {CO$_2$} amplifiers. Calculations of pulse amplification and fast molecular dynamics (stimulated transitions, and rotational relaxation) are undertaken in the time domain in the time-frame moving with the pulse("pulse time-frame"). Processes that are much slower than the duration of the pulse (e.g., discharge pumping, vibrational relaxation) are modeled separately in the laboratory time-frame.
+
+The program input parameters include the characteristics of the initial pulse, the optical configuration, the composition of the active medium, the excitation parameters (e.g., discharge profile), and the number of nodes in the calculation grids for the time- (time-frame of the pulse) and space- (radial) coordinates. Axial symmetry is assumed at all times. The optical system can include multiple amplifiers provided that they have the same gas composition and pumping dynamics; sequential amplification in different amplifiers can be modeled using the staging option.
+
+The temporal shape of the pulse and the beam profile at every element of the optical layout are saved and can be accessed in both graphical and tabulated-numerical representations. Complete pulse/beam information (complex field in every node of the time-space calculation grid) at the output of the system can also be saved and used as an input for another system (staging).
+
+The user interface program supports the saving of all the inputs and outputs of the calculations as a single compressed file ('.co2' or '.co2x' extension). The difference between the two formats is that the files with extension ending with 'x' ("e\underline{x}tended") include the complete information about the output field, and thus are suitable for staged calculations.
+
+Fig.~\ref{fig:co2amp} shows the user interface of the \texttt{co2amp} program described in the following sections.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=8cm]{images/co2amp-input}
-\includegraphics[width=8cm]{images/co2amp-output}
-\caption{\texttt{co2amp} user interface: Input- (left) and output- (right) tabs.}\label{fig:co2amp}
+\includegraphics[width=10cm]{images/co2amp}
+\caption{\texttt{co2amp} user interface: Input- (top) and output- (bottom) tabs.}\label{fig:co2amp}
 \end{figure}
 
 
 \section{Input pulse and calculation grid}
-Unless the output of another simulation is used as an input (staged calculations), both temporal shape of the input pulse and the input beam profile are assumed to be Gaussian; and the pulse is assumed to be transform-limited (no initial chirping). Pulse energy, duration, central frequency, and beam radius are entered in the corresponding fields in the input tab. "Injection moment" parameter specifies the time-delay between the beginning of the pumping of the active medium and pulse injection into the optical system. It is also possible to simulate amplification of a train of identical and equidistant pulses; number of pulses in the train and time-delay between them must be specified in this case.
-Number of nodes in the calculation grid has to be specified for the radial coordinate and for the fast time-frame associated with the pulse (time-frame for the slow processes uses a fixed 1-ns step and does not require a user input). Number of nodes is always a power of two that allows utilization of fast Fourier transform (FFT) algorithms. Calculations with a larger number of nodes are usually more accurate but, on the other hand, take longer and require more computer memory (both calculation time and required memory are roughly proportional to the product of the number of  nodes in the time- and space- grids). This is therefore recommended to start from running the simulation with a smaller number of nodes and then repeat it several times, each time with a denser grid. Absence of considerable change in the program output with increase of the number of nodes will indicate that the grid density is sufficient.
-Limits of the pulse time-frame ("time range") specify the time interval considered in the calculations. Initially, the pulse is centered at $t=0$ and it tends to shift to the longer delays upon amplification due to the limited medium response time and spectrum modulation. Thus, optimum time range is usually asymmetric with a short negative and a longer positive part. Time-step $\Delta t=(t_{max}-t_{min})/(n_0-1)$, where $t_{max}$ and $t_{min}$ define the time range and $n_0$ is the number of nodes in the time grid, must be small enough to accurately describe the pulse profile at all stages of the propagation through the optical system. It is also important to keep in mind that time range and number of nodes in the time grid also define the range and step in the frequency domain: $\Delta\nu=1/(t_{max}-t_{min})$ and $(\nu_{max}-\nu_{min})=1/\Delta t$. This means that the time range must be long enough to provide sufficient resolution in the frequency domain and at the same time the time step must be sufficiently short to provide a bandwidth that fits the whole spectral region of interest.
-Maximum radial coordinate is defined separately for every element of the optical system. This is described in the next section.
-Identifying an appropriate calculation grid is very important for building an accurate model of an optical system. An effort put in this part of the simulation process will pay off by fast and reliable calculations.
+Unless the output of another simulation is used as an input (staged calculations), both the temporal shape of the input pulse and the profile of the input beam are assumed to be Gaussian; the pulse is assumed to be transform-limited (no initial chirping). The pulse energy, duration, central frequency, and the beam radius are entered in the corresponding fields in the input tab. The "Injection moment" parameter specifies the time-delay between the beginning of pumping of the active medium and injecting a pulse into the optical system. It is also possible to simulate the amplification of a train of identical equidistant pulses; in this case, the number of pulses in the train and time-delay between them must be specified.
+
+The number of nodes in the calculation grid has to be specified for the radial coordinate and for the fast pulse time-frame (time-frame for the slow processes uses a fixed 1-ns step, and does not require a user input). The number of nodes always is a power of two that allows the use of Fast Fourier Transform (FFT) algorithms. Calculations with a larger number of nodes  usually are more accurate but, on the other hand, take longer and require more computer memory (both calculation time and required memory are roughly proportional to the product of the number of  nodes in the time and space grids). Therefore it  is recommended to start  running the simulation with a smaller number of nodes and then repeat it several times, each time with a denser grid. The absence of considerable change in the program’s output with an increase in the number of nodes will indicate that the density of the grid is satisfactory.
+
+Limits of the pulse time-frame ("time range") specify the time interval considered in the calculations. Initially, the pulse is centered at $t=0$ and it tends to shift to longer delays upon amplification due to the limited response time of the medium and modulation of the spectrum. Thus, the optimum time range usually is asymmetric with a short negative part and a longer positive one. The time-step, $\Delta t=(t_{max}-t_{min})/(N_t-1)$, where $t_{max}$ and $t_{min}$ define the time range and $N_t$ is the number of nodes in the time grid, must be small enough to accurately describe the pulse profile at all stages of its  propagation through the optical system. It also is important to remember that the time range and number of nodes in the time grid also define the range and step in the frequency domain: $\Delta\nu=1/(t_{max}-t_{min})$ and $(\nu_{max}-\nu_{min})=1/\Delta t$. This means that the time range must be long enough to provide sufficient resolution in the frequency domain, while, concurrently, the time step must be sufficiently short to provide a bandwidth that fits the entire spectral region of interest.
+
+The maximum radial coordinate is defined separately for every element of the optical system, as detailed in the next section.
+
+Identifying an appropriate calculation grid is very important for building an accurate model of an optical system. Putting an effort in this part of the simulation process will pay off with fast, reliable calculations.
+
 
 
 \section{Optical layout and beam propagation}
-The \texttt{co2amp} code uses a concept of optical surfaces similar to that employed in the ray-tracing algorithms. In this concept optical system is represented by a series of thin optical components (surfaces) each of which can alter the wave front. Between surfaces, beam propagates undisturbed. In order to specify the optical system one has to 1) describe all optical components and 2) describe the location of the components in respect to each other. In \texttt{co2amp}'s user interface program, this is done by editing text in the two dedicated fields ("Components" and "Layout"). The format of these fields is described below.
+The \texttt{co2amp} code uses a concept of optical surfaces similar to that employed in the ray-tracing algorithms. In this concept, the optical system is represented by a series of thin optical components (surfaces), each of which can alter the wave front. Between surfaces, beam propagates undisturbed. To specify the optical system the following must be done:  1) Describe all optical components, and 2) detail the locations of the components with respect to each other. In the \texttt{co2amp}'s user interface program, this is done by editing text in the two dedicated fields ("Components" and "Layout"). The format of these fields is described below. 
 
 \subsection{Components}
-Each optical component is described in a separate line by several tab- or space- separated entries:
+Each optical component is described in a separate line by several tab- or space-separated entries:
 
 \begin{itemize}
 \item Entry 1 '\textit{\textbf{ID}}': An arbitrary user-defined alpha-numeric string for identifying the component;
-\item Entry 2 '\textit{\textbf{Type}}': Type of the component; must be one of the types listed in the table;
-\item Entry 3 '\textit{\textbf{Field}}':  Maximum radial coordinate in centimeters to be considered in the simulations;
-\item Entry 4 '\textit{\textbf{Parameter 1}}' and Entry 5 '\textit{\textbf{Parameter 2}}': Meaning of these fields depend on the type of the component as summarized in the table:
+\item Entry 2 '\textit{\textbf{Type}}': Type of the component; must be one of the types listed in Table~\ref{table:components};
+\item Entry 3 '\textit{\textbf{Field}}': Maximum radial coordinate in centimeters to be considered in the simulations;
+\item Entry 4 '\textit{\textbf{Parameter 1}}' and Entry 5 '\textit{\textbf{Parameter 2}}': The meaning of these entries depends on the type of the component, as summarized in Table~\ref{table:components}
 \end{itemize}
 
+
+\begin{table}
+\caption{Optical components}
+\label{table:components}
 \def\tabularxcolumn#1{m{#1}}
 \begin{tabularx}{\textwidth}{|l|X|X|X|}
 \hline 
@@ -105,14 +118,17 @@ Each optical component is described in a separate line by several tab- or space-
 &&&\\
 \texttt{LENS} & Ideal lens (no spherical or chromatic aberrations)& Focal length [cm]& -\\
 &&&\\
-\texttt{WINDOW} & Transparent flat window (zero reflection- and absorption- losses) & Window material: KCl, NaCl, ZnSe, GaAs, CdTe, Ge, or Si & Thickness [cm]\\
-
+\texttt{WINDOW} & Transparent flat window (zero reflection and absorption losses) & Window material: KCl, NaCl, ZnSe, GaAs, CdTe, Ge, or Si & Thickness [cm]\\
+&&&\\
 \texttt{STRETCHER} & Stretcher or compressor & Pulse chirping [ps/THz] (positive for red-chirp) & -\\
+&&&\\
+\texttt{BANDPASS} & Band-pass filter & Band center [THz] & Bandwidth [THz]\\
 \hline
 \end{tabularx}\\
+\end{table}
 
 
-The following example defines several 2.5-cm diameter components: A probe surface, two 120-cm-long amplifier sections, a 5-cm-thick NaCl window and an absorber for modelling 4\% reflection losses:
+The following example defines several components of 2.5-cm diameter: A probe surface, two 120-cm-long amplifier sections, a 5-cm-thick NaCl window, and an absorber for modeling 4\% reflection losses:
 
 \bigskip
 \begin{tabular}{lllll}
@@ -124,48 +140,49 @@ The following example defines several 2.5-cm diameter components: A probe surfac
 \end{tabular}
 
 \subsection{Layout}
-Optical configuration is specified as a sequence of the components identified by their \textit{\textbf{ID}}’s. All components are separated by non-negative distances expressed in centimeters. Components and distances must be separated by spaces, tabs, new-line symbols or dashes. The following is an example of an optical configuration that uses the components defined in the previews example:
+Optical configuration is specified as a sequence of the components identified by their \textit{\textbf{ID}}s. All components are separated by non-negative distances expressed in centimeters. Components and distances must be separated by spaces, tabs, line breaks, or dashes. The following is an example of an optical configuration that uses the components defined in the previous example:
 
 \bigskip
 \texttt{p-0-abs-0-win-0-abs-100-am1-200-am2-100-abs-0-win-0-abs-0-p }
 \bigskip
 
-This example defines the configuration shown in the Fig. \ref{fig:optical-configuration-1}.
+This example defines the configuration shown in Fig.~\ref{fig:optical-configuration-1}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{images/optical-configuration-1}
-\caption{Example optical configuration.}\label{fig:optical-configuration-1}
+\caption{Example of optical configuration.}\label{fig:optical-configuration-1}
 \end{figure}
 
-In this example beam propagates twice through the same amplifier. However, we consider this configuration as two identical but independent active volumes (\texttt{am1} and \texttt{am2}) because at each pass the beam interacts with a different zone of the active medium.
+In this example, the beam propagates twice through the same amplifier. However, we consider this configuration as two identical but independent active volumes, \texttt{am1} and \texttt{am2}, because at each pass the beam interacts with a different zone of the active medium.
 
 \subsection{Beam propagation}
-When two components of an optical configuration are separated by a non-zero distance, beam propagation between them is simulated using the Huygens-Fresnel diffraction integral in the assumption of axial symmetry. Propagation is simulated separately for each moment of time from the time calculation grid.
-Optical surface model assumes that components of the optical layout are infinitely thin. Propagation is calculated between the middle points of the components; for the purpose of simulating pulse interaction with a prolonged optical element, beam is assumed to be collimated inside this element. For instance, the sequence of calculations for the previews example is:
+When two components of an optical configuration are separated by a non-zero distance, beam propagation between them is simulated using the Huygens-Fresnel diffraction integral, assuming axial symmetry. Propagation is simulated separately for each moment of time from the time calculation grid.
+
+The optical-surface model assumes that components of the optical layout are infinitely thin. For prolonged optical elements, propagation is calculated between the surfaces crossing the centers of the elements, and the beam is assumed to be collimated inside these elements. For instance, the following is the sequence of calculations for the previous example:
 
 \begin{enumerate}
 \item Interaction with the window (including reflection losses);
-\item 100 cm propagation to the middle of the first pass through the amplifier (no amplification so far);
+\item 100-cm propagation to the middle of the first pass through the amplifier (no amplification so far);
 \item Amplification by a 120-cm amplifier section assuming that the beam is collimated;
-\item 200 cm (100$\times$2) propagation to the middle of the second pass through the active volume;
-\item Amplification by the second 120-cm amplifier section assuming that the beam is collimated;
-\item 100 cm propagation to the window;
-\item Interaction with the windows.
+\item 200-cm (100$\times$2) propagation to the middle of the second pass through the active volume;
+\item Amplification by the second 120-cm amplifier section, assuming that the beam is collimated;
+\item 100-cm propagation to the window; and,
+\item Interaction with the window.
 \end{enumerate}
 
-Accuracy of the model can be improved if one divides a long amplifier into several shorter sub-sections. For instance, we can modify our example configuration as shown in the Fig. \ref{fig:optical-configuration-2}.
+Accuracy of the model can be improved if long elements (e.g. amplifiers) are divided into shorter sub-sections. This way we can more realistically simulate the variation of the profile of the beam during its propagation through the system. For instance, we can modify our example configuration as shown in Fig.~\ref{fig:optical-configuration-2}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{images/optical-configuration-2}
-\caption{Example configuration modified for improved accuracy.}\label{fig:optical-configuration-2}
+\caption{Example of a configuration modified for improved accuracy.}\label{fig:optical-configuration-2}
 \end{figure}
  
-Components and Layout entries for the modified configuration are as follows:
+"Components" and "Layout" entries for the modified configuration are as follows:
 
 \bigskip
-Components:
+Components:\nopagebreak
 
 \bigskip
 \begin{tabular}{lllll}
@@ -179,63 +196,466 @@ Components:
 \end{tabular}
 \bigskip
 
-Layout:
+Layout:\nopagebreak
 
 \bigskip
 \texttt{p-0-abs-0-win-0-abs-70-am1a-60-am1b-140-am2b-60-am2a-70-abs-0-win-0-abs-0-p}
 \bigskip
 
-Population dynamics in all amplifier sections is modeled separately and thus splitting a long amplifier into shorter sections provides also a more realistic model of the active medium.
+Population dynamics in all amplifier sections is modeled separately, and thus, by splitting a long amplifier into shorter sections we also obtain a more realistic model of the active medium.
 
 
 \section{Active medium and amplification}
-All active medium sections used in a single simulation must have same gas composition and pumping conditions (staged simulations can be used for complex systems with two or more non-identical amplifiers).  Composition (including isotopic enrichment of carbon dioxide) and initial temperature of the active medium are specified in the "Gas Mixture" fields of the input tab of the user interface.
-Pumping by electric discharge is the primary pumping scheme of the \texttt{co2amp} code. Rudimentary support for optical pumping is also included but not discussed here. For discharge pumping, geometry of the discharge volume (discharge volume and the distance between electrodes) and discharge profile (tabulated values of discharge current expressed in amperes and voltage in volts at time moments in microseconds) must be provided. Pumping dynamics calculations are done using a Boltzmann equation that takes into account elastic collisions between electrons and molecules and inelastic collisions with molecular rotational-, vibrational- and electronic- excitations and ionization. Tabulated empirical values of corresponding cross-sections as functions of electron energy are used. The Boltzmann equation is solved repeatedly in order to accurately describe the variation of pumping efficiency by the electric field varying during the discharge. 
+All the active medium sections used in a single simulation must have same gas composition and pumping conditions (staged simulations can be used for complex systems with two or more non-identical amplifiers). The composition (including isotopic enrichment of carbon dioxide) and the initial temperature of the active medium are specified in the "Gas mixture" fields of the input tab of the user interface.
+
+Pumping by electric discharge is the primary pumping scheme of the \texttt{co2amp} code. For discharge pumping, the geometry of the discharge (discharge volume and the distance between electrodes) and its profile (tabulated values of discharge current expressed in amperes, and voltage in volts at time moments in microseconds) must be given. The pumping dynamics is calculated using a Boltzmann equation that takes into account elastic collisions between electrons and molecules, and the inelastic collisions with molecular rotational, vibrational and electronic excitations and ionization. The tabulated empirical values of corresponding cross-sections as functions of electron energy are used. The Boltzmann equation is solved repeatedly to assure our accurately describing  the variation of pumping efficiency by the electric field changing during the discharge.
+
+Initial support for optical pumping also is included. For optical pumping, the wavelength, the absorption cross-section, and the energy density of the pumping pulse must be provided.
+
 
 
 \section{Program output}
-The output of the program is given as a temporal pulse structure and its spectrum (both averaged across the beam) and beam profile (averaged on the duration of the pulse) at each element of the optical layout. The user can chose an optical component to display from the list of all the available components. In the case if the selected component is used several times in the optical configuration, it is also possible to specify which passes through the component will be displayed. Also, integral pulse energy can be provided either at every pass through a selected component or at all passes through all components of the system layout.
-Output for the layout components of type \texttt{AM} (active medium) provides additional information that includes gain, discharge profile, population dynamics, and the dynamics of pumping energy distribution (fractions of discharge energy going into excitation of laser levels and excitation of molecular translations and ionization).
-Right-mouse-click on a figure allows the user to copy either the graphics or the numerical data for future use.
+The output of the program is given as a temporal pulse structure and its spectrum (both integrated across the beam) and beam profile (integrated on the duration of the pulse) at each element of the optical layout. The user can chose an optical component to display from the list of all the available components. If the selected component is used several times in the optical configuration, it also is possible to specify which passes through the component will be displayed. Also, the integral pulse energy can be provided either at every pass through a selected component, or at all passes through all components of the system’s layout.
 
+Output for the layout components of type AM (active medium) supplies  additional information that includes gain, discharge profile, population dynamics, and the dynamics of the distribution of pumping energy  (fractions of discharge energy going into the excitation of laser levels, excitation of molecular translations and ionization).
 
 
 \chapter{Models}
 
 \section{Molecular dynamics}
-Simulations of active medium pumping by electric discharge and vibrational relaxation are done following Karlov and Konev \cite{Karlov-1978}.
+Simulations of active medium pumping by electric discharge and vibrational relaxation are done following Karlov and Konev  \cite{Karlov-1978}.
 
 \subsection{Pumping by electric discharge}
-Pumping is described by the Boltzmann equation in the following form (Karlov and Konev cite \cite{Holstein-1946} and \cite{Nighan-1970})
+Pumping is described by the Boltzmann equation in the following form \cite{Holstein-1946,Nighan-1970}:
 
 \begin{align}\label{eq:boltzmann}
-&- \frac{1}{3} \left(\frac{E}{N}\right)^2 \frac{d}{du} \left[u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1}\frac{df}{du} \right] \quad = \nonumber \\
-&\qquad \qquad 1.09 \times 10^{ - 3}\frac{d}{du}\left[ u^2 f\sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right]
-\quad  + \quad \sum\limits_{j = 1,2} {y_j}{C_j} \frac{d}{du}(uf)
+&- \frac{1}{3} \left(\frac{\mathcal{E}}{\mathcal{N}}\right)^2 \frac{d}{du} \left[u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1}\frac{df(u)}{du} \right] \quad = \nonumber \\
+&\qquad \qquad 1.09 \times 10^{ - 3}\frac{d}{du}\left[ u^2 f(u)\sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right]
+\quad  + \quad \sum\limits_{j = 1,2} {y_j}{C_j} \frac{d}{du}(uf(u))
 \quad  + \quad 6B y_2 \frac{d}{du}\left(uQ(u)f \right)\nonumber \\
-&\qquad \qquad +\quad\sum\limits_j y_j \sum\limits_k (u + u_{jk})Q_{jk} (u + u_{jk})f(u + u_{jk}) \quad  - \quad (uf)\sum\limits_j y_j \sum\limits_k Q_{jk}(u)
+&\qquad \qquad +\quad\sum\limits_j y_j \sum\limits_k (u + u_{jk})Q_{jk} (u + u_{jk})f(u + u_{jk}) \quad  - \quad uf(u)\sum\limits_j y_j \sum\limits_k Q_{jk}(u)
 \end{align}
-where left part describes energy of electrons in the electric field, the first component of the sum of the right part represents energy transfer via elastic collisions between electrons and molecules, second and third components describe collisions with molecular rotation excitation, and the two last components relate to inelastic collisions with transfer of the energy $u_{jk}$ into vibrational and electronic excitation and ionization.
+where the left part describes the energy of electrons in the electric field, the first component of the sum of the right part represents energy transfer via elastic collisions between electrons and molecules, the second and third components describe collisions with molecular rotation excitation, and the two last components relate to inelastic collisions with transfer of the energy $u_{jk}$ into vibrational and electronic excitations and ionization.
 
 Electron energy $u$ is expressed in eV;
 
-Ration of the field to the full molecular density $E/N$ is expressed in the units of $10^{-16}$ V·cm$^2$;
+Ratio of the electric field to the full molecular density, $\mathcal{E}/\mathcal{N}$, is expressed in units of $10^{-16}$~V·cm$^2$;
 
 $y_j$ are the relative molecule concentrations ($j=1$ corresponds to CO$_2$, $j=2$ to N$_2$ and $j=3$ to He);
 
-$M_1=44$, $M_2=28$, $M_3=4$ are the molar masses,
+$M_1=44$, $M_2=28$, $M_3=4$ are the molar masses;
 
 $C_1 = 8.2 \times 10^{-4}$ eV·Å$^2$ \cite{Hake-1967};
 
 $C_2 = 5.06 \times 10^{-4}$ eV·Å$^2$ \cite{Frost-1962};
 
-$B = 2.5 \times 10^{-4}$ is the N$_2$ rotational constant;
+$B = 2.5 \times 10^{-4}$ eV is the N$_2$ rotational constant.
 
-Effective crossections are expressed in Å; their numerical values in the nodes are given in the tables below (linear interpolation must be used for determining the values in intermediate points); the data and citations are reproduced from \cite{Karlov-1978}.
+Numerical values of the cross-sections $Q$ and the transferred energies $u_{jk}$ are summarized in Appendix \ref{appendix:crossections} 
+
+Equation \ref{eq:boltzmann} is solved numerically using the tridiagonal matrix algorithm. Distribution function $f(u)$ is then used in the following calculations.
+
+The rate constant $\omega_{jk}$, and the electron drift speeds $v_d$ are defined as:
+
+\begin{equation}\label{eq:omega_jk}
+\omega _{jk}\left[\frac{\rm{cm}^3}{\text{s}} \right] = 5.93 \times 10^{-9}\int\limits_0^\infty u Q_{jk}(u)f(u)du
+\end{equation}
+     
+\begin{equation}\label{eq:v_d}
+v_d \left[ \frac{\text{cm}}{\text{s}} \right] =  - 5.93 \times 10^7 \left( \frac{1}{3}\frac{\mathcal{E}}{\mathcal{N}} \right)\frac{df(u)}{du} \int\limits_0^\infty u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1} du
+\end{equation}
+
+The fraction of electron energy transmitted via inelastic processes is defined as
+
+\begin{equation}\label{eq:z_jk}
+z_{jk} = 10^6 \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}   
+\end{equation}
+
+The fraction of electron energy transmitted to translations and rotations are the following:
+
+\begin{equation}\label{eq:z_t}
+z_t = 5.93 \times 10^7 \frac{1.09 \times 10^{-3} \int\limits_0^\infty u^2 \left( \sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right)f(u)du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}
+\end{equation}
+
+\begin{equation}\label{eq:z_r}
+z_r = 5.93 \times 10^7 \frac{\sum\limits_{j=1,2} y_j C_j \int\limits_0^\infty uf(u)du + 6 y_2 B \int\limits_0^\infty u Q(u) f(u) du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d} 
+\end{equation}
+
+Finally, the distribution of the excitation energy is calculated using the following expressions:
+
+$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to {CO$_2$} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
+
+$q_3 = z_{17}$ - fraction of energy transferred to {CO$_2$} asymmetric stretch mode ($\nu_3$);
+
+$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to {N$_2$} vibrations;
+
+$q_T = z_t + z_r$ - fraction of energy transferred to translation and rotation;
+
+$q_{ei} = \sum\limits_{k=9}^{15} z_{2k}  + \sum\limits_{k=8}^{10} z_{1k}$ - fraction of energy spent on excitation of electronic levels and ionization.
+
+
+
+\subsection{Pumping and vibrational relaxation dynamics}
+A 3-temperature model is used for describing the vibrational dynamics of the active medium of {CO$_2$} amplifiers. In this model, the following temperatures are used to describe the distribution of the energy between molecular vibrations:
+
+$T_2$ – vibrational temperature of $\nu_1$ and $\nu_2$ vibrations of {CO$_2$};
+
+$T_3$ – vibrational temperature of the $\nu_3$ vibration of {CO$_2$};
+
+$T_4$ – vibrational temperature of {N$_2$}.
+
+Vibrational temperatures are related to the average numbers of quanta $e_x$ in the corresponding vibrations as follows:
+
+\begin{equation}\label{eq:e}
+\begin{aligned}
+&{e_2} = \frac{2}{\exp(960/{T_2})-1}\\
+&{e_3} = \frac{1}{\exp(3380/{T_3})-1}\\
+&{e_4} = \frac{1}{\exp(3350/{T_4})-1} 
+\end{aligned}
+\end{equation}
+"2" in the first equation is due to 2-fold degeneracy of the energy levels of the bend vibration.
+
+The dynamics of pumping/relaxation is described by the following equations
+
+\begin{equation}\label{eq:dedt}
+\begin{aligned}
+&\frac{d e_4}{dt} = p_{e4} - r_a (e_4 - e_3)\\
+&\frac{d e_3}{dt} = p_{e3} + r_c(e_4 - e_3) - r_3 f_3\\
+&\frac{d e_2}{dt} = f_2 \left( p_{e2} + 3 r_3 f_3 - r_2 (e_2 - e_{2T}) \right)
+\end{aligned}
+\end{equation}
+where
+\begin{equation}
+\begin{aligned}
+&p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);\\
+&f_2 = \frac{2(1+e_2)^2}{2+6e_2+3{e_2}^2};\quad f_3 = e_3(1+e_2/2)^3 - (1+e_3)(e_2/2)^3 \exp(- 500/T);\\
+&r_a = kny_1;\quad r_c = kny_2;\quad r_2 = k_2n;\quad r_3 = k_3n;\\
+&k_2 = \sum\limits_{i=1}^3 y_i k_{2i};\quad k_3 = \sum\limits_{i=1}^3 y_i k_{3i};\\
+&n = 273 \frac{p[\text{bar}]}{T_0[\text{K}]};\\
+&e_{2T} = \frac{2}{\exp(960/T)-1}
+\end{aligned}
+\end{equation}
+where $W(t)$ is the current density measured in {kW/cm$^3$} , $p_e$ is measured in {$\mu$s}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
+
+\begin{equation}
+\begin{aligned}
+&k = 240 / T^{1/2};\\
+&k_{31} = A(t)\exp(4.138 + 7.945x - 631.24x^2 + 2239x^3);\\
+&k_{32} = A(t)\exp(-1.863 + 213.3x - 2796.2x^2 + 9001.9x^3);\\
+&k_{33} = A(t)\exp(-3.276 + 291.4x - 3831.8x^2 + 12688x^3);\\
+&k_{21} = 1.16 \times 10^3 \exp(-59.3x);\\
+&k_{22} = 8.55 \times 10^2 \exp(-69x);\\
+&k_{23} = 1.3 \times 10^3 \exp(-40.6x)
+\end{aligned}
+\end{equation}
+where $x=T^{-1/3}$, $A(t)=(T/273)(1+e_{2T}/2)^{-3}$, and temperature $T$ is expressed in K.
+
+Finally, the dynamics of the gas temperature is described by the following equation:
+
+\begin{equation}\label{eq:dTdt}
+\frac{dT}{dt} = \frac{y_1}{C_V}(500r_3f_3 + 960r_2(e_2-e_{2T})) + 2.7\frac{W(t)q_T}{nC_V},
+\end{equation}
+where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
+
+
+\subsection{Optical pumping}
+Initial support for optical pumping is included in the \texttt{co2amp} code. We assume instant excitation (pump pulse is short compared to vibrational relaxation).  The fraction of {CO$_2$} molecules excited by the optical pulse is calculated as
+
+\begin{equation}\label{eq:OpticalPumping_N}
+\frac{N^*}{N} = \frac{1-\exp(-\Phi \sigma)}{2}
+\end{equation}
+where $N$ and $N*$ are the total density of the {CO$_2$} molecules and the density of the excited molecules respectively, $\Phi$ is the flux of the pumping photons, and $\sigma$ is the absorption cross-section.
+
+An adjustment then is made to the average number of quanta in the asymmetric stretch vibration:
+
+\begin{equation}\label{eq:OpticalPumping_e3}
+e_3 = e'_3 + \frac{N^*}{N}
+\end{equation}
+where $e'_3 = \frac{1}{\exp\left(\frac{3350}{T_0}\right)-1}$ is the value of $e_3$ before excitation, and $T_0$ is the initial temperature of the gas.
+
+For optical pumping at {$\sim 3~\mu$m} through a combinational vibration {(10$^0$1, 02$^0$1)}, $e_2$ also increases as follows:
+
+\begin{equation}\label{eq:OpticalPumping_e2}
+e_2 = e'_2 + 2\frac{N^*}{N} \times \frac{e'_2}{2e'_1+e'_2}
+\end{equation}
+where $e'_1 = \frac{1}{\exp\left(\frac{1920}{T_2}\right)-1}$, $e'_2 = \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}$, and the last term takes into account the equilibrium energy distribution between the coupled symmetric stretch and bending vibrations. Several iterations are needed to accurately determine $e_2$: The first iteration is done for $T_2=T_0$; a corrected value of $T_2$ is then calculated using the first of the equations (\ref{eq:e}), and is used in the next iteration for calculating $e_2$, and so forth.
+
+For optical pumping, the dynamics of vibrational relaxation is modeled using equations~(\ref{eq:dedt}) with $p_{e2}=p_{e3}=p_{e4}=0$.
+
+
+
+\section{Amplification}
+
+\subsection{Laser transitions}
+Fig. \ref{fig:laser-transitions} shows the vibrational levels and laser transitions included in the \texttt{co2amp} amplification model (because of the lack of the spectroscopic data, the sequence and hot bands currently are only supported for natural isotopologue of {CO$_2$} (\textit{626}\footnote{A 3-digit notation commonly is used for designating the isotopologues (molecules with different isotopic composition) of carbon dioxide. In this notation \textit{2}, \textit{3} and \textit{4} correspondingly stand for {$^{12}$C}, {$^{13}$C} and {$^{14}$C}; \textit{6}, \textit{7} and \textit{8} represent  correspondingly {$^{16}$O}, {$^{17}$O} and {$^{18}$O}. \textit{626} denotes a {CO$_2$} molecule with natural isotopic composition: {{$^{16}$O}-{$^{12}$C}-{$^{16}$O}}.}).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=120mm]{images/laser-transitions}
+\caption{Vibrational transitions included in the amplification model. Wavelengths are given for natural {CO$_2$} isotopologue (\textit{626}).}\label{fig:laser-transitions}
+\end{figure}
+
+\subsection{Main equations}
+Amplification is simulated in the fast time-frame moving with the pulse using the following equations that also take into account rotational relaxation \cite{Feldman-1973,Volkin-1979}:
+
+\begin{equation}\label{eq:amplification}
+\begin{aligned}
+&\frac{\partial E}{\partial z} =  - \sum\limits_J {\rho _J},\\
+&\frac{\partial \rho _J}{\partial t} + \left(2\pi i(\nu _c-\nu _{0J}) + \frac{1}{\tau_2} \right)\rho _J =  - \frac{\sigma _J n_J E}{2\tau_2},\\
+&\frac{\partial n_J}{\partial t} + \frac{n_J-n_J^0}{\tau _R} = 4(\rho _J E^* + c.c.),
+\end{aligned}
+\end{equation}
+where summation is done over all rotational-vibrational transitions of all {CO$_2$} isotopologues, and
+
+$E$ - complex field envelope,
+
+$\rho_J$ - polarization of the medium,
+
+$z$ - linear coordinate along the direction of beam propagation,
+
+$t$ - time,
+
+$n_J$ - population inversion of the transition (difference of population densities of upper and lower levels),
+
+$n_J^0$ - equilibrium population inversion of the transition,
+
+$\nu _c$ - carrier frequency,
+
+$\nu_{0J}$ - transition frequency in the line center,
+
+$\sigma_J$ - transition cross-section in the line center,
+
+$\tau_2$ - polarization dephasing time,
+
+$\tau_R$ - rotational relaxation time.
+
+Transition frequencies of $P$ and $R$ transitions are calculated as follows:
+
+\begin{equation}
+\nu_J = \left\{ \begin{array}{ll}
+  V + B_U (J-1)J     - B_L J (J+1) & (P)\\
+  V + B_U (J+1)(J+2) - B_L J (J+1) & (R)\end{array}\right.\\ 
+\end{equation}
+where $J$ is the rotational quantum number, $V$ is the vibrational constant of the corresponding transition, and, $B_U$ and $B_L$ the rotational constants of the upper and lower level of the transition correspondingly. The numerical values of the molecular constants used in the program are listed in Appendix \ref{appendix:molecular_constants}.
+
+The transition cross-section in the line center is calculated \cite{Hilborn-2002}
+\begin{equation}
+{\sigma _J}[\text{m}^2] = \frac{(\lambda _J[\text{m}])^2 A_J[\text{s}^{-1}]}{4} \times \frac{\tau_2[\text{s}]}{\pi}
+\end{equation}
+where the first term defines the integral cross-section of the rotational line, and the second term is the maximum of the normalized Lorentzian profile of a line with width $2\pi\Delta\nu _{HWHM}=1/\tau_2$.
+
+Population inversion in the rotational equilibrium is calculated as
+\begin{equation}
+n_J^0 = \left\{ \begin{array}{ll}
+  z(J-1) N_U  - z(J) N_L & (P)\\
+  z(J+1) N_U  - z(J) N_L & (R)\end{array}\right.\\ 
+\end{equation}
+where $N_U$ and $N_L$ are the population densities of the corresponding upper and lower \textit{vibrational} levels, and $z(J)$ is the Boltzmann distribution:
+\begin{equation}
+z(J) = \left\{ \begin{array}{>{\displaystyle}l>{\displaystyle}r}
+  2\frac{hB}{kT}(2J+1)\exp \left(-\frac{hB}{kT}J(J+1)\right) &(\mathit{626,636,828,838})\\
+  \frac{hB}{kT}(2J+1)\exp \left(-\frac{hB}{kT}J(J+1)\right) &(\mathit{628,638})\end{array}\right.\\ 
+\end{equation}
+where $h = 6.62606957\times 10^{-34}$~J·s and $k = 1.3806488\times 10^{-23}$~J/K
+
+Optical intensity $I$ is related to the field amplitude as follows:
+\begin{equation}\label{eq:I}
+I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] E^2
+\end{equation}
+
+Dephasing and relaxation times are defined by the following equations:
+\begin{equation}\label{eq:relaxation}
+\begin{aligned}
+&\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})}\\
+&\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (P_{CO2}+1.2P_{N2}+0.6P_{He})}
+\end{aligned}
+\end{equation}
+where pressure $P$ is measured in bars.
+
+
+\subsection{Populations}
+In the approximation used in the \texttt{co2amp} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, during the pulse only the stimulated transitions contribute to the change of the populations of the vibrational levels.
+
+In the fast time-frame associated with the pulse there is no equilibrium in the vibrational energy distribution, and a proper population dynamics rather than the temperature model must be used. Thus, during the amplification, population of each rotational-vibrational level is considered independently. After the pulse leaves the active medium, the energy distribution within each vibrational mode becomes normalized quickly, and can be described by the temperature model again.
+
+An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all {CO$_2$} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic spices of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
+
+Initial populations of vibrational levels are calculated for each isotopologue and for each band using the following equations:
+\begin{equation}\label{eq:Boltzman}
+\begin{aligned}
+&\textbf{Regular band}\\
+&N_{00^01}     =  \frac{N}{\mathcal{Q}}  \exp\left(\frac{-3380}{T_3}\right)\\
+&N_{[10^00,02^00]_I}  = N_{[10^00,02^00]_{II}}  =  \frac{N}{\mathcal{Q}} \exp\left(\frac{-2\times 960}{T_2}\right)\\
+&\textbf{Sequence band}\\
+&N_{00^02}     =  \frac{N}{\mathcal{Q}}  \exp\left(\frac{-2\times 3380}{T_3}\right)\\
+&N_{[10^01,02^01]_I}  =  N_{[10^01,02^01]_{II}} =  \frac{N}{\mathcal{Q}} \exp\left(\frac{-2\times 960}{T_2}\right) \exp\left(\frac{-3380}{T_3}\right)\\
+&\textbf{Hot band}\\
+&N_{01^11}     =  \frac{N}{\mathcal{Q}} \exp\left(\frac{-3380}{T_3}\right) \exp\left(\frac{-960}{T_2}\right)\\
+&N_{[11^10,03^10]_I}  = N_{[11^10,03^10]_{II}} =   \frac{N}{\mathcal{Q}} \exp\left(\frac{-3\times 960}{T_2}\right)
+\end{aligned}
+\end{equation}
+where $N$ is the density of {CO$_2$} molecules, and $\mathcal{Q}$ the partition function \cite{Witteman-1987}:
+\begin{equation}
+\frac{1}{\mathcal{Q}} = \left(1-\exp\left(\frac{-1920}{T_2}\right)\right) \times \left(1-\exp\left(\frac{-3380}{T_3}\right)\right) \times \left(1-\exp\left(\frac{-960}{T_2}\right)\right)^2
+\end{equation}
+
+Change of the populations due to stimulated transitions is calculated for each vibrational level using the last of the equations \ref{eq:amplification}:
+\begin{equation}\label{eq:dNdt}
+\begin{aligned}
+&\frac{d}{dt}N_{00^01} = 2\sum\limits_{J(00^01\rightarrow[10^00,02^00]_{I,II})} (\rho _J E^* + c.c.)\\
+&\frac{d}{dt}N_{[10^00,02^00]_I} =  -2\sum\limits_{J(00^01\rightarrow[10^00,02^00]_I)} (\rho _J E^* + c.c.)\\
+&\frac{d}{dt}N_{[10^00,02^00]_{II}} =  -2\sum\limits_{J(00^01\rightarrow[10^00,02^00]_{II})} (\rho _J E^* + c.c.)
+\end{aligned}
+\end{equation}
+where summation is done over all rotational transitions originating or ending at the corresponding vibrational level. Analogous equations are used for the sequence and the hot bands.
+
+Changes of the average quantum numbers in the vibrational modes due to stimulated transitions are calculated as follows:
+\begin{equation}\label{eq:Deltae}
+\begin{aligned}
+&\Delta e_3 = \frac{\Delta N_U}{N},\\
+&\Delta e_2 = -2\frac{\Delta N_U}{N} \times \frac{e'_2}{2e'_1+e'_2}
+\end{aligned}
+\end{equation}
+wherein the last term in the second equation takes into account the equilibrium energy distribution between the coupled symmetric stretch and bending vibrations, $e'_1 = \frac{1}{\exp\left(\frac{1920}{T_2}\right)-1}$, $e'_2 = \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}$, and $T_2$ is the vibrational temperature before the propagation of the pulse.
+
+New vibrational temperatures then are calculated using the first and second equations \ref{eq:e}.
+
+
+
+\section{Propagation}
+Beam propagation between layout elements is calculated using Huygens-Fresnel integration at each time-step of the pulse time-frame. In the general case, the field in a given position $(x',y')$ of the output plane is calculated by integrating the contributions from each point $(x,y)$ of the input plane, taking into account the phase delay:
+
+\begin{equation}
+E(x', y') = \int_x\int_y E(x,y) \frac{e^{i\kappa R}}{i\lambda R} dx dy
+\end{equation}
+where $\kappa$ is the wave number, $\lambda$ is the wavelength, and $R=\sqrt{(x-x')^2+(y-y')^2+\Delta z^2}$ is the distance between points $(x,y)$ and $(x',y')$; $\Delta z$ is the distance between the centers of the input and the output planes.
+
+In the case of radially symmetric beam used in our model, calculations can be considerably accelerated by taken into account that the field is the same in all points at equal distance from the beam axis. In this case integration can be done by summing the contributions of concentric rings in the input plane as shown in the Fig. \ref{fig:Huygens-Fresnel}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=120mm]{images/huygens-fresnel}
+\caption{Huygens-Fresnel integration in the axial-symmetric system: Contribution of a field from a concentric ring in the input plane to a field in a point in the output plane.}\label{fig:Huygens-Fresnel}
+\end{figure}
+
+The field in a given point with radial coordinate $r'$ in the output plane is then calculated as
+
+\begin{equation}
+E(r') = \int_{r}E(r)\frac{e^{-i\kappa R}}{i\lambda R} J_0(\kappa \Delta R/2) dS
+\end{equation}
+where $dS = \pi(r+dr/2)^2-\pi(r-dr/2)^2$ is the area of the ring, $R=(R_{max}+R_{min})/2$, $\Delta R=R_{max}-R_{min}$, $R_{max}=\sqrt{(r+r')^2+\Delta z^2}$, $R_{min}=\sqrt{(r-r')^2+\Delta z^2}$, and $J_0$ is the Bessel function.
+
+\section{Optical elements}
+Optical elements change the electric field as described by the following formulas. In them, $E(t,r)$ is the field in the input of the element, and $E'(t,r)$ - after passing through the element.
+
+\subsection*{\texttt{PROBE}}
+(\textit{Passive surface})
+\begin{equation}
+E'(t,r) = E(t,r)
+\end{equation}
+
+\subsection*{\texttt{MASK}}
+(\textit{Opaque circular screen})
+\begin{equation}
+E'(t,r) = \left\{ \begin{array}{ll}
+  0         & r < \mathcal{R}\\
+  E(t,r) & r \geq \mathcal{R}\end{array}\right.\\ 
+\end{equation}
+where $\mathcal{R}$ is the radius of the screen.
+
+\subsection*{\texttt{ABSORBER}}
+(\textit{Ideal neutral density filter})
+\begin{equation}
+E'(t,r) = E(t,r) \sqrt{\mathcal{T}}
+\end{equation}
+where $\mathcal{T}$ is transmittance.
+
+\subsection*{\texttt{LENS}}
+(\textit{Ideal lens without aberrations})
+\begin{equation}
+E'(t,r) = E(t,r) \exp\left( \pi i \frac{r^2}{\lambda_c F} \right)
+\end{equation}
+where $F$ is the focal length of the lens, and $\lambda_c$ is the central wavelength.
+
+\subsection*{\texttt{WINDOW}}
+(\textit{Flat transparent window with zero reflection and absorption losses})
+\subsubsection*{Linear dispersion}
+\begin{equation}
+\begin{aligned}
+&\widehat{E}(\nu,r) = \mathcal{F}(E(t,r))\\
+&\widehat{E}'(\nu,r) = \widehat{E}(\nu,r) \exp \left( - 2 \pi i \nu \frac{\Theta}{c} \left(n_0(\nu)-n_0(\nu_c) -\nu_c \frac{d n_0}{d\nu}\right) \right)\\
+&E'(t,r) = \mathcal{F}^{-1}(\widehat{E}'(\nu,r))
+\end{aligned}
+\end{equation}
+where $\widehat{E}(\nu,r)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_0$ is the linear component of the index of refraction, and $\Theta$ is the thickness of the window. The Ddispersion formulae s used for calculating $n_0$ are given in Appendix~\ref{appendix:optical_constants}.
+\subsubsection*{Nonlinear interaction}
+\begin{equation}
+E'(t,r) = E(t,r) \exp\left(-2\pi i \nu_c \frac{\Theta}{c} n_2 I(t,r)\right)
+\end{equation}
+where $n_2$ is the nonlinear refractive index, and $I(t,r)$ is the field intensity. The numerical values of $n_2$ used in the program are given in Appendix~\ref{appendix:optical_constants}.
+
+\subsection*{\texttt{STRETCHER}}
+(\textit{Stretcher or compressor})
+\begin{equation}
+\begin{aligned}
+&\widehat{E}(\nu,r) = \mathcal{F}(E(t,r))\\
+&\widehat{E}'(\nu,r) = \widehat{E}(\nu,r) \exp\left(- \pi i (\nu-\nu_c)^2  \mathcal{S}\right)\\
+&E'(t,r) = \mathcal{F}^{-1}(\widehat{E}'(\nu,r))
+\end{aligned}
+\end{equation}
+where $\mathcal{S}$ is the stretching factor (in s/Hz, positive for the red chirp).
+
+\subsection*{\texttt{BANDPASS}}
+(\textit{Band-pass filter})
+\begin{equation}
+\begin{aligned}
+&\widehat{E}(\nu,r) = \mathcal{F}(E(t,r))\\
+&\widehat{E}'(\nu,r) = \left\{ \begin{array}{ll}
+  0                      & \nu<(\nu_b-\Delta\nu/2); \; \nu>(\nu_b+\Delta\nu/2)\\
+  \widehat{E}(\nu,r) & (\nu_b-\Delta\nu/2) \leq \nu \leq (\nu_b+\Delta\nu/2)\end{array}\right.\\ 
+&E'(t,r) = \mathcal{F}^{-1}(\widehat{E}'(\nu,r))\\
+\end{aligned}
+\end{equation}
+where $\nu_b$ is the band center, and $\Delta\nu$ the bandwidth of the filter.
+
+
+
+\begin{appendices}
+
+
+\chapter{Cross-sections of excitation processes}
+\label{appendix:crossections}
+
+Effective cross-sections are expressed in Å; their numerical values in the nodes are given in the tables below (linear interpolation must be used for determining the values in intermediate points); the data and citations are reproduced from \cite{Karlov-1978}.
+
+
+The following notation for cross-sections is used:
+
+$Q_{m1}$ - Transport cross-section of {CO$_2$} \cite{Lowke-1973};
+
+$Q_{m2}$ - Transport cross-section of {N$_2$} \cite{Frost-1962};
+
+$Q_{m3}$ - Transport cross-section of He \cite{Lowke-1973};
+
+$Q$ - Cross-section of resonant excitation of {N$_2$} rotation  \cite{Oksyuk-1966,Chandra-1973};
+
+$Q_{11}$ - Cross-section of the process $(000)\rightarrow(01^10)$  \cite{Lowke-1973};
+
+$Q_{12}$ - Cross-section of the process $(000)\rightarrow(100+020)$  \cite{Lowke-1973};
+
+$Q_{13}...Q_{16}$ - Cross-sections of resonant processes around 3.8 eV  \cite{Lowke-1973};
+
+$Q_{17}$ - Cross-section of the process $(000)\rightarrow(001)$  \cite{Lowke-1973};
+
+$Q_{18}...Q_{1,10}$ - Cross-sections of electronic excitation and ionization of {CO$_2$}  \cite{Hake-1967};
+
+$Q_{21}...Q_{28}$ - Cross-sections of the process {N$_2$}$(v=0)\rightarrow${N$_2$}$(v=1...8)$ \cite{Phelps-1968,Schulz-1962,Engelhardt-1964};
+
+$Q_{29}...Q_{2,15}$ - Cross-sections of electronic excitation and ionization of {N$_2$} \cite{Engelhardt-1964}. 
 
 \begin{table}
 \centering
-\caption{Tabulated data on the cross-sections for discharge pumping}
+\caption{Cross-sections and energies for discharge pumping}
 \begin{tabular}{|c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{m1}$ & $u_i$ & $Q_{m2}$ & $u_i$ & $Q_{m3}$ & $u_i$ & $Q$ \\ 
@@ -273,7 +693,7 @@ $u_i$ & $Q_{m1}$ & $u_i$ & $Q_{m2}$ & $u_i$ & $Q_{m3}$ & $u_i$ & $Q$ \\
 
 \begin{table}
 \centering
-\caption{Tabulated data on the cross-sections for discharge pumping - continued 1}
+\caption{Cross-sections and energies for discharge pumping - continued}
 \begin{tabular}{|c|c||c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{11}$ & $u_i$ & $Q_{12}$ & $u_i$ & $Q_{13}$ & $u_i$ & $Q_{14}$ & $u_i$ & $Q_{15}$ \\
@@ -340,7 +760,7 @@ $u_i$ & $Q_{16}$ & $u_i$ & $Q_{17}$ & $u_i$ & $Q_{18}$ & $u_i$ & $Q_{19}$ & $u_i
 \begin{table}
 \centering
 \small
-\caption{Tabulated data on the cross-sections for discharge pumping - continued 2}
+\caption{Cross-sections and energies for discharge pumping - continued}
 \begin{tabular}{|c|c||c|c||c|c||c|c||c|c|}
 \hline 
 $u_i$ & $Q_{21}$ & $u_i$ & $Q_{22}$ & $u_i$ & $Q_{23}$ & $u_i$ & $Q_{24}$ & $u_i$ & $Q_{25}$ \\
@@ -418,204 +838,25 @@ $u_i$ & $Q_{2,11}$ & $u_i$ & $Q_{2,12}$ & $u_i$ & $Q_{2,13}$ & $u_i$ & $Q_{2,14}
 \end{tabular}
 \end{table}
 
-The following notation for cross-sections is used:
 
-$Q_{m1}$ - Transport cross-section of {CO$_2$} \cite{Lowke-1973};
+\chapter{Molecular constants}
+\label{appendix:molecular_constants}
 
-$Q_{m2}$ - Transport cross-section of {N$_2$} \cite{Frost-1962};
+The vibrational and rotational constants $V$ and $B$ are listed in Table \ref{table:VB}. Einstein coefficients $A$ of the laser transitions included in the simulations are summarized in Tables \ref{table:A626}-\ref{table:A838}. Data are taken from the following publications:
 
-$Q_{m3}$ - Transport cross-section of He \cite{Lowke-1973};
-
-$Q$ - Cross-section of resonant excitation of {N$_2$} rotation  \cite{Oksyuk-1966,Chandra-1973};
-
-$Q_{11}$ - Cross-section of the process $(000)\rightarrow(01^10)$  \cite{Lowke-1973};
-
-$Q_{12}$ - Cross-section of the process $(000)\rightarrow(100+020)$  \cite{Lowke-1973};
-
-$Q_{13}...Q_{16}$ - Cross-sections of resonant processes around 3.8 eV  \cite{Lowke-1973};
-
-$Q_{17}$ - Cross-section of the process $(000)\rightarrow(001)$  \cite{Lowke-1973};
-
-$Q_{18}...Q_{1,10}$ - Cross-sections of electronic excitation and ionization of {CO$_2$}  \cite{Hake-1967};
-
-$Q_{21}...Q_{28}$ - Cross-sections of the process {N$_2$}$(v=0)\rightarrow${N$_2$}$(v=1...8)$ \cite{Phelps-1968,Schulz-1962,Engelhardt-1964};
-
-$Q_{29}...Q_{2,15}$ - Cross-sections of electronic excitation and ionization of {N$_2$} \cite{Engelhardt-1964}.  
-
-Equation \ref{eq:boltzmann} is solved numerically using the tridiagonal matrix algorithm.
-Rate constant $omega_{jk}$ and electron drift speeds $v_d$ are defined as:
-
-\begin{equation}\label{eq:omega_jk}
-\omega _{jk}\left[\frac{\rm{cm}^3}{\text{s}} \right] = 5.93 \times 10^{-9}\int\limits_0^\infty u Q_{jk}(u)f(u)du
-\end{equation}
-     
-\begin{equation}\label{eq:v_d}
-v_d \left[ \frac{\text{cm}}{\text{s}} \right] =  - 5.93 \times 10^7 \left( \frac{1}{3}\frac{E}{N} \right)\frac{df}{du} \int\limits_0^\infty u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1} du
-\end{equation}
-
-Fraction of electron energy transmitted via inelastic processes is defined as:
-
-\begin{equation}\label{eq:z_jk}
-z_{jk} = 10^6 \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{E}{N} \right) v_d}   
-\end{equation}
-
-Fraction of electron energy transmitted to translations and rotations are:
-
-\begin{equation}\label{eq:z_t}
-z_t = 5.93 \times 10^7 \frac{\int\limits_0^\infty u^2 \left( \sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right)f(u)du} {\left( \frac{E}{N} \right) v_d}
-\end{equation}
-
-\begin{equation}\label{eq:z_r}
-z_r = 5.93 \times 10^7 \frac{\sum\limits_{j=1,2} y_j C_j \int\limits_0^\infty uf(u)du + 6 y_2 B \int\limits_0^\infty u Q(u) f(u) du} {\left( \frac{E}{N} \right) v_d} 
-\end{equation}
-
-Then, for 4-temperature model we get:
-
-$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to {CO$_2$} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
-
-$q_3 = z_{17}$ - fraction of energy transferred to {CO$_2$} asymmetric stretch mode ($\nu_3$);
-
-$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to {N$_2$} vibrations;
-
-$q_T = z_t + z_r$ - fraction of energy transferred to translation and rotation;
-
-$q_{ei} = \sum\limits_{k=9}^{15} z_{2k}  + \sum\limits_{k=8}^{10} z_{1k}$ - fraction of energy spent on electronic levels excitation and ionization.
-
-
-\subsection{Pumping and vibrational relaxation dynamics}
-3-temperature model is used for describing vibrational dynamics of the laser system
-
-$T_2$ – vibrational temperature of $\nu_1$ and $\nu_2$ vibrations of{CO$_2$};
-
-$T_3$ – vibrational temperature of the $\nu_3$ vibration of {CO$_2$};
-
-$T_4$ – vibrational temperature of {N$_2$}.
-
-Vibrational temperatures are related to average number of quanta $e_x$ in the corresponding vibrations as:
-
-\begin{align}\label{eq:e}
-&{e_2} = \frac{2}{\exp(960/{T_2})-1}  \nonumber\\
-&{e_3} = \frac{1}{\exp(3380/{T_3})-1} \\
-&{e_4} = \frac{1}{\exp(3350/{T_4})-1} \nonumber
-\end{align}
-("2" in the first equation is due to 2-fold degeneracy of the bend vibration levels).
-
-Pumping/relaxation dynamics is described by the following equations \cite{Karlov-1978}
-
-\begin{align}\label{eq:dedt}
-&\frac{d e_4}{dt} = p_{e4} - r_a (e_4 - e_3)\nonumber\\
-&\frac{d e_3}{dt} = p_{e3} + r_c(e_4 - e_3) - r_3 f_3\\
-&\frac{d e_2}{dt} = f_2 \left( p_{e2} + 3 r_3 f_3 - r_2 (e_2 - e_{2T}) \right)\nonumber
-\end{align}
-
-where
-
-\begin{align*}
-&p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);\\
-&f_2 = \frac{2(1+e_2)^2}{2+6e_2+3{e_2}^2};\quad f_3 = e_3(1+e_2/2)^3 - (1+e_3)(e_2/2)^3 \exp(- 500/T);\\
-&r_a = kny_1;\quad r_c = kny_2;\quad r_2 = k_2n;\quad r_3 = k_3n;\\
-&k_2 = \sum\limits_{i=1}^3 y_i k_{2i};\quad k_3 = \sum\limits_{i=1}^3 y_i k_{3i};\\
-&n = 273 \frac{p[\text{bar}]}{T_0[\text{K}]},
-\end{align*}
-where $W(t)$ is measured in {kW/cm$^3$} , $p_e$ - in {$\mu$s}, and constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
-
-\begin{align*}
-&k = 240 / T^{1/2};\\
-&k_{31} = A(t)\exp(4.138 + 7.945x - 631.24x^2 + 2239x^3);\\
-&k_{32} = A(t)\exp(-1.863 + 213.3x - 2796.2x^2 + 9001.9x^3);\\
-&k_{33} = A(t)\exp(-3.276 + 291.4x - 3831.8x^2 + 12688x^3);\\
-&k_{21} = 1.16 \times 10^3 \exp(-59.3x);\\
-&k_{22} = 8.55 \times 10^2 \exp(-69x);\\
-&k_{22} = 1.3 \times 10^3 \exp(-40.6x),
-\end{align*}
-where $x=T^{-1/3}$, $A(t)=(T/273)(1+e_{2T}/2)^{-3}$, and temperature is expressed in K.
-
-
-Finally, the gas temperature dynamics is described by the Equation \ref{eq:dTdt}
-
-\begin{equation}\label{eq:dTdt}
-\frac{dT}{dt} = \frac{y_1}{C_V}(500r_3f_3 + 960r_2(e_2-e_{2T})) + 2.7\frac{W(t)q_T}{nC_V},
-\end{equation}
-where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
-
-
-\section{Amplification}
-Amplification is simulated using the equations from Volkin’s paper \cite{Volkin-1979}
-
-\begin{align}\label{eq:amplification}
-&\frac{\partial \varepsilon}{\partial z} =  - \sum\limits_J {\rho _J},\nonumber\\
-&\frac{\partial \rho _J}{\partial t} + \left(i(\omega _c-\omega _{0J}) + \frac{1}{T_2} \right)\rho _J =  - \frac{\sigma _J n_J \varepsilon}{2T_2},\\
-&\frac{\partial n_J}{\partial t} + \frac{n_J-n_J^0}{\tau _R} = 4(\rho _J \varepsilon^* + c.c.), \nonumber
-\end{align}
-where $\varepsilon(z,t)$ is the complex field envelope, $\omega _c$ the carrier frequency, $\omega_{0J}$ the frequency in the line center and $\sigma_J$ the stimulated emission (or absorption) cross-section in the line center:
-
-\begin{equation*}
-{\sigma _J}[\text{m}^2] = \frac{(\lambda _J[\text{m}])^2 A_J[\text{s}^{-1}]}{4} \times \frac{T_2[\text{s}]}{\pi},
-\end{equation*}
-where the first term defines the integral cross-section $\sigma_0$ of the rotational line \cite{Hilborn-2002} and the second term is the maximum of the normalized Lorentzian profile of a line with linewidth $\Delta\omega _{FWHM}=2\pi\Delta\nu=2/T_2$,
-
-\begin{equation*}
-n_J^0 = z(J)(N^U-N^L),
-\end{equation*}
-where $z(J)$ is the Boltzmann distribution:
-
-\begin{align*}
-&z(J) = 2\frac{hB}{kT}(2J+1)\exp \left(-\frac{hB}{kT}J(J+1)\right)&626, 636, 828, 838\\
-&z(J) = \frac{hB}{kT}(2J+1)\exp \left(-\frac{hB}{kT}J(J+1)\right)&628, 638
-\end{align*}
-
-$h = 6.62606957\times 10^{-34}$ J·s
-
-$k = 1.3806488\times 10^{-23}$ J/K
-
-$B$: [s$^{-1}$]
-
-$T$: [K]
-
-Field amplitude is related to the intensity as follows:
-
-\begin{equation}\label{eq:I}
-I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] \varepsilon ^2
-\end{equation}
-
-Additional equations:
-
-\begin{align}\label{eq:dNdt}
-&\frac{d}{dt}N^U = 2\sum\limits_J (\rho _J\varepsilon _J^* + c.c.) ,\nonumber\\
-&\frac{d}{dt}N^{L10} =  -2\sum\limits_{J10} (\rho _J\varepsilon _J^* + c.c.),\\
-&\frac{d}{dt}N^{L9} =  -2\sum\limits_{J9} (\rho _J\varepsilon _J^* + c.c.)\nonumber
-\end{align}
-
-Relaxation times are defined from the following equations:
-
-\begin{equation}\label{eq:T2}
-T_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})}
-\end{equation}
-
-\begin{equation}\label{eq:tauR}
-\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (P_{CO2}+1.2P_{N2}+0.6P_{He})}
-\end{equation}
-
-$P$ is measured in Bar.
-
-\begin{equation*}
-\Delta\nu _{FWHM} = \frac{1}{\pi T_2}
-\end{equation*}
-
-Useful relations for Lorentzian distribution:
-
-\begin{equation*}
-\Delta\nu _{HWHM} = \frac{1}{2\pi T_2};\quad \Delta\omega _{HWHM} = \frac{1}{T_2}
-\end{equation*}
-
-
-\section{Molecular constants}
-
-Vibrational and rotational constants are listed in the Table \ref{table:VB}
+\begin{itemize}
+\item $V$ and $B$
+\subitem regular band: \cite{Witteman-1987}
+\subitem sequence band: \cite{Maki-1994}
+\subitem hot bands: our fit of data from \cite{Rothman-2009}
+\item Einstein coefficients
+\subitem \textit{626}, \textit{628}, \textit{636}, \textit{638}: \cite{Rothman-2009}
+\subitem \textit{828}, \textit{838}: data of \textit{626} and \textit{636} respectively from \cite{Rothman-2009} scaled using the relative intensities of laser transitions from \cite{Freed-1982}
+\end{itemize}
 
 \begin{sidewaystable}
 \centering
-\caption{Molecular constants of CO$_2$ molecules, Hz}
+\caption{Molecular constants of CO$_2$ isotopologues, Hz}
 \label{table:VB}
 \footnotesize
 \begin{tabular}{|l|cccccc|}
@@ -638,31 +879,28 @@ $B(00^02)$              & 1.1485e10 & \multicolumn{5}{c|}{- no data -}\\
 $B([10^01,02^01]_I)$    & 1.1576e10 &  &  &  &  &\\
 $B([10^01,02^01]_{II})$ & 1.1586e10 &  &  &  &  &\\
 \hline
-\multicolumn{7}{|c|}{$01^{1e}2\rightarrow[11^{1e}1,03^{1e}1]_{I,II}$ ('Hot-e band')}\\
+\multicolumn{7}{|c|}{$01^{1e}1\rightarrow[11^{1e}0,03^{1e}0]_{I,II}$ ('Hot-e band')}\\
 \hline
-$V(01^{1e}2-I)$               & 2.77954498750e13  &  &  &  &  &\\
-$V(01^{1e}2-II)$              & 3.2124022241e13   &  &  &  &  &\\
-$B(01^{1e}2)$                 & 1.161973380275e10 & \multicolumn{5}{c|}{- no data -}\\
-$B([11^{1e}1,03^{1e}1]_I)$    & 1.170418896804e10 &  &  &  &  &\\
-$B([11^{1e}1,03^{1e}1]_{II})$ & 1.171423844198e10 &  &  &  &  &\\
+$V(01^{1e}1-I)$               & 2.77954498750e13  &  &  &  &  &\\
+$V(01^{1e}1-II)$              & 3.2124022241e13   &  &  &  &  &\\
+$B(01^{1e}1)$                 & 1.161973380275e10 & \multicolumn{5}{c|}{- no data -}\\
+$B([11^{1e}0,03^{1e}0]_I)$    & 1.170418896804e10 &  &  &  &  &\\
+$B([11^{1e}0,03^{1e}0]_{II})$ & 1.171423844198e10 &  &  &  &  &\\
 \hline
-\multicolumn{7}{|c|}{$01^{1f}2\rightarrow[11^{1f}1,03^{1f}1]_{I,II}$ ('Hot-f band')}\\
+\multicolumn{7}{|c|}{$01^{1f}1\rightarrow[11^{1f}0,03^{1f}0]_{I,II}$ ('Hot-f band')}\\
 \hline
-$V(01^{1f}2-I)$               & 2.77954498750e13  &  &  &  &  &\\
-$V(01^{1f}2-II)$              & 3.2124022241e13   &  &  &  &  &\\
-$B(01^{1f}2)$                 & 1.163765342668e10 & \multicolumn{5}{c|}{- no data -}\\
-$B([11^{1f}1,03^{1f}1]_I)$    & 1.173189960044e10 &  &  &  &  &\\
-$B([11^{1f}1,03^{1f}1]_{II})$ & 1.174257849725e10 &  &  &  &  &\\
+$V(01^{1f}1-I)$               & 2.77954498750e13  &  &  &  &  &\\
+$V(01^{1f}1-II)$              & 3.2124022241e13   &  &  &  &  &\\
+$B(01^{1f}1)$                 & 1.163765342668e10 & \multicolumn{5}{c|}{- no data -}\\
+$B([11^{1f}0,03^{1f}0]_I)$    & 1.173189960044e10 &  &  &  &  &\\
+$B([11^{1f}0,03^{1f}0]_{II})$ & 1.174257849725e10 &  &  &  &  &\\
 \hline
 \end{tabular}
 \end{sidewaystable}
 
-
-Einstein coefficients $A$ or the laser transitions included in the simulations are summarized in the Tables \ref{table:A626}-\ref{table:A838}
-
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'626'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'626'} {CO$_2$}, s$^{-1}$}
 \label{table:A626}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -737,7 +975,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'628'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'628'} {CO$_2$}, s$^{-1}$}
 \label{table:A628}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -812,7 +1050,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'828'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'828'} {CO$_2$}, s$^{-1}$}
 \label{table:A828}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -887,7 +1125,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'636'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'636'} {CO$_2$}, s$^{-1}$}
 \label{table:A636}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -962,7 +1200,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'638'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'638'} {CO$_2$}, s$^{-1}$}
 \label{table:A638}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1037,7 +1275,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'838'} CO$_2$, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'838'} {CO$_2$}, s$^{-1}$}
 \label{table:A838}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1111,99 +1349,22 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 \end{sidewaystable}
 
 
-\section{Propagation}
-Beam propagation between layout elements is calculated using Huygens-Fresnel integration at each time-step of the pulse time-frame. In the general case, the field in a given position $(x',y')$ of the output plane is calculated by integrating contributions from each point $(x,y)$ of the input plane taken into account the phase delay.
-
-\begin{equation*}
-E(x', y') = \int_x\int_y E(x,y) \frac{e^{ikR}}{i\lambda R} dx dy,
-\end{equation*}
-where $k$ is the wave number, $\lambda$ the wavelength, and $R$ is the distance between points $(x,y)$ in and $(x',y')$ in the output plane: $R=\sqrt{(x-x')^2+(y-y')^2+\Delta z^2}$. $\Delta z$ is the distance between the centers of the input and the output planes.
-
-In the case of radially symmetric beam used in our model, calculations can be considerably accelerated by taken into account that the field is the same in all points at equal distance from the beam axis. In this case integration can be done by summing the contributions of concentric rings in the input plane as shown in the Fig. \ref{fig:Huygens-Fresnel}.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=120mm]{images/huygens-fresnel}
-\caption{Huygens-Fresnel integration in the axial-symmetric system: Contribution of a field from a concentric ring in the input plane to a field in a point in the output plane.}\label{fig:Huygens-Fresnel}
-\end{figure}
-
-The field in a given point with radial coordinate $\rho'$ in the output plane is then calculated as
-
-\begin{equation}
-E(\rho') = \int_{\rho}E(\rho)\frac{e^{-ikR}}{i\lambda R} J_0(k\Delta R/2) dS
-\end{equation}
-where $dS = \pi(\rho+d\rho/2)^2-\pi(\rho-d\rho/2)^2$ is the area of the ring, $R=(R_{max}+R_{min})/2$, $\Delta R=R_{max}-R_{min}$, $R_{max}=\sqrt{(\rho+\rho')^2+\Delta z^2}$, $R_{min}=\sqrt{(\rho-\rho')^2+\Delta z^2}$, and $J_0$ is the Bessel function.
-
-\section{Optical elements}
-Optical elements change the electric field as described by the following formulas. In these formulas $E(t,\rho)$ is the field in the input of the element and $E'(t,\rho)$ - after passing through the element.
-
-\subsection*{Probe}
-(\textit{Passive surface, may be used as limiting aperture})
-\begin{equation*}
-E'(t,\rho) = E(t,\rho),
-\end{equation*}
-
-\subsection*{Mask}
-(\textit{Opaque circular screen})
-\begin{align*}
-&E'(t,\rho) = 0, &\rho < R\\
-&E'(t,\rho) = E(t,\rho), &\rho \geq R
-\end{align*}
-where $R$ is the radius of the mask.
-
-\subsection*{Absorber}
-(\textit{Ideal ND filter})
-\begin{equation*}
-E'(t,\rho) = E(t,\rho) \sqrt{T},
-\end{equation*}
-where $T$ is the transmittance.
-
-\subsection*{Lens}
-(\textit{Ideal lens without aberrations})
-\begin{equation*}
-E'(t,\rho) = E(t,\rho) \exp\left( \pi i \frac{\rho^2}{\lambda_c F} \right),
-\end{equation*}
-where $F$ is the focal length of the lens and $\lambda_c$ is the central wavelength.
-
-\subsection*{Window}
-(\textit{Flat transparent window with zero reflection- and absorption- losses})
-\subsubsection*{Linear dispersion}
-\begin{align*}
-&\widehat{E}(\nu,\rho) = \mathcal{F}(E(t,\rho)),\\
-&\widehat{E}'(\nu,\rho) = \widehat{E}(\nu,\rho) \exp \left( - 2 \pi i \nu \frac{\Theta}{c} \left(n_0(\nu)-n_0(\nu_c) -\nu_c \frac{d n_0}{d\nu}\right) \right),\\
-&E'(t,\rho) = \mathcal{F}^{-1}(\widehat{E}'(\nu,\rho)),
-\end{align*}
-where $\widehat{E}(\nu,\rho)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ the Fourier transform and inverse Fourier transform functions, $\nu$ the frequency, $\nu_c$ the central frequency, $n_0$ is the linear component of the index of refraction and $\Theta$ is the thickness of the window.
-\subsubsection*{Nonlinear interaction}
-\begin{equation*}
-E'(t,\rho) = E(t,\rho) \exp\left(-2\pi i \nu_c \frac{\Theta}{c} n_2 I(t,\rho)\right),
-\end{equation*}
-where $n_2$ is the nonlinear refractive index and $I(t,\rho)$ is the field intensity.
-
-\subsection*{Stretcher}
-(\textit{Stretcher or compressor})
-\begin{align*}
-&\widehat{E}(\nu,\rho) = \mathcal{F}(E(t,\rho)),\\
-&\widehat{E}'(\nu,\rho) = \widehat{E}(\nu,\rho) \exp\left(- \pi i (\nu-\nu_c)^2  S\right),\\
-&E'(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho)),
-\end{align*}
-where $S$ is the stretching factor (in s/Hz, positive for red chirp).
-
-\section{Properties of optical materials}
-The following expressions and values for linear- ($n_0$) and nonlinear- ($n_2$) refractive indexes are used in the program (wavelength $\lambda$ in the dispersion formulas must be expressed in $\mu$m):
+\chapter{Properties of optical materials}
+\label{appendix:optical_constants}
+The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes are used in the program (wavelength $\lambda$ in the dispersion formulas must be expressed in $\mu$m):
 
 \subsection*{CdTe}
 $n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ \cite{DeBell-1979}\\
 $n_2 = -2.95\times 10^{-13}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
 \subsection*{GaAs}
 $n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ \cite{Skauli-2003}\\
-$n_2 = -3.26\times 10^{-13}$ m$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+$n_2 = -3.26\times 10^{-13}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
 \subsection*{Ge}
 $n_0=\sqrt{9.28156+\frac{6.72880\lambda^2}{\lambda^2-0.44105}+\frac{0.21307\lambda^2}{\lambda^2-3870.1}}$ \cite{Barnes-1979}\\
 $n_2 = 2.83\times 10^{-13}$ cm$^2$/W at 10.6 $\mu$m \cite{Sheik-Bahae-1991}
 \subsection*{KCl}
 $n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ \cite{Li-1976}\\
-$n_2 = 5.62\times 10^{-16}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+$n_2 = 5.6 \times 10^{-16}2$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
 \subsection*{NaCl}
 $n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$ \cite{Li-1976}\\
 $n_2 = 4.38\times 10^{-16}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
@@ -1213,6 +1374,11 @@ $n_2 = 1.0\times 10^{-13}$ cm$^2$/W at 2.2 $\mu$m \cite{Bristow-2007}
 \subsection*{ZnSe}
 $n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ \cite{Tatian-1984}\\
 $n_2 = 2.87\times 10^{-14}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+
+
+\end{appendices}
+
+
 
                           
 \bibliographystyle{unsrt}

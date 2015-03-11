@@ -1,4 +1,4 @@
-#include  "main.h"
+#include  "co2amp.h"
 
 void FFT(double complex *in, double complex *out) // in: field, out: spectrum
 {

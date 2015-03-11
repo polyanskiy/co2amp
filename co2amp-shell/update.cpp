@@ -193,6 +193,7 @@ void MainWindow::UpdateControls()
     if(bl & flag_input_file_error){
         lineEdit_t_pulse_min->setText("-?-");
         lineEdit_t_pulse_max->setText("-?-");
+        label_deltas->setText("");
     }
     else{
         if(!lineEdit_t_pulse_min->hasFocus())
@@ -201,6 +202,9 @@ void MainWindow::UpdateControls()
             lineEdit_t_pulse_max->setText(Memorized.t_pulse_max);
         comboBox_precision_t->setCurrentIndex(Memorized.precision_t);
         comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
+        double delta_t = (lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
+        double delta_v = 1.0/(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
+        label_deltas->setText("(Δt = " + QString::number(delta_t) + " ps;   Δν = " + QString::number(delta_v) + " THz)");
     }
     comboBox_precision_t->setEnabled(!bl);
     comboBox_precision_r->setEnabled(!bl);

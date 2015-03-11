@@ -1,7 +1,7 @@
-#include  "main.h"
+#include  "co2amp.h"
 
 
-void BeamPropagation(int pulse, int k, double t) // Beam propagation calculations new algorithm - simple Fresnel
+void BeamPropagation(int pulse, int k, double t)
 {
     double z = layout_distance[k];
     double Dr1 = component_Dr[layout_component[k]];
@@ -19,7 +19,7 @@ void BeamPropagation(int pulse, int k, double t) // Beam propagation calculation
         E1[x] = malloc(sizeof(double complex)*n0);
     Debug(2, "propagation: memory allocated");
 
-    //#pragma omp parallel for shared(E, E1) private(x, n) // multithreaded
+    //#pragma omp parallel for shared(E, E1) private(x, n) // multithread
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
             E1[x][n] = E[pulse][x][n];
@@ -31,7 +31,7 @@ void BeamPropagation(int pulse, int k, double t) // Beam propagation calculation
     if(z==0){ //only change calculation mesh step
         double x_exact;
         int x_lo, x_hi;
-        #pragma omp parallel for shared(E, E1) private(x, n, x_lo, x_hi, x_exact) // multithreaded
+        #pragma omp parallel for shared(E, E1) private(x, n, x_lo, x_hi, x_exact) // multithread
         for(x=0; x<x0; x++){
             x_exact = Dr2 / Dr1 * (double)x;
             x_lo = (int)floor(x_exact);
@@ -52,71 +52,12 @@ void BeamPropagation(int pulse, int k, double t) // Beam propagation calculation
     else{ //Huygens-Fresnell diffraction
         double lambda = c/vc; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
-
-        //method A (cylindrical mesh)
-        /*char status[64];
-        int count=0, n_sections, section;
-        double x1, y1, rho, phi, section_area, r2;
-        double complex tmp;
-        double complex E2[n0];
-        #pragma omp parallel for shared(E, E1) private(x, n, n_sections, section, x1, y1, rho, phi, section_area, r2, tmp, E2) // multithreaded
-        for(x=0; x<x0; x++){
-            count ++;
-            sprintf(status, "propagation: %d of % d", count, x0);
-            StatusDisplay(pulse, k, t, status);
-            for(rho=0.5; rho<x0-0.5; rho++){ // x0-1 rings
-                n_sections = ceil(M_PI*rho); //number of ring sections in calculation net
-                section_area = M_PI*(pow((rho+0.5)*Dr1,2)-pow((rho-0.5)*Dr1,2)) / (n_sections); // total area of 2 symmetric section
-                for(n=0; n<n0; n++){
-                    E2[n] = (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2;
-                    E2[n] *= z / (I*lambda) * section_area; // start Fresnel diffraction calculations
-                }
-                for(section=0; section<n_sections; section++){
-                    phi = M_PI/n_sections*(0.5 + section);
-                    x1 = rho*cos(phi);
-                    y1 = rho*sin(phi);
-                    // distance between the ring section center on input plane and (x,0) on output plane, squared
-                    r2 = pow(Dr1*x1-Dr2*x,2) + pow(Dr1*y1,2) + z*z;
-                    // Fresnel integral
-                    tmp = cexp(-I*k_wave*sqrt(r2)) / r2;
-                    for(n=0; n<n0; n++)
-                        E[pulse][x][n] += E2[n] * tmp;
-                }
-            }
-        }*/
-
-        //Method B (cartesian mesh)
-        /*int x1, y1;
-        double rho, rho1, rho2;
-        double r2;
-        double complex coeff;
-        #pragma omp parallel for shared(E, E1) private(x, n, x1, y1, rho, rho1, rho2, r2, coeff) // multiple CPU
-        for(x=0; x<x0; x++){
-            for(x1=-(x0-1); x1<x0; x1++){
-            for(y1=0; y1<=floor(sqrt((x0-1)*(x0-1)-x1*x1)); y1++){
-                rho = sqrt(x1*x1+y1*y1); // radial coordinate on input plane
-                rho1 = floor(rho);
-                rho2 = ceil(rho);
-                r2 = pow(Dr1*x1-Dr2*x,2) + pow(Dr1*y1,2) + z*z;
-                coeff = z / (I*lambda) * cexp(I*k_wave*sqrt(r2)) / r2 * Dr1*Dr1;
-                if(y1 != 0)
-                coeff *= 2; // symmetric half-beam
-                for(n=0; n<=n0-1; n++){
-                    if(rho1 != rho2)
-                        E[pulse][x][n] += ( E1[(int)rho1][n]*(rho2-rho) + E1[(int)rho2][n]*(rho-rho1) ) * coeff;
-                    else
-                        E[pulse][x][n] += E1[(int)rho][n] * coeff;
-                }
-            }
-            }
-        }*/
-
-        //method C (cylindrical mesh - fast)
         char status[64];
         int count=0;
         double rho, R_min, R_max, R, delta_R;
         double complex tmp;
-        //#pragma omp parallel for shared(E, E1) private(x, n, rho, R_min, R_max, R_ave, delta_R, tmp) // multithreaded
+
+        #pragma omp parallel for shared(E, E1) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
         for(x=0; x<x0; x++){ // output plane radial coordinate
             count ++;
             sprintf(status, "propagation: %d of % d", count, x0);
@@ -124,7 +65,7 @@ void BeamPropagation(int pulse, int k, double t) // Beam propagation calculation
             for(rho=0.5; rho<x0-0.5; rho++){ // x0-1 rings in the input plane
                 R_min = sqrt(pow(rho*Dr1-x*Dr2,2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
                 R_max = sqrt(pow(rho*Dr1+x*Dr2,2)+pow(z,2)); // maximum --''--
-                R = (R_min+R_max)/2; // average distance --''--
+                R = (R_min+R_max)/2; // average --''--
                 delta_R = (R_max-R_min);
                 // Huygens-Fresnell integral (summation over concentric rings in the input plane)
                 tmp = M_PI*(pow((rho+0.5)*Dr1,2)-pow((rho-0.5)*Dr1,2)); // ring area ( = dS )
@@ -139,7 +80,7 @@ void BeamPropagation(int pulse, int k, double t) // Beam propagation calculation
     Debug(2, "propagation: integration done");
 
     // Free memory
-    for(x=0; x<0; x++)
+    for(x=0; x<x0; x++)
         free(E1[x]);
     free(E1);
     Debug(2, "propagation: memory freed");
@@ -192,7 +133,7 @@ void Window(int pulse, char *material, double thickness)
     double intensity, delay;
     double complex *spectrum;
 
-    #pragma omp parallel for shared(E) private(x, n, intensity, delay, spectrum) // mulithreaded
+    #pragma omp parallel for shared(E) private(x, n, intensity, delay, spectrum) // mulithread
     for(x=0; x<x0; x++){
 
         // linear dispersion
@@ -239,7 +180,7 @@ void Stretcher(int pulse, double stretching) // stretching: s/Hz
     int x;
     double Dv = (v_max-v_min) / (n0-1);
 
-    #pragma omp parallel for // multthreaded
+    #pragma omp parallel for // multthread
     for(x=0; x<x0; x++){
         int n;
         double complex *spectrum;
@@ -250,6 +191,27 @@ void Stretcher(int pulse, double stretching) // stretching: s/Hz
             delay = (v_min+Dv*n-vc) * stretching; // delay increases with frequency (red chirp) - group delay
             delay *= 0.5; // conversion to phase delay.
             spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+        }
+        IFFT(spectrum, E[pulse][x]);
+        free(spectrum);
+    }
+}
+
+
+void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, bandwidth: Hz
+{
+    int x;
+    double Dv = (v_max-v_min) / (n0-1);
+
+    #pragma omp parallel for // multthread
+    for(x=0; x<x0; x++){
+        int n;
+        double complex *spectrum;
+        spectrum = malloc(sizeof(double complex)*n0);
+        FFT(E[pulse][x], spectrum);
+        for(n=0; n<n0; n++){
+            if(v_min+Dv*n < bandcenter-bandwidth/2 || v_min+Dv*n > bandcenter+bandwidth/2)
+                spectrum[n] = 0;
         }
         IFFT(spectrum, E[pulse][x]);
         free(spectrum);

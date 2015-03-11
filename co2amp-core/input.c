@@ -1,4 +1,4 @@
-#include  "main.h"
+#include  "co2amp.h"
 
 
 void ReadCommandLine(int argc, char **argv)
@@ -170,7 +170,7 @@ void ConstantsInit(void)
     file_str[size] = '\0'; // string terminating character
     str = strtok (file_str," \t\n\r");
     while(str != NULL){
-        if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER"))
+        if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER") || !strcmp(str, "BANDPASS"))
             n_components ++;
         if(!strcmp(str, "AM"))
             n_amsections ++;
@@ -271,7 +271,7 @@ void ArraysInit(void)
     str = strtok(file_str," \t\n\r");
     K = 0; //component number
     while(str != NULL){
-        if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER")){
+        if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER") || !strcmp(str, "BANDPASS")){
             strcpy(component_id[K], id);
             strcpy(component_type[K], str);
             component_Dr[K] = atof(strtok(NULL," \t\n\r")) / (x0-1) * 1e-2; // cm -> m
@@ -279,9 +279,9 @@ void ArraysInit(void)
                 component_Dr[K] = component_Dr[0];
             strcpy(component_param1[K], "");
             strcpy(component_param2[K], "");
-            if(!strcmp(str, "AM") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER"))
+            if(!strcmp(str, "AM") || !strcmp(str, "MASK") || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER") || !strcmp(str, "BANDPASS"))
                 strcpy(component_param1[K], strtok(NULL," \t\n\r")); // 1st parameter
-            if(!strcmp(str, "WINDOW"))
+            if(!strcmp(str, "WINDOW") || !strcmp(str, "BANDPASS"))
                 strcpy(component_param2[K], strtok(NULL," \t\n\r")); // 2nd parameter
             K ++;
         }

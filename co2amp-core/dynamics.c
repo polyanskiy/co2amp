@@ -1,4 +1,4 @@
-#include  "main.h"
+#include  "co2amp.h"
 
 
 void PumpingAndRelaxation(double t)
@@ -59,7 +59,7 @@ void PumpingAndRelaxation(double t)
 
                 // Collisional relaxation rates, 1/s
                 K = 240.0/pow(T[k][x],0.5) * 1e6;
-                K31 = A * exp(4.138+7.495 *X-631.24*X*X+2239.0 *X*X*X) * 1e6;
+                K31 = A * exp(4.138+7.945 *X-631.24*X*X+2239.0 *X*X*X) * 1e6;
                 K32 = A * exp(-1.863+213.3*X-2796.2*X*X+9001.9 *X*X*X) * 1e6;
                 K33 = A * exp(-3.276+291.4*X-3831.8*X*X+12688.0*X*X*X) * 1e6;
                 K21 = 1160.0 * exp(-59.3*X) * 1e6;

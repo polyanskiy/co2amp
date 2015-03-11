@@ -1,4 +1,4 @@
-#include  "main.h"
+#include  "co2amp.h"
 
 
 void Amplification(int pulse, int k, double t, int am_section, double length)
@@ -25,9 +25,7 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         gainSpectrum[n1] = 0;
 
 
-
     // ====================== AMPLIFICATIOIN ======================
-
     #pragma omp parallel for// multithreaded
     for(x=0; x<x0; x++){
         count++;
@@ -45,8 +43,6 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         double Dn[6][4][4][61];                // Population inversions (rotational transitions)
         double complex rho[6][4][4][61];       // polarizations
         double complex E_tmp1, E_tmp2, rho_tmp;// temporary variables for field and polarization
-        //double Temp2 = 960.0/log(2.0/e2[am_section][x]+1.0);  // equilibrium vibrational temperature of nu1 and nu2 modes
-        //double Temp3 = 3380.0/log(1.0/e3[am_section][x]+1.0); // equilibrium vibrational temterature of nu3 mode
         double Temp2 = VibrationalTemperatures(am_section, x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
         double Temp3 = VibrationalTemperatures(am_section, x, 3); // equilibrium vibrational temterature of nu3 mode
         double delta;                          // change in population difference
@@ -54,24 +50,23 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         // Initial populations and polarizations
         for(i=0; i<6; i++){
             // Vibrational level population densities in thermal equilibrium - see Witteman p. 71 and Nevdakh 2007
-
             double Q = 1 / ( (1.0-exp(-1920.0/Temp2))*pow(1.0-exp(-960.0/Temp2),2.0)*(1.0-exp(-3380.0/Temp3)) ); // partition function
             // reg
             Nvib0[i][0][0] = N[i]*exp(-3380.0/Temp3)/Q;                      // upper
             Nvib0[i][0][1] = N[i]*exp(-1920.0/Temp2)/Q;                      // lower I (10 um)
-            Nvib0[i][0][2] = 3.0*N[i]*exp(-2.0*960.0/Temp2)/Q;                   // lower II (9 um)
+            Nvib0[i][0][2] = N[i]*exp(-2.0*960.0/Temp2)/Q;                   // lower II (9 um)
             // hot-e
-            Nvib0[i][1][0] = 2.0*N[i]*exp(-3380.0/Temp3)*exp(-960.0/Temp2)/Q;    // upper
-            Nvib0[i][1][1] = 2.0*N[i]*exp(-(1920.0+960.0)/Temp2)/Q;              // lower I (10 um)
-            Nvib0[i][1][2] = 4.0*N[i]*exp(-3.0*960.0/Temp2)/Q;                   // lower II (9 um)
+            Nvib0[i][1][0] = N[i]*exp(-3380.0/Temp3)*exp(-960.0/Temp2)/Q;    // upper
+            Nvib0[i][1][1] = N[i]*exp(-(1920.0+960.0)/Temp2)/Q;              // lower I (10 um)
+            Nvib0[i][1][2] = N[i]*exp(-3.0*960.0/Temp2)/Q;                   // lower II (9 um)
             // hot-f
-            Nvib0[i][2][0] = 2.0*N[i]*exp(-3380.0/Temp3)*exp(-960.0/Temp2)/Q;    // upper
-            Nvib0[i][2][1] = 2.0*N[i]*exp(-(1920.0+960.0)/Temp2)/Q;              // lower I (10 um)
-            Nvib0[i][2][2] = 4*0*N[i]*exp(-3.0*960.0/Temp2)/Q;                   // lower II (9 um)
+            Nvib0[i][2][0] = N[i]*exp(-3380.0/Temp3)*exp(-960.0/Temp2)/Q;    // upper
+            Nvib0[i][2][1] = N[i]*exp(-(1920.0+960.0)/Temp2)/Q;              // lower I (10 um)
+            Nvib0[i][2][2] = N[i]*exp(-3.0*960.0/Temp2)/Q;                   // lower II (9 um)
             // seq
             Nvib0[i][3][0] = N[i]*exp(-2.0*3380.0/Temp3)/Q;                  // upper
             Nvib0[i][3][1] = N[i]*exp(-1920.0/Temp2)*exp(-3380.0/Temp3)/Q;   // lower I (10 um)
-            Nvib0[i][3][2] = 3.0*N[i]*exp(-2.0*960.0/Temp2)*exp(-3380.0/Temp3)/Q;// lower II (9 um)
+            Nvib0[i][3][2] = N[i]*exp(-2.0*960.0/Temp2)*exp(-3380.0/Temp3)/Q;// lower II (9 um)
 
             for(ba=0; ba<4; ba++){
                 for(vl=0; vl<3; vl++){
@@ -90,39 +85,32 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
 
         // Amplification
         for(n=0; n<n0; n++){
-
             // population inversions
             for(i=0; i<6; i++){ // for each isotopologue
                 if(N[i]==0) continue;
                 for(j=0; j<61; j++){
                     // reg
-                    Dn[i][0][0][j] = Nrot[i][0][0][j-1] - Nrot[i][0][1][j]; // 10P
-                    Dn[i][0][1][j] = Nrot[i][0][0][j+1] - Nrot[i][0][1][j]; // 10R
-                    Dn[i][0][2][j] = Nrot[i][0][0][j-1] - Nrot[i][0][2][j]; // 9P
-                    Dn[i][0][3][j] = Nrot[i][0][0][j+1] - Nrot[i][0][2][j]; // 9R
+                    Dn[i][0][0][j] = j>0  ? Nrot[i][0][0][j-1] - Nrot[i][0][1][j] : 0; // 10P
+                    Dn[i][0][1][j] = j<60 ? Nrot[i][0][0][j+1] - Nrot[i][0][1][j] : 0; // 10R
+                    Dn[i][0][2][j] = j>0  ? Nrot[i][0][0][j-1] - Nrot[i][0][2][j] : 0; // 9P
+                    Dn[i][0][3][j] = j<60 ? Nrot[i][0][0][j+1] - Nrot[i][0][2][j] : 0; // 9R
                     // hot-e
-                    Dn[i][1][0][j] = Nrot[i][1][0][j-1] - Nrot[i][1][1][j]; // 10P
-                    Dn[i][1][1][j] = Nrot[i][1][0][j+1] - Nrot[i][1][1][j]; // 10R
-                    Dn[i][1][2][j] = Nrot[i][1][0][j-1] - Nrot[i][1][2][j]; // 9P
-                    Dn[i][1][3][j] = Nrot[i][1][0][j+1] - Nrot[i][1][2][j]; // 9R
+                    Dn[i][1][0][j] = j>0  ? Nrot[i][1][0][j-1] - Nrot[i][1][1][j] : 0; // 10P
+                    Dn[i][1][1][j] = j<60 ? Nrot[i][1][0][j+1] - Nrot[i][1][1][j] : 0; // 10R
+                    Dn[i][1][2][j] = j>0  ? Nrot[i][1][0][j-1] - Nrot[i][1][2][j] : 0; // 9P
+                    Dn[i][1][3][j] = j<60 ? Nrot[i][1][0][j+1] - Nrot[i][1][2][j] : 0; // 9R
                     // hot-f
-                    Dn[i][2][0][j] = Nrot[i][2][0][j-1] - Nrot[i][2][1][j]; // 10P
-                    Dn[i][2][1][j] = Nrot[i][2][0][j+1] - Nrot[i][2][1][j]; // 10R
-                    Dn[i][2][2][j] = Nrot[i][2][0][j-1] - Nrot[i][2][2][j]; // 9P
-                    Dn[i][2][3][j] = Nrot[i][2][0][j+1] - Nrot[i][2][2][j]; // 9R
+                    Dn[i][2][0][j] = j>0  ? Nrot[i][2][0][j-1] - Nrot[i][2][1][j] : 0; // 10P
+                    Dn[i][2][1][j] = j<60 ? Nrot[i][2][0][j+1] - Nrot[i][2][1][j] : 0; // 10R
+                    Dn[i][2][2][j] = j>0  ? Nrot[i][2][0][j-1] - Nrot[i][2][2][j] : 0; // 9P
+                    Dn[i][2][3][j] = j<60 ? Nrot[i][2][0][j+1] - Nrot[i][2][2][j] : 0; // 9R
                     //seq
-                    Dn[i][3][0][j] = Nrot[i][3][0][j-1] - Nrot[i][3][1][j]; // 10P
-                    Dn[i][3][1][j] = Nrot[i][3][0][j+1] - Nrot[i][3][1][j]; // 10R
-                    Dn[i][3][2][j] = Nrot[i][3][0][j-1] - Nrot[i][3][2][j]; // 9P
-                    Dn[i][3][3][j] = Nrot[i][3][0][j+1] - Nrot[i][3][2][j]; // 9R
+                    Dn[i][3][0][j] = j>0  ? Nrot[i][3][0][j-1] - Nrot[i][3][1][j] : 0; // 10P
+                    Dn[i][3][1][j] = j<60 ? Nrot[i][3][0][j+1] - Nrot[i][3][1][j] : 0; // 10R
+                    Dn[i][3][2][j] = j>0  ? Nrot[i][3][0][j-1] - Nrot[i][3][2][j] : 0; // 9P
+                    Dn[i][3][3][j] = j<60 ? Nrot[i][3][0][j+1] - Nrot[i][3][2][j] : 0; // 9R
                 }
             }
-
-            /*if(x==0 && n==0){
-                char str[50];
-                sprintf(str, "Dn: %fe22", Dn[0][0][0][20]/1e22);
-                Debug(1, str);
-            }*/
 
             // gain spectrum
             if(x==0 && n==0){ // in the beam center(!) before amplification
@@ -227,9 +215,5 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         }
 
     }
-
-    /*char str[50];
-    sprintf(str, "DELTA: %fe22", DELTA/1e22);
-    Debug(1, str);*/
 
 }

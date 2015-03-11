@@ -29,6 +29,41 @@ L.~S. Frost and A.~V. Phelps.
   electrons in {H$_2$} and {N$_2$} from transport coefficients.
 \newblock {\em Phys. Rev.}, 127:1621--1633, 1962.
 
+\bibitem{Biryukov-1974}
+A.~S. Biryukov, V.~K. Konyukhov, A.~I. Lukovnikov, and R.~I. Serikov.
+\newblock Relaxation of the vibrational energy of the ($00^01$) level of the
+  {CO$_2$} molecule.
+\newblock {\em Sov. J. Exp. Theor. Phys.}, 39:610, 1974.
+
+\bibitem{Taylor-1969}
+R.~L. Taylor and S.~Bitterman.
+\newblock Survey of vibrational relaxation data for processes important in the
+  {CO$_2$-N$_2$} laser system.
+\newblock {\em Rev. Mod. Phys.}, 41:26--47, 1969.
+
+\bibitem{Feldman-1973}
+B.~J. Feldman.
+\newblock Short-pulse multiline and multiband energy extraction in
+  high-pressure {CO$_2$}-laser amplifiers.
+\newblock {\em IEEE J. Quant. Electron.}, 9:1070--1078, 1973.
+
+\bibitem{Volkin-1979}
+H.~C. Volkin.
+\newblock Calculation of short-pulse propagation in a large {CO$_2$}-laser
+  amplifier.
+\newblock {\em J. Appl. Phys.}, 50:1179--1188, 1979.
+
+\bibitem{Hilborn-2002}
+R.~C. Hilborn.
+\newblock Einstein coefficients, cross sections, f values, dipole moments, and
+  all that.
+\newblock {\em arXiv:physics/0202029}, 2002.
+
+\bibitem{Witteman-1987}
+W.~J. Witteman.
+\newblock {\em The {CO$_2$} Laser}.
+\newblock Springer-Verlag, Berlin Heidelberg New York Tokyo, 1987.
+
 \bibitem{Lowke-1973}
 J.~J. Lowke, A.~V. Phelps, and B.~W. Irwin.
 \newblock Predicted electron transport coefficients and operating
@@ -39,7 +74,7 @@ J.~J. Lowke, A.~V. Phelps, and B.~W. Irwin.
 Y.~D. Oksyuk.
 \newblock Excitation of the rotational levels of diatomic molecules by electron
   impact in the adiabatic approximation.
-\newblock {\em Sov. J. Exp. Theor. Phys.}, 22:873, 1966.
+\newblock {\em Sov. J. Exp. Theor. Phys.}, 22:873--881, 1966.
 
 \bibitem{Chandra-1973}
 N.~Chandra and P.~G. Burke.
@@ -59,33 +94,33 @@ G.~J. Schulz.
 
 \bibitem{Engelhardt-1964}
 A.~G. Engelhardt, A.~V. Phelps, and C.~G. Risk.
-\newblock Excitation of the rotational levels of diatomic molecules by electron
-  impact in the adiabatic approximation.
+\newblock Determination of momentum transfer and inelastic collision cross
+  sections for electrons in nitrogen using transport coefficients.
 \newblock {\em Phys. Rev.}, 135:A1566--A1574, 1964.
 
-\bibitem{Biryukov-1974}
-A.~S. Biryukov, V.~K. Konyukhov, A.~I. Lukovnikov, and R.~I. Serikov.
-\newblock Relaxation of the vibrational energy of the ($00^01$) level of the
-  {CO$_2$} molecule.
-\newblock {\em Sov. J. Exp. Theor. Phys.}, 39:610, 1974.
+\bibitem{Maki-1994}
+A.G. Maki, C.C. Chou, K.M. Evenson, L.R. Zink, and J.T. Shy.
+\newblock Improved molecular constants and frequencies for the {CO$_2$} laser
+  from new high-j regular and hot-band frequency measurements.
+\newblock {\em J. Mol. Spectr.}, 167:211--224, 1994.
 
-\bibitem{Taylor-1969}
-R.~L. Taylor and S.~Bitterman.
-\newblock Survey of vibrational relaxation data for processes important in the
-  {CO$_2$-N$_2$} laser system.
-\newblock {\em Rev. Mod. Phys.}, 41:26--47, 1969.
+\bibitem{Rothman-2009}
+L.S. Rothman, I.E. Gordon, A.~Barbe, D.Chris Benner, P.F. Bernath, M.~Birk,
+  V.~Boudon, L.R. Brown, A.~Campargue, J.-P. Champion, K.~Chance, L.H. Coudert,
+  V.~Dana, V.M. Devi, S.~Fally, J.-M. Flaud, R.R. Gamache, A.~Goldman,
+  D.~Jacquemart, I.~Kleiner, N.~Lacome, W.J. Lafferty, J.-Y. Mandin, S.T.
+  Massie, S.N. Mikhailenko, C.E. Miller, N.~Moazzen-Ahmadi, O.V. Naumenko, A.V.
+  Nikitin, J.~Orphal, V.I. Perevalov, A.~Perrin, A.~Predoi-Cross, C.P.
+  Rinsland, M.~Rotger, M.~Šimečková, M.A.H. Smith, K.~Sung, S.A. Tashkun,
+  J.~Tennyson, R.A. Toth, A.C. Vandaele, and J.~Vander Auwera.
+\newblock The \{HITRAN\} 2008 molecular spectroscopic database.
+\newblock {\em J. Quant. Spectr. Rad. Transfer}, 110:533--572, 2009.
 
-\bibitem{Volkin-1979}
-H.~C. Volkin.
-\newblock Calculation of short-pulse propagation in a large {CO$_2$}-laser
-  amplifier.
-\newblock {\em J. Appl. Phys.}, 50:1179--1188, 1979.
-
-\bibitem{Hilborn-2002}
-R.~D. Hake and A.~V. Phelps.
-\newblock Einstein coefficients, cross sections, f values, dipole moments, and
-  all that.
-\newblock {\em arXiv:physics/0202029}, 2002.
+\bibitem{Freed-1982}
+C.~Freed.
+\newblock Status of {CO$_2$} isotope lasers and their applications in tunable
+  laser spectroscopy.
+\newblock {\em IEEE J. Quant. Electron.}, 18:1220--1228, 1982.
 
 \bibitem{DeBell-1979}
 A.~G. DeBell, E.~L. Dereniak, J.~Harvey, J.~Palmer J.~Nissley, A.~Selvarajan,
@@ -102,8 +137,8 @@ M.~Sheik-Bahae.
 \bibitem{Skauli-2003}
 T.~Skauli, P.~S. Kuo, K.~L. Vodopyanov, T.~J. Pinguet, O.~Levi, L.~A. Eyres,
   J.~S. Harris, M.~M. Fejer, L.~Becouarn B.~Gerard, and E.~Lallier.
-\newblock Improved dispersion relations for gaas and applications to nonlinear
-  optics.
+\newblock Improved dispersion relations for {GaAs} and applications to
+  nonlinear optics.
 \newblock {\em J. Appl. Opt.}, 94:6447--6455, 2003.
 
 \bibitem{Barnes-1979}
@@ -131,7 +166,8 @@ A.~D. Bristow, N.~Rotenberg, and H.~M. van Driel.
 
 \bibitem{Tatian-1984}
 B.~Tatian.
-\newblock Fitting refractive-index data with the sellmeier dispersion formula.
+\newblock Fitting refractive-index data with the {Sellmeier} dispersion
+  formula.
 \newblock {\em Appl. Opt.}, 23:4477--4485, 1984.
 
 \end{thebibliography}

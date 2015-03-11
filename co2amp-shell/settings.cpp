@@ -112,7 +112,7 @@ void MainWindow::LoadSettings(QString path)
     Memorized.layout = settings.value("co2amp/layout", "p - 100 - am - 100 - p").toString();
 
     // Comments
-    plainTextEdit_comments->setPlainText(settings.value("comments/comments", "").toString());
+    plainTextEdit_comments->setPlainText(settings.value("comments/comments", "- default configuration -").toString());
 
     // Plot
     Memorized.component = settings.value("plot/component", 0).toInt();

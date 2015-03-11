@@ -18,6 +18,6 @@ SOURCES += output.c \
     main.c \
     calc.c
 HEADERS += \
-    main.h
+    co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp
 QMAKE_LFLAGS += -fopenmp

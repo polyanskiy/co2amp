@@ -1,10 +1,11 @@
-#include "main.h"
+#include "co2amp.h"
 
 
 int main(int argc, char **argv)
 {
     debug_level = 1;
-    printf("co2amp-core v.2014-09-05\n\n");
+    flag_status_or_debug = true;
+    printf("co2amp-core v.2015-03-11\n\n");
     fflush(stdout);
     #pragma omp parallel // counting processors (for parallel computing)
 	if (omp_get_thread_num() == 0)
@@ -95,7 +96,9 @@ void Calculations()
                                 am_section++;
                         }
                         if(p_CO2>0){
+                            Debug(1, "amplification: starting...");
                             Amplification(pulse, k, t_cur, am_section, atof(component_param1[K])*1e-2); //param1: amplification length, cm -> m
+                            Debug(1, "amplification: done");
                             SaveGainSpectrum(pulse, k);
                         }
                     }
@@ -115,12 +118,17 @@ void Calculations()
                         StatusDisplay(pulse, k, t_cur, "stretcher...");
                         Stretcher(pulse, atof(component_param1[K])*1e-24); //param1: stretching ps/THz -> s/Hz
                     }
+                    if(!strcmp(component_type[K], "BANDPASS")){
+                        StatusDisplay(pulse, k, t_cur, "bandpass...");
+                        Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center THz -> Hz, param2: bandwidth THz -> Hz,
+                    }
 
                     //propagation to next component
                     if(k!=n_propagations-1){ //no propagation after last surface
-                        if(!noprop){ //running with -noprop option
-                            StatusDisplay(pulse, k, t_cur, "propagation (Huygens-Fresnell integral)...");
+                        if(!noprop){ //running without -noprop option
+                            Debug(1, "propagation: starting...");
                             BeamPropagation(pulse, k, t_cur);
+                            Debug(1, "propagation: done");
                         }
                     }
                 }
@@ -146,6 +154,7 @@ void StatusDisplay(int pulse, int k, double t, char *status)
             printf("\r%f us; Component \"%s\" (%d of %d); Pulse %d: %s                    ", t*1e6, component_id[K], k+1, n_propagations, pulse+1, status);
     }
     fflush(stdout);
+    flag_status_or_debug = true;
 }
 
 
@@ -153,6 +162,9 @@ void Debug(int level, char *str)
 {
     if(level > debug_level)
         return;
-    printf("\nDEBUG (level %d): %s\n", level, str);
+    if(flag_status_or_debug) //if last displayed message is status
+        printf("\n");
+    printf("DEBUG (level %d): %s\n", level, str);
     fflush(stdout);
+    flag_status_or_debug = false;
 }

@@ -1,4 +1,4 @@
-#include "main.h"
+#include "co2amp.h"
 
 
 void Boltzmann(double t)

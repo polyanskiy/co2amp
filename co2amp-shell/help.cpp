@@ -5,25 +5,22 @@ void MainWindow::on_toolButton_components_clicked()
 {
     QStringList list;
     QString str;
-    list << "FORMAT:";
-    list << "";
-    list << "id\ttype\tfield\tparam1\tparam2";
-    list << "";
-    list << "id: component identifier; ex: \"am\" \"probe1\". Cannot match type specifier.";
-    list << "";
-    list << "type: component type (AM, PROBE, MASK, ABSORBER, LENS or WINDOW). Case sensitive.";
-    list << "";
-    list << "field: max radial field in cm";
-    list << "";
-    list << "param1 and param2: additional parameters:";
-    list << "AM: active medium section length in cm";
-    list << "PROBE: no parameters";
-    list << "MASK: mask radius in cm";
-    list << "ABSORBER: transmittance";
-    list << "LENS: focal length in cm";
-    list << "WINDOW: param1 - material (CdTe, GaAs, Ge, KCl, NaCl, Si or ZnSe); param2 - thickness in cm";
-    list << "STRETCHER: pulse chirping factor in ps/THz (positive for red chirp)";
-    str = list.join("\n");
+    list << "<p>FORMAT: \"<code><b>id  type  field  param1  param2</b></code>\"</p>";
+    list << "<p><code><b>id</b></code>: component identifier<br>";
+    list << "&nbsp; &nbsp; &nbsp; example: \"<code>am</code>\" \"<code>probe1</code>\"</p>";
+    list << "<p><code><b>type</b></code>: component type<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>AM</code>, <code>PROBE</code>, <code>MASK</code>, <code>ABSORBER</code>, <code>LENS</code>, <code>WINDOW</code>, <code>STRETCER</code>, <code>BANDPASS</code></p>";
+    list << "<p><code><b>field</b></code>: max radial field in cm</p>";
+    list << "<p><code><b>param1</b></code> and <code><b>param2</b></code>: type-specific parameters<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>AM</code>: length in cm<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>PROBE</code>: no parameters<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>MASK</code>: radius in cm<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>ABSORBER</code>: transmittance<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>LENS</code>: focal length in cm<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>WINDOW</code>: material (<code>CdTe</code>, <code>GaAs</code>, <code>Ge</code>, <code>KCl</code>, <code>NaCl</code>, <code>Si</code>, <code>ZnSe</code>) and thickness in cm<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>STRETCHER</code>: pulse chirping factor in ps/THz, positive for red chirp<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>BANDPASS</code>: band center and bandwidth in THz</p>";
+    str = "<qt>"+list.join("")+"</qt>";
     QMessageBox mb( "Hint - co2amp", str, QMessageBox::Information, QMessageBox::Ok, 0, 0);
     mb.exec();
 }
@@ -32,13 +29,10 @@ void MainWindow::on_toolButton_layout_clicked()
 {
     QStringList list;
     QString str;
-    list << "FORMAT:";
-    list << "";
-    list << "id1 - dist1 - id2 - dist2 - ... - id_n";
-    list << "";
-    list << "id: component identifier";
-    list << "dist: propagation distance in cm";
-    str = list.join("\n");
+    list << "<p>FORMAT: \"<code><b>id<sub>1</sub>-dist<sub>1</sub>-id<sub>2</sub>-dist<sub>2</sub>-...-dist<sub>n-1</sub>-id<sub>n</sub></b></code>\"</p>";
+    list << "<p><code><b>id</b></code>: component identifier</p>";
+    list << "<p><code><b>dist</b></code>: propagation distance in cm</p>";
+    str = "<qt>"+list.join("")+"</qt>";
     QMessageBox mb( "Hint - co2amp", str, QMessageBox::Information, QMessageBox::Ok, 0, 0);
     mb.exec();
 }
@@ -47,13 +41,13 @@ void MainWindow::on_toolButton_discharge_clicked()
 {
     QStringList list;
     QString str;
-    list << "DISCHARGE PROFILE FORMAT:";
-    list << "";
-    list << "t0[us]   I0[A]   U0[V]";
-    list << "t0[us]   I1[A]   U1[V]";
-    list << "t1[us]   I2[A]   U2[V]";
-    list << "...";
-    str = list.join("\n");
+    list << "<p>DISCHARGE PROFILE FORMAT:</p>";
+    list << "<p><code>";
+    list << "t<sub>0</sub>[&mu;s]   I<sub>0</sub>[A]   U<sub>0</sub>[V]<br>";
+    list << "t<sub>1</sub>[&mu;s]   I<sub>1</sub>[A]   U<sub>1</sub>[V]<br>";
+    list << "t<sub>2</sub>[&mu;s]   I<sub>2</sub>[A]   U<sub>2</sub>[V]<br>";
+    list << "...</code></p>";
+    str = "<qt>"+list.join("")+"</qt>";
     QMessageBox mb( "Hint - co2amp", str, QMessageBox::Information, QMessageBox::Ok, 0, 0);
     mb.exec();
 }

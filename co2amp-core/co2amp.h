@@ -56,6 +56,7 @@ double *gainSpectrum;
 // ------- DEBUGGING -------
 int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
 int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
+bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
 int b0;
 double E_over_N;
@@ -67,8 +68,6 @@ double *Q;
 double *Qm1, *Qm2, *Qm3;
 double **Q1, **Q2;
 double u1[11], u2[16];
-//double u1[11] = {0};
-//double u2[16] = {0};
 double **M;
 double *f;
 
@@ -119,6 +118,7 @@ void Mask(int pulse, double Dr, double radius);
 void Absorber(int pulse, double transmission);
 void Window(int pulse, char *material, double thickness);
 void Stretcher(int pulse, double stretching);
+void Bandpass(int pulse, double bandcenter, double bandwidth);
 
 /////////////////////////// output.c ///////////////////////////
 void UpdateOutputFiles(int pulse, int component, double time);

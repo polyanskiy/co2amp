@@ -283,7 +283,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>844</width>
+             <width>845</width>
              <height>557</height>
             </rect>
            </property>
@@ -397,13 +397,6 @@ p, li { white-space: pre-wrap; }
                       </size>
                      </property>
                     </spacer>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="QCheckBox" name="checkBox_noprop">
-                     <property name="text">
-                      <string>No propagation calculations</string>
-                     </property>
-                    </widget>
                    </item>
                    <item row="1" column="0" colspan="4">
                     <widget class="QPlainTextEdit" name="plainTextEdit_layout"/>
@@ -1082,6 +1075,16 @@ p, li { white-space: pre-wrap; }
                        <width>100</width>
                        <height>16777215</height>
                       </size>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0" colspan="4">
+                    <widget class="QLabel" name="label_deltas">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Δt = ... ps;   Δν = ... THz</string>
                      </property>
                     </widget>
                    </item>
@@ -1789,7 +1792,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>171</width>
-             <height>441</height>
+             <height>460</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_16">
@@ -1863,14 +1866,15 @@ p, li { white-space: pre-wrap; }
               <layout class="QGridLayout" name="gridLayout_13">
                <item row="0" column="0">
                 <widget class="QCheckBox" name="checkBox_grid">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>21</height>
-                  </size>
-                 </property>
                  <property name="text">
                   <string>Grid</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBox_labels">
+                 <property name="text">
+                  <string>Labels</string>
                  </property>
                 </widget>
                </item>
@@ -2082,8 +2086,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>549</width>
-             <height>420</height>
+             <width>149</width>
+             <height>83</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">
@@ -2921,7 +2925,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2014-09-05&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2015-03-11&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Documentation: &lt;/span&gt;&lt;a href=&quot;https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Manual and detailed program description (PDF)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/gpl.html&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;GPL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;a href=&quot;mailto:Mikhail Polyanskiy &amp;lt;polyanskiy@bnl.gov&amp;gt;&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Mikhail N. Polyanskiy&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, Brookhaven National Laboratory, USA&lt;br /&gt;Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -3016,6 +3020,13 @@ p, li { white-space: pre-wrap; }
              </item>
             </layout>
            </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="checkBox_noprop">
+             <property name="text">
+              <string>No propagation calculations</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -3092,7 +3103,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>plainTextEdit_components</tabstop>
   <tabstop>toolButton_layout</tabstop>
   <tabstop>plainTextEdit_layout</tabstop>
-  <tabstop>checkBox_noprop</tabstop>
   <tabstop>pushButton_calculate</tabstop>
   <tabstop>pushButton_abort</tabstop>
   <tabstop>checkBox_saveWhenFinished</tabstop>
