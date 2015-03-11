@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   sodipodi:docbase="C:\Documents and Settings\gfg\Desktop"
+   sodipodi:docname="laser.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser256.png"
+   inkscape:export-xdpi="32.107903"
+   inkscape:export-ydpi="32.107903">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;">
+      <path
+         id="path9081"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.2) rotate(180) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleInS"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleInS"
+       style="overflow:visible">
+      <path
+         id="path9161"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(-0.2)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="174.23926"
+     inkscape:cy="613.7072"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1280"
+     inkscape:window-height="975"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="star"
+       style="fill:#ffff00;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       id="path2167"
+       sodipodi:sides="3"
+       sodipodi:cx="358.57144"
+       sodipodi:cy="330.93362"
+       sodipodi:r1="402.7482"
+       sodipodi:r2="201.37411"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.5707963"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 707.36161,532.30773 L 9.7812687,532.30772 L 358.57144,-71.814575 L 707.36161,532.30773 z "
+       transform="translate(14.285714,92.857143)"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+    <path
+       style="fill:#00bcde;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 371.93909,211.2004 C 371.93909,608.62333 371.93909,608.62333 371.93909,608.62333"
+       id="path4124"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+    <path
+       style="fill:#000000;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 222.4517,444.32214 C 609.01768,444.32214 609.01768,444.32214 609.01768,444.32214"
+       id="path5096"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+    <path
+       style="fill:#00bcde;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 260.80477,334.0746 C 481.29985,553.14112 481.29985,553.14112 481.29985,553.14112"
+       id="path5098"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+    <path
+       style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:none"
+       d="M 263.09046,554.5697 C 483.58556,335.50319 483.58556,335.50319 483.58556,335.50319"
+       id="path5100"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+    <path
+       sodipodi:type="star"
+       style="fill:#ffff00;fill-opacity:0;fill-rule:evenodd;stroke:#ff0000;stroke-width:30;stroke-linecap:butt;stroke-linejoin:miter;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path3139"
+       sodipodi:sides="3"
+       sodipodi:cx="358.57144"
+       sodipodi:cy="330.93362"
+       sodipodi:r1="402.7482"
+       sodipodi:r2="201.37411"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.5707963"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 707.36161,532.30773 L 9.7812687,532.30772 L 358.57144,-71.814575 L 707.36161,532.30773 z "
+       transform="translate(11.714261,92.40132)"
+       inkscape:export-filename="C:\Documents and Settings\gfg\Desktop\laser016.png"
+       inkscape:export-xdpi="1.9791628"
+       inkscape:export-ydpi="1.9791628" />
+  </g>
+</svg>
