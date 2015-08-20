@@ -268,7 +268,7 @@ v_d \left[ \frac{\text{cm}}{\text{s}} \right] =  - 5.93 \times 10^7 \left( \frac
 The fraction of electron energy transmitted via inelastic processes is defined as
 
 \begin{equation}\label{eq:z_jk}
-z_{jk} = 10^6 \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}   
+z_{jk} = 10^{16} \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}   
 \end{equation}
 
 The fraction of electron energy transmitted to translations and rotations are the following:
@@ -325,7 +325,7 @@ The dynamics of pumping/relaxation is described by the following equations
 \end{aligned}
 \end{equation}
 where
-\begin{equation}
+\begin{equation}\label{eq:dedt_rates}
 \begin{aligned}
 &p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);\\
 &f_2 = \frac{2(1+e_2)^2}{2+6e_2+3{e_2}^2};\quad f_3 = e_3(1+e_2/2)^3 - (1+e_3)(e_2/2)^3 \exp(- 500/T);\\
@@ -335,7 +335,7 @@ where
 &e_{2T} = \frac{2}{\exp(960/T)-1}
 \end{aligned}
 \end{equation}
-where $W(t)$ is the current density measured in {kW/cm$^3$} , $p_e$ is measured in {$\mu$s}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
+where $W(t)$ is the discharge power density measured in {kW/cm$^3$} , $p_e$ is measured in {$\mu$s$^{-1}$}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
 
 \begin{equation}
 \begin{aligned}
@@ -460,14 +460,14 @@ where $h = 6.62606957\times 10^{-34}$~J·s and $k = 1.3806488\times 10^{-23}$~J/
 
 Optical intensity $I$ is related to the field amplitude as follows:
 \begin{equation}\label{eq:I}
-I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] E^2
+I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] |E|^2
 \end{equation}
 
 Dephasing and relaxation times are defined by the following equations:
 \begin{equation}\label{eq:relaxation}
 \begin{aligned}
 &\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})}\\
-&\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (P_{CO2}+1.2P_{N2}+0.6P_{He})}
+&\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (1.3P_{CO2}+1.2P_{N2}+0.6P_{He})}
 \end{aligned}
 \end{equation}
 where pressure $P$ is measured in bars.
@@ -478,7 +478,7 @@ In the approximation used in the \texttt{co2amp} model, the processes of pumping
 
 In the fast time-frame associated with the pulse there is no equilibrium in the vibrational energy distribution, and a proper population dynamics rather than the temperature model must be used. Thus, during the amplification, population of each rotational-vibrational level is considered independently. After the pulse leaves the active medium, the energy distribution within each vibrational mode becomes normalized quickly, and can be described by the temperature model again.
 
-An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all {CO$_2$} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic spices of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
+An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all {CO$_2$} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic species of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
 
 Initial populations of vibrational levels are calculated for each isotopologue and for each band using the following equations:
 \begin{equation}\label{eq:Boltzman}
@@ -499,7 +499,7 @@ where $N$ is the density of {CO$_2$} molecules, and $\mathcal{Q}$ the partition 
 \frac{1}{\mathcal{Q}} = \left(1-\exp\left(\frac{-1920}{T_2}\right)\right) \times \left(1-\exp\left(\frac{-3380}{T_3}\right)\right) \times \left(1-\exp\left(\frac{-960}{T_2}\right)\right)^2
 \end{equation}
 
-Change of the populations due to stimulated transitions is calculated for each vibrational level using the last of the equations \ref{eq:amplification}:
+Change of the populations in the regular band due to stimulated transitions is calculated for each vibrational level using the last of the equations \ref{eq:amplification}:
 \begin{equation}\label{eq:dNdt}
 \begin{aligned}
 &\frac{d}{dt}N_{00^01} = 2\sum\limits_{J(00^01\rightarrow[10^00,02^00]_{I,II})} (\rho _J E^* + c.c.)\\
@@ -1374,6 +1374,45 @@ $n_2 = 1.0\times 10^{-13}$ cm$^2$/W at 2.2 $\mu$m \cite{Bristow-2007}
 \subsection*{ZnSe}
 $n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ \cite{Tatian-1984}\\
 $n_2 = 2.87\times 10^{-14}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
+
+
+
+\chapter{Selected formulas explained}
+\label{appendix:formulas_explained}
+
+
+\subsection*{Equation \ref{eq:z_jk}}
+
+Eq. \ref{eq:z_jk} defines the fraction $z_{jk}$ of discharge energy spent in inelastic collisions:
+
+\begin{equation*}
+z_{jk} = 10^{16} \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\xi\mathcal{E}}{\mathcal{N}} \right) v_d}  
+\end{equation*}
+where $y_j[\text{-}]$ is the relative concentration of a component in the gas mixture, $u_{jk}[\text{eV}]$ is the transferred energy per electron-molecule collision, collision rate constant $\omega _{jk}[\text{cm}^3\cdot\text{s}^{-1}]$ divided by electron drift speed $v_d[\text{cm}\cdot\text{s}^{-1}]$ is the collision cross-section ($[\text{cm}^2]$), $\mathcal{E}[10^{-16}\text{V}\cdot\text{cm}^{-1}]$ is the electric field, $\xi[\text{eV}\cdot\text{V}^{-1}]$ is the energy gained by electron moved across an electric potential difference of 1~V,  and $\mathcal{N}[\text{cm}^{-3}]$ is the total absolute concentration of the gas mixture.
+
+The physical meaning of $\xi\mathcal{E}$ is the energy (in eV) gained by an electron after passing 1~cm in the electric field $\mathcal{E}$. By definition of electronvolt, $\xi = 1$ and is thus omitted in Eq. \ref{eq:z_jk}.
+
+
+
+\subsection*{Pumping rate constants in equations \ref{eq:dedt} and \ref{eq:dedt_rates}}
+
+Pumping rate constant is the number of quanta added to a given vibrational mode per unit of time per molecule.
+
+\begin{equation*}
+p_e = \frac{1}{E_v[\text{J}]} \times \frac{1}{N[\text{cm}^{-3}] n[\text{-}] y[\text{-}]} \times q[\text{-}] W[\text{J}\cdot \text{s}^{-1} \cdot \text{cm}^{-3}]
+\end{equation*}
+where $E_v$ is the energy of the vibrational quanta: 4.665e-20~J (2349~{cm$^{-1}$}) for $\nu_3$ mode of {CO$_2$} (and roughly same for {N$_2$} vibration), and  1.325e-20 J (667 {cm$^{-1}$}) for $\nu_2$ mode; $N$=2.7e19 {cm$^{-3}$} is the density of gas molecules under normal conditions (1~bar, 273~K); $q$ is the fraction of discharge energy deposited in the corresponding vibration; $n$ is the correction factor for molecular density at the conditions different from 'normal'; $y$ is the relative concentration of the gas in the mixture; $W$ is the discharge power density.
+
+Combining the constants and switching to kW/cm$^3$ for power density and {$\mu$s$^{-1}$} for the rate constants we get the formulas given in the model description:
+
+\begin{equation*}
+p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);
+\end{equation*}
+
+
+
+
+
 
 
 \end{appendices}

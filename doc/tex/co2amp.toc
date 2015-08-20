@@ -26,4 +26,5 @@
 \contentsline {chapter}{\numberline {A}Cross-sections of excitation processes}{21}{Appendix.1.A}
 \contentsline {chapter}{\numberline {B}Molecular constants}{25}{Appendix.1.B}
 \contentsline {chapter}{\numberline {C}Properties of optical materials}{33}{Appendix.1.C}
-\contentsline {chapter}{Bibliography}{35}{chapter*.19}
+\contentsline {chapter}{\numberline {D}Selected formulas explained}{35}{Appendix.1.D}
+\contentsline {chapter}{Bibliography}{36}{chapter*.21}
