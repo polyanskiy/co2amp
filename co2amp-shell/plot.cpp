@@ -34,10 +34,7 @@ void MainWindow::Plot()
     out << "set ylabel \"Pulse energy, J\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
-    if(checkBox_log->isChecked())
-        out << "set logscale y" << newline;
-    else
-        out << "set yrange [0:*]" << newline;
+    checkBox_log->isChecked() ? out << "set logscale y" << newline : out << "set yrange [0:*]" << newline;
     out << "plot \"data_energy_selected.dat\" using 1:2 notitle" << newline;
     file.close();
 
@@ -51,7 +48,8 @@ void MainWindow::Plot()
     out << "set terminal png " << font << " size 360,270" << newline;
     out << "set output \"fig_fluence.png\"" << newline;
     if(checkBox_grid->isChecked())
-	out << "set grid" << newline;
+        out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
     out << "set xlabel \"r, cm\"" << newline;
     out << "set ylabel \"Fluence, mJ/cm^2\"" << newline;
     for(i=0; i<=9; i++){
@@ -80,6 +78,7 @@ void MainWindow::Plot()
     out << "set output \"fig_power.png\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out << "set key" << newline : out << "unset key" << newline;
     out << "set xlabel \"Time, ps\"" << newline;
     float tmin = Saved.t_pulse_min.toFloat()/pow(2, comboBox_timeScale->currentIndex());
     float tmax = Saved.t_pulse_max.toFloat()/pow(2, comboBox_timeScale->currentIndex());
@@ -115,7 +114,8 @@ void MainWindow::Plot()
     out << "set terminal png " << font << " size 360,270" << newline;
     out << "set output \"fig_spectra.png\"" << newline;
     if(checkBox_grid->isChecked())
-	out << "set grid" << newline;
+        out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
     out << "set xlabel \"Frequency, THz\"" << newline;
     out << "set xrange [" << Saved.vc.toFloat()-v_spread << ":" << Saved.vc.toFloat()+v_spread << "]" << newline;
     out << "set ylabel \"Intensity, a.u.\"" << newline;
@@ -149,6 +149,7 @@ void MainWindow::Plot()
         out << "set ylabel \"Temperature, K\"" << newline;
         if(checkBox_grid->isChecked())
             out << "set grid" << newline;
+        checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
         out << "set yrange [0:*]" << newline;
         out << "plot \"data_temperatures.dat\" using 1:($" << 4*am_n+2 << ") with lines ti \"Lower: T2\",\\" << newline;
         out << "\"data_temperatures.dat\" using 1:($" << 4*am_n+3 << ") with lines ti \"Upper: T3\",\\" << newline;
@@ -168,6 +169,7 @@ void MainWindow::Plot()
         out << "set ylabel \"e (# of quanta / molecule)\"" << newline;
         if(checkBox_grid->isChecked())
             out << "set grid" << newline;
+        checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
         out << "set yrange [0:*]" << newline;
         out << "plot \"data_e.dat\" using 1:($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 um (symm stretch): e1\",\\" << newline;
         out << "\"data_e.dat\" using 1:($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 um (bend): e2\",\\" << newline;
@@ -184,6 +186,7 @@ void MainWindow::Plot()
     out << "set output \"fig_band.png\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
     out << "set xlabel \"Frequency, THz\"" << newline;
     out << "set xrange [" << Saved.vc.toFloat()-v_spread << ":" << Saved.vc.toFloat()+v_spread << "]" << newline;
     out << "set ylabel \"Gain, %/cm\"" << newline;
@@ -218,6 +221,7 @@ void MainWindow::Plot()
     out << "set y2label \"Voltage, kV\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
     out << "plot \"data_discharge.dat\" using 1:($2/1000.0) axis x1y1 with lines ti \"Current\",\\" << newline;
     out << "\"data_discharge.dat\" using 1:($3/1000.0) axis x1y2 with lines ti \"Voltage\"" << newline;;
     file.close();
@@ -232,6 +236,7 @@ void MainWindow::Plot()
     out << "set ylabel \"q\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
+    checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
     out << "plot \"data_q.dat\" using 1:2 with lines ti \"Lower: q2\",\\" << newline;
     out << "\"data_q.dat\" using 1:3 with lines ti \"Upper: q3\",\\" << newline;
     out << "\"data_q.dat\" using 1:4 with lines ti \"N2: q4\",\\" << newline;

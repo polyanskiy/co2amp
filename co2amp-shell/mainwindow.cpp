@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(Plot()));
     connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(Plot()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
+    connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_log, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(plainTextEdit_comments, SIGNAL(textChanged()), this, SLOT(Comments()));
