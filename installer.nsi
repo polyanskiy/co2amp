@@ -7,7 +7,7 @@
 ;General
 SetCompressor lzma
 Name "co2amp"
-OutFile "co2amp_v.20150311_setup.exe"
+OutFile "co2amp_v.20150820_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES\co2amp"          ;default
