@@ -13,7 +13,7 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
-    double tauR = 1e-7 / (750*(p_CO2+1.2*p_N2+0.6*p_He));            // rotational termalisation time, s
+    double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
     //double DELTA = 0; //temp
 
     // variables for gain spectrum calculation

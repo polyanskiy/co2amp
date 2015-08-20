@@ -44,6 +44,7 @@ void Boltzmann(double t)
     WriteEquations(); // fill out the M matrix
     SolveEquations();
     CalculateQ();
+    //Save_f(); //test Boltzmann solver
     FreeMemoryBoltzmann();
 }
 
@@ -432,5 +433,21 @@ void InitInputArrays(void)
     double Q215_x[] = {15.600,	18.000,	20.000,	50.000,	100.000};
     double Q215_y[] = {0.000,	0.100,	0.210,	2.520,	2.520};
     InterpolateArray(Q215_x, Q215_y, sizeof(Q215_x)/sizeof(double), Q2[15]);
+}
+
+
+void Save_f()
+{
+    FILE *file;
+    int i;
+
+    file = fopen("f.dat", "w");
+
+    fprintf(file, "eV\tf\n");
+
+    for(i=0; i<b0; i++){
+        fprintf(file, "%.4E\t%.4E\n", u[i], f[i]);
+    }
+    fclose(file);
 }
 

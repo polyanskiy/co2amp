@@ -24,13 +24,13 @@ double *component_Dr;
 double *layout_distance, *layout_time;
 int *layout_component;
 bool noprop;
+double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- PUMPING -------
 char pumping[16]; // pumping type ("discharge" or "optical")
 int n_discharge_points; // number of pints in the discharge profile
 double **discharge; // time current voltage
 double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
 double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
-//double C1i, C2i, C3i, C4i, C5i, C6i, C1u, C2u, C3u, C4u;
 double q2, q3, q4, qT;
 double q2_a, q3_a, q4_a, qT_a, t_a;
 double q2_b, q3_b, q4_b, qT_b, t_b;
@@ -110,7 +110,6 @@ void FreeMemoryBoltzmann(void);
 /////////////////////////// optics.c ///////////////////////////
 void BeamPropagation(int pulse, int k, double t);
 double RefractiveIndex(char* material, double frequency);
-//double GroupIndex(char* material, double frequency);
 double NonlinearIndex(char* material);
 void Probe();
 void Lens(int pulse, double Dr, double F);
@@ -133,6 +132,7 @@ void SolveEquations(void);
 void CalculateQ(void);
 void InitInputArrays(void);
 void InterpolateArray(double*, double*, int, double*);
+void Save_f(void); //debug (test Boltzmann solver)
 
 ///////////////////////////// calc.c /////////////////////////////
 void FFT(double complex *in, double complex *out);

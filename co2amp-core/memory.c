@@ -48,6 +48,11 @@ void AllocateMemory()
         for(x=0; x<x0; x++)
             E[pulse][x] = malloc(sizeof(double complex)*n0);
     }
+
+    // temporary - for nonlinear absorption in Ge
+    /*alpha = malloc(sizeof(double)*x0);
+    for(x=0; x<x0; x++)
+        alpha[x] = 2; // 1/m (=0.02 1/cm)*/
 }
 
 
@@ -101,6 +106,8 @@ void FreeMemory()
         free(E[pulse]);
     }
     free(E);
+
+    /*free(alpha);*/  // temporary - for nonlinear absorption in Ge
 }
 
 
