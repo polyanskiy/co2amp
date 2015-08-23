@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.2
+** Created by: Qt User Interface Compiler version 5.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -307,7 +307,6 @@ public:
         pushButton_calculate->setMinimumSize(QSize(120, 0));
         pushButton_calculate->setMaximumSize(QSize(120, 16777215));
         pushButton_calculate->setAutoDefault(false);
-        pushButton_calculate->setDefault(true);
 
         horizontalLayout_2->addWidget(pushButton_calculate);
 
@@ -1536,6 +1535,7 @@ public:
         retranslateUi(MainWindowClass);
 
         tabWidget_main->setCurrentIndex(1);
+        pushButton_calculate->setDefault(true);
 
 
         QMetaObject::connectSlotsByName(MainWindowClass);
