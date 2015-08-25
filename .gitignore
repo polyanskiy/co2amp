@@ -1,4 +1,8 @@
 *.o
+*.pro.user*
+Makefile*
+*.Debug
+*.Release
 
 # Windows image file caches
 Thumbs.db
