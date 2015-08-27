@@ -3,11 +3,9 @@
 Makefile*
 *.Debug
 *.Release
-<<<<<<< HEAD
 moc_*.cpp
 qrc_*.cpp
-=======
->>>>>>> origin/master
+ui_*.h
 
 # Windows image file caches
 Thumbs.db
