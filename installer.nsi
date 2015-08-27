@@ -142,6 +142,7 @@ Section "Uninstall"
   Delete "$INSTDIR\uninstall.exe"
   RMDir /r "$INSTDIR"
 
+  ;unregister extensions
   DeleteRegKey HKLM "Software\co2amp"
   DeleteRegKey HKLM "${CO2AMP_UNINST_KEY}"
   DeleteRegKey HKCR "${CO2AMP_ROOT_KEY}"
