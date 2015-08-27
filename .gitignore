@@ -1,4 +1,10 @@
 *.o
+*.pro.user*
+Makefile*
+*.Debug
+*.Release
+moc_*.cpp
+qrc_*.cpp
 
 # Windows image file caches
 Thumbs.db
