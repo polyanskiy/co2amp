@@ -49,8 +49,13 @@ Use QMake 3.0 to create co2amp-shell makefile and then compile it.
 Again you may want to add co2amp to the search path so that it can be run from anywhere. Try /usr/local/bin or ~/bin. 
 
 ## Run 
+If running locally
 
     ./co2amp
+
+If in your search path
+
+    co2amp
 
 Temp files will be created at /tmp/co2amp/xxxxx/. 
 Save them or else they will be deleted after the GUI is closed. 
