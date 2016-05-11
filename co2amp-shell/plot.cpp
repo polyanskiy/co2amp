@@ -13,6 +13,11 @@ void MainWindow::Plot()
     QFile file;
     QTextStream out(&file);
     QString newline, font, lmargin;
+    #ifdef Q_OS_LINUX
+        newline = "\n";
+        font = "small";
+        lmargin = "12";
+    #endif
     #ifdef Q_OS_X11
         newline = "\n";
         font = "small";
