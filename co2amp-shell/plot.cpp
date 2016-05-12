@@ -18,11 +18,6 @@ void MainWindow::Plot()
         font = "small";
         lmargin = "12";
     #endif
-    #ifdef Q_OS_X11
-        newline = "\n";
-        font = "small";
-        lmargin = "12";
-    #endif
     #ifdef Q_OS_WIN
         newline = "\r\n";
         font = "small";
