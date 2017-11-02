@@ -6,6 +6,7 @@ Makefile*
 moc_*.cpp
 qrc_*.cpp
 ui_*.h
+*.stash
 
 # Windows image file caches
 Thumbs.db
