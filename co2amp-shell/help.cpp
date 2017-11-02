@@ -15,11 +15,13 @@ void MainWindow::on_toolButton_components_clicked()
     list << "&nbsp; &nbsp; &nbsp; <code>AM</code>: length in cm<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>PROBE</code>: no parameters<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>MASK</code>: radius in cm<br>";
-    list << "&nbsp; &nbsp; &nbsp; <code>ABSORBER</code>: transmittance<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>ATTENUATOR</code>: transmittance<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>LENS</code>: focal length in cm<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>WINDOW</code>: material (<code>CdTe</code>, <code>GaAs</code>, <code>Ge</code>, <code>KCl</code>, <code>NaCl</code>, <code>Si</code>, <code>ZnSe</code>) and thickness in cm<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>STRETCHER</code>: pulse chirping factor in ps/THz, positive for red chirp<br>";
-    list << "&nbsp; &nbsp; &nbsp; <code>BANDPASS</code>: band center and bandwidth in THz</p>";
+    list << "&nbsp; &nbsp; &nbsp; <code>BANDPASS</code>: band center and bandwidth in THz<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>APODIZER</code>: width of apodization as fraction of radial field (0&le;&alpha;&le;1)<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>AIR</code>: humidity in percents and length in cm</p>";
     str = "<qt>"+list.join("")+"</qt>";
     QMessageBox mb( "Hint - co2amp", str, QMessageBox::Information, QMessageBox::Ok, 0, 0);
     mb.exec();

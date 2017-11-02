@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     debug_level = 1;
     flag_status_or_debug = true;
-    printf("co2amp-core v.2015-08-20\n\n");
+    printf("co2amp-core v.2017-11-02\n\n");
     fflush(stdout);
     #pragma omp parallel // counting processors (for parallel computing)
 	if (omp_get_thread_num() == 0)
@@ -106,13 +106,13 @@ void Calculations()
                     // optical components
                     if(!strcmp(component_type[K], "MASK"))
                         Mask(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: mask radius, cm -> m
-                    if(!strcmp(component_type[K], "ABSORBER"))
-                        Absorber(pulse, atof(component_param1[K])); //param1: transmission
+                    if(!strcmp(component_type[K], "ATTENUATOR") || !strcmp(component_type[K], "ABSORBER"))
+                        Attenuator(pulse, atof(component_param1[K])); //param1: transmission
                     if(!strcmp(component_type[K], "LENS"))
                         Lens(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: Focal length, cm -> m
                     if(!strcmp(component_type[K], "WINDOW")){
                         StatusDisplay(pulse, k, t_cur, "material...");
-                        Window(pulse, component_param1[K], atof(component_param2[K])*1e-2); //param1: material, param2: thickness, cm -> m
+                        Window(pulse, component_param1[K], atof(component_param2[K])*1e-2); //param1: material; param2: thickness, cm -> m
                     }
                     if(!strcmp(component_type[K], "STRETCHER")){
                         StatusDisplay(pulse, k, t_cur, "stretcher...");
@@ -120,7 +120,15 @@ void Calculations()
                     }
                     if(!strcmp(component_type[K], "BANDPASS")){
                         StatusDisplay(pulse, k, t_cur, "bandpass...");
-                        Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center THz -> Hz, param2: bandwidth THz -> Hz,
+                        Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center, THz -> Hz; param2: bandwidth, THz -> Hz,
+                    }
+                    if(!strcmp(component_type[K], "APODIZER")){
+                        StatusDisplay(pulse, k, t_cur, "apodizer...");
+                        Apodizer(pulse, atof(component_param1[K])); //param1: apodization parameter alpha. Must be in range 0 (no apodization) ... 1 (full-aperture apodization)
+                    }
+                    if(!strcmp(component_type[K], "AIR")){
+                        StatusDisplay(pulse, k, t_cur, "air...");
+                        Air(pulse, atof(component_param1[K]), atof(component_param2[K])*1e-2); //param1: humidity, %; param2: length, cm -> m
                     }
 
                     //propagation to next component

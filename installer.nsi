@@ -110,17 +110,16 @@ Section "Section_01" Sec01
   WriteRegStr HKLM "SOFTWARE\co2amp" "" $INSTDIR
   WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2" ""
   WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2x" ""
-  ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\DefaultIcon" "" "$INSTDIR\co2amp.exe"
   WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" "$INSTDIR\co2amp.exe $\"%1$\"" ; "%1" without quotes: 8.3 name format
+  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1$"'
+  
   ;Register extensions
   WriteRegStr HKCR ".co2\OpenWithProgIds" "co2amp.co2" ""
   WriteRegStr HKCR "co2amp.co2\shell\open" "FriendlyAppName" "co2amp";
-  WriteRegStr HKCR "co2amp.co2\shell\open\command" "" "$INSTDIR\co2amp.exe $\"%1$\"" ; "%1" without quotes: 8.3 name format
-  
+  WriteRegStr HKCR "co2amp.co2\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1"'
   WriteRegStr HKCR ".co2x\OpenWithProgIds" "co2amp.co2x" ""
   WriteRegStr HKCR "co2amp.co2x\shell\open" "FriendlyAppName" "co2amp";
-  WriteRegStr HKCR "co2amp.co2x\shell\open\command" "" "$INSTDIR\co2amp.exe $\"%1$\"" ;
+  WriteRegStr HKCR "co2amp.co2x\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1"'
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -146,8 +145,8 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\co2amp"
   DeleteRegKey HKLM "${CO2AMP_UNINST_KEY}"
   DeleteRegKey HKCR "${CO2AMP_ROOT_KEY}"
-  DeleteRegKey HKCR ".co2\OpenWithProgIds\co2amp.co2"
-  DeleteRegKey HKCR ".co2x\OpenWithProgIds\co2amp.co2x"
+  DeleteRegValue HKCR ".co2\OpenWithProgIds" "co2amp.co2"
+  DeleteRegValue HKCR ".co2x\OpenWithProgIds" "co2amp.co2x"
   DeleteRegKey HKCR "co2amp.co2"
   DeleteRegKey HKCR "co2amp.co2x"
 

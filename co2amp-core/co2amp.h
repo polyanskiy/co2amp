@@ -47,8 +47,6 @@ double v_min, v_max;       // frequency limits, Hz
 double nop[6][4][3][61];   // normalized populations
 double v[6][4][4][61];     // transition frequencies, Hz
 double sigma[6][4][4][61]; // transition cross-sections, m^2
-// ------- MISC. CONSTANTS -------
-double c, h; // spped of light [m/s]; Plank's [J s]
 // ------- OUTPUT ARRAYS -------
 double complex ***E;
 double **T, **e2, **e3, **e4;
@@ -70,6 +68,10 @@ double **Q1, **Q2;
 double u1[11], u2[16];
 double **M;
 double *f;
+// ------- MISC. CONSTANTS -------
+double c, h; // spped of light [m/s]; Plank's [J s]
+// ------- MISC. GLOBAL VARIABLES -------
+double humidity; // air humidity [%]
 
 
 // -------------------------- FUNCTIONS --------------------------
@@ -114,10 +116,12 @@ double NonlinearIndex(char* material);
 void Probe();
 void Lens(int pulse, double Dr, double F);
 void Mask(int pulse, double Dr, double radius);
-void Absorber(int pulse, double transmission);
+void Attenuator(int pulse, double transmission);
 void Window(int pulse, char *material, double thickness);
 void Stretcher(int pulse, double stretching);
 void Bandpass(int pulse, double bandcenter, double bandwidth);
+void Apodizer(int pulse, double alpha);
+void Air(int pulse, double humidity, double length);
 
 /////////////////////////// output.c ///////////////////////////
 void UpdateOutputFiles(int pulse, int component, double time);
