@@ -9,7 +9,8 @@ void MainWindow::on_toolButton_components_clicked()
     list << "<p><code><b>id</b></code>: component identifier<br>";
     list << "&nbsp; &nbsp; &nbsp; example: \"<code>am</code>\" \"<code>probe1</code>\"</p>";
     list << "<p><code><b>type</b></code>: component type<br>";
-    list << "&nbsp; &nbsp; &nbsp; <code>AM</code>, <code>PROBE</code>, <code>MASK</code>, <code>ABSORBER</code>, <code>LENS</code>, <code>WINDOW</code>, <code>STRETCER</code>, <code>BANDPASS</code></p>";
+    list << "&nbsp; &nbsp; &nbsp; <code>AM</code>, <code>PROBE</code>, <code>MASK</code>, <code>ATTENUATOR</code>, <code>LENS</code>, <code>WINDOW</code>, <code>STRETCER</code>,<br>";
+    list << "&nbsp; &nbsp; &nbsp; <code>BANDPASS</code>, <code>APODIZER</code>, <code>AIR</code></p>";
     list << "<p><code><b>field</b></code>: max radial field in cm</p>";
     list << "<p><code><b>param1</b></code> and <code><b>param2</b></code>: type-specific parameters<br>";
     list << "&nbsp; &nbsp; &nbsp; <code>AM</code>: length in cm<br>";
