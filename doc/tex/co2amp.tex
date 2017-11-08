@@ -1,9 +1,11 @@
 \documentclass{report}
-\usepackage{fullpage,cite,amssymb,amsmath,graphicx,tabularx,rotating}
+\usepackage{fullpage,amssymb,amsmath,graphicx,tabularx,rotating}
 \usepackage[utf8]{inputenc}
 \usepackage[hidelinks]{hyperref}
 \usepackage[nottoc]{tocbibind}
 \usepackage[toc,page]{appendix}
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+\addbibresource{co2amp.bib} 
 
 \begin{document}
 
@@ -114,15 +116,21 @@ Each optical component is described in a separate line by several tab- or space-
 &&&\\
 \texttt{MASK} & Opaque circular screen & Radius [cm] & -\\
 &&&\\
-\texttt{ABSORBER} & Absorber & Transmittance & -\\
+\texttt{ATTENUATOR} & Attenuator & Transmittance & -\\
 &&&\\
 \texttt{LENS} & Ideal lens (no spherical or chromatic aberrations)& Focal length [cm]& -\\
 &&&\\
-\texttt{WINDOW} & Transparent flat window (zero reflection and absorption losses) & Window material: KCl, NaCl, ZnSe, GaAs, CdTe, Ge, or Si & Thickness [cm]\\
+\texttt{WINDOW} & Transparent flat window (zero reflection and absorption losses) & Window material: KCl, NaCl, ZnSe, GaAs, CdTe, Ge, or Si 
+
+(or with '-Brewster' modifier: KCl-Brewster, Si-Brewster etc.) & Thickness [cm]\\
 &&&\\
 \texttt{STRETCHER} & Stretcher or compressor & Pulse chirping [ps/THz] (positive for red-chirp) & -\\
 &&&\\
 \texttt{BANDPASS} & Band-pass filter & Band center [THz] & Bandwidth [THz]\\
+&&&\\
+\texttt{APODIZER} & Apodizing filter & Width of apodization as fraction of radial field (${0\leq\alpha\leq1}$) & -\\
+&&&\\
+\texttt{AIR} & Air (model linear dispersion and $n_2$ related effects) & Humidity [\%] & Length [cm]\\
 \hline
 \end{tabularx}\\
 \end{table}
@@ -132,18 +140,18 @@ The following example defines several components of 2.5-cm diameter: A probe sur
 
 \bigskip
 \begin{tabular}{lllll}
-\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
-\texttt{am1} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
-\texttt{am2} & \texttt{AM}       & \texttt{1.25} & \texttt{120}  &           \\
-\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
-\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
+\texttt{p}   & \texttt{PROBE}      & \texttt{1.25} &               &           \\
+\texttt{am1} & \texttt{AM}         & \texttt{1.25} & \texttt{120}  &           \\
+\texttt{am2} & \texttt{AM}         & \texttt{1.25} & \texttt{120}  &           \\
+\texttt{win} & \texttt{WINDOW}     & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
+\texttt{att} & \texttt{ATTENUATOR} & \texttt{1.25} & \texttt{0.96} &
 \end{tabular}
 
 \subsection{Layout}
 Optical configuration is specified as a sequence of the components identified by their \textit{\textbf{ID}}s. All components are separated by non-negative distances expressed in centimeters. Components and distances must be separated by spaces, tabs, line breaks, or dashes. The following is an example of an optical configuration that uses the components defined in the previous example:
 
 \bigskip
-\texttt{p-0-abs-0-win-0-abs-100-am1-200-am2-100-abs-0-win-0-abs-0-p }
+\texttt{p-0-att-0-win-0-att-100-am1-200-am2-100-att-0-win-0-att-0-p }
 \bigskip
 
 This example defines the configuration shown in Fig.~\ref{fig:optical-configuration-1}.
@@ -186,20 +194,20 @@ Components:\nopagebreak
 
 \bigskip
 \begin{tabular}{lllll}
-\texttt{p}   & \texttt{PROBE}    & \texttt{1.25} &               &           \\
-\texttt{am1a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am1b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am2a} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{am2b} & \texttt{AM}      & \texttt{1.25} & \texttt{60}  &           \\
-\texttt{win} & \texttt{WINDOW}   & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
-\texttt{abs} & \texttt{ABSORBER} & \texttt{1.25} & \texttt{0.96} &
+\texttt{p}    & \texttt{PROBE}      & \texttt{1.25} &               &           \\
+\texttt{am1a} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
+\texttt{am1b} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
+\texttt{am2a} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
+\texttt{am2b} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
+\texttt{win}  & \texttt{WINDOW}     & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
+\texttt{abs}  & \texttt{ATTENUATOR} & \texttt{1.25} & \texttt{0.96} &
 \end{tabular}
 \bigskip
 
 Layout:\nopagebreak
 
 \bigskip
-\texttt{p-0-abs-0-win-0-abs-70-am1a-60-am1b-140-am2b-60-am2a-70-abs-0-win-0-abs-0-p}
+\texttt{p-0-att-0-win-0-att-70-am1a-60-am1b-140-am2b-60-am2a-70-att-0-win-0-att-0-p}
 \bigskip
 
 Population dynamics in all amplifier sections is modeled separately, and thus, by splitting a long amplifier into shorter sections we also obtain a more realistic model of the active medium.
@@ -563,8 +571,8 @@ E'(t,r) = \left\{ \begin{array}{ll}
 \end{equation}
 where $\mathcal{R}$ is the radius of the screen.
 
-\subsection*{\texttt{ABSORBER}}
-(\textit{Ideal neutral density filter})
+\subsection*{\texttt{ATTENUATOR}}
+(\textit{Ideal neutral density filter. Can be used as an ideal amplifier by setting $\mathcal{T}>1$}.)
 \begin{equation}
 E'(t,r) = E(t,r) \sqrt{\mathcal{T}}
 \end{equation}
@@ -577,8 +585,11 @@ E'(t,r) = E(t,r) \exp\left( \pi i \frac{r^2}{\lambda_c F} \right)
 \end{equation}
 where $F$ is the focal length of the lens, and $\lambda_c$ is the central wavelength.
 
-\subsection*{\texttt{WINDOW}}
-(\textit{Flat transparent window with zero reflection and absorption losses})
+\subsection*{\texttt{WINDOW, AIR}}
+(\textit{Flat transparent window with zero reflection and absorption losses, or air})
+
+Note: A normal incidence is assumed. In the case of an oblique incidence, the user should take appropriate measures for accounting for the reduced optical intensity on the surface, and the increased propagation length (effective thickness). However, if '-Brewster' modifier is used in the material's name (KCl-Brewster, Si-Brewster, etc.), the necessary adjustments are performed automatically for the Brewster's angle calculated at the central wavelength.
+
 \subsubsection*{Linear dispersion}
 \begin{equation}
 \begin{aligned}
@@ -587,7 +598,7 @@ where $F$ is the focal length of the lens, and $\lambda_c$ is the central wavele
 &E'(t,r) = \mathcal{F}^{-1}(\widehat{E}'(\nu,r))
 \end{aligned}
 \end{equation}
-where $\widehat{E}(\nu,r)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_0$ is the linear component of the index of refraction, and $\Theta$ is the thickness of the window. The Ddispersion formulae s used for calculating $n_0$ are given in Appendix~\ref{appendix:optical_constants}.
+where $\widehat{E}(\nu,r)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_0$ is the linear component of the index of refraction, and $\Theta$ is the thickness of the window. The dispersion formulas used for calculating $n_0$ are given in Appendix~\ref{appendix:optical_constants}.
 \subsubsection*{Nonlinear interaction}
 \begin{equation}
 E'(t,r) = E(t,r) \exp\left(-2\pi i \nu_c \frac{\Theta}{c} n_2 I(t,r)\right)
@@ -610,13 +621,28 @@ where $\mathcal{S}$ is the stretching factor (in s/Hz, positive for the red chir
 \begin{equation}
 \begin{aligned}
 &\widehat{E}(\nu,r) = \mathcal{F}(E(t,r))\\
-&\widehat{E}'(\nu,r) = \left\{ \begin{array}{ll}
-  0                      & \nu<(\nu_b-\Delta\nu/2); \; \nu>(\nu_b+\Delta\nu/2)\\
-  \widehat{E}(\nu,r) & (\nu_b-\Delta\nu/2) \leq \nu \leq (\nu_b+\Delta\nu/2)\end{array}\right.\\ 
+&\widehat{E}'(\nu,r) = \left\{
+	\begin{array}{ll}
+  		0                  & \nu<(\nu_b-\Delta\nu/2); \; \nu>(\nu_b+\Delta\nu/2)\\
+  		\widehat{E}(\nu,r) & (\nu_b-\Delta\nu/2) \leq \nu \leq (\nu_b+\Delta\nu/2)
+  \end{array}
+\right.\\ 
 &E'(t,r) = \mathcal{F}^{-1}(\widehat{E}'(\nu,r))\\
 \end{aligned}
 \end{equation}
 where $\nu_b$ is the band center, and $\Delta\nu$ the bandwidth of the filter.
+
+\subsection*{\texttt{APODIZER}}
+(\textit{Apodizing filter})
+\begin{equation}
+E'(t,r) = \left\{
+	\begin{array}{ll}
+  		E(r,t)             & r\leq(1-\alpha)\mathcal{R}\\
+  		E(r,t)\sqrt{sin^2\left(\frac{\mathcal{R}-r}{2\alpha\mathcal{R}}\pi\right)} & r>(1-\alpha)\mathcal{R}
+  	\end{array}
+\right.\\ 
+\end{equation}
+where $\mathcal{R}$ is the maximum radius of the filter ("field"), and $\alpha$ is a constant (${0\leq\alpha\leq1}$).
 
 
 
@@ -1374,7 +1400,9 @@ $n_2 = 1.0\times 10^{-13}$ cm$^2$/W at 2.2 $\mu$m \cite{Bristow-2007}
 \subsection*{ZnSe}
 $n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ \cite{Tatian-1984}\\
 $n_2 = 2.87\times 10^{-14}$ cm$^2$/W at 1.06 $\mu$m \cite{Sheik-Bahae-1991}
-
+\subsection*{Air}
+Refractive index $n_0$ is calculated using Mathar's model \cite{Mathar-2007}\\
+$n_2 = 3\times 10^{-23}$ cm$^2$/W at 10.6 $\mu$m \cite{Geints-2014}
 
 
 \chapter{Selected formulas explained}
@@ -1420,7 +1448,7 @@ p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-
 
 
                           
-\bibliographystyle{unsrt}
-\bibliography{co2amp}
+
+\printbibliography
                           
 \end{document}            

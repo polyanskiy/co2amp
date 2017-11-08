@@ -5,9 +5,8 @@
 !include "MUI.nsh"
 
 ;General
-SetCompressor lzma
 Name "co2amp"
-OutFile "co2amp_v.20150823_setup.exe"
+OutFile "co2amp_v.20171108_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES\co2amp"          ;default
@@ -81,18 +80,15 @@ Section "Section_01" Sec01
   SetOutPath "$INSTDIR"
   File "co2amp-core\release\co2amp-core.exe"
   File "co2amp-shell\release\co2amp.exe"
-  File "C:\Qt\5.5\mingw492_32\bin\icudt54.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\icuin54.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\icuuc54.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\libgcc_s_dw2-1.dll"
-  File "C:\Qt\Tools\mingw492_32\bin\libgomp-1.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\libstdc++-6.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\libwinpthread-1.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\Qt5Core.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\Qt5Gui.dll"
-  File "C:\Qt\5.5\mingw492_32\bin\Qt5Widgets.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\libgcc_s_dw2-1.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\libstdc++-6.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\libwinpthread-1.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\Qt5Core.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\Qt5Gui.dll"
+  File "C:\Qt\5.9.2\mingw53_32\bin\Qt5Widgets.dll"
+  File "C:\Qt\Tools\mingw530_32\bin\libgomp-1.dll"
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\5.5\mingw492_32\plugins\platforms\qwindows.dll"
+  File "C:\Qt\5.9.2\mingw53_32\plugins\platforms\qwindows.dll"
   
   ;Write Start menu entries
   SetShellVarContext all

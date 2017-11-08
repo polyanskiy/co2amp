@@ -160,7 +160,7 @@ void Window(int pulse, char *material, double thickness)
             spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
             // eliminate time-frame shift introduced by the difference between phase and group velocity
             //delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1000)-RefractiveIndex(material,vc-1000))/(c/(vc+1000)-c/(vc-1000)); // relative group delay
-            delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+10000000)-RefractiveIndex(material,vc-10000000))/(c/(vc+10000000)-c/(vc-10000000)); // relative group delay
+            delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
             spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*delay);
         }
         IFFT(spectrum, E[pulse][x]);
