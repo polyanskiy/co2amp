@@ -1,14 +1,17 @@
 *.o
 *.pro.user*
 Makefile*
+co2amp-shell/debug
+co2amp-shell/release
+co2amp-core/debug
+co2amp-core/release
 *.Debug
 *.Release
 moc_*.cpp
 qrc_*.cpp
 ui_*.h
 *.stash
-/release
-/debug
+*setup.exe
 
 # Windows image file caches
 Thumbs.db
@@ -53,4 +56,12 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-*.exe
+*.aux
+doc/tex/co2amp.bbl
+*.bcf
+doc/tex/co2amp.blg
+*.log
+doc/tex/co2amp.out
+*.xml
+doc/tex/co2amp.synctex.gz
+*.toc
