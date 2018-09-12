@@ -4,7 +4,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[nottoc]{tocbibind}
 \usepackage[toc,page]{appendix}
-\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage[backend=biber,style=numeric-comp,citestyle=numeric,sorting=none]{biblatex}
 \addbibresource{co2amp.bib} 
 
 \begin{document}
@@ -200,7 +200,7 @@ Components:\nopagebreak
 \texttt{am2a} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
 \texttt{am2b} & \texttt{AM}         & \texttt{1.25} & \texttt{60}   &           \\
 \texttt{win}  & \texttt{WINDOW}     & \texttt{1.25} & \texttt{NaCl} & \texttt{5}\\
-\texttt{abs}  & \texttt{ATTENUATOR} & \texttt{1.25} & \texttt{0.96} &
+\texttt{att}  & \texttt{ATTENUATOR} & \texttt{1.25} & \texttt{0.96} &
 \end{tabular}
 \bigskip
 
@@ -447,7 +447,7 @@ Transition frequencies of $P$ and $R$ transitions are calculated as follows:
 where $J$ is the rotational quantum number, $V$ is the vibrational constant of the corresponding transition, and, $B_U$ and $B_L$ the rotational constants of the upper and lower level of the transition correspondingly. The numerical values of the molecular constants used in the program are listed in Appendix \ref{appendix:molecular_constants}.
 
 The transition cross-section in the line center is calculated \cite{Hilborn-2002}
-\begin{equation}
+\begin{equation}\label{eq:sigma}
 {\sigma _J}[\text{m}^2] = \frac{(\lambda _J[\text{m}])^2 A_J[\text{s}^{-1}]}{4} \times \frac{\tau_2[\text{s}]}{\pi}
 \end{equation}
 where the first term defines the integral cross-section of the rotational line, and the second term is the maximum of the normalized Lorentzian profile of a line with width $2\pi\Delta\nu _{HWHM}=1/\tau_2$.
@@ -872,12 +872,12 @@ The vibrational and rotational constants $V$ and $B$ are listed in Table \ref{ta
 
 Einstein coefficients $A$ of the laser transitions included in the simulations are summarized in Tables \ref{table:A626}-\ref{table:A838}. Except for the 10-micron transitions of \textit{838} isotopologue, data are taken from the HITRAN2016 database \cite{Gordon-2017} (Einstein coefficients) and our fit of HITRAN data with equation (\ref{eq:frequencies}) ($V$ and $B$).
 
-For 10-micron transitions of \textit{838} (not included in the HITRAN datavase), $V$ and $B$ constants are taken from \cite{Maki-1994}; Einstein coefficients are assumed to be the same as for the corresponding 9-micron transitions (according to Freed's gain measurements \cite{Freed-1982}).
+For the 10-micron transitions of \textit{838} (not included in the HITRAN database), $V$ and $B$ constants are taken from \cite{Maki-1994}. Einstein coefficients are obtained by scaling the coefficients of the corresponding 9-micron transitions in the assumption that gain coefficients (proportional to transition cross-sections, Eq. \ref{eq:sigma}) are roughly the same (according to Freed's measurements \cite{Freed-1982}).
 
 
-\begin{sidewaystable}
+\begin{table}
 \centering
-\caption{Molecular constants of CO$_2$ isotopologues, Hz}
+\caption{Molecular constants of CO$_2$ isotopologues, THz}
 \label{table:VB}
 \footnotesize
 \begin{tabular}{|l|cccccc|}
@@ -886,38 +886,38 @@ For 10-micron transitions of \textit{838} (not included in the HITRAN datavase),
 \hline
 \multicolumn{7}{|c|}{$00^01\rightarrow[10^00,02^00]_{I,II}$ ('Regular band')}\\
 \hline
-$V(00^01-I)$            & 2.8809e13 & 2.8969e13 & 2.8988e13 & 2.7384e13 & 2.7692e13 & 2.7839e13\\
-$V(00^01-II)$           & 3.1889e13 & 3.2158e13 & 3.2489e13 & 3.0508e13 & 3.061e130 & 3.0786e13\\
-$B(00^01)$              & 1.1589e10 & 1.0936e10 & 1.0303e10 & 1.1593e10 & 1.0939e10 & 1.0315e10\\
-$B([10^00,02^00]_I)$    & 1.1683e10 & 1.1034e10 & 1.0403e10 & 1.1668e10 & 1.1019e10 & 1.0403e10\\
-$B([10^00,02^00]_{II})$ & 1.1687e10 & 1.1019e10 & 1.0375e10 & 1.1700e10 & 1.1031e10 & 1.0394e10\\
+$V(00^01-I)$            & 28.809 & 28.969 & 28.988 & 27.384 & 27.692 & 27.839\\
+$V(00^01-II)$           & 31.889 & 32.158 & 32.489 & 30.508 & 30.610 & 30.786\\
+$B(00^01)$              & 0.011589 & 0.010936 & 0.010303 & 0.011593 & 0.010939 & 0.010315\\
+$B([10^00,02^00]_I)$    & 0.011683 & 0.011034 & 0.010403 & 0.011668 & 0.011019 & 0.010403\\
+$B([10^00,02^00]_{II})$ & 0.011687 & 0.011019 & 0.010375 & 0.011700 & 0.011031 & 0.010394\\
 \hline
 \multicolumn{7}{|c|}{$00^02\rightarrow[10^01,02^01]_{I,II}$ ('Sequence band')}\\
 \hline
-$V(00^02-I)$            & 2.8737e13 & 2.8911e13 & - & 2.7300e13 & - & -\\
-$V(00^02-II)$           & 3.1792e13 & 3.2029e13 & - & 3.0453e13 & - & -\\
-$B(00^02)$              & 1.1497e10 & 1.0859e10 & - & 1.1512e10 & - & -\\
-$B([10^01,02^01]_I)$    & 1.1588e10 & 1.0955e10 & - & 1.1585e10 & - & -\\
-$B([10^01,02^01]_{II})$ & 1.1598e10 & 1.0946e10 & - & 1.1623e10 & - & -\\
+$V(00^02-I)$            & 28.737 & 28.911 & - & 27.300 & - & -\\
+$V(00^02-II)$           & 31.792 & 32.029 & - & 30.453 & - & -\\
+$B(00^02)$              & 0.011497 & 0.010859 & - & 0.011512 & - & -\\
+$B([10^01,02^01]_I)$    & 0.011588 & 0.010955 & - & 0.011585 & - & -\\
+$B([10^01,02^01]_{II})$ & 0.011598 & 0.010946 & - & 0.011623 & - & -\\
 \hline
 \multicolumn{7}{|c|}{$01^{1e}1\rightarrow[11^{1e}0,03^{1e}0]_{I,II}$ ('Hot-e band')}\\
 \hline
-$V(01^{1e}1-I)$               & 2.7796e13 & 2.7964e13 & 2.0190e13 & 2.6476e13 & 2.6749e13 & -\\
-$V(01^{1e}1-II)$              & 3.2124e13 & 3.2388e13 & 3.2690e13 & 3.0689e13 & 3.0832e13 & -\\
-$B(01^{1e}1)$                 & 1.1602e10 & 1.0949e10 & 1.0324e10 & 1.1605e10 & 1.0953e10 & -\\
-$B([11^{1e}0,03^{1e}0]_I)$    & 1.1687e10 & 1.1036e10 & 1.0412e10 & 1.1676e10 & 1.1028e10 & -\\
-$B([11^{1e}0,03^{1e}0]_{II})$ & 1.1695e10 & 1.1032e10 & 1.0398e10 & 1.1702e10 & 1.1040e10 & -\\
+$V(01^{1e}1-I)$               & 27.796 & 27.964 & 20.190 & 26.476 & 26.749 & -\\
+$V(01^{1e}1-II)$              & 32.124 & 32.388 & 32.690 & 30.689 & 30.832 & -\\
+$B(01^{1e}1)$                 & 0.011602 & 0.010949 & 0.010324 & 0.011605 & 0.010953 & -\\
+$B([11^{1e}0,03^{1e}0]_I)$    & 0.011687 & 0.011036 & 0.010412 & 0.011676 & 0.011028 & -\\
+$B([11^{1e}0,03^{1e}0]_{II})$ & 0.011695 & 0.011032 & 0.010398 & 0.011702 & 0.011040 & -\\
 \hline
 \multicolumn{7}{|c|}{$01^{1f}1\rightarrow[11^{1f}0,03^{1f}0]_{I,II}$ ('Hot-f band')}\\
 \hline
-$V(01^{1f}1-I)$               & 2.7796e13 & 2.7964e13 & 2.8019e13 & 2.6476e13 & 2.6749e13 & -\\
-$V(01^{1f}1-II)$              & 3.2124e13 & 3.2388e13 & 3.2690e13 & 3.0689e13 & 3.0832e13 & -\\
-$B(01^{1f}1)$                 & 1.1620e10 & 1.0965e10 & 1.0338e10 & 1.1623e10 & 1.0970e10 & -\\
-$B([11^{1f}0,03^{1f}0]_I)$    & 1.1716e10 & 1.1063e10 & 1.0437e10 & 1.1703e10 & 1.1053e10 & -\\
-$B([11^{1f}0,03^{1f}0]_{II})$ & 1.1723e10 & 1.1055e10 & 1.0417e10 & 1.1733e10 & 1.1066e10 & -\\
+$V(01^{1f}1-I)$               & 27.796 & 27.964 & 28.019 & 26.476 & 26.749 & -\\
+$V(01^{1f}1-II)$              & 32.124 & 32.388 & 32.690 & 30.689 & 30.832 & -\\
+$B(01^{1f}1)$                 & 0.011620 & 0.010965 & 0.010338 & 0.011623 & 0.010970 & -\\
+$B([11^{1f}0,03^{1f}0]_I)$    & 0.011716 & 0.011063 & 0.010437 & 0.011703 & 0.011053 & -\\
+$B([11^{1f}0,03^{1f}0]_{II})$ & 0.011723 & 0.011055 & 0.010417 & 0.011733 & 0.011066 & -\\
 \hline
 \end{tabular}
-\end{sidewaystable}
+\end{table}
 
 \begin{sidewaystable}
 \centering
