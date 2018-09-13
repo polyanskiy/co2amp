@@ -150,7 +150,10 @@ void InitializePopulations()
               int i;
               double Temp2, e1, fluence;
               fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
-              double delta_e3 = 0.5*(1-exp(-fluence*pump_sigma)); // number of quanta added to upper state
+              // number of quanta added to upper state:
+              //double delta_e3 = 0.5*(1-exp(-fluence*pump_sigma)); // max 0.5 quanta per molecule (classic 2-level system)
+              double delta_e3 = 1.0*(1-exp(-fluence*pump_sigma)); // max 1 quanta per molecule (arbitrary: attempt to allow multi-photon excitation)
+              //double delta_e3 = fluence*pump_sigma; //no bleeching (no limit for number of quanta per molecule: user responsible for keeping pumping realistic)
               e3[k][x] += delta_e3; // fraction of molecules in upper state
               if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
                   double delta_e2 = 2.0*delta_e3; // "0" approximation: all lower level energy goes to nu2 mode (in reality e3 = e2/2 + e1)

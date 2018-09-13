@@ -370,21 +370,21 @@ where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
 Initial support for optical pumping is included in the \texttt{co2amp} code. We assume instant excitation (pump pulse is short compared to vibrational relaxation).  The fraction of {CO$_2$} molecules excited by the optical pulse is calculated as
 
 \begin{equation}\label{eq:OpticalPumping_N}
-\frac{N^*}{N} = \frac{1-\exp(-\Phi \sigma)}{2}
+\Delta e_3 = e_{max} \left(1-\exp(-\Phi \sigma)\right)
 \end{equation}
-where $N$ and $N*$ are the total density of the {CO$_2$} molecules and the density of the excited molecules respectively, $\Phi$ is the flux of the pumping photons, and $\sigma$ is the absorption cross-section.
+where $e_{max}$ is the saturation population number, $\Phi$ is the flux of the pumping photons, and $\sigma$ is the absorption cross-section. In a classic 2-level system $e_{max} = 0.5$ (maximum 50\% of the molecules can be excited). However, we (rather arbitrary at the moment) use  $e_{max} = 1$ in order to allow modeling of multi-photon excitation scenarios.
 
 An adjustment then is made to the average number of quanta in the asymmetric stretch vibration:
 
 \begin{equation}\label{eq:OpticalPumping_e3}
-e_3 = e'_3 + \frac{N^*}{N}
+e_3 = e'_3 + \Delta e_3
 \end{equation}
 where $e'_3 = \frac{1}{\exp\left(\frac{3350}{T_0}\right)-1}$ is the value of $e_3$ before excitation, and $T_0$ is the initial temperature of the gas.
 
 For optical pumping at {$\sim 3~\mu$m} through a combinational vibration {(10$^0$1, 02$^0$1)}, $e_2$ also increases as follows:
 
 \begin{equation}\label{eq:OpticalPumping_e2}
-e_2 = e'_2 + 2\frac{N^*}{N} \times \frac{e'_2}{2e'_1+e'_2}
+e_2 = e'_2 + 2 \Delta e_3 \times \frac{e'_2}{2e'_1+e'_2}
 \end{equation}
 where $e'_1 = \frac{1}{\exp\left(\frac{1920}{T_2}\right)-1}$, $e'_2 = \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}$, and the last term takes into account the equilibrium energy distribution between the coupled symmetric stretch and bending vibrations. Several iterations are needed to accurately determine $e_2$: The first iteration is done for $T_2=T_0$; a corrected value of $T_2$ is then calculated using the first of the equations (\ref{eq:e}), and is used in the next iteration for calculating $e_2$, and so forth.
 
