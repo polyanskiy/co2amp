@@ -117,11 +117,11 @@ void Probe();
 void Lens(int pulse, double Dr, double F);
 void Mask(int pulse, double Dr, double radius);
 void Attenuator(int pulse, double transmission);
-void Window(int pulse, char *material, double thickness);
+void Window(int pulse, int k, double t, char *material, double thickness);
 void Stretcher(int pulse, double stretching);
 void Bandpass(int pulse, double bandcenter, double bandwidth);
 void Apodizer(int pulse, double alpha);
-void Air(int pulse, double humidity, double length);
+void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.c ///////////////////////////
 void UpdateOutputFiles(int pulse, int component, double time);

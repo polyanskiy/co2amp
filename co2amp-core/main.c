@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     debug_level = 1;
     flag_status_or_debug = true;
-    printf("co2amp-core v.2018-09-12(beta2)\n\n");
+    printf("co2amp-core v.2018-09-14(beta3)\n\n");
     fflush(stdout);
     #pragma omp parallel // counting processors (for parallel computing)
 	if (omp_get_thread_num() == 0)
@@ -111,8 +111,8 @@ void Calculations()
                     if(!strcmp(component_type[K], "LENS"))
                         Lens(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: Focal length, cm -> m
                     if(!strcmp(component_type[K], "WINDOW")){
-                        StatusDisplay(pulse, k, t_cur, "material...");
-                        Window(pulse, component_param1[K], atof(component_param2[K])*1e-2); //param1: material; param2: thickness, cm -> m
+                        //StatusDisplay(pulse, k, t_cur, "material...");
+                        Window(pulse, k, t, component_param1[K], atof(component_param2[K])*1e-2); //param1: material; param2: thickness, cm -> m
                     }
                     if(!strcmp(component_type[K], "STRETCHER")){
                         StatusDisplay(pulse, k, t_cur, "stretcher...");
@@ -128,7 +128,7 @@ void Calculations()
                     }
                     if(!strcmp(component_type[K], "AIR")){
                         StatusDisplay(pulse, k, t_cur, "air...");
-                        Air(pulse, atof(component_param1[K]), atof(component_param2[K])*1e-2); //param1: humidity, %; param2: length, cm -> m
+                        Air(pulse, k, t, atof(component_param1[K]), atof(component_param2[K])*1e-2); //param1: humidity, %; param2: length, cm -> m
                     }
 
                     //propagation to next component

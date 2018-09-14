@@ -129,9 +129,11 @@ void Attenuator(int pulse, double transmission)
 }
 
 
-void Window(int pulse, char *material, double thickness)
+void Window(int pulse, int k, double t, char *material, double thickness)
 {
-    int x, n;
+    int i, x, n;
+    char status[64];
+    int count=0;
     double Dv = (v_max-v_min) / (n0-1);
     //double Dt = t_pulse_lim / (n0-1);
     double intensity, delay, tilt_factor;
@@ -148,30 +150,46 @@ void Window(int pulse, char *material, double thickness)
         tilt_factor = 1/tan(theta1);
     }
 
+    int nslices=4; //slice window for accounting for mutual interaction of linear and nonlinear dispersion
+    thickness /= nslices;
 
-    #pragma omp parallel for shared(E) private(x, n, intensity, delay, spectrum) // mulithread
+    #pragma omp parallel for shared(E) private(i, x, n, intensity, delay, spectrum) // mulithread
     for(x=0; x<x0; x++){
-        // linear dispersion
-        spectrum = malloc(sizeof(double complex)*n0);
-        FFT(E[pulse][x], spectrum);
-        for(n=0; n<n0; n++){
-            // linear dispersion
-            delay = thickness / c * (RefractiveIndex(material, v_min+Dv*n) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
-            spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
-            // eliminate time-frame shift introduced by the difference between phase and group velocity
-            //delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1000)-RefractiveIndex(material,vc-1000))/(c/(vc+1000)-c/(vc-1000)); // relative group delay
-            delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
-            spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*delay);
-        }
-        IFFT(spectrum, E[pulse][x]);
-        free(spectrum);
+        count ++;
+        sprintf(status, "material: %d of % d", count, x0);
+        StatusDisplay(pulse, k, t, status);
+        for(i=0; i<nslices; i++){ // slices
 
-        // nonlinear index (n2) and nonlinear absorption
-        for(n=0; n<n0; n++){
-            intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
-            intensity *= tilt_factor; // reduced intensity in tilted windows
-            delay = thickness / c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
-            E[pulse][x][n] *= cexp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+            // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
+            for(n=0; n<n0; n++){
+                intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
+                intensity *= tilt_factor; // reduced intensity in tilted windows
+                delay = thickness/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
+                E[pulse][x][n] *= cexp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+            }
+
+            // linear dispersion (full thickness of the slice)
+            spectrum = malloc(sizeof(double complex)*n0);
+            FFT(E[pulse][x], spectrum);
+            for(n=0; n<n0; n++){
+                // linear dispersion
+                delay = thickness/c * (RefractiveIndex(material, v_min+Dv*n) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
+                spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+                // eliminate time-frame shift introduced by the difference between phase and group velocity
+                delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
+                spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*delay);
+            }
+            IFFT(spectrum, E[pulse][x]);
+            free(spectrum);
+
+            // nonlinear index (n2) and nonlinear absorption Step 2 (half-thickness of the slice)
+            for(n=0; n<n0; n++){
+                intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
+                intensity *= tilt_factor; // reduced intensity in tilted windows
+                delay = thickness/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
+                E[pulse][x][n] *= cexp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+            }
+
         }
 
 
@@ -262,10 +280,10 @@ void Apodizer(int pulse, double alpha)
 }
 
 
-void Air(int pulse, double H, double length)
+void Air(int pulse, int k, double t, double H, double length)
 {
     humidity = H;
-    Window(pulse, "air", length);
+    Window(pulse, k, t, "air", length);
 }
 
 
