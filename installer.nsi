@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20180912beta2_setup.exe"
+OutFile "co2amp_v.20190429_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES\co2amp"          ;default

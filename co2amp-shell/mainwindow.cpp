@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
     def_dir = settings.value("def_dir", "").toString();
-    checkBox_showCalculationTime->setChecked(settings.value("show_calculation_time", true).toBool()); 
+    //checkBox_showCalculationTime->setChecked(settings.value("show_calculation_time", true).toBool());
     textBrowser->setVisible(false); // hide terminal
     tabWidget_main->setCurrentIndex(0); // Calculations tab
     flag_calculating = false;
@@ -139,7 +139,7 @@ MainWindow::~MainWindow()
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir", def_dir);
     settings.setValue("window_geometry", saveGeometry());
-    settings.setValue("show_calculation_time", checkBox_showCalculationTime->isChecked());
+    //settings.setValue("show_calculation_time", checkBox_showCalculationTime->isChecked());
 
     // Remove temporary working directory
     ClearWorkDir();
@@ -210,12 +210,12 @@ void MainWindow::Calculate()
     if(spinBox_n_pulses->text() != "1")
         arguments << "-Dt_train" << lineEdit_Dt_train->text();
 
-    arguments << "-p_626" << QString::number(Memorized.p_CO2.toFloat() * (1-Memorized.percent_13C.toFloat()/100) * (1-Memorized.percent_18O.toFloat()/100)*(1-Memorized.percent_18O.toFloat()/100));
-    arguments << "-p_628" << QString::number(Memorized.p_CO2.toFloat() * (1-Memorized.percent_13C.toFloat()/100) * 2*(1-Memorized.percent_18O.toFloat()/100)*(Memorized.percent_18O.toFloat()/100));
-    arguments << "-p_828" << QString::number(Memorized.p_CO2.toFloat() * (1-Memorized.percent_13C.toFloat()/100) * (Memorized.percent_18O.toFloat()/100)*(Memorized.percent_18O.toFloat()/100));
-    arguments << "-p_636" << QString::number(Memorized.p_CO2.toFloat() *   (Memorized.percent_13C.toFloat()/100) * (1-Memorized.percent_18O.toFloat()/100)*(1-Memorized.percent_18O.toFloat()/100));
-    arguments << "-p_638" << QString::number(Memorized.p_CO2.toFloat() *   (Memorized.percent_13C.toFloat()/100) * 2*(1-Memorized.percent_18O.toFloat()/100)*(Memorized.percent_18O.toFloat()/100));
-    arguments << "-p_838" << QString::number(Memorized.p_CO2.toFloat() *   (Memorized.percent_13C.toFloat()/100) * (Memorized.percent_18O.toFloat()/100)*(Memorized.percent_18O.toFloat()/100));
+    arguments << "-p_626" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
+    arguments << "-p_628" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * 2*(1-Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
+    arguments << "-p_828" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
+    arguments << "-p_636" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
+    arguments << "-p_638" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * 2*(1-Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
+    arguments << "-p_838" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * (Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
     arguments << "-p_N2" << Memorized.p_N2;
     arguments << "-p_He" << Memorized.p_He;
     arguments << "-T0" << Memorized.T0;
@@ -234,8 +234,8 @@ void MainWindow::Calculate()
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
     arguments << "-x0" << comboBox_precision_r->currentText();
-    arguments << "-t_pulse_lim" << QString::number(lineEdit_t_pulse_max->text().toFloat()-lineEdit_t_pulse_min->text().toFloat());
-    arguments << "-t_pulse_shift" << QString::number(-1*lineEdit_t_pulse_min->text().toFloat());
+    arguments << "-t_pulse_lim" << QString::number(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
+    arguments << "-t_pulse_shift" << QString::number(-1*lineEdit_t_pulse_min->text().toDouble());
 
     if(Memorized.noprop)
         arguments << "-noprop";
@@ -305,7 +305,7 @@ void MainWindow::on_pushButton_saveas_clicked()
     else{
         if(flag_field_ready_to_save){
             fileinfo.setFile(project_file);
-            selfilter = fileinfo.suffix()=="co2x" ? tr("CO2 project with field (*.co2x)") : 0;
+            selfilter = fileinfo.suffix()=="co2x" ? tr("CO2 project with field (*.co2x)") : nullptr;
             str = QFileDialog::getSaveFileName(this, QString(), project_file, tr("CO2 project (*.co2);;CO2 project with field (*.co2x)"), &selfilter);
         }
         else
@@ -421,17 +421,19 @@ void MainWindow::BeforeProcessStarted()
 
 void MainWindow::AfterProcessFinished()
 {
+    bool showtime, save;
     flag_calculating = false;
+    QMessageBox mb( "Info - co2amp", "Calculation time: " + QString::number(timer.elapsed()/1000) + " s", QMessageBox::Information, QMessageBox::Ok, 0, 0);
     if(flag_calculation_success){
         flag_field_ready_to_save = true;
+        save = checkBox_saveWhenFinished->isChecked();
+        showtime = checkBox_showCalculationTime->isChecked();
         Plot();
-        if(checkBox_saveWhenFinished->isChecked())
-            SaveProject();
-        if(checkBox_showCalculationTime->isChecked()){
-            QMessageBox mb( "Info - co2amp", "Calculation time: " + QString::number(timer.elapsed()/1000) + " s", QMessageBox::Information, QMessageBox::Ok, 0, 0);
-            mb.exec();
-        }
         tabWidget_main->setCurrentIndex(1); // Output tab
+        if(save)
+            SaveProject();
+        if(showtime)
+            mb.exec();
     }
     UpdateControls();
 }

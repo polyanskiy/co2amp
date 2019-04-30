@@ -118,6 +118,16 @@ void ReadCommandLine(int argc, char **argv)
         if (!strcmp(argv[i], "-bands"))
             bands = atoi(argv[i+1]);
     }
+
+    /* non-equilibrium isotopic composition
+    p_626=0;
+    p_628=0;
+    p_828=0;
+    p_636=0;
+    p_838=0;
+    p_638=p_CO2
+    */
+    
     Debug(2, debug_str);
 }
 

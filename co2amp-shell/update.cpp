@@ -23,6 +23,7 @@ void MainWindow::UpdateControls()
     ////////////////////////////////// GUI CONTROLS //////////////////////////////////
     if(!flag_calculating){
         checkBox_saveWhenFinished->setChecked(0);
+        checkBox_showCalculationTime->setChecked(0);
         textBrowser->clear();
     }
     textBrowser->setVisible(flag_calculating);
@@ -70,8 +71,11 @@ void MainWindow::UpdateControls()
         palette->setColor(QPalette::Text,Qt::black);
     }
     lineEdit_input_file->setPalette(*palette);
-    if(!flag_input_file_error)
+    if(!flag_input_file_error){
+        label_tau0_3->setText("Δν ≈ " + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
         label_vc_3->setText("λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " μm"); // wl[um] = c[m/s] / nu[THz] * 1e-6
+        label_r0_3->setText("ω = " + QString::number(lineEdit_r0->text().toDouble()/sqrt(log(2)/2)) + " cm"); // ω = hwhm / sqrt(ln(2)/2))
+    }
     lineEdit_input_file->setVisible(bl);
     toolButton_input_file->setVisible(bl);
     lineEdit_E0->setVisible(!bl);
@@ -82,8 +86,10 @@ void MainWindow::UpdateControls()
     label_E0_2->setVisible(!bl);
     label_r0->setVisible(!bl);
     label_r0_2->setVisible(!bl);
+    label_r0_3->setVisible(!bl);
     label_tau0->setVisible(!bl);
     label_tau0_2->setVisible(!bl);
+    label_tau0_3->setVisible(!bl);
     spinBox_n_pulses->setEnabled(!bl);
     lineEdit_Dt_train->setEnabled(!bl);
     if(!lineEdit_t_inj->hasFocus())
