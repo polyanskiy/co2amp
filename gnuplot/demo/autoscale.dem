@@ -109,3 +109,4 @@ plot "silver.dat"
 unset multiplot
 
 pause -1 "Hit return to continue"
+reset

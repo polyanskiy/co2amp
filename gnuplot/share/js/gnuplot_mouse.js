@@ -1,7 +1,7 @@
 /*
- * $Id: gnuplot_mouse.js,v 1.16 2011/09/04 02:05:25 sfeam Exp $
+ * $Id: gnuplot_mouse.js,v 1.27 2017/02/17 20:42:17 sfeam Exp $
  */
-    gnuplot.mouse_version = "03 September 2011";
+    gnuplot.mouse_version = " 17 February 2017";
 
 // Mousing code for use with gnuplot's 'canvas' terminal driver.
 // The functions defined here assume that the javascript plot produced by
@@ -34,6 +34,7 @@
     gnuplot.plot_logaxis_y = 0;
     gnuplot.grid_lines = true;
     gnuplot.zoom_text = false;
+    gnuplot.display_is_uptodate = false;
 
 // These are the equivalent parameters while zooming
     gnuplot.zoom_axis_xmin = 0;
@@ -118,8 +119,18 @@ gnuplot.mouse_update = function(e)
   gnuplot.ploty = -(gnuplot.mousey - gnuplot.plot_ybot);
 
   // Limit tracking to the interior of the plot
-  if (gnuplot.plotx < 0 || gnuplot.ploty < 0) return;
-  if (gnuplot.mousex > gnuplot.plot_xmax || gnuplot.mousey < gnuplot.plot_ytop) return;
+  if (gnuplot.plotx < 0 || gnuplot.ploty < 0){
+      if (gnuplot.hypertext_list != "undefined" && gnuplot.hypertext_list.length > 0) {
+	  gnuplot.check_hypertext();
+      } 
+      return;
+  }
+  if (gnuplot.mousex > gnuplot.plot_xmax || gnuplot.mousey < gnuplot.plot_ytop){
+      if (gnuplot.hypertext_list != "undefined" && gnuplot.hypertext_list.length > 0) {
+	  gnuplot.check_hypertext();
+      } 
+      return;
+  }
 
   var axis_xmin = (gnuplot.zoomed) ? gnuplot.zoom_axis_xmin : gnuplot.plot_axis_xmin;
   var axis_xmax = (gnuplot.zoomed) ? gnuplot.zoom_axis_xmax : gnuplot.plot_axis_xmax;
@@ -145,28 +156,38 @@ gnuplot.mouse_update = function(e)
     if (gnuplot.plot_axis_x2min != "none") {
 	gnuplot.axis_x2min = (gnuplot.zoomed) ? gnuplot.zoom_axis_x2min : gnuplot.plot_axis_x2min;
 	gnuplot.axis_x2max = (gnuplot.zoomed) ? gnuplot.zoom_axis_x2max : gnuplot.plot_axis_x2max;
-	x2 =  gnuplot.axis_x2min + (gnuplot.plotx / (gnuplot.plot_xmax-gnuplot.plot_xmin)) * (gnuplot.axis_x2max - gnuplot.axis_x2min);
+	if (gnuplot.x2_mapping != undefined)
+	    x2 = gnuplot.x2_mapping(x);
+	else
+	    x2 =  gnuplot.axis_x2min + (gnuplot.plotx / (gnuplot.plot_xmax-gnuplot.plot_xmin)) * (gnuplot.axis_x2max - gnuplot.axis_x2min);
 	if (document.getElementById(gnuplot.active_plot_name + "_x2"))
 	    document.getElementById(gnuplot.active_plot_name + "_x2").innerHTML = x2.toPrecision(4);
     }
     if (gnuplot.plot_axis_y2min != "none") {
 	gnuplot.axis_y2min = (gnuplot.zoomed) ? gnuplot.zoom_axis_y2min : gnuplot.plot_axis_y2min;
 	gnuplot.axis_y2max = (gnuplot.zoomed) ? gnuplot.zoom_axis_y2max : gnuplot.plot_axis_y2max;
-	y2 = gnuplot.axis_y2min - (gnuplot.ploty / (gnuplot.plot_ytop-gnuplot.plot_ybot)) * (gnuplot.axis_y2max - gnuplot.axis_y2min);
+	if (gnuplot.y2_mapping != undefined)
+	    y2 = gnuplot.y2_mapping(y);
+	else
+	    y2 = gnuplot.axis_y2min - (gnuplot.ploty / (gnuplot.plot_ytop-gnuplot.plot_ybot)) * (gnuplot.axis_y2max - gnuplot.axis_y2min);
 	if (document.getElementById(gnuplot.active_plot_name + "_y2"))
 	    document.getElementById(gnuplot.active_plot_name + "_y2").innerHTML = y2.toPrecision(4);
     }
-
+  
+  var label_x, label_y;
   if (gnuplot.polar_mode) {
-    polar = gnuplot.convert_to_polar(x,y);
+    var polar = gnuplot.convert_to_polar(x,y);
     label_x = "ang= " + polar.ang.toPrecision(4);
     label_y = "R= " + polar.r.toPrecision(4);
-  } else if (typeof(gnuplot.plot_timeaxis_x) == "string" && gnuplot.plot_timeaxis_x != "") {
-    label_x = gnuplot.timefmt(x);
-    label_y = y.toPrecision(4);
   } else {
-    label_x = x.toPrecision(4);
-    label_y = y.toPrecision(4);
+    if (typeof(gnuplot.plot_timeaxis_x) == "string" && gnuplot.plot_timeaxis_x != "")
+      label_x = gnuplot.datafmt(x);
+    else
+      label_x = x.toPrecision(4);
+    if (typeof(gnuplot.plot_timeaxis_y) == "string" && gnuplot.plot_timeaxis_y != "")
+      label_y = gnuplot.datafmt(y);
+    else
+      label_y = y.toPrecision(4);
   }
 
   if (document.getElementById(gnuplot.active_plot_name + "_x"))
@@ -192,50 +213,144 @@ gnuplot.mouse_update = function(e)
     if (h<0) {y0 = y0 + h; h = -h;}
     ctx.strokeRect(x0,y0,w,h);
   }
+
+  // See if we are over a hypertext anchor point
+  if (gnuplot.hypertext_list != "undefined" && gnuplot.hypertext_list.length > 0) {
+    gnuplot.check_hypertext();
+  }
 }
 
-gnuplot.timefmt = function (x)
+gnuplot.check_hypertext = function()
 {
-  gnuplot.axisdate.setTime(1000. * (x + 946684800));
+  var nitems = gnuplot.hypertext_list.length;
+  for (var i=0; i<nitems; i++) {
+    var linkx = gnuplot.hypertext_list[i].x / 10.;
+    var linky = gnuplot.hypertext_list[i].y / 10.;
+    if (gnuplot.zoomed) {
+      var zoom = gnuplot.zoomXY(linkx,linky);
+      linkx = zoom.x; linky = zoom.y;
+    }
+    var delx = Math.abs(gnuplot.mousex - linkx);
+    var dely = Math.abs(gnuplot.mousey - linky);
+    var w = gnuplot.hypertext_list[i].w / 20.;
+    if (delx < w && dely < w) {
+	if (i == gnuplot.on_hypertext)
+	    break;
+	gnuplot.on_hypertext = i;
+	var text = gnuplot.hypertext_list[i].text;
+	var lines = text.split('\v');
+	var len = 0;
+	if (lines.length <= 1) {
+	    len = ctx.measureText("sans", 10, text);
+	} else {
+	    for (var l=0; l<lines.length; l++) {
+		var ll = ctx.measureText("sans", 10, lines[l]);
+		if (len < ll) len = ll;
+	    }
+	}
+
+	// text shift (so it is not covered by cursor)
+	var shiftx = 14;
+
+	if (linkx > gnuplot.plot_term_xmax-(len+8) ){
+	    // position text left of cursor if we are to far in the right hemisphere
+	    // else we might print over the border
+	    linkx = linkx - len;
+	    shiftx = -shiftx;
+	}
+	if (linky > 14*lines.length ){
+	    // position text top of cursor if we are low enough in the plot
+	    // else we might print over the border
+	    linky = linky - 14*lines.length;
+	}
+
+	ctx.fillStyle = "rgba(238,238,238,0.8)"
+	ctx.fillRect(linkx+shiftx, linky+4, len+8, 14*lines.length);
+	for (var l=0; l<lines.length; l++) {
+	    ctx.drawText("sans", 10, linkx+shiftx+4, linky+14+l*14, lines[l]);
+	}
+	break;
+    }
+  } 
+  if (i == nitems && gnuplot.on_hypertext >= 0) {
+    gnuplot.on_hypertext = -1;
+    ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+    gnuplot.display_is_uptodate = false;
+    gnuplot_canvas();
+  }
+}
+
+gnuplot.datafmt = function (x)
+{
+  if (gnuplot.plot_timeaxis_x == "DMS") {
+    return gnuplot.convert_to_DMS(x);
+  }
+
+  // gnuplot 4.6 used (x + 946684800)
+  gnuplot.axisdate.setTime(1000. * x);
 
   if (gnuplot.plot_timeaxis_x == "DateTime") {
     return gnuplot.axisdate.toUTCString();
   } 
   if (gnuplot.plot_timeaxis_x == "Date") {
-    year = gnuplot.axisdate.getUTCFullYear();
-    month = gnuplot.axisdate.getUTCMonth();
-    date = gnuplot.axisdate.getUTCDate();
+    var year = gnuplot.axisdate.getUTCFullYear();
+    var month = gnuplot.axisdate.getUTCMonth();
+    var date = gnuplot.axisdate.getUTCDate();
     return (" " + date).slice (-2) + "/"
          + ("0" + (month+1)).slice (-2) + "/"
 	 + year;
   } 
   if (gnuplot.plot_timeaxis_x == "Time") {
-    hour = gnuplot.axisdate.getUTCHours();
-    minute = gnuplot.axisdate.getUTCMinutes();
-    second = gnuplot.axisdate.getUTCSeconds();
+    var hour = gnuplot.axisdate.getUTCHours();
+    var minute = gnuplot.axisdate.getUTCMinutes();
+    var second = gnuplot.axisdate.getUTCSeconds();
     return ("0" + hour).slice (-2) + ":"
          + ("0" + minute).slice (-2) + ":"
          + ("0" + second).slice (-2);
   }
 }
 
+gnuplot.convert_to_DMS = function (x)
+{
+    var dms = {d:0, m:0, s:0};
+    var deg = Math.abs(x);
+    dms.d = Math.floor(deg);
+    dms.m = Math.floor((deg - dms.d) * 60.);
+    dms.s = Math.floor((deg - dms.d) * 3600. - dms.m * 60.);
+    fmt = ((x<0)?"-":" ")
+        + dms.d.toFixed(0) + "°"
+	+ dms.m.toFixed(0) + "\""
+	+ dms.s.toFixed(0) + "'";
+    return fmt;
+}
+
 gnuplot.convert_to_polar = function (x,y)
 {
-    polar = new Object;
+    var polar = new Object;
     var phi, r;
     phi = Math.atan2(y,x);
     if (gnuplot.plot_logaxis_r) 
         r = Math.exp( (x/Math.cos(phi) + Math.log(gnuplot.plot_axis_rmin)/Math.LN10) * Math.LN10);
+    else if (gnuplot.plot_axis_rmin > gnuplot.plot_axis_rmax)
+	r = gnuplot.plot_axis_rmin - x/Math.cos(phi);
     else
-        r = x/Math.cos(phi) + gnuplot.plot_axis_rmin;
-    polar.ang = phi * 180./Math.PI;
+        r = gnuplot.plot_axis_rmin + x/Math.cos(phi);
+    phi = phi * (180./Math.PI);
+    if (gnuplot.polar_sense < 0)
+	phi = -phi;
+    if (gnuplot.polar_theta0 != undefined)
+	phi = phi + gnuplot.polar_theta0;
+    if (phi > 180.)
+	phi = phi - 360.;
     polar.r = r;
+    polar.ang = phi;
     return polar;
 }
 
 gnuplot.saveclick = function (event)
 {
   gnuplot.mouse_update(event);
+  var button, label_x, label_y;
   
   // Limit tracking to the interior of the plot
   if (gnuplot.plotx < 0 || gnuplot.ploty < 0) return;
@@ -249,11 +364,24 @@ gnuplot.saveclick = function (event)
   if (button == "LEFT") {
     ctx.strokeStyle="black";
     ctx.strokeRect(gnuplot.mousex, gnuplot.mousey, 1, 1);
-    if (typeof(gnuplot.plot_timeaxis_x) == "string" && gnuplot.plot_timeaxis_x != "") 
-      click = " " + gnuplot.timefmt(x) + ", " + y.toPrecision(4);
+    if (typeof(gnuplot.plot_timeaxis_x) == "string" && gnuplot.plot_timeaxis_x != "")
+      label_x = gnuplot.datafmt(x);
     else
-      click = " " + x.toPrecision(4) + ", " + y.toPrecision(4);
-    ctx.drawText("sans", 9, gnuplot.mousex, gnuplot.mousey, click);
+      label_x = x.toPrecision(4);
+    if (typeof(gnuplot.plot_timeaxis_y) == "string" && gnuplot.plot_timeaxis_y != "")
+      label_y = gnuplot.datafmt(y);
+    else
+      label_y = y.toPrecision(4);
+    click = " " + label_x + ", " + label_y;
+
+    var len = ctx.measureText("sans", 9, click);
+    if (gnuplot.mousex > gnuplot.plot_term_xmax-(len) ){
+	// draw left of cursor when we are near the right side of the plot
+	len += ctx.measureText("sans", 9, " ");
+	ctx.drawText("sans", 9, gnuplot.mousex-len, gnuplot.mousey, click);
+    } else {
+	ctx.drawText("sans", 9, gnuplot.mousex, gnuplot.mousey, click);
+    }
   }
 
   // Save starting corner of zoom box
@@ -277,7 +405,9 @@ gnuplot.zoom_in = function (event)
     return false;
 
   gnuplot.mouse_update(event);
-  
+ 
+  var button;
+
   if (event.which == null) 	/* IE case */
     button= (event.button < 2) ? "LEFT" : ((event.button == 4) ? "MIDDLE" : "RIGHT");
   else				/* All others */
@@ -328,6 +458,7 @@ gnuplot.toggle_grid = function (e)
   if (!gnuplot.grid_lines) gnuplot.grid_lines = true;
   else gnuplot.grid_lines = false;
   ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+  gnuplot.display_is_uptodate = false;
   gnuplot_canvas();
 }
 
@@ -336,6 +467,7 @@ gnuplot.toggle_zoom_text = function (e)
   if (!gnuplot.zoom_text) gnuplot.zoom_text = true;
   else gnuplot.zoom_text = false;
   ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+  gnuplot.display_is_uptodate = false;
   gnuplot_canvas();
 }
 
@@ -344,6 +476,7 @@ gnuplot.rezoom = function (e)
   if (gnuplot.zoom_axis_width > 0)
     gnuplot.zoomed = true;
   ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+  gnuplot.display_is_uptodate = false;
   gnuplot_canvas();
 }
 
@@ -351,12 +484,13 @@ gnuplot.unzoom = function (e)
 {
   gnuplot.zoomed = false;
   ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+  gnuplot.display_is_uptodate = false;
   gnuplot_canvas();
 }
 
 gnuplot.zoomXY = function(x,y)
 {
-  zoom = new Object;
+  var zoom = new Object;
   var xreal, yreal;
 
   zoom.x = x; zoom.y = y; zoom.clip = false;
@@ -439,6 +573,7 @@ gnuplot.toggle_plot = function(plotid) {
     	gnuplot["hide_"+plotid] = false;
     gnuplot["hide_"+plotid] = !gnuplot["hide_"+plotid];
     ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+    gnuplot.display_is_uptodate = false;
     gnuplot_canvas();
 }
 
@@ -446,6 +581,7 @@ gnuplot.do_hotkey = function(event) {
     keychar = String.fromCharCode(event.charCode ? event.charCode : event.keyCode);
     switch (keychar) {
     case 'e':	ctx.clearRect(0,0,gnuplot.plot_term_xmax,gnuplot.plot_term_ymax);
+		gnuplot.display_is_uptodate = false;
 		gnuplot_canvas();
 		break;
     case 'g':	gnuplot.toggle_grid();

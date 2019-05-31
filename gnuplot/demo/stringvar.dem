@@ -1,7 +1,10 @@
 #
 # Miscellaneous neat things you can do using the string variables code
 #
-set print "stringvar.tmp"
+iswindows = substr(GPVAL_SYSNAME, 1, 7) eq "Windows"
+unset border
+
+set print $EXAMPLE
 print ""
 print "Exercise substring handling"
 print ""
@@ -22,25 +25,35 @@ print "foo[*:*]      = ",foo[*:*]
 print "foo.foo[2:2]  = ",foo.foo[2:2]
 print "(foo.foo)[2:2]= ",(foo.foo)[2:2]
 print ""
+print "foo[1:1] eq 'A' && foo[2:2] ne 'X' = ", \
+      (foo[1:1] eq 'A' && foo[2:2] ne 'X') ? "true" : "false"
+
 unset print
 
-set label 1 system("cat stringvar.tmp") at graph 0.1, graph 0.9
+do for [i=1:|$EXAMPLE|] {
+    set label i $EXAMPLE[i] at graph 0.1, graph (1.0 - i*0.05)
+}
+
 unset xtics
 unset ytics
 set yrange [0:1]
-plot 0
+plot 0 lc bgnd notitle
 
 pause -1 "Hit return to continue"
 
 
-set print "stringvar.tmp"
+set print $EXAMPLE
 print "Exercise string handling functions"
 print ""
 print "foo          = ",foo
 print "strlen(foo)  = ",strlen(foo)
 print "substr(foo,3,4) = ",substr(foo,3,4)
 print ""
-haystack = "`date`"
+if (!iswindows) {
+  haystack = system("date")
+} else {
+  haystack = system("date /T") . " " . system("time /T")
+}
 needle = ":"
 S = strstrt(haystack,needle)
 print "haystack     = \`date\`"
@@ -62,11 +75,45 @@ if (strlen(foo) != 245) print "sprintf output of long strings BROKEN"
 print ""
 
 unset print
-set label 1 system("cat stringvar.tmp") at graph 0.1, graph 0.9
+
+unset label
+do for [i=1:|$EXAMPLE|] {
+    set label i $EXAMPLE[i] at graph 0.1, graph (1.0 - i*0.05)
+}
+
 unset xtics
 unset ytics
 set yrange [0:1]
-plot 0
+plot 0 lc bgnd notitle
+
+pause -1 "Hit return to continue"
+set print $EXAMPLE
+print "Exercise word and words functions"
+print ""
+foo = "word and words can handle 'quoted string'"
+print "foo = ",foo
+print "words(foo) = ",words(foo)
+print "word(foo, 6) = ",word(foo,6)
+print ""
+foo = "\"double quotes\" or 'single quotes'"
+print "foo = ",foo
+print "words(foo) = ",words(foo)
+print ""
+foo = "Apostrophes inside words don't matter"
+print "foo = ",foo
+print "word(foo, 4) = ",word(foo, 4)
+
+unset print
+
+unset label
+do for [i=1:|$EXAMPLE|] {
+    set label i $EXAMPLE[i] at graph 0.1, graph (1.0 - i*0.05)
+}
+
+unset xtics
+unset ytics
+set yrange [0:1]
+plot 0 lc bgnd notitle
 
 pause -1 "Hit return to continue"
 reset
@@ -90,14 +137,6 @@ plot 'silver.dat' u 1:2:($3+$1/50.) w filledcurves above title 'Above', \
      '' u 1:($3+$1/50.) lt 3 lw 0.5 notitle, \
      '' using 1:2:( ($2>($3+$1/50.)) ? "Up" : "Dn" ) with labels \
         title 'plot <foo> using 1:2:( ($3>$2) ? "Up" : "Dn" ) with labels'
-#
-pause -1 "Hit return to continue"
-#
-plot 'silver.dat' \
-        u 1:2 lt -1 lw 0.5 notitle, \
-     '' u 1:($3+$1/50.) lt 3 lw 0.5 notitle, \
-     '' using 1:2:( ($2>($3+$1/50.)) ? "J" : "D" ) with labels font "WingDings,28"\
-        title 'Same thing using character glyphs from WingDings font'
 #
 pause -1 "Hit return to continue"
 #
@@ -132,8 +171,8 @@ fmt = "%d/%m/%y\t%H%M"
 print "read_time(fmt, c) =" \
       . " strptime(fmt, stringcolumn(c).' '.stringcolumn(c+1))"
 read_time(fmt, c) = strptime(fmt, stringcolumn(c).' '.stringcolumn(c+1))
-plot 'timedat.dat' using (read_time(fmt,1)):3 with histeps, \
-     'timedat.dat' using (read_time(fmt,1)):($3-0.01):2 with labels title ''
+plot 'timedat.dat' skip 1 using (read_time(fmt,1)):3 with histeps, \
+     'timedat.dat' skip 1 using (read_time(fmt,1)):($3-0.01):2 with labels title ''
 #
 print ""
 pause -1 "Hit return to continue"

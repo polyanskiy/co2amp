@@ -159,9 +159,9 @@
 			-[INPUT]Arg
 		Plus	+a
 			+[INPUT]Arg
-		One's compliment	~a
+		Ones' complement	~a
 			~[INPUT]Arg
-		Logcial negation	!a
+		Logical negation	!a
 			![INPUT]Arg
 		Factorial	a!
 			[INPUT]Arg[EOS]!
@@ -214,6 +214,7 @@
 			[INPUT]First arg[EOS]?[INPUT]Second arg[EOS]:[INPUT]Third arg[EOS]
 	[EndMenu]
 [EndMenu]
+
 [Menu]
 Fu&nctions
 	[Menu]
@@ -255,7 +256,7 @@ Fu&nctions
 		arc tangent
 			atan([INPUT]Argument[EOS])
 		arc tangent 2
-			atan2([INPUT]Argument[EOS])
+			atan2([INPUT]"y" argument[EOS],[INPUT]"x" argument[EOS])
 		--
 		hyperbolic cosine
 			cosh([INPUT]Argument[EOS])
@@ -624,16 +625,26 @@ Fu&nctions
 	--
 	[Menu]
 	Line Style
+	Reset Line Style to its default
+		set style line [INPUT]Line Style Number?[EOS] default{ENTER}
+	Line Style ...
+		set style line [INPUT]Line Style Number?[EOS] [EOS]
 	Line Type
-		set style linetype [INPUT]Line Type?{ENTER}
+		lt [INPUT]Line Type?[EOS] [EOS]
+	Dash Pattern
+		dt [INPUT]Dash Pattern?[EOS] [EOS]
+	Line Color
+		lc [INPUT]Line Color?[EOS] [EOS]
 	Line Width
-		set style linewidth [INPUT]Line Width?{ENTER}
+		lw [INPUT]Line Width?[EOS] [EOS]
 	Point Type
-		set style pointtype [INPUT]Point Type?{ENTER}
+		pt [INPUT]Point Type?[EOS] [EOS]
 	Point Size
-		set style pointsize [INPUT]Point Size?{ENTER}
-;	Palette
-;		set style line{ENTER}
+		ps [INPUT]Point Size?[EOS] [EOS]
+	Point Interval
+		pointinterval [INPUT]Interval?[EOS] [EOS]
+	Palette (for 3D plots)
+		palette [EOS]
 	[EndMenu]
 	Show Line Style
 		show style line{ENTER}
@@ -719,34 +730,38 @@ Fu&nctions
 		[ABOUT]
 [EndMenu]
 
-; now some buttons
-;   a number after a semicolon in the title string is interpreted as icon index
-;   see the article "Toolbar Standard Button Image Index Values" on MSDN
+; Toolbar Buttons
+;   A number after a semicolon in the title string is interpreted as icon index
+;   see the article "Toolbar Standard Button Image Index Values" on MSDN:
 ;   http://msdn.microsoft.com/en-us/library/bb760433%28v=vs.85%29.aspx
+;   Alternatively, a path to an image file relative to share/images may be given.
+;   Images loaded will be scaled to ButtonSize (in pixels).
+;[ButtonSize]
+;	24
 [Button]
 	Replot;4
 		replot{ENTER}
 [Button]
-	Open;7
+	Open script file;7
 		load '[OPEN]load[EOS]*.plt[EOS]'{ENTER}
 [Button]
-	Save;8
+	Save script file;8
 		save '[SAVE]save[EOS]*.plt[EOS]'{ENTER}
 [Button]
-	ChDir;31
+	Change directory;31
 		cd '[DIRECTORY]New directory?[EOS]'{ENTER}
 [Button]
-	Print;14
-		set terminal [INPUT]Terminal type?{ENTER}set output "PRN"{ENTER}replot{ENTER}set terminal win{ENTER}set output{ENTER}
+	Send terminal output to printer;14
+		set term push; set terminal [INPUT]Terminal type?{ENTER}set output "PRN"{ENTER}replot{ENTER}set term pop{ENTER}unset output{ENTER}
 [Button]
-	PrtSc;14
+	Print current screen contents (win/wxt/qt);14
 		screendump{ENTER}
 [Button]
-	Prev;15
+	Previous history entry;15
 		{^P}
 [Button]
-	Next;16
+	Next history entry;16
 		{^N}
 [Button]
-	Options;10
+	Options menu;10
 		[OPTIONS]

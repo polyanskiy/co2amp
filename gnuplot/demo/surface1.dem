@@ -1,12 +1,31 @@
 #
-# $Id: surface1.dem,v 1.11 2004/09/17 05:01:12 sfeam Exp $
+# $Id: surface1.dem,v 1.14 2016/11/14 19:59:23 sfeam Exp $
 #
+set title "3D surface from a grid (matrix) of Z values"
+set xrange [-0.5:4.5]
+set yrange [-0.5:4.5]
+
+set grid
+set hidden3d
+$grid << EOD
+5 4 3 1 0
+2 2 0 0 1
+0 0 0 1 0
+0 0 0 2 3
+0 1 2 4 3
+EOD
+splot '$grid' matrix with lines notitle
+
+pause -1 "Hit return to continue"
+unset hidden3d
+undefine $*
+
 set samples 21
 set isosample 11
 set xlabel "X axis" offset -3,-2
 set ylabel "Y axis" offset 3,-2
 set zlabel "Z axis" offset -5
-set title "3D gnuplot demo"
+set title "3D surface from a function"
 set label 1 "This is the surface boundary" at -10,-5,150 center
 set arrow 1 from -10,-5,120 to -10,0,0 nohead
 set arrow 2 from -10,-5,120 to 10,0,0 nohead
@@ -21,9 +40,9 @@ unset label
 set grid
 splot x**2+y**2, x**2-y**2
 pause -1 "Hit return to continue (2)"
-rep x*y
+splot x**2+y**2, x**2-y**2, x*y
 pause -1 "Hit return to continue (3)"
-rep (x**3+y**3)/10
+splot x**2+y**2, x**2-y**2, x*y, (x**3+y**3)/10
 pause -1 "Hit return to continue (4)"
 set ticslevel 0.0
 set title "3D gnuplot demo ( ticslevel = 0.0 )"
@@ -86,7 +105,7 @@ set label 1 "This is equal to 1" at -5,-2,1.5 centre
 set arrow 1 from -5,-2.1,1.4 to 0,0,1
 splot [-12:12.01] [-12:12.01] sinc(u,v)
 pause -1 "Hit return to continue (15)"
-set title "\"fence plot\" using separate parametric surfaces"
+set title "fence plot constructed with separate parametric surfaces"
 # A method suggested by Hans-Bernhard Broeker
 # <broeker@physik.rwth-aachen.de>: display a separate parametric
 # surface for each fence.
@@ -101,7 +120,7 @@ set label 2 "u=0" at 5,6.5,-1
 set arrow from 5,6,sinc(5,5) to 5,5,sinc(5,5) lt -1
 set label 3 "u=1" at 5,6.5,sinc(5,5)
 set parametric
-set hidden3d
+set hidden3d offset 0	# front/back coloring makes no sense for fenceplot #
 set isosamples 2,33
 xx=-5; dx=(4.99-(-4.99))/9
 x0=xx; xx=xx+dx
@@ -150,7 +169,7 @@ set arrow from 5,6,sinc(5,5) to 5,5,sinc(5,5) lt -1
 set label 4 "floor(u)%3=1" at 5,6.5,sinc(5,5)
 splot [u=.5:3*n-.5][v=-4.99:4.99] \
 	 xmin+floor(u/3)*dx, v, ((floor(u)%3)==0) ? zbase : \
-			 (((floor(u)%3)==1) ? sinc(xmin+u/3.*dx,v) : 1/0) notitle
+			 (((floor(u)%3)==1) ? sinc(xmin+u/3.*dx,v) : 1/0) lt 3 notitle
 pause -1 "Hit return to continue (17)"
 unset hidden3d; unset parametric; set isosamples 20,20
 set xrange [-1:1]; set yrange [-1:1]

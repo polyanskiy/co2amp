@@ -32,6 +32,7 @@ unset autoscale
 set xr [xmin:xmax]
 set yr [ymin:ymax]
 #
+save_encoding = GPVAL_ENCODING
 set encoding iso_8859_1
 set format y '%.1f'
 set label 'Times-Roman: {/Times-Roman abcdefghABCDEFGH дцья}' at graph 0.05,0.6 left
@@ -52,6 +53,5 @@ print " of the cm-super fonts. Then you will have to use lowercase font names or
 print " download a new version."
 set output
 set terminal pop
-
+set encoding save_encoding
 reset
-

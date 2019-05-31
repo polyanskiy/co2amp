@@ -2,12 +2,6 @@
 
 reset
 
-if ((GPVAL_VERSION == 4.3 || GPVAL_VERSION == 4.2) \
-&&  (!strstrt(GPVAL_COMPILE_OPTIONS,"+OBJECTS"))) \
-    print ">>> Skipping demo <<<\n" ; \
-    print "This copy of gnuplot was built without support for placing ellipses\n" ; \
-    exit ;
-
 set zeroaxis
 set xtics axis
 set ytics axis
@@ -63,3 +57,4 @@ plot fn using (cx($2,$3,$4,$5,$6)):\
               (angle($5,$6,$4)) index 3 every ::0::10 with ellipses lw 1 title "Distant objects"
               
 pause -1
+reset

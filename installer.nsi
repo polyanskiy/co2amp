@@ -6,10 +6,10 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190429_setup.exe"
+OutFile "co2amp_v.20190523_setup.exe"
 
 ;Default install path
-InstallDir "$PROGRAMFILES\co2amp"          ;default
+InstallDir "$PROGRAMFILES64\co2amp"          ;default
 InstallDirRegKey HKLM "Software\co2amp" "" ;if previous installation exists (overrides default)
 
 
@@ -80,15 +80,15 @@ Section "Section_01" Sec01
   SetOutPath "$INSTDIR"
   File "co2amp-core\release\co2amp-core.exe"
   File "co2amp-shell\release\co2amp.exe"
-  File "C:\Qt\5.10.1\mingw53_32\bin\libgcc_s_dw2-1.dll"
-  File "C:\Qt\5.10.1\mingw53_32\bin\libstdc++-6.dll"
-  File "C:\Qt\5.10.1\mingw53_32\bin\libwinpthread-1.dll"
-  File "C:\Qt\5.10.1\mingw53_32\bin\Qt5Core.dll"
-  File "C:\Qt\5.10.1\mingw53_32\bin\Qt5Gui.dll"
-  File "C:\Qt\5.10.1\mingw53_32\bin\Qt5Widgets.dll"
-  File "C:\Qt\Tools\mingw530_32\bin\libgomp-1.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libstdc++-6.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libwinpthread-1.dll"
+  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Core.dll"
+  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Gui.dll"
+  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Widgets.dll"
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\5.10.1\mingw53_32\plugins\platforms\qwindows.dll"
+  File "C:\Qt\5.12.3\mingw73_64\plugins\platforms\qwindows.dll"
   
   ;Write Start menu entries
   SetShellVarContext all

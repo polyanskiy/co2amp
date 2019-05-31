@@ -4,14 +4,17 @@
 int MainWindow::FigureMenu()
 {
     QMenu menu("");
-    menu.addAction("Copy image");
     menu.addAction("Copy data");
+    menu.addAction("Copy pixmap");
+    menu.addAction("Save SVG");
     QAction *action = menu.exec(QCursor::pos());
     if(action){
-	if(action->text()=="Copy image")
-	    return 1;
-	if(action->text()=="Copy data")
-	    return 2;
+        if(action->text()=="Copy data")
+            return 1;
+        if(action->text()=="Copy pixmap")
+            return 2;
+        if(action->text()=="Save SVG")
+            return 3;
     }
     return 0;
 }
@@ -20,15 +23,12 @@ int MainWindow::FigureMenu()
 /////////////////////////////// COPY FIGURE OR DATA /////////////////////////////////////
 
 
-void MainWindow::on_label_fig1_customContextMenuRequested() // Energy
+void MainWindow::on_svg_fig1_customContextMenuRequested() // Energy
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig1->pixmap());
-    if(m==2){ //data
+    if(m==1){ // data
         QString line, out;
         QRegExp separators("[\t\n]");
-
         QFile file;
         file.setFileName("data_energy_selected.dat");
         file.open(QFile::ReadOnly);
@@ -41,55 +41,66 @@ void MainWindow::on_label_fig1_customContextMenuRequested() // Energy
         QApplication::clipboard()->setText(out);
         file.close();
     }
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig1);
+    if(m==3) // SVG
+        SaveSVG("fig_energy.svg");
 }
 
 
-void MainWindow::on_label_fig2_customContextMenuRequested() // Spectra
+void MainWindow::on_svg_fig2_customContextMenuRequested() // Spectra
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig2->pixmap());
-    if(m==2) //data
+    if(m==1) //data
         CopyMultipassData("data_spectra.dat");
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig2);
+    if(m==3) // SVG
+        SaveSVG("fig_spectra.svg");
 }
 
 
-void MainWindow::on_label_fig3_customContextMenuRequested() // Gain spectrum
+void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig3->pixmap());
-    if(m==2) //data
+    if(m==1) //data
         CopyMultipassData("data_band.dat");
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig3);
+    if(m==3) // SVG
+        SaveSVG("fig_band.svg");
 }
 
 
-void MainWindow::on_label_fig4_customContextMenuRequested() // Fluence
+void MainWindow::on_svg_fig4_customContextMenuRequested() // Fluence
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig4->pixmap());
-    if(m==2) //data
+    if(m==1) //data
         CopyMultipassData("data_fluence.dat");
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig4);
+    if(m==3) // SVG
+        SaveSVG("fig_fluence.svg");
+
 }
 
 
-void MainWindow::on_label_fig5_customContextMenuRequested() // Power
+void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig5->pixmap());
-    if(m==2) //data
+    if(m==1) //data
         CopyMultipassData("data_power.dat");
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig5);
+    if(m==3) // SVG
+        SaveSVG("fig_power.svg");
 }
 
 
-void MainWindow::on_label_fig6_customContextMenuRequested() // Discharge
+void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig6->pixmap());
-    if(m==2){ //data
+    if(m==1){ //data
         QString line, out;
         QRegExp separators("[\t\n]");
         QFile file("data_discharge.dat");
@@ -103,15 +114,17 @@ void MainWindow::on_label_fig6_customContextMenuRequested() // Discharge
         QApplication::clipboard()->setText(out);
         file.close();
     }
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig6);
+    if(m==3) // SVG
+        SaveSVG("fig_discharge.svg");
 }
 
 
-void MainWindow::on_label_fig7_customContextMenuRequested() // Temperatures
+void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig7->pixmap());
-    if(m==2){ //data
+    if(m==1){ //data
         QString line, out;
         QRegExp separators("[\t\n]");
         int comp_n = comboBox_component->currentIndex();
@@ -128,15 +141,17 @@ void MainWindow::on_label_fig7_customContextMenuRequested() // Temperatures
         QApplication::clipboard()->setText(out);
         file.close();
     }
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig7);
+    if(m==3) // SVG
+        SaveSVG("fig_temperatures.svg");
 }
 
 
-void MainWindow::on_label_fig8_customContextMenuRequested() // e (# of quanta / molequle)
+void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / molequle)
 {
     int m = FigureMenu();
-    if(m==1) //image
-        QApplication::clipboard()->setPixmap(*label_fig8->pixmap());
-    if(m==2){ //data
+    if(m==1){ //data
         QString line, out;
         QRegExp separators("[\t\n]");
         int comp_n = comboBox_component->currentIndex();
@@ -153,29 +168,35 @@ void MainWindow::on_label_fig8_customContextMenuRequested() // e (# of quanta / 
         QApplication::clipboard()->setText(out);
         file.close();
     }
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig8);
+    if(m==3) // SVG
+        SaveSVG("fig_e.svg");
 }
 
 
-void MainWindow::on_label_fig9_customContextMenuRequested() // q
+void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 {
     int m = FigureMenu();
-    if(m==1) //image
-	QApplication::clipboard()->setPixmap(*label_fig9->pixmap());
-    if(m==2){ //data
-	QString line, out;
-	QRegExp separators("[\t\n]");
-	QFile file("data_q.dat");
-	file.open(QFile::ReadOnly);
+    if(m==1){ //data
+        QString line, out;
+        QRegExp separators("[\t\n]");
+        QFile file("data_q.dat");
+        file.open(QFile::ReadOnly);
 
-	line = file.readLine();
-	while(line != QString()){
-	    if(line[0]!='#') // skip comments
-	    out += line.section(separators, 0, 4) + "\n";
-	    line = file.readLine();
-	}
-	QApplication::clipboard()->setText(out);
-	file.close();
+        line = file.readLine();
+        while(line != QString()){
+            if(line[0]!='#') // skip comments
+            out += line.section(separators, 0, 4) + "\n";
+            line = file.readLine();
+        }
+        QApplication::clipboard()->setText(out);
+        file.close();
     }
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig9);
+    if(m==3) // SVG
+        SaveSVG("fig_q.svg");
 }
 
 
@@ -229,5 +250,25 @@ void MainWindow::CopyMultipassData(QString filename)
     }
 
     QApplication::clipboard()->setText(out);
+}
+
+
+void MainWindow::CopyPixmap(QSvgWidget *svg)
+{
+    QPixmap pixmap(svg->size());
+    svg->render(&pixmap);
+    QApplication::clipboard()->setPixmap(pixmap);
+}
+
+
+void MainWindow::SaveSVG(QString svg_path)
+{
+    QString start_dir, save_path;
+    project_file != QString() ? start_dir = project_file : start_dir = def_dir;
+    save_path = QFileDialog::getSaveFileName(this, QString(), def_dir, tr("SVG (*.svg)"));
+    if(save_path != QString()){
+        QFile::remove(save_path);
+        QFile::copy(svg_path, save_path);
+    }
 }
 

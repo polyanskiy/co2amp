@@ -12,9 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
     #ifdef Q_OS_WIN
         path_to_core = QCoreApplication::applicationDirPath() + "/co2amp-core.exe";
         path_to_core = "\"" + QDir::toNativeSeparators(path_to_core) + "\"";
-        path_to_gnuplot = QCoreApplication::applicationDirPath() + "/gnuplot/bin/wgnuplot.exe";
+        path_to_gnuplot = QCoreApplication::applicationDirPath() + "/gnuplot/bin/gnuplot.exe";
         path_to_gnuplot = "\"" + QDir::toNativeSeparators(path_to_gnuplot) + "\"";
-        path_to_7zip = QCoreApplication::applicationDirPath() + "/7-zip/7za.exe";
+        path_to_7zip = QCoreApplication::applicationDirPath() + "/7-zip/x64/7za.exe";
         path_to_7zip = "\"" + QDir::toNativeSeparators(path_to_7zip) + "\"";
     #endif
 
@@ -39,6 +39,39 @@ MainWindow::MainWindow(QWidget *parent)
 
     project_file = QString();
 
+    //////////////////////////////////////// Validators ///////////////////////////////////////
+    lineEdit_E0->setValidator(new QDoubleValidator(this));
+    lineEdit_r0->setValidator(new QDoubleValidator(this));
+    lineEdit_tau0->setValidator(new QDoubleValidator(this));
+    lineEdit_vc->setValidator(new QDoubleValidator(this));
+    lineEdit_t_inj->setValidator(new QDoubleValidator(this));
+    lineEdit_Dt_train->setValidator(new QDoubleValidator(this));
+    lineEdit_p_CO2->setValidator(new QDoubleValidator(this));
+    lineEdit_p_N2->setValidator(new QDoubleValidator(this));
+    lineEdit_p_He->setValidator(new QDoubleValidator(this));
+    lineEdit_13C->setValidator(new QDoubleValidator(0,100,3,this));
+    lineEdit_18O->setValidator(new QDoubleValidator(0,100,3,this));
+    lineEdit_Vd->setValidator(new QDoubleValidator(this));
+    lineEdit_D_interel->setValidator(new QDoubleValidator(this));
+    lineEdit_pump_wl->setValidator(new QDoubleValidator(this));
+    lineEdit_pump_sigma->setValidator(new QDoubleValidator(this));
+    lineEdit_pump_fluence->setValidator(new QDoubleValidator(this));
+    lineEdit_T0->setValidator(new QDoubleValidator(this));
+    lineEdit_t_pulse_min->setValidator(new QDoubleValidator(this));
+    lineEdit_t_pulse_max->setValidator(new QDoubleValidator(this));
+
+    //////////////////////////////////// Load session /////////////////////////////////////////
+    QSettings settings("ATF", "co2amp");
+    def_dir = settings.value("def_dir", "").toString();
+    comboBox_plotSize->setCurrentIndex(settings.value("plot_size", "0").toInt());
+    spinBox_fontSize->setValue(settings.value("plot_font_size", "10").toInt());
+    checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
+    checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
+    textBrowser->setVisible(false); // hide terminal
+    tabWidget_main->setCurrentIndex(0); // Calculations tab
+    flag_calculating = false;
+    flag_input_file_error = false;
+
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
     connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(Plot()));
@@ -49,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(Plot()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
+    connect(comboBox_plotSize, SIGNAL(activated(QString)), this, SLOT(Plot()));
+    connect(spinBox_fontSize, SIGNAL(valueChanged(int)), this, SLOT(Plot()));
     connect(checkBox_log, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(plainTextEdit_comments, SIGNAL(textChanged()), this, SLOT(Comments()));
@@ -86,35 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pushButton_calculate, SIGNAL(clicked()), this, SLOT(Calculate()));
     connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
 
-    //////////////////////////////////////// Validators ///////////////////////////////////////
-    lineEdit_E0->setValidator(new QDoubleValidator(this));
-    lineEdit_r0->setValidator(new QDoubleValidator(this));
-    lineEdit_tau0->setValidator(new QDoubleValidator(this));
-    lineEdit_vc->setValidator(new QDoubleValidator(this));
-    lineEdit_t_inj->setValidator(new QDoubleValidator(this));
-    lineEdit_Dt_train->setValidator(new QDoubleValidator(this));
-    lineEdit_p_CO2->setValidator(new QDoubleValidator(this));
-    lineEdit_p_N2->setValidator(new QDoubleValidator(this));
-    lineEdit_p_He->setValidator(new QDoubleValidator(this));
-    lineEdit_13C->setValidator(new QDoubleValidator(0,100,3,this));
-    lineEdit_18O->setValidator(new QDoubleValidator(0,100,3,this));
-    lineEdit_Vd->setValidator(new QDoubleValidator(this));
-    lineEdit_D_interel->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_wl->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_sigma->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_fluence->setValidator(new QDoubleValidator(this));
-    lineEdit_T0->setValidator(new QDoubleValidator(this));
-    lineEdit_t_pulse_min->setValidator(new QDoubleValidator(this));
-    lineEdit_t_pulse_max->setValidator(new QDoubleValidator(this));
 
-    //////////////////////////////////// Load session /////////////////////////////////////////
-    QSettings settings("ATF", "co2amp");
-    def_dir = settings.value("def_dir", "").toString();
-    //checkBox_showCalculationTime->setChecked(settings.value("show_calculation_time", true).toBool());
-    textBrowser->setVisible(false); // hide terminal
-    tabWidget_main->setCurrentIndex(0); // Calculations tab
-    flag_calculating = false;
-    flag_input_file_error = false;
 
     // Process command line
     QStringList arg = qApp->arguments();
@@ -139,7 +146,10 @@ MainWindow::~MainWindow()
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir", def_dir);
     settings.setValue("window_geometry", saveGeometry());
-    //settings.setValue("show_calculation_time", checkBox_showCalculationTime->isChecked());
+    settings.setValue("plot_size", comboBox_plotSize->currentIndex());
+    settings.setValue("plot_font_size", spinBox_fontSize->value());
+    settings.setValue("plot_grid", checkBox_grid->isChecked());
+    settings.setValue("plot_labels", checkBox_labels->isChecked());
 
     // Remove temporary working directory
     ClearWorkDir();
@@ -363,7 +373,8 @@ void MainWindow::LoadProject()
         proc->start(path_to_7zip + " e -y \"" + project_file + "\"");
         proc->waitForFinished();
         LoadSettings("project.ini");
-        ShowFigures();
+        //ShowFigures();
+        Plot();
         QFileInfo fileinfo(project_file);
         def_dir = QDir::toNativeSeparators(fileinfo.dir().absolutePath());
         LoadInputPulse();

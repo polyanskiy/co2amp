@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QElapsedTimer>
+#include <QSvgWidget>
 #include <cmath>
 #include "ui_mainwindow.h"
 
@@ -70,15 +71,15 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
         void closeEvent(QCloseEvent*);
-        void on_label_fig1_customContextMenuRequested();
-        void on_label_fig2_customContextMenuRequested();
-        void on_label_fig3_customContextMenuRequested();
-        void on_label_fig4_customContextMenuRequested();
-        void on_label_fig5_customContextMenuRequested();
-        void on_label_fig6_customContextMenuRequested();
-        void on_label_fig7_customContextMenuRequested();
-        void on_label_fig8_customContextMenuRequested();
-        void on_label_fig9_customContextMenuRequested();
+        void on_svg_fig1_customContextMenuRequested();
+        void on_svg_fig2_customContextMenuRequested();
+        void on_svg_fig3_customContextMenuRequested();
+        void on_svg_fig4_customContextMenuRequested();
+        void on_svg_fig5_customContextMenuRequested();
+        void on_svg_fig6_customContextMenuRequested();
+        void on_svg_fig7_customContextMenuRequested();
+        void on_svg_fig8_customContextMenuRequested();
+        void on_svg_fig9_customContextMenuRequested();
         void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
         void MemorizeSettings();
         void SaveProject();
@@ -89,7 +90,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void Plot();
         void Comments();
         void SelectEnergies();
-        void ShowFigures();void CopyMultipassData(QString filename);
+        void ShowFigures();
+        void CopyMultipassData(QString filename);
+        void CopyPixmap(QSvgWidget *svg);
+        void SaveSVG(QString svg_path);
         void UpdateTerminal();
         void UpdateControls();
         void BeforeProcessStarted();

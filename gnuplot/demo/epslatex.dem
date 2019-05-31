@@ -23,6 +23,7 @@ unset autoscale
 set xr [xmin:xmax]
 set yr [ymin:ymax]
 #
+save_encoding = GPVAL_ENCODING
 set encoding iso_8859_1
 set format x '$%g$'
 set format y '$%.1f$'
@@ -61,4 +62,5 @@ print " and have a look at epslatex.pdf."
 print " Do the same with epslatex-oldstyle.tex."
 #
 set terminal pop
+set encoding save_encoding
 reset

@@ -57,8 +57,6 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("plot/passes", lineEdit_passes->text());
         settings.setValue("plot/timeScale", comboBox_timeScale->currentIndex());
         settings.setValue("plot/freqScale", comboBox_freqScale->currentIndex());
-        settings.setValue("plot/grid", checkBox_grid->isChecked());
-        settings.setValue("plot/labels", checkBox_labels->isChecked());
         settings.setValue("plot/log", checkBox_log->isChecked());
     }
 
@@ -125,8 +123,6 @@ void MainWindow::LoadSettings(QString path)
         comboBox_energyPlot->setCurrentIndex(settings.value("plot/energyPlot", 3).toInt());
     comboBox_timeScale->setCurrentIndex(settings.value("plot/timeScale", 2).toInt());
     comboBox_freqScale->setCurrentIndex(settings.value("plot/freqScale", 2).toInt());
-    checkBox_grid->setChecked(settings.value("plot/grid", 1).toBool());
-    checkBox_labels->setChecked(settings.value("plot/labels", 1).toBool());
     checkBox_log->setChecked(settings.value("plot/log", 0).toBool());
 
     // Debugging

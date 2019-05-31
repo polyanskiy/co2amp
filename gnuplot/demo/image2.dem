@@ -10,12 +10,6 @@
 #	- 9.23. 2003 ds: redone in response to discussion list feedback
 #	- 5. 3. 2003 ds: 1st version
 
-if ((GPVAL_VERSION == 4.3 || GPVAL_VERSION == 4.2) \
-&&  (!strstrt(GPVAL_COMPILE_OPTIONS,"+IMAGE"))) \
-    print ">>> Skipping demo <<<\n" ; \
-    print "This copy of gnuplot was built without support for plotting images" ; \
-    exit ;
-
 # Repeat of the 'using.dem' demo, but with binary 2d data.  'using.bin' is
 # in the format int32, int8, int16/100, int8, int16/100, int16/100.
 #
@@ -98,6 +92,8 @@ print ""
 set size 1.0, 1.0
 set origin 0.0, 0.0
 set multiplot
+set format "%.2g"
+unset ztics
 set size 0.5,0.48
 set origin 0.0,0.47
 unset key
@@ -131,13 +127,13 @@ print ""
 set title "Close up of pixels having grid points (0,0), (0,2), (2,0) and (2,2)"
 set xrange [-1.5:3.5]
 set yrange [-1.5:3.5]
-set cbrange [0:1]
+# As of version 5.2, RGB color components default to the range [0:255]
 unset key
 plot '-' with rgbimage, '-' with points pt 7 ps 2 lt -1
-0 0 0.0 0.0 0.5
-0 2 0.0 0.5 0.0
-2 0 0.0 0.5 0.0
-2 2 0.0 0.0 0.5
+0 0   0   0 127
+0 2   0 127   0
+2 0   0 127   0
+2 2   0   0 127
 e
 0 0
 0 2
@@ -461,8 +457,10 @@ print ""
 set title "Binary data specified at the command line, intended for use through pipe"
 set xrange [-1.5:3.5]
 set yrange [-1.5:3.5]
-set cbrange [0:1]
-plot '-' binary endian=little array=(2,2) dx=2 format="%float" using 1:2:3 with rgbimage,\
+# The binary values are in the range [0.0:1.0]
+# We could use the new command "set rgbmax 1.0" but here we instead show scaling in the using spec
+#
+plot '-' binary endian=little array=(2,2) dx=2 format="%float" using ($1*255.):($2*255.):($3*255.) with rgbimage,\
      '-' binary endian=little record=4 format="%char" using 1:2 with points pt 7 ps 2 lt -1
            ?       ?           ?               ?    
 pause -1 "Hit return to continue"
@@ -516,42 +514,40 @@ set multiplot
 set size 0.5,0.48
 unset key
 set origin 0.0,0.47
-set xrange [-0.5:127.5] noreverse
-set x2range [-0.5:127.5] noreverse
-set yrange [-0.5:127.5] noreverse
-set y2range [-0.5:127.5] noreverse
+set xrange [127.5:-0.5]
+set x2range [127.5:-0.5]
+set yrange [-0.5:127.5]
+set y2range [-0.5:127.5]
 set xtics out mirror
 unset ytics
-set xrange [] reverse
-set x2range [] reverse
 set y2tics out mirror
 set title '"Eccentric coordinate systems"' offset 0,-0.5
 set label 1 "Images reverse according to axis orientation" at -30,162 center
 plot 'blutux.rgb' binary array=(128,128) flip=y format='%uchar' using 1:2:3 with rgbimage
 unset label 1
 set origin 0.5,0.47
-set xrange [] noreverse
-set x2range [] noreverse
+set xrange [-0.5:127.5]
+set x2range [-0.5:127.5]
 unset y2tics
 set ytics out mirror
 set title '"Cartesian plane!"'
 replot
 set origin 0.0,0.04
 unset xtics
-set xrange [] reverse
-set x2range [] reverse
+set xrange [127.5:-0.5]
+set x2range [127.5:-0.5]
 set x2tics out mirror
 unset ytics
-set yrange [] reverse
-set y2range [] reverse
+set yrange [127.5:-0.5]
+set y2range [127.5:-0.5]
 set y2tics out mirror
 unset title
 set title ' ' offset 0,-0.5
 set label 1 '"Nato, ergo sum."' at 64,140 center rotate by 180
 replot
 set origin 0.5,0.04
-set xrange [] noreverse
-set x2range [] noreverse
+set xrange [-0.5:127.5]
+set x2range [-0.5:127.5]
 unset y2tics
 set ytics out mirror
 set title ' ' offset 0,-0.5

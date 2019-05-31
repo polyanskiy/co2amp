@@ -1,5 +1,5 @@
 #
-# $Id: mousevariables.dem,v 1.8 2006/07/10 19:49:54 sfeam Exp $
+# $Id: mousevariables.dem,v 1.7 2005/01/12 00:34:09 sfeam Exp $
 #
 # Demonstrate use of user variables 
 # MOUSE_BUTTON MOUSE_X MOUSE_Y MOUSE_X2 MOUSE_Y2

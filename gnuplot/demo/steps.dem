@@ -1,5 +1,5 @@
 #
-# $Id: steps.dem,v 1.5 2003/10/17 15:02:21 mikulik Exp $
+# $Id: $
 #
 # This file will serve as the datafile used in demonstrating the 
 # "plot with steps" option.   Here is a gnuplot input file

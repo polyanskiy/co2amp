@@ -15,22 +15,33 @@ void MainWindow::Plot()
     QString newline, font, lmargin;
     #ifdef Q_OS_LINUX
         newline = "\n";
-        font = "small";
-        lmargin = "12";
+        //font = "small";
+        //lmargin = "12";
     #endif
     #ifdef Q_OS_WIN
         newline = "\r\n";
-        font = "small";
-        lmargin = "12";
+        //font = "small";
+        //lmargin = "12";
     #endif
+
+    svg_fig1->setStyleSheet("background-color:white;");
+    svg_fig2->setStyleSheet("background-color:white;");
+    svg_fig3->setStyleSheet("background-color:white;");
+    svg_fig4->setStyleSheet("background-color:white;");
+    svg_fig5->setStyleSheet("background-color:white;");
+    svg_fig6->setStyleSheet("background-color:white;");
+    svg_fig7->setStyleSheet("background-color:white;");
+    svg_fig8->setStyleSheet("background-color:white;");
+    svg_fig9->setStyleSheet("background-color:white;");
+
 
     ////////////////////////////////////////////////// Figure: Energy ////////////////////////////////////////////////
     SelectEnergies();
     file.setFileName("script_energy.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_energy.png\"" << newline;
-    out << "set xlabel \"Time, us\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig1->width() << "," << svg_fig1->height()  << newline;
+    out << "set output \"fig_energy.svg\"" << newline;
+    out << "set xlabel \"Time, µs\"" << newline;
     out << "set ylabel \"Pulse energy, J\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
@@ -38,15 +49,17 @@ void MainWindow::Plot()
     out << "plot \"data_energy_selected.dat\" using 1:2 notitle" << newline;
     file.close();
 
+
+
     int pulse_n = comboBox_pulse->currentIndex();
     int comp_n = comboBox_component->currentIndex();
     int pass_n, plot_n, set_n, am_n;
     //////////////////////////////////////////////// Figure: Fluence ////////////////////////////////////////////////////
     plot_n = 0;
     file.setFileName("script_fluence.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_fluence.png\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig4->width() << "," << svg_fig4->height()  << newline;
+    out << "set output \"fig_fluence.svg\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
     checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
@@ -73,9 +86,9 @@ void MainWindow::Plot()
     //////////////////////////////////////////////// Figure: Power ////////////////////////////////////////////////////
     plot_n = 0;
     file.setFileName("script_power.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_power.png\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig5->width() << "," << svg_fig5->height()  << newline;
+    out << "set output \"fig_power.svg\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
     checkBox_labels->isChecked() ? out << "set key" << newline : out << "unset key" << newline;
@@ -111,8 +124,8 @@ void MainWindow::Plot()
     plot_n = 0;
     file.setFileName("script_spectra.txt");
     file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_spectra.png\"" << newline;
+    out << "set terminal svg size " << svg_fig2->width() << "," << svg_fig2->height()  << newline;
+    out << "set output \"fig_spectra.svg\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
     checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
@@ -143,9 +156,9 @@ void MainWindow::Plot()
     file.open(QFile::WriteOnly | QFile::Truncate);
     am_n = AmNumber(comp_n);
     if(am_n != -1){
-        out << "set terminal png " << font << " size 360,270" << newline;
-        out << "set output \"fig_temperatures.png\"" << newline;
-        out << "set xlabel \"Time, us\"" << newline;
+        out << "set terminal svg size " << svg_fig7->width() << "," << svg_fig7->height()  << newline;
+        out << "set output \"fig_temperatures.svg\"" << newline;
+        out << "set xlabel \"Time, µs\"" << newline;
         out << "set ylabel \"Temperature, K\"" << newline;
         if(checkBox_grid->isChecked())
             out << "set grid" << newline;
@@ -163,16 +176,16 @@ void MainWindow::Plot()
     file.open(QFile::WriteOnly | QFile::Truncate);
     am_n = AmNumber(comp_n);
     if(am_n != -1){
-        out << "set terminal png " << font << " size 360,270" << newline;
-        out << "set output \"fig_e.png\"" << newline;
-        out << "set xlabel \"Time, us\"" << newline;
+        out << "set terminal svg size " << svg_fig8->width() << "," << svg_fig8->height()  << newline;
+        out << "set output \"fig_e.svg\"" << newline;
+        out << "set xlabel \"Time, µs\"" << newline;
         out << "set ylabel \"e (# of quanta / molecule)\"" << newline;
         if(checkBox_grid->isChecked())
             out << "set grid" << newline;
         checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
         out << "set yrange [0:*]" << newline;
-        out << "plot \"data_e.dat\" using 1:($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 um (symm stretch): e1\",\\" << newline;
-        out << "\"data_e.dat\" using 1:($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 um (bend): e2\",\\" << newline;
+        out << "plot \"data_e.dat\" using 1:($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 µm (symm stretch): e1\",\\" << newline;
+        out << "\"data_e.dat\" using 1:($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 µm (bend): e2\",\\" << newline;
         out << "\"data_e.dat\" using 1:($" << 4*am_n+4 << ") with lines ls 2 ti \"Upper (asymm stretch): e3\",\\" << newline;
         out << "\"data_e.dat\" using 1:($" << 4*am_n+5 << ") with lines ls 3 ti \"N2: e4\"\\" << newline;
     }
@@ -181,9 +194,11 @@ void MainWindow::Plot()
     ///////////////////////////////////////////// Figure: Gain spectrum ////////////////////////////////////////////////
     plot_n = 0;
     file.setFileName("script_band.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_band.png\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig3->width() << "," << svg_fig3->height()  << newline;
+    out << "set output \"fig_band.svg\"" << newline;
+    //out << "set terminal png " << font << " size 360,270" << newline;
+    //out << "set output \"fig_band.png\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
     checkBox_labels->isChecked() ? out<<"set key" << newline : out << "unset key" << newline;
@@ -210,13 +225,13 @@ void MainWindow::Plot()
 
     ////////////////////////////////////////////////////// Figure: Discharge ///////////////////////////////////////////////////
     file.setFileName("script_discharge.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_discharge.png\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig6->width() << "," << svg_fig6->height()  << newline;
+    out << "set output \"fig_discharge.svg\"" << newline;
     out << "set y2range [0:*]" << newline;
     out << "set ytics nomirror" << newline;
     out << "set y2tics nomirror" << newline;
-    out << "set xlabel \"Time, us\"" << newline;
+    out << "set xlabel \"Time, µs\"" << newline;
     out << "set ylabel \"Current, kA\"" << newline;
     out << "set y2label \"Voltage, kV\"" << newline;
     if(checkBox_grid->isChecked())
@@ -228,11 +243,11 @@ void MainWindow::Plot()
 
     /////////////////////////////////////////////////////////// Figure: q ///////////////////////////////////////////////////////
     file.setFileName("script_q.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate) ;
-    out << "set terminal png " << font << " size 360,270" << newline;
-    out << "set output \"fig_q.png\"" << newline;
+    file.open(QFile::WriteOnly | QFile::Truncate);
+    out << "set terminal svg size " << svg_fig9->width() << "," << svg_fig9->height()  << newline;
+    out << "set output \"fig_q.svg\"" << newline;
     out << "set yrange [0:1]" << newline;
-    out << "set xlabel \"Time, us\"" << newline;
+    out << "set xlabel \"Time, µs\"" << newline;
     out << "set ylabel \"q\"" << newline;
     if(checkBox_grid->isChecked())
         out << "set grid" << newline;
@@ -244,15 +259,15 @@ void MainWindow::Plot()
     file.close();
 
     //////////////////////////////////////////////////////////// Make figures with Gnuplot ////////////////////////////////////////////
-    QFile::remove("fig_energy.png");
-    QFile::remove("fig_power.png");
-    QFile::remove("fig_fluence.png");
-    QFile::remove("fig_spectra.png");
-    QFile::remove("fig_band.png");
-    QFile::remove("fig_discharge.png");
-    QFile::remove("fig_q.png");
-    QFile::remove("fig_temperatures.png");
-    QFile::remove("fig_e.png");
+    QFile::remove("fig_energy.svg");
+    QFile::remove("fig_power.svg");
+    QFile::remove("fig_fluence.svg");
+    QFile::remove("fig_spectra.svg");
+    QFile::remove("fig_band.svg");
+    QFile::remove("fig_discharge.svg");
+    QFile::remove("fig_q.svg");
+    QFile::remove("fig_temperatures.svg");
+    QFile::remove("fig_e.svg");
     this->setCursor(Qt::WaitCursor);
     proc = new QProcess( this );
     proc->execute(path_to_gnuplot + " script_energy.txt");
@@ -282,7 +297,8 @@ void MainWindow::ShowFigures()
     QPixmap pixmap;
     bool b;
 
-    label_fig1->clear();
+    svg_fig1->load(QByteArray());
+    /*label_fig1->clear();
     label_fig2->clear();
     label_fig3->clear();
     label_fig4->clear();
@@ -290,9 +306,20 @@ void MainWindow::ShowFigures()
     label_fig6->clear();
     label_fig7->clear();
     label_fig8->clear();
-    label_fig9->clear();
+    label_fig9->clear();*/
 
-    b = pixmap.load("fig_energy.png");
+
+    svg_fig1->load(QString("fig_energy.svg"));
+    svg_fig2->load(QString("fig_spectra.svg"));
+    svg_fig3->load(QString("fig_band.svg"));
+    svg_fig4->load(QString("fig_fluence.svg"));
+    svg_fig5->load(QString("fig_power.svg"));
+    svg_fig6->load(QString("fig_discharge.svg"));
+    svg_fig7->load(QString("fig_temperatures.svg"));
+    svg_fig8->load(QString("fig_e.svg"));
+    svg_fig9->load(QString("fig_q.svg"));
+
+    /*b = pixmap.load("fig_energy.png");
     label_fig1->setVisible(b);
     if(b)
         label_fig1->setPixmap(pixmap);
@@ -335,7 +362,7 @@ void MainWindow::ShowFigures()
     b = pixmap.load("fig_q.png");
     label_fig9->setVisible(b);
     if(b)
-        label_fig9->setPixmap(pixmap);
+        label_fig9->setPixmap(pixmap);*/
 
     flag_plot_modified = true;
 }

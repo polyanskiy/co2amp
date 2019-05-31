@@ -3,12 +3,6 @@
 #
 # Ethan A Merritt, Ralf Juengling - 2007,2008
 
-if ((GPVAL_VERSION == 4.3 || GPVAL_VERSION == 4.2) \
-&&  (!strstrt(GPVAL_COMPILE_OPTIONS,"+OBJECTS"))) \
-    print ">>> Skipping demo <<<\n" ; \
-    print "This copy of gnuplot was built without support for circles\n" ; \
-    exit ;
-
 set size ratio -1
 set style fill solid 1.0 border -1
 
@@ -127,3 +121,4 @@ plot 'empty-circles.dat' with circles lw 2 lc rgb "red", \
      'hemisphr.dat' u (100*$1):(100*$2) with points pt 7 lc rgb "black"
 
 pause -1 "Hit return to continue"
+reset

@@ -1,5 +1,5 @@
 /*
- * $Id: canvastext.js,v 1.3 2009/02/22 19:14:05 sfeam Exp $
+ * $Id: canvastext.js,v 1.1 2009/01/24 04:07:54 sfeam Exp $
  */
 // The canvastext.js code was released to the public domain by Jim Studt, 2007.
 // He may keep some sort of up to date copy at http://www.federated.com/~jim/canvastext/

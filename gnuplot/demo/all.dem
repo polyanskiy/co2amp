@@ -1,7 +1,8 @@
 #
-# $Id: all.dem,v 1.44 2011/10/03 00:17:21 sfeam Exp $
+# $Id: all.dem,v 1.79 2017/01/11 04:13:58 sfeam Exp $
 #
-# Executes ALL demos in this directory, in functionality order.
+# Executes all demos (OK, MOST demos) in this directory.
+# This serves as a series of unit tests for non-interactive capabilities.
 #
 
 print "******************** file simple.dem ********************"
@@ -37,16 +38,37 @@ print "******************** file autoscale.dem ********************"
 load "autoscale.dem"
 reset
 
-print "******************** file mgr.dem ********************"
-load "mgr.dem"
+print "******************** file smooth_splines.dem ********************"
+load "smooth_splines.dem"
+load "monotonic_spline.dem"
+reset
+
+
+print "******************** file errorbars.dem ********************"
+load "errorbars.dem"
+reset
+
+print "******************** file zerror.dem ********************"
+load "zerror.dem"
 reset
 
 print "******************** file fit.dem ********************"
+set fit quiet
 load "fit.dem"
+reset
+load "fitmulti.dem"
+reset
+
+print "******************** file named_var.dem ********************"
+load "named_var.dem"
 reset
 
 print "******************** file param.dem ********************"
 load "param.dem"
+reset
+
+print "******************** file piecewise.dem ********************"
+load "piecewise.dem"
 reset
 
 print "******************** file polar.dem ********************"
@@ -55,6 +77,26 @@ reset
 
 print "******************** file poldat.dem ********************"
 load "poldat.dem"
+reset
+
+print "******************** file solar_path.dem ****************"
+load "solar_path.dem"
+reset
+
+print "******************** file ttics.dem ********************"
+load "ttics.dem"
+reset
+
+print "******************** file boxplot.dem ********************"
+load "boxplot.dem"
+reset
+
+print "******************** file jitter.dem ********************"
+load "jitter.dem"
+reset
+
+print "******************** file violinplot.dem ********************"
+load "violinplot.dem"
 reset
 
 print "******************** file multiplt.dem ********************"
@@ -95,6 +137,10 @@ print "******************** file random.dem ********************"
 load "random.dem"
 reset
 
+print "******************** file rugplot.dem ********************"
+load "rugplot.dem"
+reset
+
 print "******************** file smooth.dem ********************"
 load "smooth.dem"
 reset
@@ -127,6 +173,10 @@ print "******************** file surface2.dem ********************"
 load "surface2.dem"
 reset
 
+print "******************** file azimuth.dem ********************"
+load "azimuth.dem"
+reset
+
 print "******************** file contours.dem ********************"
 load "contours.dem"
 reset
@@ -139,8 +189,9 @@ print "******************** file bivariat.dem ********************"
 load "bivariat.dem"
 reset
 
-print "******************** file timedat.dem ********************"
+print "******************** Time/Date data ********************"
 load "timedat.dem"
+load "gantt.dem"
 reset
 
 print "******************** file animate.dem ********************"
@@ -155,6 +206,14 @@ print "********************** file rgb_variable.dem *********************"
 load "rgb_variable.dem"
 reset
 
+print "********************** file rgba_lines.dem *********************"
+load "rgba_lines.dem"
+reset
+
+print "********************** file varcolor.dem *********************"
+load "varcolor.dem"
+reset
+
 print "********************** file pm3d.dem *********************"
 load "pm3d.dem"
 reset
@@ -163,8 +222,20 @@ print "********************** file pm3dcolors.dem *********************"
 load "pm3dcolors.dem"
 reset
 
+print "********************** file complex_trig.dem *********************"
+load "complex_trig.dem"
+reset
+
 print "********************** file heatmaps.dem *********************"
 load "heatmaps.dem"
+reset
+
+print "********************** file matrix_index.dem *********************"
+load "matrix_index.dem"
+reset
+
+print "********************** file matrix_every.dem *********************"
+load "matrix_every.dem"
 reset
 
 print "********************** file pm3dgamma.dem *********************"
@@ -183,12 +254,20 @@ print "********************** file textrotate.dem *********************"
 load "textrotate.dem"
 reset
 
-print "********************** file enhanced_utf8.dem *********************"
-load "enhanced_utf8.dem"
+print "********************** enhanced text *********************"
+if (GPVAL_TERM eq "postscript") {
+    load "enhancedtext.dem"
+} else {
+    load "enhanced_utf8.dem"
+}
 reset
 
 print "********************** file arrowstyle.dem *********************"
 load "arrowstyle.dem"
+reset
+
+print "********************** file dashtypes.dem *********************"
+load "dashtypes.dem"
 reset
 
 print "********************** file vector.dem *********************"
@@ -199,8 +278,32 @@ print "********************** file tics.dem *********************"
 load "tics.dem"
 reset
 
+print "********************** file break_continue.dem *********************"
+load "break_continue.dem"
+reset
+
+print "********************** file callargs.dem *********************"
+load "callargs.dem"
+reset
+
+print "********************** file volatile.dem *********************"
+load "volatile.dem"
+reset
+
 print "********************** file datastrings.dem *********************"
 load "datastrings.dem"
+reset
+
+print "********************** file textbox.dem *********************"
+load "textbox.dem"
+reset
+
+print "********************** file hypertext.dem *********************"
+load "hypertext.dem"
+reset
+
+print "********************** file rotate_labels.dem *****************"
+load "rotate_labels.dem"
 reset
 
 print "********************** file stats.dem *********************"
@@ -216,10 +319,16 @@ load "histograms.dem"
 load "histograms2.dem"
 reset
 
+print "********************** file array.dem *********************"
+load "array.dem"
+reset
+
 print "**********************    Image formats    *********************"
 load "image.dem"
 load "image2.dem"
 load "rgbalpha.dem"
+load "imageNaN.dem"
+load "barchart_art.dem"
 reset
 
 print "********************** file stringvar.dem *********************"
@@ -246,6 +355,11 @@ print "********************** file key.dem *********************"
 load "key.dem"
 reset
 
+print "********************** file custom_key.dem *********************"
+load "custom_key.dem"
+load "nokey.dem"
+reset
+
 print "********************** file borders.dem *********************"
 load "borders.dem"
 reset
@@ -258,8 +372,25 @@ print "********************** file rectangle.dem *********************"
 load "rectangle.dem"
 reset
 
+print "********************** file clipobject.dem *********************"
+load "clipobject.dem"
+reset
+
 print "********************** file approximate.dem *********************"
 load "approximate.dem"
+reset
+
+print "********************** file parallel.dem *********************"
+load "parallel.dem"
+reset
+
+print "********************** nonlinear axis demos *********************"
+load "nonlinear1.dem"
+load "nonlinear2.dem"
+load "nonlinear3.dem"
+load "nonlinear4.dem"
+load "nonlinear5.dem"
+load "nonlinear6.dem"
 reset
 
 print "********************** file transparent.dem *********************"
@@ -268,5 +399,8 @@ reset
 
 print "********************** file transparent_solids.dem *********************"
 load "transparent_solids.dem"
+
+print "********************** file pm3d_lighting.dem *********************"
+load "pm3d_lighting.dem"
 pause 5
 reset

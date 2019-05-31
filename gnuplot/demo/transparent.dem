@@ -5,6 +5,8 @@
 #    Not all terminal types support transparency
 #    Assumes UTF-8 support for plot titles
 #
+save_encoding = GPVAL_ENCODING
+set encoding utf8
 set style fill solid 1.0 noborder
 set style function filledcurves y1=0
 set clip two
@@ -28,7 +30,7 @@ set key top left Left reverse samplen 1
 set title "Solid filled curves"
 plot d1(x) fs solid 1.0 lc rgb "forest-green" title "μ =  0.5 σ = 0.5", \
      d2(x) lc rgb "gold" title "μ =  2.0 σ = 1.0", \
-     d3(x) lc rgb "red" title "μ = -1.0 σ = 2.0"
+     d3(x) lc rgb "dark-violet" title "μ = -1.0 σ = 2.0"
 
 pause -1 "Hit return to continue"
 
@@ -49,3 +51,5 @@ set title "Transparent pattern-filled curves"
 replot
 
 pause -1 "Hit return to continue"
+set encoding save_encoding
+reset
