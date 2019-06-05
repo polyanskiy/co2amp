@@ -5,6 +5,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setupUi(this);
 
+    /////////////////////////// Flags //////////////////////////
+    flag_projectloaded = false;
+    flag_calculating = false;
+    flag_calculation_success = false;
+    flag_comments_modified = false;
+    flag_plot_modified = false;
+    flag_field_ready_to_save = false;
+    flag_input_file_error = false;
+    flag_replot_needed = false;
+
     /////////////////////////// External programs //////////////////////////
     path_to_core = "co2amp-core";
     path_to_gnuplot = "gnuplot";
@@ -69,22 +79,20 @@ MainWindow::MainWindow(QWidget *parent)
     checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
     textBrowser->setVisible(false); // hide terminal
     tabWidget_main->setCurrentIndex(0); // Calculations tab
-    flag_calculating = false;
-    flag_input_file_error = false;
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
-    connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(comboBox_pulse, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(comboBox_energyPlot, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(lineEdit_passes, SIGNAL(returnPressed()), this, SLOT(Plot()));
-    connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(Plot()));
+    connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(comboBox_pulse, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(comboBox_energyPlot, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(lineEdit_passes, SIGNAL(textEdited(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(comboBox_plotSize, SIGNAL(activated(QString)), this, SLOT(Plot()));
     connect(spinBox_fontSize, SIGNAL(valueChanged(int)), this, SLOT(Plot()));
-    connect(checkBox_log, SIGNAL(clicked()), this, SLOT(Plot()));
+    connect(checkBox_log, SIGNAL(clicked()), this, SLOT(PlotAndSetModifiedFlag()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(plainTextEdit_comments, SIGNAL(textChanged()), this, SLOT(Comments()));
     connect(checkBox_from_file, SIGNAL(clicked()), this, SLOT(OnModified()));
@@ -117,11 +125,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_max, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_passes, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(pushButton_calculate, SIGNAL(clicked()), this, SLOT(Calculate()));
     connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
-
-
 
     // Process command line
     QStringList arg = qApp->arguments();
@@ -269,11 +274,15 @@ void MainWindow::NewProject()
     LoadSettings(QString());
     SaveSettings("all"); // save all settings - input and plot
     MainWindow::setWindowTitle("untitled - co2amp");
-    ShowFigures();
+    ClearPlot();
+    flag_projectloaded = false;
+    flag_calculating = false;
     flag_calculation_success = false;
-    flag_plot_modified = false;
     flag_comments_modified = false;
+    flag_plot_modified = false;
     flag_field_ready_to_save = false;
+    flag_input_file_error = false;
+    flag_replot_needed = false;
     UpdateControls();
 }
 
@@ -348,14 +357,30 @@ void MainWindow::on_pushButton_saveas_clicked()
 void MainWindow::SaveProject()
 {
     QFileInfo fileinfo(project_file);
-    QFile::remove(project_file);
+    if(QFile::exists(project_file) && !QFile::remove(project_file)){// cannot remove project file (e.g. it's open in another program)
+        QMessageBox mb( "Error - co2amp", "Cannot save to the existing file (file may be open in another program)", QMessageBox::Warning, QMessageBox::Ok, 0, 0);
+        mb.exec();
+        return;
+    }
     QFile::remove("field_in.bin");
+    QFile::remove("gnuplot_script");
+    QFile::remove("script_energy.txt");
+    // compatibility: remove gnuplot scripts from older files - not saving scripts since 2019-06-05
+    QFile::remove("script_power.txt");
+    QFile::remove("script_fluence.txt");
+    QFile::remove("script_spectra.txt");
+    QFile::remove("script_band.txt");
+    QFile::remove("script_discharge.txt");
+    QFile::remove("script_q.txt");
+    QFile::remove("script_temperatures.txt");
+    QFile::remove("script_e.txt");
+    // end compatibility
     QProcess *proc;
     proc = new QProcess(this);
     if(fileinfo.suffix()=="co2x") // extended project file suitable for sequensing
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.png ; *.ini ; *.bin");
+        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.bin");
     else // basic (small) project file (.co2)
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.png ; *.ini"); // don't include field (field.bin)
+        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini"); // don't include field (field.bin)
     proc->waitForFinished();
     flag_plot_modified = false;
     flag_comments_modified = false;
@@ -373,19 +398,21 @@ void MainWindow::LoadProject()
         proc->start(path_to_7zip + " e -y \"" + project_file + "\"");
         proc->waitForFinished();
         LoadSettings("project.ini");
-        //ShowFigures();
-        Plot();
         QFileInfo fileinfo(project_file);
         def_dir = QDir::toNativeSeparators(fileinfo.dir().absolutePath());
-        LoadInputPulse();
 
-        MainWindow::setWindowTitle(fileinfo.fileName() + " - co2amp");;
+        MainWindow::setWindowTitle(fileinfo.fileName() + " - co2amp");
+        flag_projectloaded = true;
+        flag_calculating = false;
         flag_calculation_success = true;
         flag_plot_modified = false;
         flag_comments_modified = false;
-        if(fileinfo.suffix()=="co2x" && QFile::exists("field.bin"))
+        LoadInputPulse();
+        if(fileinfo.suffix()=="co2x" && !flag_input_file_error)
             flag_field_ready_to_save = true;
         UpdateControls();
+        flag_replot_needed = true;
+        Plot();
         this->setCursor(Qt::ArrowCursor);
     }
     else
@@ -439,8 +466,9 @@ void MainWindow::AfterProcessFinished()
         flag_field_ready_to_save = true;
         save = checkBox_saveWhenFinished->isChecked();
         showtime = checkBox_showCalculationTime->isChecked();
-        Plot();
-        tabWidget_main->setCurrentIndex(1); // Output tab
+        flag_replot_needed = true;
+        //Plot();
+        tabWidget_main->setCurrentIndex(1); // Output tab (Plot will be called)
         if(save)
             SaveProject();
         if(showtime)
@@ -586,4 +614,11 @@ void MainWindow::Comments()
     SaveSettings("comments");
     flag_comments_modified = true;
     UpdateControls();
+}
+
+void MainWindow::on_tabWidget_main_currentChanged(int tab){
+    if(tab==1){
+        if(flag_replot_needed)
+            Plot(); //update plot if needed when switching to output tab
+    }
 }

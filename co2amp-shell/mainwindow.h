@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QElapsedTimer>
+//#include <QTime>
 #include <QSvgWidget>
 #include <cmath>
 #include "ui_mainwindow.h"
@@ -53,6 +54,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_field_ready_to_save; // can save .co2x file
         bool flag_projectloaded;
         bool flag_plot_modified;
+        bool flag_replot_needed;
         bool flag_comments_modified;
         bool flag_input_file_error;
         bool noam; // no active medium components
@@ -80,17 +82,19 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig7_customContextMenuRequested();
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
+        void on_tabWidget_main_currentChanged(int tab);
         void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
         void MemorizeSettings();
         void SaveProject();
         void LoadSettings(QString);
-        void NewProject(void);
-        void ClearWorkDir(void);
+        void NewProject();
+        void ClearWorkDir();
         void Calculate();
         void Plot();
+        void PlotAndSetModifiedFlag();
+        void ClearPlot();
         void Comments();
         void SelectEnergies();
-        void ShowFigures();
         void CopyMultipassData(QString filename);
         void CopyPixmap(QSvgWidget *svg);
         void SaveSVG(QString svg_path);

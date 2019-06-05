@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190523_setup.exe"
+OutFile "co2amp_v.20190605_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -87,6 +87,7 @@ Section "Section_01" Sec01
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Core.dll"
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Gui.dll"
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Widgets.dll"
+  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Svg.dll"
   SetOutPath "$INSTDIR\platforms"
   File "C:\Qt\5.12.3\mingw73_64\plugins\platforms\qwindows.dll"
   

@@ -132,7 +132,7 @@ void MainWindow::LoadSettings(QString path)
     checkBox_seqBand->setChecked(settings.value("debug/seqBand", 0).toBool());
 
     // //////////////////////// backwards compatibility start ////////////////////////////////////////////
-    float w0 = settings.value("co2amp/w0", 0).toFloat();
+    double w0 = settings.value("co2amp/w0", 0).toDouble();
     if(w0 >= 800)
         Memorized.vc = QString::number(w0*2.99792458e-2); // 1/cm -> THz
     if(settings.value("co2pump/D_interel", "not found").toString() != "not found") // missprint in old versions: "co2pump" instead of "co2amp"
