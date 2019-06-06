@@ -168,6 +168,7 @@ void MainWindow::Abort()
 {
     flag_calculation_success = false;
     process->kill();
+    delete process;
     UpdateControls();
 }
 
@@ -382,6 +383,7 @@ void MainWindow::SaveProject()
     else // basic (small) project file (.co2)
         proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini"); // don't include field (field.bin)
     proc->waitForFinished();
+    delete proc;
     flag_plot_modified = false;
     flag_comments_modified = false;
     UpdateControls();
@@ -397,6 +399,7 @@ void MainWindow::LoadProject()
         proc = new QProcess(this);
         proc->start(path_to_7zip + " e -y \"" + project_file + "\"");
         proc->waitForFinished();
+        delete proc;
         LoadSettings("project.ini");
         QFileInfo fileinfo(project_file);
         def_dir = QDir::toNativeSeparators(fileinfo.dir().absolutePath());
@@ -459,6 +462,7 @@ void MainWindow::BeforeProcessStarted()
 
 void MainWindow::AfterProcessFinished()
 {
+    delete process;
     bool showtime, save;
     flag_calculating = false;
     QMessageBox mb( "Info - co2amp", "Calculation time: " + QString::number(timer.elapsed()/1000) + " s", QMessageBox::Information, QMessageBox::Ok, 0, 0);
@@ -560,6 +564,7 @@ void MainWindow::LoadInputPulse()
     proc->waitForFinished();
     proc->start(path_to_7zip + " e -y -otmp \"" + file_to_load + "\" field.bin");
     proc->waitForFinished();
+    delete proc;
     QFile::copy(QDir::toNativeSeparators("tmp/project.ini"), "input.ini");
     QFile::copy(QDir::toNativeSeparators("tmp/field.bin"), "field_in.bin");
     QFile::remove(QDir::toNativeSeparators("tmp/project.ini"));

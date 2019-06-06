@@ -114,12 +114,13 @@ void MainWindow::Plot()
     file.setFileName("gnuplot_script");
     file.open(QFile::WriteOnly | QFile::Truncate);
     out << "set terminal svg size " << svg_fig1->width() << "," << svg_fig1->height() << " font 'arial," << spinBox_fontSize->text() << "'"  << newline  << newline;
+    //out << "set terminal svg size " << svg_fig1->width() << "," << svg_fig1->height() << newline  << newline;
 
     // GnuPlot script: Energy
     SelectEnergies();
     out << "reset" << newline;
     out << "set output \"fig_energy.svg\"" << newline;
-    out << "set xlabel \"Time, µs\"" << newline;
+    out << "set xlabel \"Time, Âµs\"" << newline;
     out << "set ylabel \"Pulse energy, J\"" << newline;
     checkBox_log->isChecked() ? out << "set logscale y" << newline : out << "set yrange [0:*]" << newline;
     out << common_plot_param;
@@ -210,7 +211,7 @@ void MainWindow::Plot()
         // GnuPlot script: Temperatures
         out << "reset" << newline;
         out << "set output \"fig_temperatures.svg\"" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, Âµs\"" << newline;
         out << "set ylabel \"Temperature, K\"" << newline;
         out << common_plot_param;
         out << "set yrange [0:*]" << newline;
@@ -222,12 +223,12 @@ void MainWindow::Plot()
         // GnuPlot script: e
         out << "reset" << newline;
         out << "set output \"fig_e.svg\"" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, Âµs\"" << newline;
         out << "set ylabel \"e (# of quanta / molecule)\"" << newline;
         out << common_plot_param;
         out << "set yrange [0:*]" << newline;
-        out << "plot \"data_e.dat\" using 1:($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 µm (symm stretch): e1\",\\" << newline;
-        out << "\"data_e.dat\" using 1:($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 µm (bend): e2\",\\" << newline;
+        out << "plot \"data_e.dat\" using 1:($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 Âµm (symm stretch): e1\",\\" << newline;
+        out << "\"data_e.dat\" using 1:($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 Âµm (bend): e2\",\\" << newline;
         out << "\"data_e.dat\" using 1:($" << 4*am_n+4 << ") with lines ls 2 ti \"Upper (asymm stretch): e3\",\\" << newline;
         out << "\"data_e.dat\" using 1:($" << 4*am_n+5 << ") with lines ls 3 ti \"N2: e4\"" << newline << newline;
 
@@ -262,7 +263,7 @@ void MainWindow::Plot()
         out << "set y2range [0:*]" << newline;
         out << "set ytics nomirror" << newline;
         out << "set y2tics nomirror" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, Âµs\"" << newline;
         out << "set ylabel \"Current, kA\"" << newline;
         out << "set y2label \"Voltage, kV\"" << newline;
         out << common_plot_param;
@@ -273,7 +274,7 @@ void MainWindow::Plot()
         out << "reset" << newline;
         out << "set output \"fig_q.svg\"" << newline;
         out << "set yrange [0:1]" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, Âµs\"" << newline;
         out << "set ylabel \"q\"" << newline;
         out << common_plot_param;
         out << "plot \"data_q.dat\" using 1:2 with lines ti \"Lower: q2\",\\" << newline;
@@ -295,7 +296,9 @@ void MainWindow::Plot()
     QFile::remove("fig_temperatures.svg");
     QFile::remove("fig_e.svg");
     proc = new QProcess( this );
-    proc->execute(path_to_gnuplot + " gnuplot_script");
+    proc->start(path_to_gnuplot + " gnuplot_script");
+    proc->waitForFinished();
+    delete proc;
     /*proc->execute(path_to_gnuplot + " script_energy.txt");
     proc->execute(path_to_gnuplot + " script_power.txt");
     proc->execute(path_to_gnuplot + " script_fluence.txt");
