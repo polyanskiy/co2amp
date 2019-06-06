@@ -2,25 +2,18 @@
 
 
 
-void MainWindow::PlotAndSetModifiedFlag()
-{
-    if(!flag_projectloaded || !flag_calculation_success)
-        return;
-    MemorizeSettings();
-    flag_plot_modified = true; //set before Plot() to properly update settings
-    Plot();
-    SaveSettings("plot"); // save only plot settings
-}
-
 void MainWindow::Plot()
 {
-    if(!flag_projectloaded || !flag_calculation_success)
-        return;
-
     if(tabWidget_main->currentIndex()!=1){
-        flag_replot_needed = true;
+        flag_plot_postponed = true;
         return;
     }
+
+    if(flag_plot_postponed_modified)
+        flag_plot_modified = true;
+
+    if(flag_plot_modified)
+        MemorizeSettings();
 
     this->setCursor(Qt::WaitCursor);
 
@@ -65,34 +58,36 @@ void MainWindow::Plot()
     svg_fig8->setHidden(am_n == -1);
     svg_fig9->setHidden(am_n == -1);
 
+    double scale = doubleSpinBox_pixmapScale->value();
+
     QSize size(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    switch(comboBox_plotSize->currentIndex()){
+    switch(comboBox_svgSize->currentIndex()){
     case 0:
         size = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
         break;
     case 1:
-        size = QSize(360,270);
+        size = QSize(floor(360.0*scale),(int)floor(270.0*scale));
         break;
     case 2:
-        size = QSize(480,360);
+        size = QSize(floor(480.0*scale),(int)floor(360.0*scale));
         break;
     case 3:
-        size = QSize(640,480);
+        size = QSize(floor(640.0*scale),(int)floor(480.0*scale));
         break;
     case 4:
-        size = QSize(800,600);
+        size = QSize(floor(800.0*scale),(int)floor(600.0*scale));
         break;
     case 5:
-        size = QSize(1024,768);
+        size = QSize(floor(1024.0*scale),(int)floor(768.0*scale));
         break;
     case 6:
-        size = QSize(1280,900);
+        size = QSize(floor(1280.0*scale),(int)floor(900.0*scale));
         break;
     case 7:
-        size = QSize(1600,1200);
+        size = QSize(floor(1600.0*scale),(int)floor(1200.0*scale));
         break;
     case 8:
-        size = QSize(1920,1080);
+        size = QSize(floor(1920.0*scale),(int)floor(1080.0*scale));
         break;
     }
 
@@ -113,8 +108,8 @@ void MainWindow::Plot()
     ///////////////////////////////////////////// Create GnuPlot script //////////////////////////////////////////
     file.setFileName("gnuplot_script");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << "set terminal svg size " << svg_fig1->width() << "," << svg_fig1->height() << " font 'arial," << spinBox_fontSize->text() << "'"  << newline  << newline;
-    //out << "set terminal svg size " << svg_fig1->width() << "," << svg_fig1->height() << newline  << newline;
+    out << "set terminal svg size " << svg_fig1->width()/scale << "," << svg_fig1->height()/scale /*<< " font 'arial," << spinBox_fontSize->text() << "'"*/  << newline;
+    out << "set encoding utf8"  << newline  << newline;
 
     // GnuPlot script: Energy
     SelectEnergies();
@@ -299,17 +294,6 @@ void MainWindow::Plot()
     proc->start(path_to_gnuplot + " gnuplot_script");
     proc->waitForFinished();
     delete proc;
-    /*proc->execute(path_to_gnuplot + " script_energy.txt");
-    proc->execute(path_to_gnuplot + " script_power.txt");
-    proc->execute(path_to_gnuplot + " script_fluence.txt");
-    proc->execute(path_to_gnuplot + " script_spectra.txt");
-    if(am_n != -1){ // if active medium
-        proc->execute(path_to_gnuplot + " script_band.txt");
-        proc->execute(path_to_gnuplot + " script_discharge.txt");
-        proc->execute(path_to_gnuplot + " script_q.txt");
-        proc->execute(path_to_gnuplot + " script_temperatures.txt");
-        proc->execute(path_to_gnuplot + " script_e.txt");
-    }*/
 
     /////////////////////////////////////////////////////////////// Display figures ///////////////////////////////////////////////////
     svg_fig1->load(QString("fig_energy.svg"));
@@ -324,9 +308,12 @@ void MainWindow::Plot()
         svg_fig9->load(QString("fig_q.svg"));
     }
 
-    //////////////////////////////////////////////////////////// update controls ////////////////////////////////////////////////
+    ///////////////////////////////////////////////////// update flags and controls ////////////////////////////////////////////////
     OnModified();
-    flag_replot_needed = false;
+    if(flag_plot_modified)
+        SaveSettings("plot"); // save only plot settings
+    flag_plot_postponed = false;
+    flag_plot_postponed_modified = false;
     this->setCursor(Qt::ArrowCursor);
 }
 
@@ -353,6 +340,15 @@ void MainWindow::ClearPlot()
     svg_fig7->setStyleSheet("background-color:transparent;");
     svg_fig8->setStyleSheet("background-color:transparent;");
     svg_fig9->setStyleSheet("background-color:transparent;");
+    svg_fig1->setHidden(true);
+    svg_fig2->setHidden(true);
+    svg_fig3->setHidden(true);
+    svg_fig4->setHidden(true);
+    svg_fig5->setHidden(true);
+    svg_fig6->setHidden(true);
+    svg_fig7->setHidden(true);
+    svg_fig8->setHidden(true);
+    svg_fig9->setHidden(true);
 }
 
 

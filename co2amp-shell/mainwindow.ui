@@ -172,7 +172,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab1">
        <attribute name="title">
@@ -765,14 +765,7 @@ p, li { white-space: pre-wrap; }
                    <item row="1" column="0" colspan="5">
                     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0">
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_input_file">
-                       <property name="maximumSize">
-                        <size>
-                         <width>16777215</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                      </widget>
+                      <widget class="QLineEdit" name="lineEdit_input_file"/>
                      </item>
                      <item>
                       <widget class="QToolButton" name="toolButton_input_file">
@@ -1792,95 +1785,6 @@ p, li { white-space: pre-wrap; }
         <string>Ctrl + U</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_19">
-        <item row="0" column="1" rowspan="2">
-         <widget class="QScrollArea" name="scrollArea_figures">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>549</width>
-             <height>421</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_15">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_3">
-              <item row="1" column="0">
-               <widget class="QSvgWidget" name="svg_fig2" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QSvgWidget" name="svg_fig7" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QSvgWidget" name="svg_fig5" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QSvgWidget" name="svg_fig1" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-                <property name="locale">
-                 <locale language="English" country="UnitedStates"/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QSvgWidget" name="svg_fig9" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QSvgWidget" name="svg_fig4" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QSvgWidget" name="svg_fig8" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSvgWidget" name="svg_fig6" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QSvgWidget" name="svg_fig3" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="pushButton_update">
           <property name="text">
@@ -1889,12 +1793,15 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea_3">
+         <widget class="QScrollArea" name="scrollArea_plotControls">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -1903,14 +1810,6 @@ p, li { white-space: pre-wrap; }
            <bool>true</bool>
           </property>
           <widget class="QWidget" name="scrollAreaWidgetContents_4">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>171</width>
-             <height>512</height>
-            </rect>
-           </property>
            <layout class="QGridLayout" name="gridLayout_16">
             <item row="4" column="0">
              <widget class="QGroupBox" name="groupBox_scale">
@@ -1927,6 +1826,24 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="0" column="1">
                 <widget class="QComboBox" name="comboBox_timeScale">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <item>
                   <property name="text">
                    <string>Full</string>
@@ -1993,6 +1910,24 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="1" column="1">
                 <widget class="QComboBox" name="comboBox_freqScale">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <item>
                   <property name="text">
                    <string>Full</string>
@@ -2077,27 +2012,101 @@ p, li { white-space: pre-wrap; }
               </layout>
              </widget>
             </item>
+            <item row="2" column="0">
+             <widget class="QGroupBox" name="groupBox_passes">
+              <property name="title">
+               <string>Passes</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>(ex.: &quot;1, 3, 25&quot;)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLineEdit" name="lineEdit_passes"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QGroupBox" name="groupBox_energyPlot">
+              <property name="title">
+               <string>Energy plot</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_21">
+               <item row="1" column="0">
+                <widget class="QComboBox" name="comboBox_energyPlot"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBox_log">
+                 <property name="text">
+                  <string>LOG scale</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QGroupBox" name="groupBox_pulse">
+              <property name="title">
+               <string>Pulse #</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="0">
+                <widget class="QComboBox" name="comboBox_pulse">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
             <item row="5" column="0">
              <widget class="QGroupBox" name="groupBox_view">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="title">
                <string>Graph view</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_13">
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_fontSize">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_svgSize">
                  <property name="text">
-                  <string>Font size</string>
+                  <string>SVG size</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="comboBox_plotSize">
+                <widget class="QComboBox" name="comboBox_svgSize">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <item>
                   <property name="text">
                    <string>Auto</string>
@@ -2145,17 +2154,57 @@ p, li { white-space: pre-wrap; }
                  </item>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBox_grid">
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_pixmapScale">
                  <property name="text">
-                  <string>Grid</string>
+                  <string>Pixmap scale</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_plotSize">
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_pixmapScale">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="buttonSymbols">
+                  <enum>QAbstractSpinBox::PlusMinus</enum>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="minimum">
+                  <double>0.100000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                 <property name="stepType">
+                  <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="2">
+                <widget class="QCheckBox" name="checkBox_grid">
                  <property name="text">
-                  <string>Plot size</string>
+                  <string>Grid</string>
                  </property>
                 </widget>
                </item>
@@ -2166,97 +2215,113 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBox_fontSize">
-                 <property name="buttonSymbols">
-                  <enum>QAbstractSpinBox::PlusMinus</enum>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
             </item>
             <item row="6" column="0">
-             <spacer>
+             <spacer name="verticalSpacer_5">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>13</width>
-                <height>13</height>
+                <width>20</width>
+                <height>40</height>
                </size>
               </property>
              </spacer>
             </item>
-            <item row="3" column="0">
-             <widget class="QGroupBox" name="groupBox_energyPlot">
-              <property name="title">
-               <string>Energy plot</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_21">
-               <item row="1" column="0">
-                <widget class="QComboBox" name="comboBox_energyPlot"/>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBox_log">
-                 <property name="text">
-                  <string>LOG scale</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QGroupBox" name="groupBox_passes">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Passes</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <item row="1" column="0">
-                <widget class="QLineEdit" name="lineEdit_passes">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>(ex.: &quot;1, 3, 25&quot;)</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QGroupBox" name="groupBox_pulse">
-              <property name="title">
-               <string>Pulse #</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout">
-               <item row="0" column="0">
-                <widget class="QComboBox" name="comboBox_pulse">
-                 <item>
-                  <property name="text">
-                   <string>1</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-              </layout>
-             </widget>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item row="0" column="1" rowspan="2">
+         <widget class="QScrollArea" name="scrollArea_figures">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>553</width>
+             <height>423</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_15">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="1" column="0">
+               <widget class="QSvgWidget" name="svg_fig2" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QSvgWidget" name="svg_fig7" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSvgWidget" name="svg_fig5" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QSvgWidget" name="svg_fig1" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="locale">
+                 <locale language="English" country="UnitedStates"/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QSvgWidget" name="svg_fig9" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSvgWidget" name="svg_fig4" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QSvgWidget" name="svg_fig8" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSvgWidget" name="svg_fig6" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QSvgWidget" name="svg_fig3" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -2305,7 +2370,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-06-05&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-06-06&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Documentation: &lt;/span&gt;&lt;a href=&quot;https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Manual and detailed program description (PDF)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/gpl.html&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;GPL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;a href=&quot;mailto:Mikhail Polyanskiy &amp;lt;polyanskiy@bnl.gov&amp;gt;&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Mikhail N. Polyanskiy&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, Brookhaven National Laboratory, USA&lt;br /&gt;Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia&lt;/span&gt;&lt;/p&gt;
@@ -2499,7 +2564,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>checkBox_saveWhenFinished</tabstop>
   <tabstop>checkBox_showCalculationTime</tabstop>
   <tabstop>textBrowser</tabstop>
-  <tabstop>scrollArea_3</tabstop>
+  <tabstop>scrollArea_plotControls</tabstop>
   <tabstop>comboBox_component</tabstop>
   <tabstop>comboBox_pulse</tabstop>
   <tabstop>lineEdit_passes</tabstop>

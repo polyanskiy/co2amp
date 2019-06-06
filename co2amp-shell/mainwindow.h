@@ -54,7 +54,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_field_ready_to_save; // can save .co2x file
         bool flag_projectloaded;
         bool flag_plot_modified;
-        bool flag_replot_needed;
+        bool flag_plot_postponed;
+        bool flag_plot_postponed_modified;
         bool flag_comments_modified;
         bool flag_input_file_error;
         bool noam; // no active medium components
@@ -83,6 +84,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
         void on_tabWidget_main_currentChanged(int tab);
+        void on_comboBox_component_activated(QString);
+        void on_comboBox_pulse_activated(QString);
+        void on_lineEdit_passes_textEdited(QString str);
+        void on_lineEdit_passes_returnPressed();
+        void on_comboBox_energyPlot_activated(QString);
+        void on_checkBox_log_clicked();
+        void on_comboBox_freqScale_activated(QString);
         void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
         void MemorizeSettings();
         void SaveProject();
@@ -91,7 +99,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void ClearWorkDir();
         void Calculate();
         void Plot();
-        void PlotAndSetModifiedFlag();
         void ClearPlot();
         void Comments();
         void SelectEnergies();

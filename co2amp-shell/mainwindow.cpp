@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     flag_plot_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
-    flag_replot_needed = false;
+    flag_plot_postponed = false;
+    flag_plot_postponed_modified = false;
 
     /////////////////////////// External programs //////////////////////////
     path_to_core = "co2amp-core";
@@ -73,8 +74,8 @@ MainWindow::MainWindow(QWidget *parent)
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
     def_dir = settings.value("def_dir", "").toString();
-    comboBox_plotSize->setCurrentIndex(settings.value("plot_size", "0").toInt());
-    spinBox_fontSize->setValue(settings.value("plot_font_size", "10").toInt());
+    comboBox_svgSize->setCurrentIndex(settings.value("plot_svg_size", "0").toInt());
+    doubleSpinBox_pixmapScale->setValue(settings.value("plot_pixmap_scale", "1").toDouble());
     checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
     checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
     textBrowser->setVisible(false); // hide terminal
@@ -82,17 +83,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
-    connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(comboBox_pulse, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(comboBox_energyPlot, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(lineEdit_passes, SIGNAL(textEdited(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(comboBox_pulse, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(lineEdit_passes, SIGNAL(returnPressed()), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(comboBox_energyPlot, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(checkBox_log, SIGNAL(clicked()), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    //connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
+    connect(comboBox_svgSize, SIGNAL(activated(QString)), this, SLOT(Plot()));
+    connect(doubleSpinBox_pixmapScale, SIGNAL(valueChanged(double)), this, SLOT(Plot()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
-    connect(comboBox_plotSize, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(spinBox_fontSize, SIGNAL(valueChanged(int)), this, SLOT(Plot()));
-    connect(checkBox_log, SIGNAL(clicked()), this, SLOT(PlotAndSetModifiedFlag()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(plainTextEdit_comments, SIGNAL(textChanged()), this, SLOT(Comments()));
     connect(checkBox_from_file, SIGNAL(clicked()), this, SLOT(OnModified()));
@@ -151,8 +152,8 @@ MainWindow::~MainWindow()
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir", def_dir);
     settings.setValue("window_geometry", saveGeometry());
-    settings.setValue("plot_size", comboBox_plotSize->currentIndex());
-    settings.setValue("plot_font_size", spinBox_fontSize->value());
+    settings.setValue("plot_svg_size", comboBox_svgSize->currentIndex());
+    settings.setValue("plot_pixmap_scale", doubleSpinBox_pixmapScale->value());
     settings.setValue("plot_grid", checkBox_grid->isChecked());
     settings.setValue("plot_labels", checkBox_labels->isChecked());
 
@@ -275,15 +276,16 @@ void MainWindow::NewProject()
     LoadSettings(QString());
     SaveSettings("all"); // save all settings - input and plot
     MainWindow::setWindowTitle("untitled - co2amp");
-    ClearPlot();
+    //ClearPlot();
     flag_projectloaded = false;
     flag_calculating = false;
     flag_calculation_success = false;
     flag_comments_modified = false;
-    flag_plot_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
-    flag_replot_needed = false;
+    flag_plot_modified = false;
+    flag_plot_postponed = false;
+    flag_plot_postponed_modified = false;
     UpdateControls();
 }
 
@@ -409,13 +411,17 @@ void MainWindow::LoadProject()
         flag_calculating = false;
         flag_calculation_success = true;
         flag_plot_modified = false;
+        flag_plot_postponed = false;
+        flag_plot_postponed_modified = false;
         flag_comments_modified = false;
         LoadInputPulse();
         if(fileinfo.suffix()=="co2x" && !flag_input_file_error)
             flag_field_ready_to_save = true;
         UpdateControls();
-        flag_replot_needed = true;
-        Plot();
+        if(tabWidget_main->currentIndex() == 1) //output tab
+            Plot();
+        else
+            flag_plot_postponed = true;
         this->setCursor(Qt::ArrowCursor);
     }
     else
@@ -470,7 +476,7 @@ void MainWindow::AfterProcessFinished()
         flag_field_ready_to_save = true;
         save = checkBox_saveWhenFinished->isChecked();
         showtime = checkBox_showCalculationTime->isChecked();
-        flag_replot_needed = true;
+        flag_plot_postponed = true;
         //Plot();
         tabWidget_main->setCurrentIndex(1); // Output tab (Plot will be called)
         if(save)
@@ -621,9 +627,91 @@ void MainWindow::Comments()
     UpdateControls();
 }
 
-void MainWindow::on_tabWidget_main_currentChanged(int tab){
-    if(tab==1){
-        if(flag_replot_needed)
-            Plot(); //update plot if needed when switching to output tab
-    }
+
+void MainWindow::on_tabWidget_main_currentChanged(int tab)
+{
+    if(tab != 1)
+        return;
+    if(flag_plot_postponed)
+        Plot();
 }
+
+
+void MainWindow::on_comboBox_component_activated(QString)
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+void MainWindow::on_comboBox_pulse_activated(QString)
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+void MainWindow::on_lineEdit_passes_textEdited(QString)
+{
+    flag_plot_postponed_modified = true;
+}
+
+
+void MainWindow::on_lineEdit_passes_returnPressed()
+{
+    if(!flag_plot_postponed_modified)
+        return;
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+void MainWindow::on_comboBox_energyPlot_activated(QString)
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+void MainWindow::on_checkBox_log_clicked()
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+void MainWindow::on_comboBox_freqScale_activated(QString)
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
+/*void MainWindow::on_comboBox_svgSize_activated(QString)
+{
+    Plot();
+}
+
+void MainWindow::on_doubleSpinBox_pixmapScale_valueChanged(double)
+{
+    Plot();
+}
+
+
+void MainWindow::on_checkBox_grid_clicked()
+{
+    Plot();
+}
+
+
+void MainWindow::on_checkBox_labels_clicked()
+{
+    Plot();
+}
+
+
+void MainWindow::on_pushButton_update_clicked()
+{
+    Plot();
+}*/
+

@@ -261,6 +261,13 @@ void MainWindow::UpdateControls()
     else
         comboBox_energyPlot->setCurrentIndex(index);
 
+    /////////////////////// ENABLE?DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
+    bl = (flag_projectloaded && flag_calculation_success);
+    scrollArea_plotControls->setEnabled(bl);
+    pushButton_update->setEnabled(bl);
+    if(!bl)
+        ClearPlot();
+
     //////////////////////// unblock signals /////////////////////////////
     BlockSignals(false);
 }
