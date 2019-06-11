@@ -72,9 +72,9 @@ void MainWindow::UpdateControls()
     }
     lineEdit_input_file->setPalette(*palette);
     if(!flag_input_file_error){
-        label_tau0_3->setText("Δν ≈ " + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
-        label_vc_3->setText("λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " μm"); // wl[um] = c[m/s] / nu[THz] * 1e-6
-        label_r0_3->setText("ω = " + QString::number(lineEdit_r0->text().toDouble()/sqrt(log(2)/2)) + " cm"); // ω = hwhm / sqrt(ln(2)/2))
+        label_tau0_3->setText("Δν" + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
+        label_vc_3->setText("λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " µm"); // wl[um] = c[m/s] / nu[THz] * 1e-6
+        label_r0_3->setText("w = " + QString::number(lineEdit_r0->text().toDouble()/sqrt(log(2)/2)) + " cm"); // w = hwhm / sqrt(ln(2)/2))
     }
     lineEdit_input_file->setVisible(bl);
     toolButton_input_file->setVisible(bl);
@@ -210,7 +210,7 @@ void MainWindow::UpdateControls()
         comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
         double delta_t = (lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
         double delta_v = 1.0/(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
-        label_deltas->setText("(Δt = " + QString::number(delta_t) + " ps;   Δν = " + QString::number(delta_v) + " THz)");
+        label_deltas->setText("(Î”t = " + QString::number(delta_t) + " ps;   Î”Î½ = " + QString::number(delta_v) + " THz)");
     }
     comboBox_precision_t->setEnabled(!bl);
     comboBox_precision_r->setEnabled(!bl);
@@ -267,6 +267,10 @@ void MainWindow::UpdateControls()
     pushButton_update->setEnabled(bl);
     if(!bl)
         ClearPlot();
+
+    bl = (comboBox_size->currentText()=="Custom");
+    spinBox_width->setVisible(bl);
+    spinBox_height->setVisible(bl);
 
     //////////////////////// unblock signals /////////////////////////////
     BlockSignals(false);

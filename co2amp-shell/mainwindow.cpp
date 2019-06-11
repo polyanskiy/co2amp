@@ -74,8 +74,10 @@ MainWindow::MainWindow(QWidget *parent)
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
     def_dir = settings.value("def_dir", "").toString();
-    comboBox_svgSize->setCurrentIndex(settings.value("plot_svg_size", "0").toInt());
-    doubleSpinBox_pixmapScale->setValue(settings.value("plot_pixmap_scale", "1").toDouble());
+    comboBox_size->setCurrentIndex(settings.value("plot_size", "0").toInt());
+    spinBox_width->setValue(settings.value("plot_width", "1600").toInt());
+    spinBox_height->setValue(settings.value("plot_height", "1200").toInt());
+    doubleSpinBox_zoom->setValue(settings.value("plot_zoom", "1").toDouble());
     checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
     checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
     textBrowser->setVisible(false); // hide terminal
@@ -90,8 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(checkBox_log, SIGNAL(clicked()), this, SLOT(PlotAndSetModifiedFlag()));
     //connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
     //connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    connect(comboBox_svgSize, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(doubleSpinBox_pixmapScale, SIGNAL(valueChanged(double)), this, SLOT(Plot()));
+    connect(comboBox_size, SIGNAL(activated(QString)), this, SLOT(Plot()));
+    //connect(doubleSpinBox_zoom, SIGNAL(editingFinished(double)), this, SLOT(Plot()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
@@ -152,8 +154,10 @@ MainWindow::~MainWindow()
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir", def_dir);
     settings.setValue("window_geometry", saveGeometry());
-    settings.setValue("plot_svg_size", comboBox_svgSize->currentIndex());
-    settings.setValue("plot_pixmap_scale", doubleSpinBox_pixmapScale->value());
+    settings.setValue("plot_size", comboBox_size->currentIndex());
+    settings.setValue("plot_width", spinBox_width->value());
+    settings.setValue("plot_height", spinBox_height->value());
+    settings.setValue("plot_zoom", doubleSpinBox_zoom->value());
     settings.setValue("plot_grid", checkBox_grid->isChecked());
     settings.setValue("plot_labels", checkBox_labels->isChecked());
 
@@ -657,11 +661,48 @@ void MainWindow::on_lineEdit_passes_textEdited(QString)
 }
 
 
+void MainWindow::on_spinBox_width_valueChanged(int)
+{
+    flag_plot_postponed = true;
+}
+
+void MainWindow::on_spinBox_height_valueChanged(int)
+{
+    flag_plot_postponed = true;
+}
+
+void MainWindow::on_doubleSpinBox_zoom_valueChanged(double)
+{
+    flag_plot_postponed = true;
+}
+
+
 void MainWindow::on_lineEdit_passes_returnPressed()
 {
     if(!flag_plot_postponed_modified)
         return;
     flag_plot_modified = true;
+    Plot();
+}
+
+void MainWindow::on_spinBox_width_editingFinished()
+{
+    if(!flag_plot_postponed)
+        return;
+    Plot();
+}
+
+void MainWindow::on_spinBox_height_editingFinished()
+{
+    if(!flag_plot_postponed)
+        return;
+    Plot();
+}
+
+void MainWindow::on_doubleSpinBox_zoom_editingFinished()
+{
+    if(!flag_plot_postponed)
+        return;
     Plot();
 }
 
@@ -685,33 +726,3 @@ void MainWindow::on_comboBox_freqScale_activated(QString)
     flag_plot_modified = true;
     Plot();
 }
-
-
-/*void MainWindow::on_comboBox_svgSize_activated(QString)
-{
-    Plot();
-}
-
-void MainWindow::on_doubleSpinBox_pixmapScale_valueChanged(double)
-{
-    Plot();
-}
-
-
-void MainWindow::on_checkBox_grid_clicked()
-{
-    Plot();
-}
-
-
-void MainWindow::on_checkBox_labels_clicked()
-{
-    Plot();
-}
-
-
-void MainWindow::on_pushButton_update_clicked()
-{
-    Plot();
-}*/
-

@@ -91,6 +91,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_comboBox_energyPlot_activated(QString);
         void on_checkBox_log_clicked();
         void on_comboBox_freqScale_activated(QString);
+        void on_spinBox_width_valueChanged(int);
+        void on_spinBox_width_editingFinished();
+        void on_spinBox_height_valueChanged(int);
+        void on_spinBox_height_editingFinished();
+        void on_doubleSpinBox_zoom_valueChanged(double);
+        void on_doubleSpinBox_zoom_editingFinished();
         void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
         void MemorizeSettings();
         void SaveProject();

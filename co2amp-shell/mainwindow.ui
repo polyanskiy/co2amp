@@ -172,7 +172,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab1">
        <attribute name="title">
@@ -802,7 +802,7 @@ p, li { white-space: pre-wrap; }
                       <bool>false</bool>
                      </property>
                      <property name="text">
-                      <string>ω = ... cm</string>
+                      <string>w = ... cm</string>
                      </property>
                     </widget>
                    </item>
@@ -1810,6 +1810,14 @@ p, li { white-space: pre-wrap; }
            <bool>true</bool>
           </property>
           <widget class="QWidget" name="scrollAreaWidgetContents_4">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>-118</y>
+             <width>197</width>
+             <height>540</height>
+            </rect>
+           </property>
            <layout class="QGridLayout" name="gridLayout_16">
             <item row="4" column="0">
              <widget class="QGroupBox" name="groupBox_scale">
@@ -1834,13 +1842,13 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -1918,13 +1926,13 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -2081,14 +2089,14 @@ p, li { white-space: pre-wrap; }
               </property>
               <layout class="QGridLayout" name="gridLayout_13">
                <item row="0" column="0">
-                <widget class="QLabel" name="label_svgSize">
+                <widget class="QLabel" name="label_size">
                  <property name="text">
-                  <string>SVG size</string>
+                  <string>Size</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="comboBox_svgSize">
+                <widget class="QComboBox" name="comboBox_size">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -2097,13 +2105,13 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -2139,30 +2147,56 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <property name="text">
-                   <string>1280×960</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>1600×1200</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>1920×1080</string>
+                   <string>Custom</string>
                   </property>
                  </item>
                 </widget>
                </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_pixmapScale">
+               <item row="1" column="0" colspan="2">
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <item>
+                  <widget class="QSpinBox" name="spinBox_width">
+                   <property name="accelerated">
+                    <bool>true</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>10000</number>
+                   </property>
+                   <property name="value">
+                    <number>1600</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="spinBox_height">
+                   <property name="accelerated">
+                    <bool>true</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>10000</number>
+                   </property>
+                   <property name="value">
+                    <number>1200</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_zoom">
                  <property name="text">
-                  <string>Pixmap scale</string>
+                  <string>Zoom</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_pixmapScale">
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_zoom">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -2171,18 +2205,21 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>80</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
                  <property name="buttonSymbols">
                   <enum>QAbstractSpinBox::PlusMinus</enum>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
                  </property>
                  <property name="decimals">
                   <number>1</number>
@@ -2201,14 +2238,14 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0" colspan="2">
+               <item row="3" column="0">
                 <widget class="QCheckBox" name="checkBox_grid">
                  <property name="text">
                   <string>Grid</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0" colspan="2">
+               <item row="4" column="0">
                 <widget class="QCheckBox" name="checkBox_labels">
                  <property name="text">
                   <string>Labels</string>
@@ -2248,7 +2285,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>553</width>
+             <width>539</width>
              <height>423</height>
             </rect>
            </property>
@@ -2370,7 +2407,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-06-06&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-06-11&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Documentation: &lt;/span&gt;&lt;a href=&quot;https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Manual and detailed program description (PDF)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/gpl.html&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;GPL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;a href=&quot;mailto:Mikhail Polyanskiy &amp;lt;polyanskiy@bnl.gov&amp;gt;&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Mikhail N. Polyanskiy&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, Brookhaven National Laboratory, USA&lt;br /&gt;Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia&lt;/span&gt;&lt;/p&gt;

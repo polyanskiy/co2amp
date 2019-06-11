@@ -58,36 +58,30 @@ void MainWindow::Plot()
     svg_fig8->setHidden(am_n == -1);
     svg_fig9->setHidden(am_n == -1);
 
-    double scale = doubleSpinBox_pixmapScale->value();
+    double zoom = doubleSpinBox_zoom->value();
 
     QSize size(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    switch(comboBox_svgSize->currentIndex()){
-    case 0:
+    switch(comboBox_size->currentIndex()){
+    case 0: // "Auto"
         size = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
         break;
-    case 1:
-        size = QSize(floor(360.0*scale),(int)floor(270.0*scale));
+    case 1: // "360x270"
+        size = QSize(floor(360.0*zoom),(int)floor(270.0*zoom));
         break;
-    case 2:
-        size = QSize(floor(480.0*scale),(int)floor(360.0*scale));
+    case 2: // "480x360"
+        size = QSize(floor(480.0*zoom),(int)floor(360.0*zoom));
         break;
-    case 3:
-        size = QSize(floor(640.0*scale),(int)floor(480.0*scale));
+    case 3: // "640x480"
+        size = QSize(floor(640.0*zoom),(int)floor(480.0*zoom));
         break;
-    case 4:
-        size = QSize(floor(800.0*scale),(int)floor(600.0*scale));
+    case 4: // "800x600"
+        size = QSize(floor(800.0*zoom),(int)floor(600.0*zoom));
         break;
-    case 5:
-        size = QSize(floor(1024.0*scale),(int)floor(768.0*scale));
+    case 5: // "1024x768"
+        size = QSize(floor(1024.0*zoom),(int)floor(768.0*zoom));
         break;
-    case 6:
-        size = QSize(floor(1280.0*scale),(int)floor(900.0*scale));
-        break;
-    case 7:
-        size = QSize(floor(1600.0*scale),(int)floor(1200.0*scale));
-        break;
-    case 8:
-        size = QSize(floor(1920.0*scale),(int)floor(1080.0*scale));
+    case 6: // "Custom"
+        size = QSize(floor(spinBox_width->value()*zoom),(int)floor(spinBox_height->value()*zoom));
         break;
     }
 
@@ -108,7 +102,7 @@ void MainWindow::Plot()
     ///////////////////////////////////////////// Create GnuPlot script //////////////////////////////////////////
     file.setFileName("gnuplot_script");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << "set terminal svg size " << svg_fig1->width()/scale << "," << svg_fig1->height()/scale /*<< " font 'arial," << spinBox_fontSize->text() << "'"*/  << newline;
+    out << "set terminal svg size " << svg_fig1->width()/zoom << "," << svg_fig1->height()/zoom /*<< " font 'arial," << spinBox_fontSize->text() << "'"*/  << newline;
     out << "set encoding utf8"  << newline  << newline;
 
     // GnuPlot script: Energy
