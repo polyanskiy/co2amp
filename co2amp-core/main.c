@@ -1,11 +1,78 @@
 #include "co2amp.h"
 
 
+// GLOBAL VARIABLES
+
+// ------- INITIAL PULSE -------
+int from_file;
+double E0, r0, tau0, vc;
+double t_inj;
+int n_pulses;
+double Dt_train;
+// ------- OPTICS, GEOMETRY -------
+int n_components, n_amsections, n_propagations;
+char **component_id, **component_type, **component_param1, **component_param2;
+double *component_Dr;
+double *layout_distance, *layout_time;
+int *layout_component;
+bool noprop;
+double *alpha;  // temporary - for nonlinear absorption in Ge
+// ------- PUMPING -------
+char pumping[16]; // pumping type ("discharge" or "optical")
+int n_discharge_points; // number of pints in the discharge profile
+double **discharge; // time current voltage
+double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
+double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
+double q2, q3, q4, qT;
+double q2_a, q3_a, q4_a, qT_a, t_a;
+double q2_b, q3_b, q4_b, qT_b, t_b;
+// ------- GAS MIXTURE -------
+double p_CO2, p_N2, p_He;
+double p_626, p_628, p_828, p_636, p_638, p_838;
+double T0;
+// ------- CALCULATION NET -------
+double t_pulse_lim, t_pulse_shift;
+double Dt_pump; // "main time" - for pumping/relaxation
+int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+// ------- SPECTROSCOPY -------
+double v_min, v_max;       // frequency limits, Hz
+double nop[6][4][3][61];   // normalized populations
+double v[6][4][4][61];     // transition frequencies, Hz
+double sigma[6][4][4][61]; // transition cross-sections, m^2
+// ------- OUTPUT ARRAYS -------
+double complex ***E;
+double **T, **e2, **e3, **e4;
+double *gainSpectrum;
+// ------- DEBUGGING -------
+int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
+int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
+bool flag_status_or_debug; // last message displayed: True if status False if debug
+// ------- BOLTZMANN -------
+int b0;
+double E_over_N;
+double Y1, Y2, Y3;
+double Du;
+double M1, M2, M3, C1, C2, B;
+double *u;
+double *Q;
+double *Qm1, *Qm2, *Qm3;
+double **Q1, **Q2;
+double u1[11], u2[16];
+double **M;
+double *f;
+// ------- MISC. CONSTANTS -------
+double c, h; // spped of light [m/s]; Plank's [J s]
+// ------- MISC. GLOBAL VARIABLES -------
+double humidity; // air humidity [%]
+
+
+
 int main(int argc, char **argv)
 {
     debug_level = 1;
     flag_status_or_debug = true;
-    printf("co2amp-core v.2019-05-23\n\n");
+
+    printf("co2amp-core v.2019-06-19\n\n");
     fflush(stdout);
     #pragma omp parallel // counting processors (for parallel computing)
 	if (omp_get_thread_num() == 0)
@@ -121,6 +188,10 @@ void Calculations()
                     if(!strcmp(component_type[K], "BANDPASS")){
                         StatusDisplay(pulse, k, t_cur, "bandpass...");
                         Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center, THz -> Hz; param2: bandwidth, THz -> Hz,
+                    }
+                    if(!strcmp(component_type[K], "FILTER")){
+                        StatusDisplay(pulse, k, t_cur, "spectral filter...");
+                        Filter(pulse, component_param1[K]); //param1: path to configuration file (yaml)
                     }
                     if(!strcmp(component_type[K], "APODIZER")){
                         StatusDisplay(pulse, k, t_cur, "apodizer...");

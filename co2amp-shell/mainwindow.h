@@ -13,7 +13,6 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QElapsedTimer>
-//#include <QTime>
 #include <QSvgWidget>
 #include <cmath>
 #include "ui_mainwindow.h"
@@ -53,6 +52,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_calculation_success;
         bool flag_field_ready_to_save; // can save .co2x file
         bool flag_projectloaded;
+        bool flag_results_modified;
         bool flag_plot_modified;
         bool flag_plot_postponed;
         bool flag_plot_postponed_modified;
@@ -67,9 +67,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
     private slots:
         void Abort();
         void on_toolButton_input_file_clicked();
-        void on_toolButton_layout_clicked();
-        void on_toolButton_components_clicked();
-        void on_toolButton_discharge_clicked();
+        //void on_toolButton_layout_clicked();
+        void on_toolButton_add_component_clicked();
+        //void on_toolButton_discharge_clicked();
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
@@ -122,6 +122,25 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         int AmNumber(int);
         bool SaveBeforeClose();
         void BlockSignals(bool block);
+};
+
+
+class StringListModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+    public:
+        StringListModel(const QStringList &strings, QObject *parent = nullptr): QAbstractListModel(parent), stringList(strings) {}
+        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+        Qt::ItemFlags flags(const QModelIndex &index) const override;
+        bool setData(const QModelIndex &index, const QVariant &value,int role = Qt::EditRole) override;
+        bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
+        bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
+
+    private:
+        QStringList stringList;
 };
 
 #endif

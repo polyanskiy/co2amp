@@ -57,17 +57,17 @@ MainWindow::MainWindow(QWidget *parent)
     lineEdit_vc->setValidator(new QDoubleValidator(this));
     lineEdit_t_inj->setValidator(new QDoubleValidator(this));
     lineEdit_Dt_train->setValidator(new QDoubleValidator(this));
-    lineEdit_p_CO2->setValidator(new QDoubleValidator(this));
-    lineEdit_p_N2->setValidator(new QDoubleValidator(this));
-    lineEdit_p_He->setValidator(new QDoubleValidator(this));
-    lineEdit_13C->setValidator(new QDoubleValidator(0,100,3,this));
-    lineEdit_18O->setValidator(new QDoubleValidator(0,100,3,this));
-    lineEdit_Vd->setValidator(new QDoubleValidator(this));
-    lineEdit_D_interel->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_wl->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_sigma->setValidator(new QDoubleValidator(this));
-    lineEdit_pump_fluence->setValidator(new QDoubleValidator(this));
-    lineEdit_T0->setValidator(new QDoubleValidator(this));
+    //lineEdit_p_CO2->setValidator(new QDoubleValidator(this));
+    //lineEdit_p_N2->setValidator(new QDoubleValidator(this));
+    //lineEdit_p_He->setValidator(new QDoubleValidator(this));
+    //lineEdit_13C->setValidator(new QDoubleValidator(0,100,3,this));
+    //lineEdit_18O->setValidator(new QDoubleValidator(0,100,3,this));
+    //lineEdit_Vd->setValidator(new QDoubleValidator(this));
+    //lineEdit_D_interel->setValidator(new QDoubleValidator(this));
+    //lineEdit_pump_wl->setValidator(new QDoubleValidator(this));
+    //lineEdit_pump_sigma->setValidator(new QDoubleValidator(this));
+    //lineEdit_pump_fluence->setValidator(new QDoubleValidator(this));
+    //lineEdit_T0->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_min->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_max->setValidator(new QDoubleValidator(this));
 
@@ -85,15 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
-    //connect(comboBox_component, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(comboBox_pulse, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(lineEdit_passes, SIGNAL(returnPressed()), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(comboBox_energyPlot, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(checkBox_log, SIGNAL(clicked()), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(comboBox_timeScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
-    //connect(comboBox_freqScale, SIGNAL(activated(QString)), this, SLOT(PlotAndSetModifiedFlag()));
     connect(comboBox_size, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    //connect(doubleSpinBox_zoom, SIGNAL(editingFinished(double)), this, SLOT(Plot()));
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
@@ -107,23 +99,23 @@ MainWindow::MainWindow(QWidget *parent)
     connect(lineEdit_vc, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_inj, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_Dt_train, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_p_CO2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_p_N2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_p_He, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_13C, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_18O, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_T0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(plainTextEdit_components, SIGNAL(textChanged()), this, SLOT(OnModified()));
+    //connect(lineEdit_p_CO2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_p_N2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_p_He, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_13C, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_18O, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_T0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(plainTextEdit_components, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(plainTextEdit_layout, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(checkBox_noprop, SIGNAL(clicked()), this, SLOT(OnModified()));
-    connect(radioButton_discharge, SIGNAL(clicked()), this, SLOT(OnModified()));
-    connect(radioButton_optical, SIGNAL(clicked()), this, SLOT(OnModified()));
-    connect(lineEdit_Vd, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_D_interel, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_pump_wl, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_pump_sigma, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_pump_fluence, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(plainTextEdit_discharge, SIGNAL(textChanged()), this, SLOT(OnModified()));
+    //connect(radioButton_discharge, SIGNAL(clicked()), this, SLOT(OnModified()));
+    //connect(radioButton_optical, SIGNAL(clicked()), this, SLOT(OnModified()));
+    //connect(lineEdit_Vd, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_D_interel, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_pump_wl, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_pump_sigma, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(lineEdit_pump_fluence, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    //connect(plainTextEdit_discharge, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(comboBox_precision_t, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
@@ -172,8 +164,12 @@ MainWindow::~MainWindow()
 void MainWindow::Abort()
 {
     flag_calculation_success = false;
-    process->kill();
-    delete process;
+    flag_calculating = false;
+    //process->kill();
+    process->terminate(); // commented code crash the shell...
+    //process->close();
+    //process->deleteLater();
+    //delete process;
     UpdateControls();
 }
 
@@ -284,6 +280,7 @@ void MainWindow::NewProject()
     flag_projectloaded = false;
     flag_calculating = false;
     flag_calculation_success = false;
+    flag_results_modified = false;
     flag_comments_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
@@ -390,6 +387,7 @@ void MainWindow::SaveProject()
         proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini"); // don't include field (field.bin)
     proc->waitForFinished();
     delete proc;
+    flag_results_modified = false;
     flag_plot_modified = false;
     flag_comments_modified = false;
     UpdateControls();
@@ -414,6 +412,7 @@ void MainWindow::LoadProject()
         flag_projectloaded = true;
         flag_calculating = false;
         flag_calculation_success = true;
+        flag_results_modified = false;
         flag_plot_modified = false;
         flag_plot_postponed = false;
         flag_plot_postponed_modified = false;
@@ -455,6 +454,14 @@ void MainWindow::UpdateTerminal()
         textBrowser->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
     }
     textBrowser->moveCursor(QTextCursor::End);
+
+    // Update log file
+    QFile file;
+    QTextStream out(&file);
+    file.setFileName("co2amp.log");
+    file.open(QFile::WriteOnly);
+    out<<textBrowser->toPlainText();
+    file.close();
 }
 
 
@@ -462,6 +469,7 @@ void MainWindow::BeforeProcessStarted()
 {
     flag_calculating = true;
     flag_calculation_success = true;
+    flag_results_modified = false;
     ClearWorkDir();
     SaveSettings("all"); // save all settings - input and plot
     LoadInputPulse();
@@ -481,6 +489,7 @@ void MainWindow::AfterProcessFinished()
         save = checkBox_saveWhenFinished->isChecked();
         showtime = checkBox_showCalculationTime->isChecked();
         flag_plot_postponed = true;
+        flag_results_modified = true;
         //Plot();
         tabWidget_main->setCurrentIndex(1); // Output tab (Plot will be called)
         if(save)
@@ -501,7 +510,7 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     }
     if(!flag_calculation_success) // cannot save if calculations not completed nothing to save
         return true;
-    if(!flag_plot_modified && !flag_comments_modified) // nothing changed
+    if(!flag_results_modified && !flag_plot_modified && !flag_comments_modified) // nothing changed
         return true;
 
     mb = QMessageBox::warning(this, tr("Project modified - co2amp"), tr("The project has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -538,8 +547,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::OnModified()
 {
-    if(!flag_projectloaded)
-        return;
+    //if(!flag_projectloaded)
+        //return;
     MemorizeSettings();  // Load values from edit boxes to memory
     LoadInputPulse();
     UpdateControls();
@@ -726,3 +735,17 @@ void MainWindow::on_comboBox_freqScale_activated(QString)
     flag_plot_modified = true;
     Plot();
 }
+
+void MainWindow::on_toolButton_add_component_clicked()
+{
+    QStringList numbers;
+    numbers << "One" << "Two" << "Three" << "Four" << "Five";
+
+    QAbstractItemModel *model = new StringListModel(numbers);
+    listView_components->setModel(model);
+}
+
+
+
+
+

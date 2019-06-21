@@ -264,6 +264,108 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
 }
 
 
+void Filter(int pulse, char* yaml_file_path) // bandcenter, bandwidth: Hz
+{
+    int x, n, n_raw_data_points, i;
+    double Dv = (v_max-v_min) / (n0-1);
+    double v;
+    char debug_out[16384], yaml_str[16384], yaml_str_copy[16384];
+    char* tmp_str;
+
+    // read transmission profile data string from YAML file
+    YamlGetValue(yaml_str, yaml_file_path, "transmittance");
+    sprintf(debug_out, "Transmission data:\n%s", yaml_str);
+    Debug(2, debug_out);
+
+    // count number of data points (= number of lines in the data string)
+    n_raw_data_points = 0;
+    strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
+    tmp_str = strtok(yaml_str_copy,"\n");
+    while(tmp_str != NULL){
+        n_raw_data_points ++;
+        tmp_str = strtok(NULL,"\n");
+    }
+    sprintf(debug_out, "number of data points: %i", n_raw_data_points);
+    Debug(2, debug_out);
+
+    // create "raw" transmittance array
+    double **raw_data;
+    raw_data = malloc(sizeof(double*)*2);
+    raw_data[0] = malloc(sizeof(double)*n_raw_data_points);
+    raw_data[1] = malloc(sizeof(double)*n_raw_data_points);
+
+    strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
+    tmp_str = strtok(yaml_str_copy," \t\n\r");
+    //printf("%s ", tmp_str);
+    i=0;
+    //while(tmp_str != NULL){
+    for(i=0; i<n_raw_data_points; i++){
+        raw_data[0][i] = atof(tmp_str); // Frequency, Hz
+        tmp_str = strtok(NULL," \t\n\r");
+        //printf("%s ", tmp_str);
+        raw_data[1][i] = atof(tmp_str);      // Transmittance
+        tmp_str = strtok(NULL," \t\n\r");
+        //printf("%s ", tmp_str);
+        //i++;
+    }
+
+    if(debug_level>=2){
+        printf("\nTRANSMITTANCE PROFILE:\n");
+        printf("Freq, THz\tTransmittance\n");
+        for(i=0; i<n_raw_data_points; i++)
+            printf("%f\t%f\n", raw_data[0][i]*1e-12, raw_data[1][i]);
+        fflush(stdout);
+    }
+
+
+    // create "full" transmittance array
+    double *transmittance;
+    transmittance = malloc(sizeof(double)*n0);
+
+    for(n=0; n<n0; n++){
+        v = v_min+Dv*n;
+        if(v <= raw_data[0][0])
+            transmittance[n] = raw_data[1][0];
+        else{
+            if(v >= raw_data[0][n_raw_data_points-1])
+                transmittance[n] = raw_data[1][n_raw_data_points-1];
+            else{
+                for(i=0; i<n_raw_data_points-1; i++)
+                    if(v>=raw_data[0][i] && v<=raw_data[0][i+1])
+                        transmittance[n] = raw_data[1][i] + (raw_data[1][i+1]-raw_data[1][i]) * (v-raw_data[0][i])/(raw_data[0][i+1]-raw_data[0][i]);
+            }
+        }
+    }
+
+
+    free(raw_data[0]);
+    free(raw_data[1]);
+    free(raw_data);
+
+    if(debug_level>=2){
+        printf("\nTRANSMITTANCE PROFILE:\n");
+        printf("Freq, THz\tTransmittance\n");
+        for(n=0; n<n0; n++)
+            printf("%f\t%f\n", (v_min+Dv*n)*1e-12, transmittance[n]);
+        fflush(stdout);
+    }
+
+    #pragma omp parallel for // multthread
+    for(x=0; x<x0; x++){
+        int n;
+        double complex *spectrum;
+        spectrum = malloc(sizeof(double complex)*n0);
+        FFT(E[pulse][x], spectrum);
+        for(n=0; n<n0; n++)
+            spectrum[n] *= sqrt(transmittance[n]);
+        IFFT(spectrum, E[pulse][x]);
+        free(spectrum);
+    }
+
+    free(transmittance);
+}
+
+
 void Apodizer(int pulse, double alpha)
 {
     if(alpha==0)

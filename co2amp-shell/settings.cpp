@@ -194,11 +194,11 @@ void MainWindow::MemorizeSettings()
     if(lineEdit_Dt_train->isVisible() && lineEdit_Dt_train->isEnabled())
         Memorized.Dt_train = lineEdit_Dt_train->text();
     /////////////////////////////////// OPTICS //////////////////////////////////////
-    Memorized.components = plainTextEdit_components->toPlainText();
+    //Memorized.components = plainTextEdit_components->toPlainText();
     Memorized.layout = plainTextEdit_layout->toPlainText();
     Memorized.noprop = checkBox_noprop->isChecked();
     /////////////////////////////////// GAS MIXTURE //////////////////////////////////////
-    if(lineEdit_p_CO2->isEnabled())
+    /*if(lineEdit_p_CO2->isEnabled())
         Memorized.p_CO2 = lineEdit_p_CO2->text();
     if(lineEdit_p_N2->isEnabled())
         Memorized.p_N2 = lineEdit_p_N2->text();
@@ -209,9 +209,9 @@ void MainWindow::MemorizeSettings()
     if(lineEdit_13C->isEnabled())
         Memorized.percent_13C = lineEdit_13C->text();
     if(lineEdit_18O->isEnabled())
-        Memorized.percent_18O = lineEdit_18O->text();
+        Memorized.percent_18O = lineEdit_18O->text();*/
     /////////////////////////////////// PUMPING //////////////////////////////////////
-    if(radioButton_discharge->isEnabled() && radioButton_discharge->isChecked())
+    /*if(radioButton_discharge->isEnabled() && radioButton_discharge->isChecked())
         Memorized.pumping = "discharge";
     if(radioButton_optical->isEnabled() && radioButton_optical->isChecked())
         Memorized.pumping = "optical";
@@ -226,7 +226,7 @@ void MainWindow::MemorizeSettings()
     if(lineEdit_pump_sigma->isVisible() && lineEdit_pump_sigma->isEnabled())
         Memorized.pump_sigma = lineEdit_pump_sigma->text();
     if(lineEdit_pump_fluence->isVisible() && lineEdit_pump_fluence->isEnabled())
-        Memorized.pump_fluence = lineEdit_pump_fluence->text();
+        Memorized.pump_fluence = lineEdit_pump_fluence->text();*/
     /////////////////////////////////// CALCULATION NET //////////////////////////////////////
     if(lineEdit_t_pulse_min->isEnabled())
         Memorized.t_pulse_min = lineEdit_t_pulse_min->text();

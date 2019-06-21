@@ -16,8 +16,13 @@ SOURCES += output.c \
     boltzmann.c \
     amplification.c \
     main.c \
-    calc.c
+    calc.c \
+    yaml.c
 HEADERS += \
     co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp
 QMAKE_LFLAGS += -fopenmp
+
+
+LIBS += -L$$PWD/../libyaml/ -lyaml
+#LIBS += -L$$PWD/../libyaml/ -llibyaml.dll

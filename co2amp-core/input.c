@@ -1,6 +1,5 @@
 #include  "co2amp.h"
 
-
 void ReadCommandLine(int argc, char **argv)
 {
     int i;
@@ -182,7 +181,7 @@ void ConstantsInit(void)
     while(str != NULL){
         if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ATTENUATOR")
                 || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER")
-                || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR"))
+                || !strcmp(str, "FILTER") || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR"))
             n_components ++;
         if(!strcmp(str, "AM"))
             n_amsections ++;
@@ -285,7 +284,7 @@ void ArraysInit(void)
     while(str != NULL){
         if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ATTENUATOR")
                 || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER")
-                || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR")){
+                || !strcmp(str, "FILTER") || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR")){
             strcpy(component_id[K], id);
             strcpy(component_type[K], str);
             component_Dr[K] = atof(strtok(NULL," \t\n\r")) / (x0-1) * 1e-2; // cm -> m
@@ -294,8 +293,8 @@ void ArraysInit(void)
             strcpy(component_param1[K], "");
             strcpy(component_param2[K], "");
             if(!strcmp(str, "AM") || !strcmp(str, "MASK") || !strcmp(str, "ATTENUATOR") || !strcmp(str, "ABSORBER")
-                    || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER") || !strcmp(str, "BANDPASS")
-                    || !strcmp(str, "APODIZER") || !strcmp(str, "AIR"))
+                    || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER")
+                    || !strcmp(str, "FILTER") || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR"))
                 strcpy(component_param1[K], strtok(NULL," \t\n\r")); // 1st parameter
             if(!strcmp(str, "WINDOW") || !strcmp(str, "BANDPASS") || !strcmp(str, "AIR"))
                 strcpy(component_param2[K], strtok(NULL," \t\n\r")); // 2nd parameter

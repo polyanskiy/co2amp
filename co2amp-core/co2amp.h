@@ -7,71 +7,73 @@
 #include  <ctype.h>
 #include  <omp.h>
 
+#include <../libyaml/yaml.h>
+
 #define bool int
 #define true 1
 #define false 0
 
 // ------- INITIAL PULSE -------
-int from_file;
-double E0, r0, tau0, vc;
-double t_inj;
-int n_pulses;
-double Dt_train;
+extern int from_file;
+extern double E0, r0, tau0, vc;
+extern double t_inj;
+extern int n_pulses;
+extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
-int n_components, n_amsections, n_propagations;
-char **component_id, **component_type, **component_param1, **component_param2;
-double *component_Dr;
-double *layout_distance, *layout_time;
-int *layout_component;
-bool noprop;
-double *alpha;  // temporary - for nonlinear absorption in Ge
+extern int n_components, n_amsections, n_propagations;
+extern char **component_id, **component_type, **component_param1, **component_param2;
+extern double *component_Dr;
+extern double *layout_distance, *layout_time;
+extern int *layout_component;
+extern bool noprop;
+extern double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- PUMPING -------
-char pumping[16]; // pumping type ("discharge" or "optical")
-int n_discharge_points; // number of pints in the discharge profile
-double **discharge; // time current voltage
-double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
-double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
-double q2, q3, q4, qT;
-double q2_a, q3_a, q4_a, qT_a, t_a;
-double q2_b, q3_b, q4_b, qT_b, t_b;
+extern char pumping[16]; // pumping type ("discharge" or "optical")
+extern int n_discharge_points; // number of pints in the discharge profile
+extern double **discharge; // time current voltage
+extern double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
+extern double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
+extern double q2, q3, q4, qT;
+extern double q2_a, q3_a, q4_a, qT_a, t_a;
+extern double q2_b, q3_b, q4_b, qT_b, t_b;
 // ------- GAS MIXTURE -------
-double p_CO2, p_N2, p_He;
-double p_626, p_628, p_828, p_636, p_638, p_838;
-double T0;
+extern double p_CO2, p_N2, p_He;
+extern double p_626, p_628, p_828, p_636, p_638, p_838;
+extern double T0;
 // ------- CALCULATION NET -------
-double t_pulse_lim, t_pulse_shift;
-double Dt_pump; // "main time" - for pumping/relaxation
-int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+extern double t_pulse_lim, t_pulse_shift;
+extern double Dt_pump; // "main time" - for pumping/relaxation
+extern int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
 // ------- SPECTROSCOPY -------
-double v_min, v_max;       // frequency limits, Hz
-double nop[6][4][3][61];   // normalized populations
-double v[6][4][4][61];     // transition frequencies, Hz
-double sigma[6][4][4][61]; // transition cross-sections, m^2
+extern double v_min, v_max;       // frequency limits, Hz
+extern double nop[6][4][3][61];   // normalized populations
+extern double v[6][4][4][61];     // transition frequencies, Hz
+extern double sigma[6][4][4][61]; // transition cross-sections, m^2
 // ------- OUTPUT ARRAYS -------
-double complex ***E;
-double **T, **e2, **e3, **e4;
-double *gainSpectrum;
+extern double complex ***E;
+extern double **T, **e2, **e3, **e4;
+extern double *gainSpectrum;
 // ------- DEBUGGING -------
-int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
-int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
-bool flag_status_or_debug; // last message displayed: True if status False if debug
+extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
+extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
+extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
-int b0;
-double E_over_N;
-double Y1, Y2, Y3;
-double Du;
-double M1, M2, M3, C1, C2, B;
-double *u;
-double *Q;
-double *Qm1, *Qm2, *Qm3;
-double **Q1, **Q2;
-double u1[11], u2[16];
-double **M;
-double *f;
+extern int b0;
+extern double E_over_N;
+extern double Y1, Y2, Y3;
+extern double Du;
+extern double M1, M2, M3, C1, C2, B;
+extern double *u;
+extern double *Q;
+extern double *Qm1, *Qm2, *Qm3;
+extern double **Q1, **Q2;
+extern double u1[11], u2[16];
+extern double **M;
+extern double *f;
 // ------- MISC. CONSTANTS -------
-double c, h; // spped of light [m/s]; Plank's [J s]
+extern double c, h; // spped of light [m/s]; Plank's [J s]
 // ------- MISC. GLOBAL VARIABLES -------
-double humidity; // air humidity [%]
+extern double humidity; // air humidity [%]
 
 
 // -------------------------- FUNCTIONS --------------------------
@@ -113,13 +115,14 @@ void FreeMemoryBoltzmann(void);
 void BeamPropagation(int pulse, int k, double t);
 double RefractiveIndex(char* material, double frequency);
 double NonlinearIndex(char* material);
-void Probe();
+void Probe(void);
 void Lens(int pulse, double Dr, double F);
 void Mask(int pulse, double Dr, double radius);
 void Attenuator(int pulse, double transmission);
 void Window(int pulse, int k, double t, char *material, double thickness);
 void Stretcher(int pulse, double stretching);
 void Bandpass(int pulse, double bandcenter, double bandwidth);
+void Filter(int pulse, char* yamlfile);
 void Apodizer(int pulse, double alpha);
 void Air(int pulse, int k, double t, double humidity, double length);
 
@@ -143,3 +146,6 @@ void FFT(double complex *in, double complex *out);
 void IFFT(double complex *in, double complex *out);
 void FFTCore(double complex *in, double complex *out, bool Invert);
 int BitReversal(int x);
+
+//////////////////////////// yaml.c ///////////////////////////
+void YamlGetValue(char *value, char* path, char* key);

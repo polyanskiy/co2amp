@@ -27,7 +27,7 @@ void MainWindow::UpdateControls()
         textBrowser->clear();
     }
     textBrowser->setVisible(flag_calculating);
-    scrollArea_input->setVisible(!flag_calculating);
+    //scrollArea_input->setVisible(!flag_calculating);
     pushButton_calculate->setVisible(!flag_calculating);
     pushButton_abort->setVisible(flag_calculating);
     checkBox_saveWhenFinished->setVisible(flag_calculating);
@@ -35,7 +35,7 @@ void MainWindow::UpdateControls()
     checkBox_showCalculationTime->setVisible(flag_calculating);
     pushButton_new->setDisabled(flag_calculating);
     pushButton_open->setDisabled(flag_calculating);
-    pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_comments_modified) || project_file==QString());
+    pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_comments_modified || flag_results_modified) || project_file==QString());
     pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
 
     ////////////////////////////////// NUMBER OF PASSES ///////////////////////////////////
@@ -71,8 +71,8 @@ void MainWindow::UpdateControls()
         palette->setColor(QPalette::Text,Qt::black);
     }
     lineEdit_input_file->setPalette(*palette);
-    if(!flag_input_file_error){
-        label_tau0_3->setText("Δν" + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
+    if(!bl || !flag_input_file_error){
+        label_tau0_3->setText("Δν = " + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
         label_vc_3->setText("λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " µm"); // wl[um] = c[m/s] / nu[THz] * 1e-6
         label_r0_3->setText("w = " + QString::number(lineEdit_r0->text().toDouble()/sqrt(log(2)/2)) + " cm"); // w = hwhm / sqrt(ln(2)/2))
     }
@@ -96,7 +96,7 @@ void MainWindow::UpdateControls()
         lineEdit_t_inj->setText(Memorized.t_inj);
 
     /////////////////////////////////// GAS MIXTURE //////////////////////////////////////
-    bl = noam;
+    /*bl = noam;
     if(bl){
         lineEdit_p_CO2->setText("-");
         lineEdit_p_N2->setText("-");
@@ -111,17 +111,17 @@ void MainWindow::UpdateControls()
             lineEdit_p_He->setText(Memorized.p_He);
     }
     groupBox_mixture->setEnabled(!bl);
-    groupBox_pumping->setEnabled(!bl);
+    groupBox_pumping->setEnabled(!bl);*/
 
     /////////////////////////////////// OPTICS, GEOMETRY //////////////////////////////////////
-    if(!plainTextEdit_components->hasFocus())
-        plainTextEdit_components->setPlainText(Memorized.components);
+    //if(!plainTextEdit_components->hasFocus())
+    //    plainTextEdit_components->setPlainText(Memorized.components);
     if(!plainTextEdit_layout->hasFocus())
         plainTextEdit_layout->setPlainText(Memorized.layout);
     checkBox_noprop->setChecked(Memorized.noprop);
 
     /////////////////////////////////// PUMPING //////////////////////////////////////
-    radioButton_discharge->setChecked(Memorized.pumping=="discharge");
+    /*radioButton_discharge->setChecked(Memorized.pumping=="discharge");
     radioButton_optical->setChecked(Memorized.pumping=="optical");
 
     bl = (Memorized.pumping=="discharge");
@@ -192,7 +192,7 @@ void MainWindow::UpdateControls()
     label_13C->setEnabled(!bl);
     label_18O->setEnabled(!bl);
     label_13C_2->setEnabled(!bl);
-    label_18O_2->setEnabled(!bl);
+    label_18O_2->setEnabled(!bl);*/
 
     /////////////////////////////////// CALCULATION NET //////////////////////////////////////
     bl = checkBox_from_file->isChecked();
@@ -210,7 +210,7 @@ void MainWindow::UpdateControls()
         comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
         double delta_t = (lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
         double delta_v = 1.0/(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
-        label_deltas->setText("(Î”t = " + QString::number(delta_t) + " ps;   Î”Î½ = " + QString::number(delta_v) + " THz)");
+        label_deltas->setText("(Δt = " + QString::number(delta_t) + " ps;   Δν = " + QString::number(delta_v) + " THz)");
     }
     comboBox_precision_t->setEnabled(!bl);
     comboBox_precision_r->setEnabled(!bl);
@@ -262,8 +262,8 @@ void MainWindow::UpdateControls()
         comboBox_energyPlot->setCurrentIndex(index);
 
     /////////////////////// ENABLE?DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
-    bl = (flag_projectloaded && flag_calculation_success);
-    scrollArea_plotControls->setEnabled(bl);
+    bl = (flag_projectloaded || flag_calculation_success);
+    //scrollArea_plotControls->setEnabled(bl);
     pushButton_update->setEnabled(bl);
     if(!bl)
         ClearPlot();
@@ -282,9 +282,9 @@ void MainWindow::BlockSignals(bool block)
     checkBox_from_file->blockSignals(block);
     lineEdit_input_file->blockSignals(block);
     checkBox_noprop->blockSignals(block);
-    plainTextEdit_components->blockSignals(block);
+    //plainTextEdit_components->blockSignals(block);
     plainTextEdit_layout->blockSignals(block);
-    plainTextEdit_discharge->blockSignals(block);
+    //plainTextEdit_discharge->blockSignals(block);
     comboBox_precision_t->blockSignals(block);
     comboBox_precision_r->blockSignals(block);
     spinBox_n_pulses->blockSignals(block);
