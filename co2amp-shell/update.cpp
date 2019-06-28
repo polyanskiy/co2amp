@@ -7,36 +7,36 @@ void MainWindow::UpdateControls()
     bool bl;
     QString str;
 
+    QCoreApplication::processEvents(QEventLoop::AllEvents,1000);
+
     //////////////////////////// block signals ///////////////////////////
     BlockSignals(true);
 
     /////////// check if there is any active madium section among the components //////////
-    noam = true;
+    /*noam = true;
     QStringList list1, list2;
-    list1 = Memorized.components.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
+    list1 = Memorized.components;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
     for(i=0; i<=list1.count()-1; i++){
         list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
         if(list2.count() >= 2 && list2[1]=="AM")
             noam = false;
-    }
+    }*/
 
     ////////////////////////////////// GUI CONTROLS //////////////////////////////////
     if(!flag_calculating){
         checkBox_saveWhenFinished->setChecked(0);
         checkBox_showCalculationTime->setChecked(0);
-        textBrowser->clear();
+        //textBrowser->clear();
     }
-    textBrowser->setVisible(flag_calculating);
-    //scrollArea_input->setVisible(!flag_calculating);
-    pushButton_calculate->setVisible(!flag_calculating);
-    pushButton_abort->setVisible(flag_calculating);
-    checkBox_saveWhenFinished->setVisible(flag_calculating);
-    checkBox_saveWhenFinished->setDisabled(project_file==QString());
-    checkBox_showCalculationTime->setVisible(flag_calculating);
     pushButton_new->setDisabled(flag_calculating);
     pushButton_open->setDisabled(flag_calculating);
     pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_comments_modified || flag_results_modified) || project_file==QString());
     pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
+    pushButton_calculate->setDisabled(flag_calculating);
+    textBrowser_terminal->setEnabled(flag_calculating); //terminal
+    pushButton_abort->setEnabled(flag_calculating);
+    checkBox_saveWhenFinished->setEnabled(flag_calculating && project_file!=QString());
+    checkBox_showCalculationTime->setEnabled(flag_calculating);
 
     ////////////////////////////////// NUMBER OF PASSES ///////////////////////////////////
     spinBox_n_pulses->setValue(Memorized.n_pulses);
@@ -95,104 +95,24 @@ void MainWindow::UpdateControls()
     if(!lineEdit_t_inj->hasFocus())
         lineEdit_t_inj->setText(Memorized.t_inj);
 
-    /////////////////////////////////// GAS MIXTURE //////////////////////////////////////
-    /*bl = noam;
-    if(bl){
-        lineEdit_p_CO2->setText("-");
-        lineEdit_p_N2->setText("-");
-        lineEdit_p_He->setText("-");
-    }
-    else{
-        if(!lineEdit_p_CO2->hasFocus())
-            lineEdit_p_CO2->setText(Memorized.p_CO2);
-        if(!lineEdit_p_N2->hasFocus())
-            lineEdit_p_N2->setText(Memorized.p_N2);
-        if(!lineEdit_p_He->hasFocus())
-            lineEdit_p_He->setText(Memorized.p_He);
-    }
-    groupBox_mixture->setEnabled(!bl);
-    groupBox_pumping->setEnabled(!bl);*/
-
-    /////////////////////////////////// OPTICS, GEOMETRY //////////////////////////////////////
+    /////////////////////////////// OPTICSAL COMPONENTS AND CONFIGURATION /////////////////////////////////
+    bl = listWidget_components->count() > 0;
+    pushButton_component_load->setEnabled(bl);
+    pushButton_component_save->setEnabled(bl);
+    plainTextEdit_component->setEnabled(bl);
+    toolButton_component_remove->setEnabled(bl);
+    toolButton_component_up->setEnabled(bl);
+    toolButton_component_down->setEnabled(bl);
+    toolButton_component_rename->setEnabled(bl);
+    if(bl)
+        plainTextEdit_component->setPlainText(Memorized.component_yaml[listWidget_components->currentRow()]);
+    else
+        plainTextEdit_component->setPlainText("");
     //if(!plainTextEdit_components->hasFocus())
     //    plainTextEdit_components->setPlainText(Memorized.components);
     if(!plainTextEdit_layout->hasFocus())
         plainTextEdit_layout->setPlainText(Memorized.layout);
     checkBox_noprop->setChecked(Memorized.noprop);
-
-    /////////////////////////////////// PUMPING //////////////////////////////////////
-    /*radioButton_discharge->setChecked(Memorized.pumping=="discharge");
-    radioButton_optical->setChecked(Memorized.pumping=="optical");
-
-    bl = (Memorized.pumping=="discharge");
-    lineEdit_Vd->setVisible(bl);
-    label_Vd->setVisible(bl);
-    label_Vd_2->setVisible(bl);
-    lineEdit_D_interel->setVisible(bl);
-    label_D_interel->setVisible(bl);
-    label_D_interel_2->setVisible(bl);
-    toolButton_discharge->setVisible(bl);
-    plainTextEdit_discharge->setVisible(bl);
-
-    bl = (Memorized.pumping=="optical");
-    lineEdit_pump_wl->setVisible(bl);
-    label_pump_wl->setVisible(bl);
-    label_pump_wl_2->setVisible(bl);
-    lineEdit_pump_sigma->setVisible(bl);
-    label_pump_sigma->setVisible(bl);
-    label_pump_sigma_2->setVisible(bl);
-    lineEdit_pump_fluence->setVisible(bl);
-    label_pump_fluence->setVisible(bl);
-    label_pump_fluence_2->setVisible(bl);
-
-    bl = noam || Memorized.p_CO2.toDouble()+Memorized.p_N2.toDouble()+Memorized.p_He.toDouble() == 0;// Zero total pressure
-    groupBox_pumping->setEnabled(!bl);
-    lineEdit_T0->setEnabled(!bl);
-    label_T0_1->setEnabled(!bl);
-    label_T0_2->setEnabled(!bl);
-    if(bl){
-        lineEdit_Vd->setText("-");
-        lineEdit_D_interel->setText("-");
-        plainTextEdit_discharge->setPlainText("-no active medium-");
-        lineEdit_pump_wl->setText("-");
-        lineEdit_pump_sigma->setText("-");
-        lineEdit_pump_fluence->setText("-");
-        lineEdit_T0->setText("-");
-    }
-    else{
-        if(!lineEdit_Vd->hasFocus())
-            lineEdit_Vd->setText(Memorized.Vd);
-        if(!lineEdit_D_interel->hasFocus())
-            lineEdit_D_interel->setText(Memorized.D_interel);
-        if(!lineEdit_pump_wl->hasFocus())
-            lineEdit_pump_wl->setText(Memorized.pump_wl);
-        if(!lineEdit_pump_sigma->hasFocus())
-            lineEdit_pump_sigma->setText(Memorized.pump_sigma);
-        if(!lineEdit_pump_fluence->hasFocus())
-            lineEdit_pump_fluence->setText(Memorized.pump_fluence);
-        if(!lineEdit_T0->hasFocus())
-            lineEdit_T0->setText(Memorized.T0);
-        if(!plainTextEdit_discharge->hasFocus())// && plainTextEdit_discharge->toPlainText() != Memorized.discharge)
-            plainTextEdit_discharge->setPlainText(Memorized.discharge);
-    }
-
-    bl = noam || Memorized.p_CO2.toDouble() == 0;// Zero CO2 pressure
-    if(bl){
-        lineEdit_13C->setText("-");
-        lineEdit_18O->setText("-");
-    }
-    else{
-        if(!lineEdit_13C->hasFocus())
-            lineEdit_13C->setText(Memorized.percent_13C);
-        if(!lineEdit_18O->hasFocus())
-            lineEdit_18O->setText(Memorized.percent_18O);
-    }
-    lineEdit_13C->setEnabled(!bl);
-    lineEdit_18O->setEnabled(!bl);
-    label_13C->setEnabled(!bl);
-    label_18O->setEnabled(!bl);
-    label_13C_2->setEnabled(!bl);
-    label_18O_2->setEnabled(!bl);*/
 
     /////////////////////////////////// CALCULATION NET //////////////////////////////////////
     bl = checkBox_from_file->isChecked();
@@ -221,11 +141,11 @@ void MainWindow::UpdateControls()
     //components
     //index = comboBox_component->currentIndex();
     comboBox_component->clear();
-    list1 = Saved.components.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
-    for(i=0; i<=list1.count()-1; i++){
-        list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
-        if(list2.count() >= 1)
-            comboBox_component->addItem(list2[0]);
+    //list1 = Saved.component_id;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
+    for(i=0; i<=Saved.component_id.count()-1; i++){
+        //list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
+        //if(list2.count() >= 1)
+            comboBox_component->addItem(Saved.component_id[i]);
     }
     if(Memorized.component == -1 || Memorized.component+1 > comboBox_component->count())
         comboBox_component->setCurrentIndex(0);
@@ -261,7 +181,7 @@ void MainWindow::UpdateControls()
     else
         comboBox_energyPlot->setCurrentIndex(index);
 
-    /////////////////////// ENABLE?DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
+    /////////////////////// ENABLE/DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
     bl = (flag_projectloaded || flag_calculation_success);
     //scrollArea_plotControls->setEnabled(bl);
     pushButton_update->setEnabled(bl);
@@ -282,9 +202,9 @@ void MainWindow::BlockSignals(bool block)
     checkBox_from_file->blockSignals(block);
     lineEdit_input_file->blockSignals(block);
     checkBox_noprop->blockSignals(block);
-    //plainTextEdit_components->blockSignals(block);
+    listWidget_components->blockSignals(block);
+    plainTextEdit_component->blockSignals(block);
     plainTextEdit_layout->blockSignals(block);
-    //plainTextEdit_discharge->blockSignals(block);
     comboBox_precision_t->blockSignals(block);
     comboBox_precision_r->blockSignals(block);
     spinBox_n_pulses->blockSignals(block);

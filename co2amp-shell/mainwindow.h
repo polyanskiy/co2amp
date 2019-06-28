@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QTextStream>
 #include <QString>
 #include <QFileInfo>
@@ -25,11 +26,12 @@ class CoreVariables
         QString input_file;
         int n_pulses;
         QString E0, r0, tau0, vc, t_inj, Dt_train;
-        QString components, layout;
+        QStringList component_id, component_type, component_yaml;
+        QString layout;
         bool noprop;
-        QString p_CO2, p_N2, p_He, percent_13C, percent_18O, T0;
-        QString pumping, Vd, D_interel, pump_wl, pump_sigma, pump_fluence;
-        QString discharge;
+        //QString p_CO2, p_N2, p_He, percent_13C, percent_18O, T0;
+        //QString pumping, Vd, D_interel, pump_wl, pump_sigma, pump_fluence;
+        //QString discharge;
         QString t_pulse_min, t_pulse_max;
         int precision_t, precision_r;
         int component, pulse;
@@ -40,12 +42,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
 {
     Q_OBJECT
     public:
-        MainWindow(QWidget *parent = 0);
+        MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
         int version;
         QString work_dir;
         QString project_file;
         QString def_dir;
+        QString yaml_dir;
         QString path_to_core, path_to_gnuplot, path_to_7zip;
         QProcess *process;
         bool flag_calculating;
@@ -58,21 +61,26 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_plot_postponed_modified;
         bool flag_comments_modified;
         bool flag_input_file_error;
-        bool noam; // no active medium components
+        //bool noam; // no active medium components
         QElapsedTimer timer;
         CoreVariables Saved, Memorized;
         void LoadProject();
         int FigureMenu();
 
     private slots:
-        void Abort();
-        void on_toolButton_input_file_clicked();
-        //void on_toolButton_layout_clicked();
-        void on_toolButton_add_component_clicked();
-        //void on_toolButton_discharge_clicked();
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
+        void on_toolButton_input_file_clicked();
+        void on_toolButton_component_add_clicked();
+        void on_toolButton_component_up_clicked();
+        void on_toolButton_component_down_clicked();
+        void on_toolButton_component_rename_clicked();
+        void on_toolButton_component_remove_clicked();
+        void on_listWidget_components_currentRowChanged(int);
+        void on_plainTextEdit_component_textChanged();
+        void on_pushButton_component_load_clicked();
+        void on_pushButton_component_save_clicked();
         void closeEvent(QCloseEvent*);
         void on_svg_fig1_customContextMenuRequested();
         void on_svg_fig2_customContextMenuRequested();
@@ -90,6 +98,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_lineEdit_passes_returnPressed();
         void on_comboBox_energyPlot_activated(QString);
         void on_checkBox_log_clicked();
+        void on_comboBox_timeScale_activated(QString);
         void on_comboBox_freqScale_activated(QString);
         void on_spinBox_width_valueChanged(int);
         void on_spinBox_width_editingFinished();
@@ -104,6 +113,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void NewProject();
         void ClearWorkDir();
         void Calculate();
+        void Abort();
         void Plot();
         void ClearPlot();
         void Comments();
@@ -113,6 +123,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void SaveSVG(QString svg_path);
         void UpdateTerminal();
         void UpdateControls();
+        QString SuggestComponentID(QString type);
+        bool ComponentIDExists(QString ID);
         void BeforeProcessStarted();
         void AfterProcessFinished();
         void OnModified();
@@ -125,7 +137,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
 };
 
 
-class StringListModel : public QAbstractListModel
+/*class StringListModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -141,6 +153,6 @@ class StringListModel : public QAbstractListModel
 
     private:
         QStringList stringList;
-};
+};*/
 
 #endif

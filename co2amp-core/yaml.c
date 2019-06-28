@@ -5,7 +5,7 @@ void YamlGetValue(char *value, char* path, char* key)
     yaml_parser_t parser;
     yaml_token_t  token;
     FILE *file = fopen(path, "r");
-    char str[16384];
+    char str[65535]; // max array size in C (not a good practice to do it this way - change in future)
 
     strcpy(value, "");
 

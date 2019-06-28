@@ -18,24 +18,24 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("co2amp/t_inj", Memorized.t_inj);
         settings.setValue("co2amp/Dt_train", Memorized.Dt_train);
 
-        settings.setValue("co2amp/components", Memorized.components);
+        settings.setValue("co2amp/component_id", Memorized.component_id);
         settings.setValue("co2amp/layout", Memorized.layout);
         settings.setValue("co2amp/noprop", Memorized.noprop);
 
-        settings.setValue("co2amp/p_CO2", Memorized.p_CO2);
-        settings.setValue("co2amp/p_N2", Memorized.p_N2);
-        settings.setValue("co2amp/p_He", Memorized.p_He);
-        settings.setValue("co2amp/percent_13C", Memorized.percent_13C);
-        settings.setValue("co2amp/percent_18O", Memorized.percent_18O);
-        settings.setValue("co2amp/T0", Memorized.T0);
+        //settings.setValue("co2amp/p_CO2", Memorized.p_CO2);
+        //settings.setValue("co2amp/p_N2", Memorized.p_N2);
+        //settings.setValue("co2amp/p_He", Memorized.p_He);
+        //settings.setValue("co2amp/percent_13C", Memorized.percent_13C);
+        //settings.setValue("co2amp/percent_18O", Memorized.percent_18O);
+        //settings.setValue("co2amp/T0", Memorized.T0);
 
-        settings.setValue("co2amp/pumping", Memorized.pumping);
-        settings.setValue("co2amp/Vd", Memorized.Vd);
-        settings.setValue("co2amp/D_interel", Memorized.D_interel);
-        settings.setValue("co2amp/discharge", Memorized.discharge);
-        settings.setValue("co2amp/pump_wl", Memorized.pump_wl);
-        settings.setValue("co2amp/pump_sigma", Memorized.pump_sigma);
-        settings.setValue("co2amp/pump_fluence", Memorized.pump_fluence);
+        //settings.setValue("co2amp/pumping", Memorized.pumping);
+        //settings.setValue("co2amp/Vd", Memorized.Vd);
+        //settings.setValue("co2amp/D_interel", Memorized.D_interel);
+        //settings.setValue("co2amp/discharge", Memorized.discharge);
+        //settings.setValue("co2amp/pump_wl", Memorized.pump_wl);
+        //settings.setValue("co2amp/pump_sigma", Memorized.pump_sigma);
+        //settings.setValue("co2amp/pump_fluence", Memorized.pump_fluence);
 
         settings.setValue("co2amp/precision_t", Memorized.precision_t);
         settings.setValue("co2amp/precision_r", Memorized.precision_r);
@@ -89,25 +89,25 @@ void MainWindow::LoadSettings(QString path)
     Memorized.t_pulse_max = settings.value("co2amp/t_pulse_max", 400).toString();
 
     // Active medium
-    Memorized.p_CO2 = settings.value("co2amp/p_CO2", 0.5).toString();
+    /*Memorized.p_CO2 = settings.value("co2amp/p_CO2", 0.5).toString();
     Memorized.p_N2 = settings.value("co2amp/p_N2", 0.5).toString();
     Memorized.p_He = settings.value("co2amp/p_He", 2).toString();
     Memorized.percent_13C = settings.value("co2amp/percent_13C", 0).toString();
     Memorized.percent_18O = settings.value("co2amp/percent_18O", 0).toString();
-    Memorized.T0 = settings.value("co2amp/T0", 300).toString();
+    Memorized.T0 = settings.value("co2amp/T0", 300).toString();*/
 
     // Discharge
-    Memorized.pumping = settings.value("co2amp/pumping", "discharge").toString();
+    /*Memorized.pumping = settings.value("co2amp/pumping", "discharge").toString();
     Memorized.Vd = settings.value("co2amp/Vd", 8500).toString();
     Memorized.D_interel = settings.value("co2amp/D_interel", 8.5).toString();
     Memorized.discharge = settings.value("co2amp/discharge", "0\t0\t600000\n0.02\t6210\t588000\n0.04\t19300\t576000\n0.06\t24600\t565000\n0.08\t27700\t554000\n0.1\t29300\t543000\n0.12\t29800\t532000\n0.14\t29400\t522000\n0.16\t28500\t511000\n0.18\t27100\t501000\n0.2\t25500\t491000\n0.25\t21000\t467000\n0.3\t16600\t444000\n0.35\t12800\t423000\n0.4\t9630\t402000\n0.45\t7140\t383000\n0.5\t5230\t364000\n0.55\t3790\t346000\n0.6\t2730\t329000\n0.7\t1380\t298000\n0.8\t687\t270000\n0.9\t336\t244000\n1\t162\t221000\n1.2\t36.8\t181000\n1.5\t3.77\t134000\n2\t0.0780\t81200\n2.5\t0.00151\t49300\n3\t0.0000281\t29900\n").toString();
     Memorized.pump_wl = settings.value("co2amp/pump_wl", 2.79).toString();
     Memorized.pump_sigma = settings.value("co2amp/pump_sigma", 3e-21).toString();
-    Memorized.pump_fluence = settings.value("co2amp/pump_fluence", 1).toString();
+    Memorized.pump_fluence = settings.value("co2amp/pump_fluence", 1).toString();*/
 
     // Optical layout
     Memorized.noprop = settings.value("co2amp/noprop", 0).toBool();
-    Memorized.components = settings.value("co2amp/components", "p\tPROBE\t1.0\nam\tAM\t1.0\t100.0\n").toString();
+    //Memorized.components = settings.value("co2amp/components", "p\tPROBE\t1.0\nam\tAM\t1.0\t100.0\n").toString();
     Memorized.layout = settings.value("co2amp/layout", "p - 100 - am - 100 - p").toString();
 
     // Comments
@@ -135,7 +135,7 @@ void MainWindow::LoadSettings(QString path)
     double w0 = settings.value("co2amp/w0", 0).toDouble();
     if(w0 >= 800)
         Memorized.vc = QString::number(w0*2.99792458e-2); // 1/cm -> THz
-    if(settings.value("co2pump/D_interel", "not found").toString() != "not found") // missprint in old versions: "co2pump" instead of "co2amp"
+    /*if(settings.value("co2pump/D_interel", "not found").toString() != "not found") // missprint in old versions: "co2pump" instead of "co2amp"
         Memorized.D_interel  = settings.value("co2pump/D_interel", 8.5).toString();
     if(settings.value("co2amp/p_626","not found").toString() != "not found"){
         Memorized.p_CO2.setNum(settings.value("co2amp/p_626",0).toDouble()+settings.value("co2amp/p_628",0).toDouble()+settings.value("co2amp/p_828",0).toDouble()+
@@ -164,7 +164,7 @@ void MainWindow::LoadSettings(QString path)
                 Memorized.discharge += QString::number(C1u*exp(-t/C2u)+C3u*exp(-t/C4u)) + "\n";
             }
         }
-    }
+    }*/
     // //////////////////////// backwards compatibility end /////////////////////////////////////////////
 
     Saved = Memorized;

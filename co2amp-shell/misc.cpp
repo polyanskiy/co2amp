@@ -50,20 +50,16 @@ int MainWindow::PassNumber(int i)
 
 int MainWindow::AmNumber(int component_number)
 {
-    QStringList list, list1;
+    QStringList list;
+    list = Saved.component_type;
 
-    list = Saved.components.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
-    if(list.count()==0)
-        return -1;
-    list1 = list[component_number].split(QRegExp("[ \t]"), QString::SkipEmptyParts); // is active medium?
-    if(list1.count()==0 || list1[1] != "AM")
+    if(list.count()==0 || list[component_number] != "AM")
         return -1;
 
     int i;
     int count = 0;
     for(i=0; i <= list.count()-1; i++){
-    list1 = list[i].split(QRegExp("[ \t]"), QString::SkipEmptyParts);
-        if(list1.count()>=1 && list1[1] == "AM")
+        if(list[i] == "AM")
             count++;
         if(i == component_number)
             break;

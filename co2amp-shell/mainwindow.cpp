@@ -74,13 +74,14 @@ MainWindow::MainWindow(QWidget *parent)
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
     def_dir = settings.value("def_dir", "").toString();
+    yaml_dir = settings.value("yaml_dir", "").toString();
     comboBox_size->setCurrentIndex(settings.value("plot_size", "0").toInt());
     spinBox_width->setValue(settings.value("plot_width", "1600").toInt());
     spinBox_height->setValue(settings.value("plot_height", "1200").toInt());
     doubleSpinBox_zoom->setValue(settings.value("plot_zoom", "1").toDouble());
     checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
     checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
-    textBrowser->setVisible(false); // hide terminal
+    //textBrowser->setVisible(false); // hide terminal
     tabWidget_main->setCurrentIndex(0); // Calculations tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
@@ -132,6 +133,16 @@ MainWindow::MainWindow(QWidget *parent)
     else
         NewProject();
 
+
+    //////////////////// component list ///////////////////////
+
+    //Memorized.components << "One" << "Two" << "Three" << "Four" << "Five";
+
+    //components_model = new QAbstractListModel(Memorized.components);
+    //listView_components->setModel(components_model);
+
+
+
     /////////////////////////////// Create program window /////////////////////////////////////
     restoreGeometry(settings.value("window_geometry").toByteArray());
     show();
@@ -145,6 +156,7 @@ MainWindow::~MainWindow()
     // Save session
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir", def_dir);
+    settings.setValue("yaml_dir", yaml_dir);
     settings.setValue("window_geometry", saveGeometry());
     settings.setValue("plot_size", comboBox_size->currentIndex());
     settings.setValue("plot_width", spinBox_width->value());
@@ -194,7 +206,7 @@ void MainWindow::Calculate()
 
     file.setFileName("optics_components.txt");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << Memorized.components << "\n";
+    //out << Memorized.components << "\n";
     file.close();
 
     file.setFileName("optics_layout.txt");
@@ -204,7 +216,7 @@ void MainWindow::Calculate()
 
     file.setFileName("discharge.txt");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << Memorized.discharge << "\n";
+    //out << Memorized.discharge << "\n";
     file.close();
 
     // Composing arguments string
@@ -227,7 +239,7 @@ void MainWindow::Calculate()
     if(spinBox_n_pulses->text() != "1")
         arguments << "-Dt_train" << lineEdit_Dt_train->text();
 
-    arguments << "-p_626" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
+    /*arguments << "-p_626" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
     arguments << "-p_628" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * 2*(1-Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
     arguments << "-p_828" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
     arguments << "-p_636" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
@@ -246,7 +258,7 @@ void MainWindow::Calculate()
         arguments << "-pump_wl" << Memorized.pump_wl;
         arguments << "-pump_sigma" << Memorized.pump_sigma;
         arguments << "-pump_fluence" << Memorized.pump_fluence;
-    }
+    }*/
 
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
@@ -341,13 +353,11 @@ void MainWindow::on_pushButton_saveas_clicked()
     fileinfo.setFile(str);
     QDir dir = fileinfo.dir();
     if(fileinfo.suffix()!="co2" && fileinfo.suffix()!="co2x"){
-        QMessageBox mb( "Error - co2amp", "Wrong or missing extension (must be .co2 or .co2x)", QMessageBox::Warning, QMessageBox::Ok, 0, 0);
-        mb.exec();
+        QMessageBox().warning(this, "co2amp", "Wrong or missing extension (must be .co2 or .co2x)");
         return;
     }
     if(fileinfo.suffix()=="co2x" && !flag_field_ready_to_save){
-        QMessageBox mb( "Error - co2amp", "Not enough data to save as a .co2x file. Run calculations or use .co2 extension.", QMessageBox::Warning, QMessageBox::Ok, 0, 0);
-        mb.exec();
+        QMessageBox().warning(this, "co2amp", "Not enough data to save as a .co2x file. Run calculations or use .co2 extension.");
         return;
     }
     project_file = QDir::toNativeSeparators(dir.absolutePath() + "/" + fileinfo.fileName());
@@ -361,9 +371,8 @@ void MainWindow::on_pushButton_saveas_clicked()
 void MainWindow::SaveProject()
 {
     QFileInfo fileinfo(project_file);
-    if(QFile::exists(project_file) && !QFile::remove(project_file)){// cannot remove project file (e.g. it's open in another program)
-        QMessageBox mb( "Error - co2amp", "Cannot save to the existing file (file may be open in another program)", QMessageBox::Warning, QMessageBox::Ok, 0, 0);
-        mb.exec();
+    if(QFile::exists(project_file) && !QFile::remove(project_file)){// cannot remove project file (e.g. it's open in another program)      
+        QMessageBox().warning(this, "co2amp", "Cannot save to the existing file (file may be open in another program)");
         return;
     }
     QFile::remove("field_in.bin");
@@ -450,17 +459,17 @@ void MainWindow::UpdateTerminal()
 
     int i;
     for (i=0; i<=number_of_returns; i++){
-        textBrowser->insertPlainText(strlist[i]);
-        textBrowser->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+        textBrowser_terminal->insertPlainText(strlist[i]);
+        textBrowser_terminal->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
     }
-    textBrowser->moveCursor(QTextCursor::End);
+    textBrowser_terminal->moveCursor(QTextCursor::End);
 
     // Update log file
     QFile file;
     QTextStream out(&file);
     file.setFileName("co2amp.log");
     file.open(QFile::WriteOnly);
-    out<<textBrowser->toPlainText();
+    out<<textBrowser_terminal->toPlainText();
     file.close();
 }
 
@@ -730,20 +739,20 @@ void MainWindow::on_checkBox_log_clicked()
 }
 
 
+void MainWindow::on_comboBox_timeScale_activated(QString)
+{
+    flag_plot_modified = true;
+    Plot();
+}
+
+
 void MainWindow::on_comboBox_freqScale_activated(QString)
 {
     flag_plot_modified = true;
     Plot();
 }
 
-void MainWindow::on_toolButton_add_component_clicked()
-{
-    QStringList numbers;
-    numbers << "One" << "Two" << "Three" << "Four" << "Five";
 
-    QAbstractItemModel *model = new StringListModel(numbers);
-    listView_components->setModel(model);
-}
 
 
 

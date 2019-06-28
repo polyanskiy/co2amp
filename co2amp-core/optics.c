@@ -264,16 +264,18 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
 }
 
 
-void Filter(int pulse, char* yaml_file_path) // bandcenter, bandwidth: Hz
+void Filter(int pulse, char* yaml_file_path)
 {
     int x, n, n_raw_data_points, i;
     double Dv = (v_max-v_min) / (n0-1);
     double v;
-    char debug_out[16384], yaml_str[16384], yaml_str_copy[16384];
+    char debug_out[65535], yaml_str[65535], yaml_str_copy[65535]; // // max array size in C (not a good practice to do it this way - change in future)
     char* tmp_str;
 
     // read transmission profile data string from YAML file
+    Debug(2, "a");
     YamlGetValue(yaml_str, yaml_file_path, "transmittance");
+    Debug(2, "b");
     sprintf(debug_out, "Transmission data:\n%s", yaml_str);
     Debug(2, debug_out);
 
@@ -300,7 +302,7 @@ void Filter(int pulse, char* yaml_file_path) // bandcenter, bandwidth: Hz
     i=0;
     //while(tmp_str != NULL){
     for(i=0; i<n_raw_data_points; i++){
-        raw_data[0][i] = atof(tmp_str); // Frequency, Hz
+        raw_data[0][i] = atof(tmp_str)*1e12; // Frequency, THz -> Hz
         tmp_str = strtok(NULL," \t\n\r");
         //printf("%s ", tmp_str);
         raw_data[1][i] = atof(tmp_str);      // Transmittance
