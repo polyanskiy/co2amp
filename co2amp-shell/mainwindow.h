@@ -25,13 +25,10 @@ class CoreVariables
         bool from_file;
         QString input_file;
         int n_pulses;
-        QString E0, r0, tau0, vc, t_inj, Dt_train;
+        QString E0, w0, tau0, vc, t_inj, Dt_train;
         QStringList component_id, component_type, component_yaml;
         QString layout;
         bool noprop;
-        //QString p_CO2, p_N2, p_He, percent_13C, percent_18O, T0;
-        //QString pumping, Vd, D_interel, pump_wl, pump_sigma, pump_fluence;
-        //QString discharge;
         QString t_pulse_min, t_pulse_max;
         int precision_t, precision_r;
         int component, pulse;
@@ -110,6 +107,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void MemorizeSettings();
         void SaveProject();
         void LoadSettings(QString);
+        void PopulateComponentsList();
         void NewProject();
         void ClearWorkDir();
         void Calculate();

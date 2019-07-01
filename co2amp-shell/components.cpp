@@ -41,15 +41,12 @@ void MainWindow::on_toolButton_component_add_clicked()
 
     int current_component = listWidget_components->currentRow();
 
-    Memorized.component_id.append(id);
-    Memorized.component_type.append(type);
-    Memorized.component_yaml.append("type: "+type);
+    Memorized.component_id.insert(current_component+1, id);
+    Memorized.component_type.insert(current_component+1, type);
+    Memorized.component_yaml.insert(current_component+1, "type: "+type);
 
-    listWidget_components->addItem(id+" ("+type+")");
-    listWidget_components->setCurrentRow(current_component+1);
-
-    //plainTextEdit_component->setPlainText(Memorized.component_yaml[current_component+1]);
-    UpdateControls();
+    listWidget_components->insertItem(current_component+1, id+" ("+type+")");
+    listWidget_components->setCurrentRow(current_component+1); //this also triggers UpdateControls();
 }
 
 
@@ -65,10 +62,7 @@ void MainWindow::on_toolButton_component_up_clicked()
 
     QListWidgetItem *item = listWidget_components->takeItem(current_component);
     listWidget_components->insertItem(current_component-1, item);
-    listWidget_components->setCurrentRow(current_component-1);
-
-    //plainTextEdit_component->setPlainText(Memorized.component_yaml[current_component-1]);
-    UpdateControls();
+    listWidget_components->setCurrentRow(current_component-1); //this also triggers UpdateControls();
 }
 
 
@@ -84,10 +78,7 @@ void MainWindow::on_toolButton_component_down_clicked()
 
     QListWidgetItem *item = listWidget_components->takeItem(current_component);
     listWidget_components->insertItem(current_component+1, item);
-    listWidget_components->setCurrentRow(current_component+1);
-
-    //plainTextEdit_component->setPlainText(Memorized.component_yaml[current_component+1]);
-    UpdateControls();
+    listWidget_components->setCurrentRow(current_component+1); //this also triggers UpdateControls();
 }
 
 
@@ -129,19 +120,20 @@ void MainWindow::on_toolButton_component_remove_clicked()
     int current_component = listWidget_components->currentRow();
 
     if(QMessageBox::question(this, "co2amp", "Sure?") == QMessageBox::Yes){
-        delete listWidget_components->takeItem(current_component);
         Memorized.component_id.removeAt(current_component);
         Memorized.component_type.removeAt(current_component);
         Memorized.component_yaml.removeAt(current_component);
+        BlockSignals(true);
+        //next line would pre-maturely trigger UpdateControls() - raw is changed before item deleted:
+        delete listWidget_components->currentItem();
         UpdateControls();
     }
 
 }
 
 
-void MainWindow::on_listWidget_components_currentRowChanged(int current_component)
+void MainWindow::on_listWidget_components_currentRowChanged(int)
 {
-    //plainTextEdit_yaml->setPlainText(Memorized.component_yaml[current_component]);
     UpdateControls();
 }
 
@@ -155,7 +147,6 @@ void MainWindow::on_plainTextEdit_component_textChanged()
 
 void MainWindow::on_pushButton_component_load_clicked()
 {
-    int current_component = listWidget_components->currentRow();
     QFileInfo fileinfo;
 
     if(yaml_dir == QString()){
@@ -175,10 +166,9 @@ void MainWindow::on_pushButton_component_load_clicked()
         fileinfo.setFile(file);
         yaml_dir = fileinfo.dir().path();
         UpdateControls();
-        //plainTextEdit_ycomponent->setPlainText(Memorized.component_yaml[current_component]);
     }
     else
-        QMessageBox().warning(this, "co2amp", "File save error");
+        QMessageBox().warning(this, "co2amp", "File open error");
 
 }
 
@@ -225,10 +215,24 @@ bool MainWindow::ComponentIDExists(QString id)
     if(components_count == 0)
         return false;
 
-    for(int i=0; i<components_count; i++){
+    for(int i=0; i<components_count; i++)
         if(Memorized.component_id[i] == id)
             return true;
-    }
 
     return false;
+}
+
+void MainWindow::PopulateComponentsList()
+{
+    BlockSignals(true); // don't call UpdateComponents() when components being removed/added
+    listWidget_components->clear();
+
+    int component_count = Memorized.component_id.size();
+    if(component_count == 0)
+        return;
+
+    for(int i=0; i<component_count; i++)
+        listWidget_components->addItem(Memorized.component_id[i]+" ("+Memorized.component_type[i]+")");
+
+    listWidget_components->setCurrentRow(0);
 }

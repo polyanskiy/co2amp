@@ -52,22 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     //////////////////////////////////////// Validators ///////////////////////////////////////
     lineEdit_E0->setValidator(new QDoubleValidator(this));
-    lineEdit_r0->setValidator(new QDoubleValidator(this));
+    lineEdit_w0->setValidator(new QDoubleValidator(this));
     lineEdit_tau0->setValidator(new QDoubleValidator(this));
     lineEdit_vc->setValidator(new QDoubleValidator(this));
     lineEdit_t_inj->setValidator(new QDoubleValidator(this));
     lineEdit_Dt_train->setValidator(new QDoubleValidator(this));
-    //lineEdit_p_CO2->setValidator(new QDoubleValidator(this));
-    //lineEdit_p_N2->setValidator(new QDoubleValidator(this));
-    //lineEdit_p_He->setValidator(new QDoubleValidator(this));
-    //lineEdit_13C->setValidator(new QDoubleValidator(0,100,3,this));
-    //lineEdit_18O->setValidator(new QDoubleValidator(0,100,3,this));
-    //lineEdit_Vd->setValidator(new QDoubleValidator(this));
-    //lineEdit_D_interel->setValidator(new QDoubleValidator(this));
-    //lineEdit_pump_wl->setValidator(new QDoubleValidator(this));
-    //lineEdit_pump_sigma->setValidator(new QDoubleValidator(this));
-    //lineEdit_pump_fluence->setValidator(new QDoubleValidator(this));
-    //lineEdit_T0->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_min->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_max->setValidator(new QDoubleValidator(this));
 
@@ -81,8 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     doubleSpinBox_zoom->setValue(settings.value("plot_zoom", "1").toDouble());
     checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
     checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
-    //textBrowser->setVisible(false); // hide terminal
-    tabWidget_main->setCurrentIndex(0); // Calculations tab
+    tabWidget_main->setCurrentIndex(0); // always set to input tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
@@ -95,28 +83,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(spinBox_n_pulses, SIGNAL(valueChanged(int)), this, SLOT(OnModified()));
     connect(lineEdit_input_file, SIGNAL(textChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_r0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    connect(lineEdit_w0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_tau0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_vc, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_inj, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_Dt_train, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_p_CO2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_p_N2, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_p_He, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_13C, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_18O, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_T0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(plainTextEdit_components, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(plainTextEdit_layout, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(checkBox_noprop, SIGNAL(clicked()), this, SLOT(OnModified()));
-    //connect(radioButton_discharge, SIGNAL(clicked()), this, SLOT(OnModified()));
-    //connect(radioButton_optical, SIGNAL(clicked()), this, SLOT(OnModified()));
-    //connect(lineEdit_Vd, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_D_interel, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_pump_wl, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_pump_sigma, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(lineEdit_pump_fluence, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    //connect(plainTextEdit_discharge, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(comboBox_precision_t, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
@@ -124,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pushButton_calculate, SIGNAL(clicked()), this, SLOT(Calculate()));
     connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
 
-    // Process command line
+    /////////////////////////////// Process command line //////////////////////////////////////
     QStringList arg = qApp->arguments();
     if( arg.count()>1 && QFile::exists(arg.last()) ){
         project_file = arg.last();
@@ -132,16 +105,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
     else
         NewProject();
-
-
-    //////////////////// component list ///////////////////////
-
-    //Memorized.components << "One" << "Two" << "Three" << "Four" << "Five";
-
-    //components_model = new QAbstractListModel(Memorized.components);
-    //listView_components->setModel(components_model);
-
-
 
     /////////////////////////////// Create program window /////////////////////////////////////
     restoreGeometry(settings.value("window_geometry").toByteArray());
@@ -200,25 +163,6 @@ void MainWindow::Calculate()
 {
     BeforeProcessStarted(); //prepare everything
 
-    // Writing optical configuration files
-    QFile file;
-    QTextStream out(&file);
-
-    file.setFileName("optics_components.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate);
-    //out << Memorized.components << "\n";
-    file.close();
-
-    file.setFileName("optics_layout.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate);
-    out << Memorized.layout << "\n";
-    file.close();
-
-    file.setFileName("discharge.txt");
-    file.open(QFile::WriteOnly | QFile::Truncate);
-    //out << Memorized.discharge << "\n";
-    file.close();
-
     // Composing arguments string
     QStringList arguments;
 
@@ -229,7 +173,7 @@ void MainWindow::Calculate()
     else{
         arguments << "-from_file 0";
         arguments << "-E0" << Memorized.E0;
-        arguments << "-r0" << Memorized.r0;
+        arguments << "-w0" << Memorized.w0;
         arguments << "-tau0" << Memorized.tau0;
     }
     // vc, n_pulses, and Dt_train may be different form memorized if loading input pulse from file
@@ -238,27 +182,6 @@ void MainWindow::Calculate()
     arguments << "-n_pulses" << spinBox_n_pulses->text();
     if(spinBox_n_pulses->text() != "1")
         arguments << "-Dt_train" << lineEdit_Dt_train->text();
-
-    /*arguments << "-p_626" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_628" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * 2*(1-Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_828" << QString::number(Memorized.p_CO2.toDouble() * (1-Memorized.percent_13C.toDouble()/100) * (Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_636" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * (1-Memorized.percent_18O.toDouble()/100)*(1-Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_638" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * 2*(1-Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_838" << QString::number(Memorized.p_CO2.toDouble() *   (Memorized.percent_13C.toDouble()/100) * (Memorized.percent_18O.toDouble()/100)*(Memorized.percent_18O.toDouble()/100));
-    arguments << "-p_N2" << Memorized.p_N2;
-    arguments << "-p_He" << Memorized.p_He;
-    arguments << "-T0" << Memorized.T0;
-
-    arguments << "-pumping" << Memorized.pumping;
-    if(Memorized.pumping=="discharge"){
-        arguments << "-Vd" << Memorized.Vd;
-        arguments << "-D" << Memorized.D_interel;
-    }
-    else{ // optical pumping
-        arguments << "-pump_wl" << Memorized.pump_wl;
-        arguments << "-pump_sigma" << Memorized.pump_sigma;
-        arguments << "-pump_fluence" << Memorized.pump_fluence;
-    }*/
 
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
@@ -377,8 +300,8 @@ void MainWindow::SaveProject()
     }
     QFile::remove("field_in.bin");
     QFile::remove("gnuplot_script");
-    QFile::remove("script_energy.txt");
     // compatibility: remove gnuplot scripts from older files - not saving scripts since 2019-06-05
+    QFile::remove("script_energy.txt");
     QFile::remove("script_power.txt");
     QFile::remove("script_fluence.txt");
     QFile::remove("script_spectra.txt");
@@ -391,9 +314,9 @@ void MainWindow::SaveProject()
     QProcess *proc;
     proc = new QProcess(this);
     if(fileinfo.suffix()=="co2x") // extended project file suitable for sequensing
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.bin");
+        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml; *.bin");
     else // basic (small) project file (.co2)
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini"); // don't include field (field.bin)
+        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml"); // don't include field (field.bin)
     proc->waitForFinished();
     delete proc;
     flag_results_modified = false;
@@ -430,7 +353,7 @@ void MainWindow::LoadProject()
         if(fileinfo.suffix()=="co2x" && !flag_input_file_error)
             flag_field_ready_to_save = true;
         UpdateControls();
-        if(tabWidget_main->currentIndex() == 1) //output tab
+        if(tabWidget_main->currentIndex() == 2) //output tab
             Plot();
         else
             flag_plot_postponed = true;
@@ -751,10 +674,3 @@ void MainWindow::on_comboBox_freqScale_activated(QString)
     flag_plot_modified = true;
     Plot();
 }
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ void MainWindow::UpdateControls()
     bool bl;
     QString str;
 
-    QCoreApplication::processEvents(QEventLoop::AllEvents,1000);
+    //QCoreApplication::processEvents(QEventLoop::AllEvents,1000);
 
     //////////////////////////// block signals ///////////////////////////
     BlockSignals(true);
@@ -31,7 +31,7 @@ void MainWindow::UpdateControls()
     pushButton_new->setDisabled(flag_calculating);
     pushButton_open->setDisabled(flag_calculating);
     pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_comments_modified || flag_results_modified) || project_file==QString());
-    pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
+    //pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
     pushButton_calculate->setDisabled(flag_calculating);
     textBrowser_terminal->setEnabled(flag_calculating); //terminal
     pushButton_abort->setEnabled(flag_calculating);
@@ -52,8 +52,8 @@ void MainWindow::UpdateControls()
     bl = checkBox_from_file->isChecked();
     if(!lineEdit_E0->hasFocus())
         lineEdit_E0->setText(Memorized.E0);
-    if(!lineEdit_r0->hasFocus())
-        lineEdit_r0->setText(Memorized.r0);
+    if(!lineEdit_w0->hasFocus())
+        lineEdit_w0->setText(Memorized.w0);
     if(!lineEdit_tau0->hasFocus())
         lineEdit_tau0->setText(Memorized.tau0);
     QPalette *palette = new QPalette();
@@ -74,19 +74,19 @@ void MainWindow::UpdateControls()
     if(!bl || !flag_input_file_error){
         label_tau0_3->setText("Δν = " + QString::number(0.44/lineEdit_tau0->text().toDouble()) + " THz"); // Δν * Δt ≈ 0.44 (Time-bandwidth product for Gaussian pulse)
         label_vc_3->setText("λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " µm"); // wl[um] = c[m/s] / nu[THz] * 1e-6
-        label_r0_3->setText("w = " + QString::number(lineEdit_r0->text().toDouble()/sqrt(log(2)/2)) + " cm"); // w = hwhm / sqrt(ln(2)/2))
+        label_w0_3->setText("FWHM = " + QString::number(lineEdit_w0->text().toDouble()*2*sqrt(log(2)/2)) + " mm"); // FWHM = w* 2 * sqrt(ln(2)/2))
     }
     lineEdit_input_file->setVisible(bl);
     toolButton_input_file->setVisible(bl);
     lineEdit_E0->setVisible(!bl);
-    lineEdit_r0->setVisible(!bl);
+    lineEdit_w0->setVisible(!bl);
     lineEdit_tau0->setVisible(!bl);
     lineEdit_vc->setEnabled(!bl);
     label_E0->setVisible(!bl);
     label_E0_2->setVisible(!bl);
-    label_r0->setVisible(!bl);
-    label_r0_2->setVisible(!bl);
-    label_r0_3->setVisible(!bl);
+    label_w0->setVisible(!bl);
+    label_w0_2->setVisible(!bl);
+    label_w0_3->setVisible(!bl);
     label_tau0->setVisible(!bl);
     label_tau0_2->setVisible(!bl);
     label_tau0_3->setVisible(!bl);
@@ -96,18 +96,21 @@ void MainWindow::UpdateControls()
         lineEdit_t_inj->setText(Memorized.t_inj);
 
     /////////////////////////////// OPTICSAL COMPONENTS AND CONFIGURATION /////////////////////////////////
-    bl = listWidget_components->count() > 0;
+    int component_count = listWidget_components->count();
+    int current_component = listWidget_components->currentRow();
+    bl = component_count > 0;
+    if(bl)
+        plainTextEdit_component->setPlainText(Memorized.component_yaml[current_component]);
+    else
+        plainTextEdit_component->setPlainText("");
     pushButton_component_load->setEnabled(bl);
     pushButton_component_save->setEnabled(bl);
     plainTextEdit_component->setEnabled(bl);
     toolButton_component_remove->setEnabled(bl);
-    toolButton_component_up->setEnabled(bl);
-    toolButton_component_down->setEnabled(bl);
     toolButton_component_rename->setEnabled(bl);
-    if(bl)
-        plainTextEdit_component->setPlainText(Memorized.component_yaml[listWidget_components->currentRow()]);
-    else
-        plainTextEdit_component->setPlainText("");
+    toolButton_component_up->setEnabled(current_component > 0);
+    toolButton_component_down->setEnabled(current_component >= 0 && current_component < component_count-1);
+
     //if(!plainTextEdit_components->hasFocus())
     //    plainTextEdit_components->setPlainText(Memorized.components);
     if(!plainTextEdit_layout->hasFocus())

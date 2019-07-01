@@ -7,7 +7,7 @@ void ReadCommandLine(int argc, char **argv)
     // ------- INITIAL PULSE -------
     from_file = 0;          // 1: use input field from files 'field_in_re.dat' and 'field_in_im.dat'
     E0 = 1;                 // Initial pulse energy, J
-    r0 = 0.01;              // Initial beam radius (hwhm), m
+    w0 = 0.01;              // Initial beam radius (w), m
     tau0 = 5e-12;           // Initial pulse half-width (fwhm), s
     vc = 2.8306225e13;      // Carrying frequency, Hz; default 10P(20) line
     t_inj = 0;              // Injection moment, us
@@ -54,8 +54,8 @@ void ReadCommandLine(int argc, char **argv)
             from_file = atoi(argv[i+1]);
         if (!strcmp(argv[i], "-E0"))
             E0 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-r0"))
-            r0 = atof(argv[i+1])*1e-2;      // cm->m
+        if (!strcmp(argv[i], "-w0"))
+            w0 = atof(argv[i+1])*1e-3;      // mm->m
         if (!strcmp(argv[i], "-tau0"))
             tau0 = atof(argv[i+1])*1e-12;   // ps->s
         if (!strcmp(argv[i], "-vc"))
@@ -75,7 +75,7 @@ void ReadCommandLine(int argc, char **argv)
         if (!strcmp(argv[i], "-Vd"))
             Vd = atof(argv[i+1])*1e-6;      // cm^3->m^3
         if (!strcmp(argv[i], "-D"))
-            D = atof(argv[i+1])*1e-2;       // cm->m
+            D = atof(argv[i+1])*1e-3;       // mm->m
         if (!strcmp(argv[i], "-pump_wl"))
             pump_wl = atof(argv[i+1])*1e-6;   // um -> m
         if (!strcmp(argv[i], "-pump_sigma"))
@@ -179,9 +179,9 @@ void ConstantsInit(void)
     file_str[size] = '\0'; // string terminating character
     str = strtok (file_str," \t\n\r");
     while(str != NULL){
-        if(!strcmp(str, "AM") || !strcmp(str, "PROBE") || !strcmp(str, "MASK") || !strcmp(str, "ATTENUATOR")
-                || !strcmp(str, "ABSORBER") || !strcmp(str, "LENS") || !strcmp(str, "WINDOW") || !strcmp(str, "STRETCHER")
-                || !strcmp(str, "FILTER") || !strcmp(str, "BANDPASS") || !strcmp(str, "APODIZER") || !strcmp(str, "AIR"))
+        if(!strcmp(str, "AM") || !strcmp(str, "P") || !strcmp(str, "M") || !strcmp(str, "AT")
+                || !strcmp(str, "ABSORBER") || !strcmp(str, "L") || !strcmp(str, "W") || !strcmp(str, "STR")
+                || !strcmp(str, "SF") || !strcmp(str, "BF") || !strcmp(str, "AF") || !strcmp(str, "A"))
             n_components ++;
         if(!strcmp(str, "AM"))
             n_amsections ++;

@@ -4,7 +4,7 @@
 
 void MainWindow::Plot()
 {
-    if(tabWidget_main->currentIndex()!=1){
+    if(tabWidget_main->currentIndex()!=2){
         flag_plot_postponed = true;
         return;
     }

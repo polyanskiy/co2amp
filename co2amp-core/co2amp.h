@@ -15,13 +15,13 @@
 
 // ------- INITIAL PULSE -------
 extern int from_file;
-extern double E0, r0, tau0, vc;
+extern double E0, w0, tau0, vc;
 extern double t_inj;
 extern int n_pulses;
 extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
 extern int n_components, n_amsections, n_propagations;
-extern char **component_id, **component_type, **component_param1, **component_param2;
+extern char **component_id, **component_type, **component_yaml;
 extern double *component_Dr;
 extern double *layout_distance, *layout_time;
 extern int *layout_component;
