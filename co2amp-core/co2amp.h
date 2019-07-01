@@ -20,13 +20,14 @@ extern double t_inj;
 extern int n_pulses;
 extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
-extern int n_components, n_amsections, n_propagations;
+extern int n_components, n_propagations;
+extern int n_AM, n_P, n_M, n_L, n_W, n_AT, n_BF, n_SF, n_AF, n_A, n_S, n_F;
 extern char **component_id, **component_type, **component_yaml;
 extern double *component_Dr;
 extern double *layout_distance, *layout_time;
 extern int *layout_component;
 extern bool noprop;
-extern double *alpha;  // temporary - for nonlinear absorption in Ge
+//extern double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- PUMPING -------
 extern char pumping[16]; // pumping type ("discharge" or "optical")
 extern int n_discharge_points; // number of pints in the discharge profile

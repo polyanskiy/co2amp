@@ -8,15 +8,15 @@ void ReadCommandLine(int argc, char **argv)
     from_file = 0;          // 1: use input field from files 'field_in_re.dat' and 'field_in_im.dat'
     E0 = 1;                 // Initial pulse energy, J
     w0 = 0.01;              // Initial beam radius (w), m
-    tau0 = 5e-12;           // Initial pulse half-width (fwhm), s
+    tau0 = 5e-12;           // Initial pulse duration (FWHM), s
     vc = 2.8306225e13;      // Carrying frequency, Hz; default 10P(20) line
-    t_inj = 0;              // Injection moment, us
+    t_inj = 0;              // Injection moment, s
     n_pulses = 1;           // Number of pulses in the train
     Dt_train = 0.1e-6;      // Delay between pulses in the train, s (only for n_pulses > 1)
     // ------- OPTICS, GEOMETRY -------
     noprop = false;         // Skip propagation calculations
     // ------- PUMPING -------
-    strcpy(pumping, "discharge"); // Pumping type (discharge or optical)
+    /*strcpy(pumping, "discharge"); // Pumping type (discharge or optical)
     Vd = 0.0085;            // Ddischarge volume, m^3
     D = 0.085;              // Ddistance between electrodes, m
     pump_wl = 2.79e-6;      // Wavelength of optical pumping, m
@@ -31,13 +31,13 @@ void ReadCommandLine(int argc, char **argv)
     p_838 = 0;              // 18O-13C-18O pressure, bar
     p_N2 = 0.5;             // N2 pressure, bar
     p_He = 2;               // He pressure, bar
-    T0 = 300;               // Initial gas temperature, K
+    T0 = 300;               // Initial gas temperature, K*/
     // ------- CALCULATION NET -------
     x0 = 64;
     n0 = 64;
     t_pulse_lim = 80e-12;   // Pulse time calculation limit, s
     t_pulse_shift = 15e-12; // Pulse shift from 0, s
-    Dt_pump = 2.0e-9;       // Time net step for pumping/relaxation calculations, s // fixed!
+    Dt_pump = 2.0e-9;       // Time net step for pumping/relaxation calculations, s (fixed!)
     // ---------- DEBUGGING ----------
     debug_level = 0;        // No debugging info output by default
     bands = 7;              // All bands (1 for regular + 2 for hot + 4 for sequence)
@@ -70,7 +70,7 @@ void ReadCommandLine(int argc, char **argv)
         if (!strcmp(argv[i], "-noprop"))
             noprop = true;
         // ------- PUMPING -------
-        if (!strcmp(argv[i], "-pumping"))
+        /*if (!strcmp(argv[i], "-pumping"))
             strcpy(pumping, argv[i+1]);
         if (!strcmp(argv[i], "-Vd"))
             Vd = atof(argv[i+1])*1e-6;      // cm^3->m^3
@@ -101,7 +101,7 @@ void ReadCommandLine(int argc, char **argv)
         if (!strcmp(argv[i], "-p_He"))
             p_He = atof(argv[i+1]);
         if (!strcmp(argv[i], "-T0"))
-            T0 = atof(argv[i+1]);
+            T0 = atof(argv[i+1]);*/
         // ------- CALCULATION NET -------
         if (!strcmp(argv[i], "-x0"))
             x0 = atoi(argv[i+1]);
@@ -117,15 +117,6 @@ void ReadCommandLine(int argc, char **argv)
         if (!strcmp(argv[i], "-bands"))
             bands = atoi(argv[i+1]);
     }
-
-    /* non-equilibrium isotopic composition
-    p_626=0;
-    p_628=0;
-    p_828=0;
-    p_636=0;
-    p_838=0;
-    p_638=p_CO2
-    */
     
     Debug(2, debug_str);
 }
@@ -143,7 +134,7 @@ void ConstantsInit(void)
     v_max = vc + Dv*(n0-1)/2;
 
     // Count number of data points in the discharge profile
-    if(!strcmp(pumping, "discharge")){
+    /*if(!strcmp(pumping, "discharge")){
         int size;
         char *str, *file_str;
         n_discharge_points = 0;
@@ -162,15 +153,15 @@ void ConstantsInit(void)
         }
         free(file_str);
         fclose(file);
-    }
+    }*/
 
     // Optical layout: count number of components and active medium sections
     int size;
     char *str, *file_str;
     n_components = 0;
-    n_amsections = 0;
+    n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
     FILE *file;
-    file = fopen("optics_components.txt", "r");
+    file = fopen("components.txt", "r");
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     rewind(file);
@@ -179,12 +170,54 @@ void ConstantsInit(void)
     file_str[size] = '\0'; // string terminating character
     str = strtok (file_str," \t\n\r");
     while(str != NULL){
-        if(!strcmp(str, "AM") || !strcmp(str, "P") || !strcmp(str, "M") || !strcmp(str, "AT")
-                || !strcmp(str, "ABSORBER") || !strcmp(str, "L") || !strcmp(str, "W") || !strcmp(str, "STR")
-                || !strcmp(str, "SF") || !strcmp(str, "BF") || !strcmp(str, "AF") || !strcmp(str, "A"))
+        if(!strcmp(str, "A")){
             n_components ++;
-        if(!strcmp(str, "AM"))
-            n_amsections ++;
+            n_A ++;
+        }
+        if(!strcmp(str, "AF")){
+            n_components ++;
+            n_AF ++;
+        }
+        if(!strcmp(str, "AM")){
+            n_components ++;
+            n_AM ++;
+        }
+        if(!strcmp(str, "AT")){
+            n_components ++;
+            n_AT ++;
+        }
+        if(!strcmp(str, "BF")){
+            n_components ++;
+            n_BF ++;
+        }
+        if(!strcmp(str, "F")){
+            n_components ++;
+            n_F ++;
+        }
+        if(!strcmp(str, "L")){
+            n_components ++;
+            n_L ++;
+        }
+        if(!strcmp(str, "M")){
+            n_components ++;
+            n_M ++;
+        }
+        if(!strcmp(str, "P")){
+            n_components ++;
+            n_P ++;
+        }
+        if(!strcmp(str, "S")){
+            n_components ++;
+            n_S ++;
+        }
+        if(!strcmp(str, "SF")){
+            n_components ++;
+            n_SF ++;
+        }
+        if(!strcmp(str, "W")){
+            n_components ++;
+            n_W ++;
+        }
         str = strtok(NULL," \t\n\r");
     }
     free(file_str);
@@ -192,7 +225,7 @@ void ConstantsInit(void)
 
     // Optical layout: count number of propagations
     n_propagations = 0;
-    file = fopen("optics_layout.txt", "r");
+    file = fopen("layout.txt", "r");
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     rewind(file);
@@ -208,7 +241,19 @@ void ConstantsInit(void)
     free(file_str);
     fclose(file);
 
-    printf("components: %d; layout: %d; a.m. sections: %d; pulses: %d\n",n_components, n_propagations, n_amsections, n_pulses);
+    printf("components: %d; propagations: %d; pulses: %d\n",n_components, n_propagations, n_pulses);
+    printf("A: %d\n",  n_A);
+    printf("AF: %d\n", n_AF);
+    printf("AM: %d\n", n_AM);
+    printf("AT: %d\n", n_AT);
+    printf("BF: %d\n", n_BF);
+    printf("F: %d\n",  n_F);
+    printf("L: %d\n",  n_L);
+    printf("M: %d\n",  n_M);
+    printf("P: %d\n",  n_P);
+    printf("S: %d\n",  n_S);
+    printf("SF: %d\n", n_SF);
+    printf("W: %d\n",  n_W);
     fflush(stdout);
 
 }
@@ -216,7 +261,7 @@ void ConstantsInit(void)
 
 void ArraysInit(void)
 {
-    int i, k, K;
+    /*int i, k, K;
 
     int N_symm = 0;  //Number of symmetric CO2 molecules
     int N_asymm = 0; // --''-- asymmetric --''--
@@ -363,7 +408,7 @@ void ArraysInit(void)
         printf("\nError in optical layout :(\nAbnormal program termination\n");
         FreeMemory();
         abort();
-    }
+    }*/
 }
 
 
@@ -423,7 +468,8 @@ double complex field(double r, double t)
     double xx;
     xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
     double pulse = exp(-pow((t-t_pulse_shift)/xx, 2));
-    xx = r0/sqrt(log(2.0)/2.0);   //(hwhm -> half-width @ 1/e^2)
-    double beam = exp(-pow(r/xx, 2.0));
+    //xx = r0/sqrt(log(2.0)/2.0);   //(hwhm -> half-width @ 1/e^2)
+    //double beam = exp(-pow(r/xx, 2.0));
+    double beam = exp(-pow(r/w0, 2.0));
     return pulse*beam;
 }

@@ -51,7 +51,7 @@ void PumpingAndRelaxation(double t)
         pump2 = 0;
     }
 
-    for(k=0; k<n_amsections; k++){
+    for(k=0; k<n_AM; k++){
         for(x=0; x<x0; x++){
             if( t>t_inj || (k==0 && x==0) ){ // calculate only once if t<t_inj
                 A = T[k][x]/273.0 * pow(1.0+0.5*e2e(T[k][x]),-3);
@@ -140,7 +140,7 @@ double Voltage(double t) //t - time in s
 void InitializePopulations()
 {
   int k, x;
-  for(k=0; k<=n_amsections-1; k++)
+  for(k=0; k<=n_AM-1; k++)
 	for(x=0; x<=x0-1; x++){
           T[k][x] = T0;
           e4[k][x] = 1.0/(exp(3350.0/T0)-1.0);

@@ -3,7 +3,7 @@
 
 void AllocateMemory()
 {
-    int x, k, pulse;
+    /*int x, k, pulse;
 
     if(!strcmp(pumping, "discharge")){
         discharge = malloc(sizeof(double*)*3);
@@ -47,7 +47,7 @@ void AllocateMemory()
         E[pulse] = malloc(sizeof(double complex*)*x0);
         for(x=0; x<x0; x++)
             E[pulse][x] = malloc(sizeof(double complex)*n0);
-    }
+    }*/
 
     // temporary - for nonlinear absorption in Ge
     /*alpha = malloc(sizeof(double)*x0);
@@ -58,7 +58,7 @@ void AllocateMemory()
 
 void FreeMemory()
 {
-    int x, k, pulse;
+    /*int x, k, pulse;
 
     if(!strcmp(pumping, "discharge")){
         free(discharge[0]);
@@ -105,7 +105,7 @@ void FreeMemory()
             free(E[pulse][x]);
         free(E[pulse]);
     }
-    free(E);
+    free(E);*/
 
     /*free(alpha);*/  // temporary - for nonlinear absorption in Ge
 }

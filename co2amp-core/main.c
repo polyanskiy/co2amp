@@ -5,18 +5,19 @@
 
 // ------- INITIAL PULSE -------
 int from_file;
-double E0, r0, tau0, vc;
+double E0, w0, tau0, vc;
 double t_inj;
 int n_pulses;
 double Dt_train;
 // ------- OPTICS, GEOMETRY -------
-int n_components, n_amsections, n_propagations;
+int n_components, n_propagations;
+int n_AM, n_P, n_M, n_L, n_W, n_AT, n_BF, n_SF, n_AF, n_A, n_S, n_F;
 char **component_id, **component_type, **component_param1, **component_param2;
 double *component_Dr;
 double *layout_distance, *layout_time;
 int *layout_component;
 bool noprop;
-double *alpha;  // temporary - for nonlinear absorption in Ge
+//double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- PUMPING -------
 char pumping[16]; // pumping type ("discharge" or "optical")
 int n_discharge_points; // number of pints in the discharge profile
@@ -82,14 +83,14 @@ int main(int argc, char **argv)
     Debug(1, "Command line read done!");
     ConstantsInit();
     Debug(1, "Constants init done!");
-    AllocateMemory();
+    /*AllocateMemory();
     Debug(1, "Allocate memory done!");
     ArraysInit();
     Debug(1, "Arrays init done!");
     Calculations(); // Main program !!!
     SaveOutputField();
     StatusDisplay(-1, -1, -1, "done!");
-    FreeMemory();
+    FreeMemory();*/
     return 0;
 }
 
@@ -115,7 +116,7 @@ void Calculations()
 
     // 1 Fill out spectroscoic arrays &
     // 2 Populations and field initialization
-    if(n_amsections>0 && p_CO2+p_N2+p_He>0){
+    if(n_AM>0 && p_CO2+p_N2+p_He>0){
         AmplificationBand();
         InitializePopulations();
     }
@@ -124,7 +125,7 @@ void Calculations()
     InitializeE();
 
     // 3 Initial q's
-    if(n_amsections>0 && p_CO2+p_N2+p_He>0){
+    if(n_AM>0 && p_CO2+p_N2+p_He>0){
         StatusDisplay(-1, -1, 0, "pumping and relaxation...");
         if(!strcmp(pumping, "discharge")){
             Boltzmann(0);
@@ -140,7 +141,7 @@ void Calculations()
     for(t=0; t<=layout_time[n_propagations-1] + Dt_train*(n_pulses-1) + Dt_pump; t+=Dt_pump){
 
         // molecular dynamics calculations
-        if(n_amsections>0 && p_CO2+p_N2+p_He>0){
+        if(n_AM>0 && p_CO2+p_N2+p_He>0){
             StatusDisplay(-1, -1, t, "pumping and relaxation...");
             PumpingAndRelaxation(t);
         }

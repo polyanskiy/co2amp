@@ -5,13 +5,21 @@ void YamlGetValue(char *value, char* path, char* key)
     yaml_parser_t parser;
     yaml_token_t  token;
     FILE *file = fopen(path, "r");
-    char str[65535]; // max array size in C (not a good practice to do it this way - change in future)
+    int size;
+    char *str;
+
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    rewind(file);
+    str = malloc(size+1);
+    //char str[65535]; // max array size in C (not a good practice to do it this way - change in future)
 
     strcpy(value, "");
 
     if(!file){
         sprintf(str, "YAML file %s NOT FOUND", path);
         Debug(2, str);
+        free(str);
         return;
     }
     Debug(2, "Yaml file found");
@@ -19,6 +27,7 @@ void YamlGetValue(char *value, char* path, char* key)
 
     if(!yaml_parser_initialize(&parser)){
         Debug(2, "Yaml parser initialization FAILED");
+        free(str);
         fclose(file);
         return;
     }
@@ -60,6 +69,7 @@ void YamlGetValue(char *value, char* path, char* key)
 
     yaml_token_delete(&token);
     yaml_parser_delete(&parser);
+    free(str);
     fclose(file);
     return;
 }

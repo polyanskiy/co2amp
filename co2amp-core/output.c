@@ -38,7 +38,7 @@ void UpdateDynamicsFiles(double t)
     else
         file = fopen("data_e.dat", "a");
     fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_amsections; i++){
+    for(i=0; i<n_AM; i++){
         double Temp2 = 960/log(2/e2[i][0]+1);
         double e1 = 1/(exp(1920/Temp2)-1);
         fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", e1, e2[i][0], e3[i][0], e4[i][0]);
@@ -54,7 +54,7 @@ void UpdateDynamicsFiles(double t)
     else
         file = fopen("data_temperatures.dat", "a");
     fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_amsections; i++)
+    for(i=0; i<n_AM; i++)
         //fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", 960/log(2/e2[i][0]+1), 3380/log(1/e3[i][0]+1), 3350/log(1/e4[i][0]+1), T[i][0]);
         fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", VibrationalTemperatures(i,0,2), VibrationalTemperatures(i,0,3), 3350/log(1/e4[i][0]+1), T[i][0]);
     fprintf(file, "\n");
