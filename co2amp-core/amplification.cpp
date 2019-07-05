@@ -6,8 +6,8 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
     if(length == 0)
         return;
 
-    int x;                                                           // coordinate step number
-    int count = 0;
+    unsigned int x;                                                           // coordinate step number
+    unsigned int count = 0;
     char status[64];
     double Dt = t_pulse_lim/(n0-1);                                  // time step, s
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
@@ -17,7 +17,7 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
     //double DELTA = 0; //temp
 
     // variables for gain spectrum calculation
-    int n1;                           // frequency step number
+    unsigned int n1;                           // frequency step number
     double Dv = (v_max-v_min)/(n0-1.0); // frequency time step, Hz
     double gamma = 1.0/T2;   // Lorentzian HWHM
     // initialize/clear gain spectrum array
@@ -41,8 +41,8 @@ void Amplification(int pulse, int k, double t, int am_section, double length)
         double Nvib[6][4][3], Nvib0[6][4][3];  // Population densities of vibrational lelvels (actual and equilibrium)
         double Nrot[6][4][3][61];              // Population densities of rotational lelvels (actual and equilibrium)
         double Dn[6][4][4][61];                // Population inversions (rotational transitions)
-        double complex rho[6][4][4][61];       // polarizations
-        double complex E_tmp1, E_tmp2, rho_tmp;// temporary variables for field and polarization
+        double _Complex rho[6][4][4][61];       // polarizations
+        double _Complex E_tmp1, E_tmp2, rho_tmp;// temporary variables for field and polarization
         double Temp2 = VibrationalTemperatures(am_section, x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
         double Temp3 = VibrationalTemperatures(am_section, x, 3); // equilibrium vibrational temterature of nu3 mode
         double delta;                          // change in population difference

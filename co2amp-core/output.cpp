@@ -139,7 +139,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
     double Dv = (v_max-v_min)/(n0-1);
     double average_spectrum[n0];
-    double complex spectrum[n0];
+    double _Complex spectrum[n0];
 
     for(i=0; i<n0; i++)
         average_spectrum[i] = 0;
@@ -222,7 +222,7 @@ void SaveOutputField()
     file = fopen("field.bin", "wb");
     for(pulse=0; pulse<n_pulses; pulse++){
         for(x=0; x<x0; x++)
-            fwrite(E[pulse][x], sizeof(double complex)*n0, 1, file);
+            fwrite(E[pulse][x], sizeof(double _Complex)*n0, 1, file);
     }
     fclose(file);
 

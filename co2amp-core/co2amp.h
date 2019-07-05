@@ -21,7 +21,7 @@ extern int n_pulses;
 extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
 extern int n_components, n_propagations;
-extern int n_AM, n_P, n_M, n_L, n_W, n_AT, n_BF, n_SF, n_AF, n_A, n_S, n_F;
+extern int n_A, n_AF, n_AM, n_AT, n_BF, n_F, n_L, n_M, n_P, n_S, n_SF, n_W;
 extern char **component_id, **component_type, **component_yaml;
 extern double *component_Dr;
 extern double *layout_distance, *layout_time;
@@ -44,14 +44,14 @@ extern double T0;
 // ------- CALCULATION NET -------
 extern double t_pulse_lim, t_pulse_shift;
 extern double Dt_pump; // "main time" - for pumping/relaxation
-extern int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+extern unsigned int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
 // ------- SPECTROSCOPY -------
 extern double v_min, v_max;       // frequency limits, Hz
 extern double nop[6][4][3][61];   // normalized populations
 extern double v[6][4][4][61];     // transition frequencies, Hz
 extern double sigma[6][4][4][61]; // transition cross-sections, m^2
 // ------- OUTPUT ARRAYS -------
-extern double complex ***E;
+extern double _Complex ***E;
 extern double **T, **e2, **e3, **e4;
 extern double *gainSpectrum;
 // ------- DEBUGGING -------
@@ -59,7 +59,7 @@ extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - every
 extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
-extern int b0;
+extern unsigned int b0;
 extern double E_over_N;
 extern double Y1, Y2, Y3;
 extern double Du;
@@ -82,7 +82,9 @@ extern double humidity; // air humidity [%]
 //////////////////////////// co2amp.c ///////////////////////////
 void Calculations(void);
 void StatusDisplay(int pulse, int k, double t, char *status);
+void StatusDisplay(int pulse, int k, double t, const char *status);
 void Debug(int level, char *str);
+void Debug(int level, const char *str);
 
 //////////////////////////// band.c /////////////////////////////
 void AmplificationBand(void);
@@ -104,7 +106,7 @@ void ConstantsInit(void);
 void ArraysInit(void);
 void IntensityNormalization(void);
 void InitializeE(void);
-double complex field(double, double);
+double _Complex field(double, double);
 
 /////////////////////////// memory.c ///////////////////////////
 void AllocateMemory(void);
@@ -143,10 +145,19 @@ void InterpolateArray(double*, double*, int, double*);
 void Save_f(void); //debug (test Boltzmann solver)
 
 ///////////////////////////// calc.c /////////////////////////////
-void FFT(double complex *in, double complex *out);
-void IFFT(double complex *in, double complex *out);
-void FFTCore(double complex *in, double complex *out, bool Invert);
+void FFT(double _Complex *in, double _Complex *out);
+void IFFT(double _Complex *in, double _Complex *out);
+void FFTCore(double _Complex *in, double _Complex *out, bool Invert);
 int BitReversal(int x);
 
 //////////////////////////// yaml.c ///////////////////////////
 void YamlGetValue(char *value, char* path, char* key);
+
+
+////////////////////////// component classes ///////////////////
+
+class Component{
+public:
+    char *type;
+    Component();
+};

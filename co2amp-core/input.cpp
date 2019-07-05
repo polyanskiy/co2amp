@@ -156,7 +156,7 @@ void ConstantsInit(void)
     }*/
 
     // Optical layout: count number of components and active medium sections
-    int size;
+    unsigned int size;
     char *str, *file_str;
     n_components = 0;
     n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
@@ -165,11 +165,12 @@ void ConstantsInit(void)
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     rewind(file);
-    file_str = malloc(size+1);
+    //file_str = malloc(size+1);
+    file_str = new char[size+1];
     fread(file_str, size, 1, file);
     file_str[size] = '\0'; // string terminating character
     str = strtok (file_str," \t\n\r");
-    while(str != NULL){
+    while(str != nullptr){
         if(!strcmp(str, "A")){
             n_components ++;
             n_A ++;
@@ -220,7 +221,7 @@ void ConstantsInit(void)
         }
         str = strtok(NULL," \t\n\r");
     }
-    free(file_str);
+    delete file_str;
     fclose(file);
 
     // Optical layout: count number of propagations
@@ -229,16 +230,16 @@ void ConstantsInit(void)
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     rewind(file);
-    file_str = malloc(size+1);
+    file_str = new char[size+1];
     fread(file_str, size, 1, file);
     file_str[size] = '\0'; // string terminating character
     str = strtok (file_str," -\t\n\r");
-    while(str != NULL){
+    while(str != nullptr){
         n_propagations ++;
-        str = strtok(NULL," -\t\n\r");
+        str = strtok(nullptr," -\t\n\r");
     }
     n_propagations = (n_propagations+1)/2;
-    free(file_str);
+    delete file_str;
     fclose(file);
 
     printf("components: %d; propagations: %d; pulses: %d\n",n_components, n_propagations, n_pulses);
@@ -456,14 +457,14 @@ void InitializeE()
         file = fopen("field_in.bin", "rb");
         for(pulse=0; pulse<n_pulses; pulse++){
             for(x=0; x<x0; x++)
-                fread(E[pulse][x], sizeof(double complex)*n0, 1, file);
+                fread(E[pulse][x], sizeof(double _Complex)*n0, 1, file);
         }
         fclose(file);
     }
 }
 
 
-double complex field(double r, double t)
+double _Complex field(double r, double t)
 {
     double xx;
     xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)

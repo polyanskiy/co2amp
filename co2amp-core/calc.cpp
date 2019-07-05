@@ -1,12 +1,12 @@
 #include  "co2amp.h"
 
-void FFT(double complex *in, double complex *out) // in: field, out: spectrum
+void FFT(double _Complex *in, double _Complex *out) // in: field, out: spectrum
 {
     int i;
 
     FFTCore(in, out, false);
 
-    double complex tmp;
+    double _Complex tmp;
 
     for(i=0; i<n0/4; i++){
         tmp = out[i];
@@ -24,10 +24,10 @@ void FFT(double complex *in, double complex *out) // in: field, out: spectrum
 }
 
 
-void IFFT(double complex *in, double complex *out) // in: spectrum, out: field
+void IFFT(double _Complex *in, double _Complex *out) // in: spectrum, out: field
 {
     int i;
-    double complex tmp, qq[n0];
+    double _Complex tmp, qq[n0];
 
     for(i=0; i<n0; i++)
         qq[i] = in[i];
@@ -49,7 +49,7 @@ void IFFT(double complex *in, double complex *out) // in: spectrum, out: field
 }
 
 
-void FFTCore(double complex *in, double complex *out, bool Invert){
+void FFTCore(double _Complex *in, double _Complex *out, bool Invert){
 
     int i;
 
@@ -59,7 +59,7 @@ void FFTCore(double complex *in, double complex *out, bool Invert){
     int Step, Group, Pair;
     int Jump, Match;
     double delta, Sine;
-    double complex Multiplier, Factor, Product;
+    double _Complex Multiplier, Factor, Product;
 
     //   Iteration through dyads, quadruples, octads and so on...
     for (Step=1; Step<n0; Step*=2){

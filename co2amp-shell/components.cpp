@@ -12,8 +12,9 @@ void MainWindow::on_toolButton_component_add_clicked()
                                   "Bandpass filter (BF)",
                                   "Spectral filter (SF)",
                                   "Apodizing filter (AF)",
-                                  "Air (A)"};
-    QStringList type_list = {"AM", "P", "M", "L", "W", "AT", "BF", "SF", "AF", "A"};
+                                  "Air (A)",
+                                  "Stretcher/Compressor (S)"};
+    QStringList type_list = {"AM", "P", "M", "L", "W", "AT", "BF", "SF", "AF", "A", "S"};
     bool ok_pressed;
 
     QString type = QInputDialog().getItem(this, "co2amp", "Component type", selection_list, 0, false, &ok_pressed);

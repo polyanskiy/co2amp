@@ -10,14 +10,19 @@ void BeamPropagation(int pulse, int k, double t)
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
 
-    int x, n;
-    double complex **E1;
+    unsigned int x, n;
+    double _Complex **E1;
+
+    char str[256];
 
     // Allocate memory
-    E1 = malloc(sizeof(double complex*)*x0);
+    //E1 = malloc(sizeof(double _Complex*)*x0);
+    E1 = new double _Complex*[x0];
     for(x=0; x<x0; x++)
-        E1[x] = malloc(sizeof(double complex)*n0);
-    Debug(2, "propagation: memory allocated");
+        //E1[x] = malloc(sizeof(double _Complex)*n0);
+        E1[x] = new double _Complex[n0];
+    strcpy(str, "propagation: memory allocated");
+    Debug(2, str);
 
     //#pragma omp parallel for shared(E, E1) private(x, n) // multithread
     for(x=0; x<x0; x++){
@@ -26,11 +31,13 @@ void BeamPropagation(int pulse, int k, double t)
             E[pulse][x][n] = 0;
         }
     }
-    Debug(2, "propagation: temporary field array created");
+    //Debug(2, "propagation: temporary field array created");
+    strcpy(str, "propagation: temporary field array created");
+    Debug(2, str);
 
     if(z==0){ //only change calculation mesh step
         double x_exact;
-        int x_lo, x_hi;
+        unsigned int x_lo, x_hi;
         #pragma omp parallel for shared(E, E1) private(x, n, x_lo, x_hi, x_exact) // multithread
         for(x=0; x<x0; x++){
             x_exact = Dr2 / Dr1 * (double)x;
@@ -55,7 +62,7 @@ void BeamPropagation(int pulse, int k, double t)
         char status[64];
         int count=0;
         double rho, R_min, R_max, R, delta_R;
-        double complex tmp;
+        double _Complex tmp;
 
         #pragma omp parallel for shared(E, E1) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
         for(x=0; x<x0; x++){ // output plane radial coordinate
@@ -83,9 +90,13 @@ void BeamPropagation(int pulse, int k, double t)
 
     // Free memory
     for(x=0; x<x0; x++)
-        free(E1[x]);
-    free(E1);
-    Debug(2, "propagation: memory freed");
+        //free(E1[x]);
+        delete E1[x];
+    //free(E1);
+    delete E1;
+    //Debug(2, "propagation: memory freed");
+    strcpy(str, "propagation: memory freed");
+    Debug(2, str);
 }
 
 
@@ -137,7 +148,7 @@ void Window(int pulse, int k, double t, char *material, double thickness)
     double Dv = (v_max-v_min) / (n0-1);
     //double Dt = t_pulse_lim / (n0-1);
     double intensity, delay, tilt_factor;
-    double complex *spectrum;
+    double _Complex *spectrum;
 
     // account for tilt of Brewster windows
     tilt_factor = 1; // intensity reduction due to tilt
@@ -169,7 +180,7 @@ void Window(int pulse, int k, double t, char *material, double thickness)
             }
 
             // linear dispersion (full thickness of the slice)
-            spectrum = malloc(sizeof(double complex)*n0);
+            spectrum = malloc(sizeof(double _Complex)*n0);
             FFT(E[pulse][x], spectrum);
             for(n=0; n<n0; n++){
                 // linear dispersion
@@ -228,9 +239,9 @@ void Stretcher(int pulse, double stretching) // stretching: s/Hz
     #pragma omp parallel for // mulithread
     for(x=0; x<x0; x++){
         int n;
-        double complex *spectrum;
+        double _Complex *spectrum;
         double delay;
-        spectrum = malloc(sizeof(double complex)*n0);
+        spectrum = malloc(sizeof(double _Complex)*n0);
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++){
             delay = (v_min+Dv*n-vc) * stretching; // delay increases with frequency (red chirp) - group delay
@@ -251,15 +262,17 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
     #pragma omp parallel for // multthread
     for(x=0; x<x0; x++){
         int n;
-        double complex *spectrum;
-        spectrum = malloc(sizeof(double complex)*n0);
+        double _Complex *spectrum;
+        //spectrum = malloc(sizeof(double _Complex)*n0);
+        spectrum = new double _Complex[n0];
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++){
             if(v_min+Dv*n < bandcenter-bandwidth/2 || v_min+Dv*n > bandcenter+bandwidth/2)
                 spectrum[n] = 0;
         }
         IFFT(spectrum, E[pulse][x]);
-        free(spectrum);
+        //free(spectrum);
+        delete spectrum;
     }
 }
 
@@ -283,9 +296,9 @@ void Filter(int pulse, char* yaml_file_path)
     n_raw_data_points = 0;
     strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
     tmp_str = strtok(yaml_str_copy,"\n");
-    while(tmp_str != NULL){
+    while(tmp_str != nullptr){
         n_raw_data_points ++;
-        tmp_str = strtok(NULL,"\n");
+        tmp_str = strtok(nullptr,"\n");
     }
     sprintf(debug_out, "number of data points: %i", n_raw_data_points);
     Debug(2, debug_out);
@@ -355,13 +368,14 @@ void Filter(int pulse, char* yaml_file_path)
     #pragma omp parallel for // multthread
     for(x=0; x<x0; x++){
         int n;
-        double complex *spectrum;
-        spectrum = malloc(sizeof(double complex)*n0);
+        double _Complex *spectrum;
+        //spectrum = malloc(sizeof(double _Complex)*n0);
+        spectrum = new double _Complex[n0];
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++)
             spectrum[n] *= sqrt(transmittance[n]);
         IFFT(spectrum, E[pulse][x]);
-        free(spectrum);
+        delete spectrum;
     }
 
     free(transmittance);

@@ -7,20 +7,22 @@ TARGET = co2amp-core
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
-SOURCES += output.c \
-    optics.c \
-    memory.c \
-    input.c \
-    dynamics.c \
-    band.c \
-    boltzmann.c \
-    amplification.c \
-    main.c \
-    calc.c \
-    yaml.c
+SOURCES += \
+    amplification.cpp \
+    band.cpp \
+    boltzmann.cpp \
+    calc.cpp \
+    dynamics.cpp \
+    input.cpp \
+    main.cpp \
+    memory.cpp \
+    optics.cpp \
+    output.cpp \
+    yaml.cpp
 HEADERS += \
     co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp
+QMAKE_CXXFLAGS += -ffast-math -fopenmp
 QMAKE_LFLAGS += -fopenmp
 
 

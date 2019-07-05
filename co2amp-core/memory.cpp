@@ -113,57 +113,81 @@ void FreeMemory()
 
 void AllocateMemoryBoltzmann(void)
 {
-    int j;
+    unsigned int j;
 
-    u = malloc(sizeof(double) * b0);
+    //u = malloc(sizeof(double) * b0);
+    u = new double[b0];
 
 
-    Q1 = malloc(sizeof(double*) * 11);
+    //Q1 = malloc(sizeof(double*) * 11);
+    Q1 = new double*[11];
     for(j=0; j<11; j++){
-        Q1[j] = malloc(sizeof(double) * b0);
+        //Q1[j] = malloc(sizeof(double) * b0);
+        Q1[j] = new double[b0];
     }
 
-    Q2 = malloc(sizeof(double*) * 16);
+    //Q2 = malloc(sizeof(double*) * 16);
+    Q2 = new double*[16];
     for(j=0; j<16; j++)
-        Q2[j] =malloc(sizeof(double) * b0);
+        //Q2[j] =malloc(sizeof(double) * b0);
+        Q2[j] = new double[b0];
 
-    Qm1 = malloc(sizeof(double) * b0);
-    Qm2 = malloc(sizeof(double) * b0);
-    Qm3 = malloc(sizeof(double) * b0);
+    //Qm1 = malloc(sizeof(double) * b0);
+    //Qm2 = malloc(sizeof(double) * b0);
+    //Qm3 = malloc(sizeof(double) * b0);
+    Qm1 = new double[b0];
+    Qm2 = new double[b0];
+    Qm3 = new double[b0];
 
-    Q = malloc(sizeof(double) * b0);
+    //Q = malloc(sizeof(double) * b0);
+    Q = new double[b0];
 
-    M =  malloc(sizeof(double*) * b0);
+    //M =  malloc(sizeof(double*) * b0);
+    M = new double*[b0];
     for(j=0; j<b0; j++)
-        M[j] =  malloc(sizeof(double) * b0);
+        //M[j] =  malloc(sizeof(double) * b0);
+        M[j] = new double[b0];
 
-    f = malloc(sizeof(double) * b0);
+    //f = malloc(sizeof(double) * b0);
+    f = new double[b0];
 }
 
 
 void FreeMemoryBoltzmann(void)
 {
-    int j;
+    unsigned int j;
 
-    free(u);
+    //free(u);
+    delete u;
 
     for(j=0; j<11; j++)
-        free(Q1[j]);
-    free(Q1);
+        //free(Q1[j]);
+        delete Q1[j];
+    //free(Q1);
+    delete Q1;
 
     for(j=0; j<16; j++)
-        free(Q2[j]);
-    free(Q2);
+        //free(Q2[j]);
+        delete Q2[j];
+    //free(Q2);
+    delete Q2;
 
-    free(Qm1);
-    free(Qm2);
-    free(Qm3);
+    //free(Qm1);
+    //free(Qm2);
+    //free(Qm3);
+    delete Qm1;
+    delete Qm2;
+    delete Qm3;
 
-    free(Q);
+    //free(Q);
+    delete Q;
 
     for(j=0; j<b0; j++)
-        free(M[j]);
-    free(M);
+        //free(M[j]);
+        delete M[j];
+    //free(M);
+    delete M;
 
-    free(f);
+    //free(f);
+    delete f;
 }

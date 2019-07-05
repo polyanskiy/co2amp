@@ -11,8 +11,8 @@ int n_pulses;
 double Dt_train;
 // ------- OPTICS, GEOMETRY -------
 int n_components, n_propagations;
-int n_AM, n_P, n_M, n_L, n_W, n_AT, n_BF, n_SF, n_AF, n_A, n_S, n_F;
-char **component_id, **component_type, **component_param1, **component_param2;
+int n_A, n_AF, n_AM, n_AT, n_BF, n_F, n_L, n_M, n_P, n_S, n_SF, n_W;
+char **component_id, **component_type, **component_yaml;
 double *component_Dr;
 double *layout_distance, *layout_time;
 int *layout_component;
@@ -34,14 +34,14 @@ double T0;
 // ------- CALCULATION NET -------
 double t_pulse_lim, t_pulse_shift;
 double Dt_pump; // "main time" - for pumping/relaxation
-int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+unsigned int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
 // ------- SPECTROSCOPY -------
 double v_min, v_max;       // frequency limits, Hz
 double nop[6][4][3][61];   // normalized populations
 double v[6][4][4][61];     // transition frequencies, Hz
 double sigma[6][4][4][61]; // transition cross-sections, m^2
 // ------- OUTPUT ARRAYS -------
-double complex ***E;
+double _Complex ***E;
 double **T, **e2, **e3, **e4;
 double *gainSpectrum;
 // ------- DEBUGGING -------
@@ -49,7 +49,7 @@ int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
 int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
-int b0;
+unsigned int b0;
 double E_over_N;
 double Y1, Y2, Y3;
 double Du;
@@ -72,6 +72,7 @@ int main(int argc, char **argv)
 {
     debug_level = 1;
     flag_status_or_debug = true;
+    //char *str;
 
     printf("co2amp-core v.2019-06-27\n\n");
     fflush(stdout);
@@ -80,13 +81,17 @@ int main(int argc, char **argv)
         printf("number of CPU cores: %d\n\n", omp_get_num_threads());
     fflush(stdout);
     ReadCommandLine(argc, argv);
+    //strcpy(str, "Command line read done!");
     Debug(1, "Command line read done!");
     ConstantsInit();
+    //strcpy(str, "Constants init done!");
     Debug(1, "Constants init done!");
     /*AllocateMemory();
-    Debug(1, "Allocate memory done!");
+    strcpy(str, "Allocate memory done!");
+    Debug(1, str);
     ArraysInit();
-    Debug(1, "Arrays init done!");
+    strcpy(str, "Arrays init done!");
+    Debug(1, str);
     Calculations(); // Main program !!!
     SaveOutputField();
     StatusDisplay(-1, -1, -1, "done!");
@@ -165,7 +170,7 @@ void Calculations()
                         }
                         if(p_CO2>0){
                             Debug(1, "amplification: starting...");
-                            Amplification(pulse, k, t_cur, am_section, atof(component_param1[K])*1e-2); //param1: amplification length, cm -> m
+                            //Amplification(pulse, k, t_cur, am_section, atof(component_param1[K])*1e-2); //param1: amplification length, cm -> m
                             Debug(1, "amplification: done");
                             SaveGainSpectrum(pulse, k);
                         }
@@ -173,34 +178,34 @@ void Calculations()
 
                     // optical components
                     if(!strcmp(component_type[K], "MASK"))
-                        Mask(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: mask radius, cm -> m
+                        //Mask(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: mask radius, cm -> m
                     if(!strcmp(component_type[K], "ATTENUATOR") || !strcmp(component_type[K], "ABSORBER"))
-                        Attenuator(pulse, atof(component_param1[K])); //param1: transmission
+                        //Attenuator(pulse, atof(component_param1[K])); //param1: transmission
                     if(!strcmp(component_type[K], "LENS"))
-                        Lens(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: Focal length, cm -> m
+                        //Lens(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: Focal length, cm -> m
                     if(!strcmp(component_type[K], "WINDOW")){
                         //StatusDisplay(pulse, k, t_cur, "material...");
-                        Window(pulse, k, t, component_param1[K], atof(component_param2[K])*1e-2); //param1: material; param2: thickness, cm -> m
+                        //Window(pulse, k, t, component_param1[K], atof(component_param2[K])*1e-2); //param1: material; param2: thickness, cm -> m
                     }
                     if(!strcmp(component_type[K], "STRETCHER")){
                         StatusDisplay(pulse, k, t_cur, "stretcher...");
-                        Stretcher(pulse, atof(component_param1[K])*1e-24); //param1: stretching ps/THz -> s/Hz
+                        //Stretcher(pulse, atof(component_param1[K])*1e-24); //param1: stretching ps/THz -> s/Hz
                     }
                     if(!strcmp(component_type[K], "BANDPASS")){
                         StatusDisplay(pulse, k, t_cur, "bandpass...");
-                        Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center, THz -> Hz; param2: bandwidth, THz -> Hz,
+                        //Bandpass(pulse, atof(component_param1[K])*1e12, atof(component_param2[K])*1e12); //param1: band center, THz -> Hz; param2: bandwidth, THz -> Hz,
                     }
                     if(!strcmp(component_type[K], "FILTER")){
                         StatusDisplay(pulse, k, t_cur, "spectral filter...");
-                        Filter(pulse, component_param1[K]); //param1: path to configuration file (yaml)
+                        //Filter(pulse, component_param1[K]); //param1: path to configuration file (yaml)
                     }
                     if(!strcmp(component_type[K], "APODIZER")){
                         StatusDisplay(pulse, k, t_cur, "apodizer...");
-                        Apodizer(pulse, atof(component_param1[K])); //param1: apodization parameter alpha. Must be in range 0 (no apodization) ... 1 (full-aperture apodization)
+                        //Apodizer(pulse, atof(component_param1[K])); //param1: apodization parameter alpha. Must be in range 0 (no apodization) ... 1 (full-aperture apodization)
                     }
                     if(!strcmp(component_type[K], "AIR")){
                         StatusDisplay(pulse, k, t_cur, "air...");
-                        Air(pulse, k, t, atof(component_param1[K]), atof(component_param2[K])*1e-2); //param1: humidity, %; param2: length, cm -> m
+                        //Air(pulse, k, t, atof(component_param1[K]), atof(component_param2[K])*1e-2); //param1: humidity, %; param2: length, cm -> m
                     }
 
                     //propagation to next component
@@ -237,8 +242,39 @@ void StatusDisplay(int pulse, int k, double t, char *status)
     flag_status_or_debug = true;
 }
 
+void StatusDisplay(int pulse, int k, double t, const char *status)
+{
+    int K;
+    if(k == -1){
+        if(t < 0)
+            printf("\r%s                                               ", status);
+        else
+            printf("\r%f us: %s                                               ", t*1e6, status);
+    }
+    else{
+    K = layout_component[k];
+        if(n_pulses==1)
+            printf("\r%f us; Component \"%s\" (%d of %d): %s                    ", t*1e6, component_id[K], k+1, n_propagations, status);
+        else
+            printf("\r%f us; Component \"%s\" (%d of %d); Pulse %d: %s                    ", t*1e6, component_id[K], k+1, n_propagations, pulse+1, status);
+    }
+    fflush(stdout);
+    flag_status_or_debug = true;
+}
+
 
 void Debug(int level, char *str)
+{
+    if(level > debug_level)
+        return;
+    if(flag_status_or_debug) //if last displayed message is status
+        printf("\n");
+    printf("DEBUG (level %d): %s\n", level, str);
+    fflush(stdout);
+    flag_status_or_debug = false;
+}
+
+void Debug(int level, const char *str)
 {
     if(level > debug_level)
         return;
