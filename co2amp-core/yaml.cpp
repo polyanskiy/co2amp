@@ -1,25 +1,29 @@
 #include  "co2amp.h"
 
-void YamlGetValue(char *value, char* path, char* key)
+//void YamlGetValue(char *value, char* path, char* key)
+void YamlGetValue(std::string value, std::string path, std::string key)
 {
     yaml_parser_t parser;
     yaml_token_t  token;
-    FILE *file = fopen(path, "r");
-    int size;
-    char *str;
+    FILE *file = fopen(path.c_str(), "r");
+    //int size;
+    //char *str;
+    std::string str;
 
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    rewind(file);
-    str = malloc(size+1);
-    //char str[65535]; // max array size in C (not a good practice to do it this way - change in future)
+    //fseek(file, 0, SEEK_END);
+    //size = ftell(file);
+    //rewind(file);
+    //str = malloc(size+1);
+    //str = new char[size+1];
 
-    strcpy(value, "");
+    //strcpy(value, "");
+    value = "";
 
     if(!file){
-        sprintf(str, "YAML file %s NOT FOUND", path);
+        //sprintf(str, "YAML file %s NOT FOUND", path);
+        str = "YAML file " + path + " NOT FOUND";
         Debug(2, str);
-        free(str);
+        //free(str);
         return;
     }
     Debug(2, "Yaml file found");
@@ -27,7 +31,7 @@ void YamlGetValue(char *value, char* path, char* key)
 
     if(!yaml_parser_initialize(&parser)){
         Debug(2, "Yaml parser initialization FAILED");
-        free(str);
+        //free(str);
         fclose(file);
         return;
     }
@@ -44,8 +48,10 @@ void YamlGetValue(char *value, char* path, char* key)
             }while(token.type != YAML_SCALAR_TOKEN && token.type != YAML_STREAM_END_TOKEN);
             if(token.type == YAML_STREAM_END_TOKEN)
                 break;
-            sprintf(str, "%s", token.data.scalar.value);
-            if(!strcmp(str, key)){
+            //sprintf(str, "%s", token.data.scalar.value);
+            str = reinterpret_cast<char*>(token.data.scalar.value);
+            //if(!strcmp(str, key)){
+            if(str == key){
                 Debug(2, "Key found");
                 do{
                     yaml_token_delete(&token);
@@ -60,7 +66,8 @@ void YamlGetValue(char *value, char* path, char* key)
                 if(token.type == YAML_STREAM_END_TOKEN)
                     break;
                 Debug(2, "Value found");
-                sprintf(value, "%s", token.data.scalar.value);
+                //sprintf(value, "%s", token.data.scalar.value);
+                str = reinterpret_cast<char*>(token.data.scalar.value);
             }
         }
         if(token.type != YAML_STREAM_END_TOKEN)
@@ -69,7 +76,8 @@ void YamlGetValue(char *value, char* path, char* key)
 
     yaml_token_delete(&token);
     yaml_parser_delete(&parser);
-    free(str);
+    //free(str);
+    //delete str;
     fclose(file);
     return;
 }

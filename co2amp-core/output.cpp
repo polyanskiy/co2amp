@@ -68,8 +68,10 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     FILE *file;
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
-    double Fluence[x0];
-    double Power[n0];
+    double *Fluence;
+    Fluence = new double[x0];
+    double *Power;
+    Power = new double[x0];
     double Energy = 0;
     double Dt = t_pulse_lim/(n0-1);
     double Dr = component_Dr[layout_component[k]];
@@ -83,11 +85,11 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
-                Energy     += 2.0 * h * vc * pow(cabs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                Energy     += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
             if(x+1<x0)
-                Power[n]   += 2.0 * h * vc * pow(cabs(E[pulse][x][n]+E[pulse][x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
+                Power[n]   += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
             if(n+1<n0)
-                Fluence[x] += 2.0 * h * vc * pow(cabs(E[pulse][x][n]+E[pulse][x][n+1])/2, 2) * Dt; // J/m2
+                Fluence[x] += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1])/2, 2) * Dt; // J/m2
         }
     }
 
@@ -138,8 +140,10 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
     double Dv = (v_max-v_min)/(n0-1);
-    double average_spectrum[n0];
-    double _Complex spectrum[n0];
+    double *average_spectrum;
+    average_spectrum = new double[n0];
+    std::complex<double> *spectrum;
+    spectrum = new std::complex<double>[n0];
 
     for(i=0; i<n0; i++)
         average_spectrum[i] = 0;
@@ -154,7 +158,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     for(x=0; x<x0; x++){
         FFT(E[pulse][x], spectrum);
         for(i=0; i<n0; i++)
-            average_spectrum[i] += (0.5+x) * pow(cabs(spectrum[i]), 2);
+            average_spectrum[i] += (0.5+x) * pow(abs(spectrum[i]), 2);
     }
 
     // spectrum normalization
@@ -179,6 +183,11 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     for(n=0; n<=n0-1; n++)
         fprintf(file, "%.7f\t%.7f\n", (v_min+Dv*n)*1e-12, average_spectrum[n]); //frequency in THz, normalized intensity in a.u.
     fclose(file);
+
+    delete Power;
+    delete Fluence;
+    delete average_spectrum;
+    delete spectrum;
 }
 
 
@@ -222,7 +231,7 @@ void SaveOutputField()
     file = fopen("field.bin", "wb");
     for(pulse=0; pulse<n_pulses; pulse++){
         for(x=0; x<x0; x++)
-            fwrite(E[pulse][x], sizeof(double _Complex)*n0, 1, file);
+            fwrite(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
     }
     fclose(file);
 

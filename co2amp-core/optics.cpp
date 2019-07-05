@@ -7,20 +7,20 @@ void BeamPropagation(int pulse, int k, double t)
     double Dr1 = component_Dr[layout_component[k]];
     double Dr2 = component_Dr[layout_component[k+1]];
 
-    if(z==0 && Dr1==Dr2)  //nothing to be done
+    if(z==0.0 && Dr1-Dr2==0.0)  //nothing to be done
         return;
 
-    unsigned int x, n;
-    double _Complex **E1;
+    int x, n;
+    std::complex<double> **E1;
 
     char str[256];
 
     // Allocate memory
-    //E1 = malloc(sizeof(double _Complex*)*x0);
-    E1 = new double _Complex*[x0];
+    //E1 = malloc(sizeof(std::complex<double>*)*x0);
+    E1 = new std::complex<double>*[x0];
     for(x=0; x<x0; x++)
-        //E1[x] = malloc(sizeof(double _Complex)*n0);
-        E1[x] = new double _Complex[n0];
+        //E1[x] = malloc(sizeof(std::complex<double>)*n0);
+        E1[x] = new std::complex<double>[n0];
     strcpy(str, "propagation: memory allocated");
     Debug(2, str);
 
@@ -35,9 +35,9 @@ void BeamPropagation(int pulse, int k, double t)
     strcpy(str, "propagation: temporary field array created");
     Debug(2, str);
 
-    if(z==0){ //only change calculation mesh step
+    if(z==0.0){ //only change calculation mesh step
         double x_exact;
-        unsigned int x_lo, x_hi;
+        int x_lo, x_hi;
         #pragma omp parallel for shared(E, E1) private(x, n, x_lo, x_hi, x_exact) // multithread
         for(x=0; x<x0; x++){
             x_exact = Dr2 / Dr1 * (double)x;
@@ -62,7 +62,7 @@ void BeamPropagation(int pulse, int k, double t)
         char status[64];
         int count=0;
         double rho, R_min, R_max, R, delta_R;
-        double _Complex tmp;
+        std::complex<double> tmp;
 
         #pragma omp parallel for shared(E, E1) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
         for(x=0; x<x0; x++){ // output plane radial coordinate
@@ -79,9 +79,9 @@ void BeamPropagation(int pulse, int k, double t)
                 //tmp /= 2*I*lambda*R;
                 //tmp *= 2*cexp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
                 tmp /= I*lambda*R;
-                tmp *= cexp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
+                tmp *= exp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
                 for(n=0; n<n0; n++)
-                    E[pulse][x][n] += (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2 * tmp;
+                    E[pulse][x][n] += (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2.0 * tmp;
             }
         }
 
@@ -108,12 +108,12 @@ void Probe()
 
 void Lens(int pulse, double Dr, double F)
 {
-    if(F==0)
+    if(F==0.0)
         return;
     int x, n;
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++)
-            E[pulse][x][n] *= cexp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
+            E[pulse][x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
     }
 }
 
@@ -148,7 +148,7 @@ void Window(int pulse, int k, double t, char *material, double thickness)
     double Dv = (v_max-v_min) / (n0-1);
     //double Dt = t_pulse_lim / (n0-1);
     double intensity, delay, tilt_factor;
-    double _Complex *spectrum;
+    std::complex<double> *spectrum;
 
     // account for tilt of Brewster windows
     tilt_factor = 1; // intensity reduction due to tilt
@@ -173,32 +173,34 @@ void Window(int pulse, int k, double t, char *material, double thickness)
 
             // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
             for(n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
+                intensity = 2.0 * h * vc * pow(abs(E[pulse][x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 delay = thickness/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
-                E[pulse][x][n] *= cexp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                E[pulse][x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
 
             // linear dispersion (full thickness of the slice)
-            spectrum = malloc(sizeof(double _Complex)*n0);
+            //spectrum = malloc(sizeof(std::complex<double>)*n0);
+            spectrum = new std::complex<double>[n0];
             FFT(E[pulse][x], spectrum);
             for(n=0; n<n0; n++){
                 // linear dispersion
                 delay = thickness/c * (RefractiveIndex(material, v_min+Dv*n) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
-                spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
                 // eliminate time-frame shift introduced by the difference between phase and group velocity
                 delay = -thickness/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
-                spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n)*delay);
+                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n)*delay);
             }
             IFFT(spectrum, E[pulse][x]);
-            free(spectrum);
+            //free(spectrum);
+            delete spectrum;
 
             // nonlinear index (n2) and nonlinear absorption Step 2 (half-thickness of the slice)
             for(n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
+                intensity = 2.0 * h * vc * pow(abs(E[pulse][x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 delay = thickness/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
-                E[pulse][x][n] *= cexp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                E[pulse][x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
 
         }
@@ -239,17 +241,19 @@ void Stretcher(int pulse, double stretching) // stretching: s/Hz
     #pragma omp parallel for // mulithread
     for(x=0; x<x0; x++){
         int n;
-        double _Complex *spectrum;
+        std::complex<double> *spectrum;
         double delay;
-        spectrum = malloc(sizeof(double _Complex)*n0);
+        //spectrum = malloc(sizeof(std::complex<double>)*n0);
+        spectrum = new std::complex<double>[n0];
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++){
             delay = (v_min+Dv*n-vc) * stretching; // delay increases with frequency (red chirp) - group delay
             delay *= 0.5; // conversion to phase delay.
-            spectrum[n] *= cexp(I*2.0*M_PI*(v_min+Dv*n-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+            spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
         }
         IFFT(spectrum, E[pulse][x]);
-        free(spectrum);
+        //free(spectrum);
+        delete spectrum;
     }
 }
 
@@ -262,9 +266,9 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
     #pragma omp parallel for // multthread
     for(x=0; x<x0; x++){
         int n;
-        double _Complex *spectrum;
-        //spectrum = malloc(sizeof(double _Complex)*n0);
-        spectrum = new double _Complex[n0];
+        std::complex<double> *spectrum;
+        //spectrum = malloc(sizeof(std::complex<double>)*n0);
+        spectrum = new std::complex<double>[n0];
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++){
             if(v_min+Dv*n < bandcenter-bandwidth/2 || v_min+Dv*n > bandcenter+bandwidth/2)
@@ -304,10 +308,13 @@ void Filter(int pulse, char* yaml_file_path)
     Debug(2, debug_out);
 
     // create "raw" transmittance array
-    double **raw_data;
-    raw_data = malloc(sizeof(double*)*2);
-    raw_data[0] = malloc(sizeof(double)*n_raw_data_points);
-    raw_data[1] = malloc(sizeof(double)*n_raw_data_points);
+    //double **raw_data;
+    double *raw_data[2];
+    //raw_data = malloc(sizeof(double*)*2);
+    //raw_data[0] = malloc(sizeof(double)*n_raw_data_points);
+    //raw_data[1] = malloc(sizeof(double)*n_raw_data_points);
+    raw_data[0] = new double[n_raw_data_points];
+    raw_data[1] = new double[n_raw_data_points];
 
     strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
     tmp_str = strtok(yaml_str_copy," \t\n\r");
@@ -316,10 +323,10 @@ void Filter(int pulse, char* yaml_file_path)
     //while(tmp_str != NULL){
     for(i=0; i<n_raw_data_points; i++){
         raw_data[0][i] = atof(tmp_str)*1e12; // Frequency, THz -> Hz
-        tmp_str = strtok(NULL," \t\n\r");
+        tmp_str = strtok(nullptr," \t\n\r");
         //printf("%s ", tmp_str);
         raw_data[1][i] = atof(tmp_str);      // Transmittance
-        tmp_str = strtok(NULL," \t\n\r");
+        tmp_str = strtok(nullptr," \t\n\r");
         //printf("%s ", tmp_str);
         //i++;
     }
@@ -335,7 +342,8 @@ void Filter(int pulse, char* yaml_file_path)
 
     // create "full" transmittance array
     double *transmittance;
-    transmittance = malloc(sizeof(double)*n0);
+    //transmittance = malloc(sizeof(double)*n0);
+    transmittance = new double[n0];
 
     for(n=0; n<n0; n++){
         v = v_min+Dv*n;
@@ -353,9 +361,11 @@ void Filter(int pulse, char* yaml_file_path)
     }
 
 
-    free(raw_data[0]);
-    free(raw_data[1]);
-    free(raw_data);
+    //free(raw_data[0]);
+    //free(raw_data[1]);
+    //free(raw_data);
+    delete raw_data[0];
+    delete raw_data[1];
 
     if(debug_level>=2){
         printf("\nTRANSMITTANCE PROFILE:\n");
@@ -368,9 +378,9 @@ void Filter(int pulse, char* yaml_file_path)
     #pragma omp parallel for // multthread
     for(x=0; x<x0; x++){
         int n;
-        double _Complex *spectrum;
-        //spectrum = malloc(sizeof(double _Complex)*n0);
-        spectrum = new double _Complex[n0];
+        std::complex<double> *spectrum;
+        //spectrum = malloc(sizeof(std::complex<double>)*n0);
+        spectrum = new std::complex<double>[n0];
         FFT(E[pulse][x], spectrum);
         for(n=0; n<n0; n++)
             spectrum[n] *= sqrt(transmittance[n]);
@@ -378,13 +388,14 @@ void Filter(int pulse, char* yaml_file_path)
         delete spectrum;
     }
 
-    free(transmittance);
+    //free(transmittance);
+    delete transmittance;
 }
 
 
 void Apodizer(int pulse, double alpha)
 {
-    if(alpha==0)
+    if(alpha==0.0)
         return;
     int x, n;
     double transmission;
@@ -417,7 +428,7 @@ double RefractiveIndex(char* material, double nu)
     }
     if(!strcmp(material,"NaCl") || !strcmp(material,"NaCl-Brewster")) //Li-1976
     {
-	    x= x<0.2 ? 0.2 : x;
+        x= x<0.2 ? 0.2 : x;
         x= x>30 ? 30 : x;
         return sqrt( 1.00055 + 0.19800*pow(x,2)/(pow(x,2)-pow(0.050,2)) + 0.48398*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.38696*pow(x,2)/(pow(x,2)-pow(0.128,2)) + 0.25998*pow(x,2)/(pow(x,2)-pow(0.158,2)) + 0.08796*pow(x,2)/(pow(x,2)-pow(40.50,2)) + 3.17064*pow(x,2)/(pow(x,2)-pow(60.98,2)) + 0.30038*pow(x,2)/(pow(x,2)-pow(120.34,2)) );
     }
@@ -461,15 +472,15 @@ double RefractiveIndex(char* material, double nu)
 
         // model parameters
         double cref[6] = { 0.199885e-3,  0.344739e-9,  -0.273714e-12,  0.393383e-15, -0.569488e-17,  0.164556e-19}; // cm^j
-        double cT[6]   = { 0.593900e-1, -0.172226e-5,   0.237654e-8,  -0.381812e-11,  0.305050e-14, -0.157464e-16}; // cm^j · K
-        double cTT[6]  = {-6.50355,      0.103830e-1,  -0.139464e-4,   0.220077e-7,  -0.272412e-10,  0.126364e-12}; // cm^j · K^2
-        double cH[6]   = {-0.221938e-7,  0.347377e-10, -0.465991e-13,  0.735848e-16, -0.897119e-19,  0.380817e-21}; // cm^j · %^-1
-        double cHH[6]  = { 0.393524e-12, 0.464083e-15, -0.621764e-18,  0.981126e-21, -0.121384e-23,  0.515111e-26}; // cm^j · %^-2
-        double cp[6]   = { 0.266809e-8,  0.695247e-15,  0.159070e-17, -0.303451e-20, -0.661489e-22,  0.178226e-24}; // cm^j · Pa^-1
-        double cpp[6]  = { 0.610508e-17, 0.227694e-22,  0.786323e-25, -0.174448e-27, -0.359791e-29,  0.978307e-32}; // cm^j · Pa^-2
-        double cTH[6]  = { 0.106776e-3, -0.168516e-6,   0.226201e-9,  -0.356457e-12,  0.437980e-15, -0.194545e-17}; // cm^j · K · %^-1
-        double cTp[6]  = { 0.77368e-6,   0.216404e-12,  0.581805e-15, -0.189618e-17, -0.198869e-19,  0.589381e-22}; // cm^j · K · Pa^-1
-        double cHp[6]  = {-0.206365e-15, 0.300234e-19, -0.426519e-22,  0.684306e-25, -0.467320e-29,  0.126117e-30}; // cm^j · %^-1 · Pa^-1
+        double cT[6]   = { 0.593900e-1, -0.172226e-5,   0.237654e-8,  -0.381812e-11,  0.305050e-14, -0.157464e-16}; // cm^j Â· K
+        double cTT[6]  = {-6.50355,      0.103830e-1,  -0.139464e-4,   0.220077e-7,  -0.272412e-10,  0.126364e-12}; // cm^j Â· K^2
+        double cH[6]   = {-0.221938e-7,  0.347377e-10, -0.465991e-13,  0.735848e-16, -0.897119e-19,  0.380817e-21}; // cm^j Â· %^-1
+        double cHH[6]  = { 0.393524e-12, 0.464083e-15, -0.621764e-18,  0.981126e-21, -0.121384e-23,  0.515111e-26}; // cm^j Â· %^-2
+        double cp[6]   = { 0.266809e-8,  0.695247e-15,  0.159070e-17, -0.303451e-20, -0.661489e-22,  0.178226e-24}; // cm^j Â· Pa^-1
+        double cpp[6]  = { 0.610508e-17, 0.227694e-22,  0.786323e-25, -0.174448e-27, -0.359791e-29,  0.978307e-32}; // cm^j Â· Pa^-2
+        double cTH[6]  = { 0.106776e-3, -0.168516e-6,   0.226201e-9,  -0.356457e-12,  0.437980e-15, -0.194545e-17}; // cm^j Â· K Â· %^-1
+        double cTp[6]  = { 0.77368e-6,   0.216404e-12,  0.581805e-15, -0.189618e-17, -0.198869e-19,  0.589381e-22}; // cm^j Â· K Â· Pa^-1
+        double cHp[6]  = {-0.206365e-15, 0.300234e-19, -0.426519e-22,  0.684306e-25, -0.467320e-29,  0.126117e-30}; // cm^j Â· %^-1 Â· Pa^-1
 
         double sigmaref = 1e4/10.1;  // cm^-1
         double Tref = 273.15+17.5;   // K

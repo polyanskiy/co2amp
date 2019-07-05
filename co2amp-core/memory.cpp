@@ -113,7 +113,7 @@ void FreeMemory()
 
 void AllocateMemoryBoltzmann(void)
 {
-    unsigned int j;
+    int j;
 
     //u = malloc(sizeof(double) * b0);
     u = new double[b0];
@@ -155,7 +155,7 @@ void AllocateMemoryBoltzmann(void)
 
 void FreeMemoryBoltzmann(void)
 {
-    unsigned int j;
+    int j;
 
     //free(u);
     delete u;

@@ -1,10 +1,14 @@
-#include  <stdio.h>
-#include  <stdlib.h>
-#include  <math.h>
-#include  <complex.h>
-#include  <time.h>
-#include  <string.h>
-#include  <ctype.h>
+//#include  <stdio.h>
+//#include  <stdlib.h>
+//#include  <math.h>
+//#include <string>
+#include <iostream>
+//#include <ostream>
+#include  <cmath>
+#include  <complex>
+//#include  <time.h>
+//#include  <string.h>
+//#include  <ctype.h>
 #include  <omp.h>
 
 #include <../libyaml/yaml.h>
@@ -12,6 +16,9 @@
 #define bool int
 #define true 1
 #define false 0
+#define I std::complex<double>(0,1)
+
+//using namespace std; //this is considered a bad practice. Use std::... all the time instead
 
 // ------- INITIAL PULSE -------
 extern int from_file;
@@ -44,14 +51,14 @@ extern double T0;
 // ------- CALCULATION NET -------
 extern double t_pulse_lim, t_pulse_shift;
 extern double Dt_pump; // "main time" - for pumping/relaxation
-extern unsigned int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+extern int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
 // ------- SPECTROSCOPY -------
 extern double v_min, v_max;       // frequency limits, Hz
 extern double nop[6][4][3][61];   // normalized populations
 extern double v[6][4][4][61];     // transition frequencies, Hz
 extern double sigma[6][4][4][61]; // transition cross-sections, m^2
 // ------- OUTPUT ARRAYS -------
-extern double _Complex ***E;
+extern std::complex<double> ***E;
 extern double **T, **e2, **e3, **e4;
 extern double *gainSpectrum;
 // ------- DEBUGGING -------
@@ -59,7 +66,7 @@ extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - every
 extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
-extern unsigned int b0;
+extern int b0;
 extern double E_over_N;
 extern double Y1, Y2, Y3;
 extern double Du;
@@ -79,17 +86,19 @@ extern double humidity; // air humidity [%]
 
 // -------------------------- FUNCTIONS --------------------------
 
-//////////////////////////// co2amp.c ///////////////////////////
+//////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
-void StatusDisplay(int pulse, int k, double t, char *status);
-void StatusDisplay(int pulse, int k, double t, const char *status);
-void Debug(int level, char *str);
-void Debug(int level, const char *str);
+//void StatusDisplay(int pulse, int k, double t, char *status);
+//void StatusDisplay(int pulse, int k, double t, const char *status);
+void StatusDisplay(int pulse, int k, double t, std::string status);
+//void Debug(int level, char *str);
+//void Debug(int level, const char *str);
+void Debug(int level, std::string str);
 
-//////////////////////////// band.c /////////////////////////////
+//////////////////////////// band.cpp /////////////////////////////
 void AmplificationBand(void);
 
-/////////////////////////// dynamics.c //////////////////////////
+/////////////////////////// dynamics.cpp //////////////////////////
 void PumpingAndRelaxation(double t);
 double Current(double);
 double Voltage(double);
@@ -97,24 +106,24 @@ double e2e(double);
 void InitializePopulations(void);
 double VibrationalTemperatures(int am_section, int x, int mode);
 
-///////////////////////// amplification.c /////////////////////////
+///////////////////////// amplification.cpp /////////////////////////
 void Amplification(int pulse, int k, double t, int am_section, double length);
 
-/////////////////////////// input.c ////////////////////////////
+/////////////////////////// input.cpp ////////////////////////////
 void ReadCommandLine(int, char**);
 void ConstantsInit(void);
 void ArraysInit(void);
 void IntensityNormalization(void);
 void InitializeE(void);
-double _Complex field(double, double);
+std::complex<double> field(double, double);
 
-/////////////////////////// memory.c ///////////////////////////
+/////////////////////////// memory.cpp ///////////////////////////
 void AllocateMemory(void);
 void FreeMemory(void);
 void AllocateMemoryBoltzmann(void);
 void FreeMemoryBoltzmann(void);
 
-/////////////////////////// optics.c ///////////////////////////
+/////////////////////////// optics.cpp ///////////////////////////
 void BeamPropagation(int pulse, int k, double t);
 double RefractiveIndex(char* material, double frequency);
 double NonlinearIndex(char* material);
@@ -129,13 +138,13 @@ void Filter(int pulse, char* yamlfile);
 void Apodizer(int pulse, double alpha);
 void Air(int pulse, int k, double t, double humidity, double length);
 
-/////////////////////////// output.c ///////////////////////////
+/////////////////////////// output.cpp ///////////////////////////
 void UpdateOutputFiles(int pulse, int component, double time);
 void UpdateDynamicsFiles(double);
 void SaveGainSpectrum(int pulse, int component);
 void SaveOutputField(void);
 
-/////////////////////////// boltzmann.c ///////////////////////////
+/////////////////////////// boltzmann.cpp ///////////////////////////
 void Boltzmann(double);
 void WriteEquations(void);
 void SolveEquations(void);
@@ -144,14 +153,15 @@ void InitInputArrays(void);
 void InterpolateArray(double*, double*, int, double*);
 void Save_f(void); //debug (test Boltzmann solver)
 
-///////////////////////////// calc.c /////////////////////////////
-void FFT(double _Complex *in, double _Complex *out);
-void IFFT(double _Complex *in, double _Complex *out);
-void FFTCore(double _Complex *in, double _Complex *out, bool Invert);
+///////////////////////////// calc.cpp /////////////////////////////
+void FFT(std::complex<double> *in, std::complex<double> *out);
+void IFFT(std::complex<double> *in, std::complex<double> *out);
+void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
 int BitReversal(int x);
 
-//////////////////////////// yaml.c ///////////////////////////
-void YamlGetValue(char *value, char* path, char* key);
+//////////////////////////// yaml.cpp ///////////////////////////
+//void YamlGetValue(char *value, char* path, char* key);
+void YamlGetValue(std::string value, std::string path, std::string key);
 
 
 ////////////////////////// component classes ///////////////////

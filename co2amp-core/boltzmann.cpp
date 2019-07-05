@@ -103,10 +103,10 @@ void SolveEquations(void)
             f[i] = 0;
 
     for(j=1; j<b0; j++){
-        if(M[j-1][j-1]==0){
+        if(M[j-1][j-1]==0.0){
             printf("!%d\n", j-1);
             jj = j;
-            while(M[jj][jj]==0 && jj<b0-1)
+            while(M[jj][jj]==0.0 && jj<b0-1)
                 jj++;
 	    for(i=0; i<b0; i++){ // swap j and jj lines;
                 a = M[j-1][i];
@@ -114,7 +114,7 @@ void SolveEquations(void)
                 M[jj][i] = a;
             }
         }
-        if(M[j-1][j-1]==0){
+        if(M[j-1][j-1]==0.0){
             printf("Error !!!!!!!!!!!!!!!!!!!%d\n", j-1);
             fflush(stdout);
 	}

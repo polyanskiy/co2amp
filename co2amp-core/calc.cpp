@@ -1,12 +1,12 @@
 #include  "co2amp.h"
 
-void FFT(double _Complex *in, double _Complex *out) // in: field, out: spectrum
+void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out: spectrum
 {
     int i;
 
     FFTCore(in, out, false);
 
-    double _Complex tmp;
+    std::complex<double> tmp;
 
     for(i=0; i<n0/4; i++){
         tmp = out[i];
@@ -24,10 +24,11 @@ void FFT(double _Complex *in, double _Complex *out) // in: field, out: spectrum
 }
 
 
-void IFFT(double _Complex *in, double _Complex *out) // in: spectrum, out: field
+void IFFT(std::complex<double> *in, std::complex<double> *out) // in: spectrum, out: field
 {
     int i;
-    double _Complex tmp, qq[n0];
+    std::complex<double> tmp, *qq;
+    qq = new std::complex<double>[n0];
 
     for(i=0; i<n0; i++)
         qq[i] = in[i];
@@ -43,13 +44,15 @@ void IFFT(double _Complex *in, double _Complex *out) // in: spectrum, out: field
 
     FFTCore(qq, out, true);
 
+    delete qq;
+
     double Dt = t_pulse_lim/(n0-1);
     for(i=0; i<n0; i++)
         out[i] /= (Dt*n0);
 }
 
 
-void FFTCore(double _Complex *in, double _Complex *out, bool Invert){
+void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert){
 
     int i;
 
@@ -59,7 +62,7 @@ void FFTCore(double _Complex *in, double _Complex *out, bool Invert){
     int Step, Group, Pair;
     int Jump, Match;
     double delta, Sine;
-    double _Complex Multiplier, Factor, Product;
+    std::complex<double> Multiplier, Factor, Product;
 
     //   Iteration through dyads, quadruples, octads and so on...
     for (Step=1; Step<n0; Step*=2){

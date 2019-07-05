@@ -156,7 +156,7 @@ void ConstantsInit(void)
     }*/
 
     // Optical layout: count number of components and active medium sections
-    unsigned int size;
+    int size;
     char *str, *file_str;
     n_components = 0;
     n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
@@ -219,7 +219,7 @@ void ConstantsInit(void)
             n_components ++;
             n_W ++;
         }
-        str = strtok(NULL," \t\n\r");
+        str = strtok(nullptr," \t\n\r");
     }
     delete file_str;
     fclose(file);
@@ -424,7 +424,7 @@ void IntensityNormalization(void) // Field amplitude adjustment (to match initia
         Energy = 0;
         for(n=0; n<n0-1; n++){
             for(x=0; x<x0-1; x++)
-                Energy += 2.0 * h * vc * pow(cabs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                Energy += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
             }
 
         af = sqrt(E0/Energy);
@@ -457,20 +457,20 @@ void InitializeE()
         file = fopen("field_in.bin", "rb");
         for(pulse=0; pulse<n_pulses; pulse++){
             for(x=0; x<x0; x++)
-                fread(E[pulse][x], sizeof(double _Complex)*n0, 1, file);
+                fread(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
         }
         fclose(file);
     }
 }
 
 
-double _Complex field(double r, double t)
+std::complex<double> field(double r, double t)
 {
     double xx;
     xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
-    double pulse = exp(-pow((t-t_pulse_shift)/xx, 2));
+    std::complex<double> pulse = exp(-pow((t-t_pulse_shift)/xx, 2));
     //xx = r0/sqrt(log(2.0)/2.0);   //(hwhm -> half-width @ 1/e^2)
     //double beam = exp(-pow(r/xx, 2.0));
-    double beam = exp(-pow(r/w0, 2.0));
+    std::complex<double> beam = exp(-pow(r/w0, 2.0));
     return pulse*beam;
 }

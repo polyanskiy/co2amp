@@ -40,9 +40,9 @@ void PumpingAndRelaxation(double t)
         qT = qT_a+(qT_b-qT_a)*(t-t_a)/(t_b-t_a);
 
         W = Current(t)*Voltage(t) / Vd; // W/m^3
-        pump4 = y2!=0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
-        pump3 = y1!=0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
-        pump2 = y1!=0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
+        pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
+        pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
+        pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
     }
     else{ // Optical pumping
         W = 0;
@@ -75,11 +75,11 @@ void PumpingAndRelaxation(double t)
                 f3 = e3[k][x]*pow(1+e2[k][x]/2.0,3) - (1.0+e3[k][x])*pow(e2[k][x]/2.0,3)*exp(-500.0/T[k][x]);
 
                 //collisional relaxation, pumping
-                if(y2!=0)
+                if(y2!=0.0)
                     e4[k][x] += ( pump4 - ra*(e4[k][x]-e3[k][x]) ) * Dt_pump;
-                if(y1!=0)
+                if(y1!=0.0)
                     e3[k][x] += ( pump3 + rc*(e4[k][x]-e3[k][x]) - r3*f3 ) * Dt_pump;
-                if(y1!=0)
+                if(y1!=0.0)
                     e2[k][x] += f2 *( pump2 + 3*r3*f3 - r2*(e2[k][x]-e2e(T[k][x])) ) * Dt_pump;
 
                 cv = 2.5*(y1+y2) + 1.5*y3;
@@ -199,13 +199,10 @@ double VibrationalTemperatures(int am_section, int x, int mode){
     switch(mode){
         case 1:
             return Temp2;
-            break;
         case 2:
             return Temp2;
-            break;
         case 3:
             return Temp3;
-            break;
     }
 
     return 0;

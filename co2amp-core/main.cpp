@@ -34,14 +34,14 @@ double T0;
 // ------- CALCULATION NET -------
 double t_pulse_lim, t_pulse_shift;
 double Dt_pump; // "main time" - for pumping/relaxation
-unsigned int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
 // ------- SPECTROSCOPY -------
 double v_min, v_max;       // frequency limits, Hz
 double nop[6][4][3][61];   // normalized populations
 double v[6][4][4][61];     // transition frequencies, Hz
 double sigma[6][4][4][61]; // transition cross-sections, m^2
 // ------- OUTPUT ARRAYS -------
-double _Complex ***E;
+std::complex<double> ***E;
 double **T, **e2, **e3, **e4;
 double *gainSpectrum;
 // ------- DEBUGGING -------
@@ -49,7 +49,7 @@ int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
 int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- BOLTZMANN -------
-unsigned int b0;
+int b0;
 double E_over_N;
 double Y1, Y2, Y3;
 double Du;
@@ -222,27 +222,32 @@ void Calculations()
     }
 }
 
-void StatusDisplay(int pulse, int k, double t, char *status)
+void StatusDisplay(int pulse, int k, double t, std::string status)
 {
     int K;
     if(k == -1){
         if(t < 0)
-            printf("\r%s                                               ", status);
+            //printf("\r%s                                               ", status);
+            std::cout << "\r" << status << "                                               ";
         else
-            printf("\r%f us: %s                                               ", t*1e6, status);
+            //printf("\r%f us: %s                                               ", t*1e6, status);
+            std::cout << "\r" << t*1e6 << " us: " << status << "                                               ";
     }
     else{
 	K = layout_component[k];
         if(n_pulses==1)
-            printf("\r%f us; Component \"%s\" (%d of %d): %s                    ", t*1e6, component_id[K], k+1, n_propagations, status);
+            //printf("\r%f us; Component \"%s\" (%d of %d): %s                    ", t*1e6, component_id[K], k+1, n_propagations, status);
+            std::cout << "\r" << t*1e6 << " us; Component " << component_id[K] << "(" <<  k+1 << " of " << n_propagations << "): " << status << "                    ";
         else
-            printf("\r%f us; Component \"%s\" (%d of %d); Pulse %d: %s                    ", t*1e6, component_id[K], k+1, n_propagations, pulse+1, status);
+            //printf("\r%f us; Component \"%s\" (%d of %d); Pulse %d: %s                    ", t*1e6, component_id[K], k+1, n_propagations, pulse+1, status);
+            std::cout << "\r" << t*1e6 << " us; Component " << component_id[K] << "(" <<  k+1 << " of " << n_propagations << "); Pulse " << pulse+1 << ": " << status << "                    ";
     }
-    fflush(stdout);
+    //fflush(stdout);
+    std::cout << std::flush;
     flag_status_or_debug = true;
 }
 
-void StatusDisplay(int pulse, int k, double t, const char *status)
+/*void StatusDisplay(int pulse, int k, double t, const char *status)
 {
     int K;
     if(k == -1){
@@ -260,10 +265,24 @@ void StatusDisplay(int pulse, int k, double t, const char *status)
     }
     fflush(stdout);
     flag_status_or_debug = true;
+}*/
+
+
+void Debug(int level, std::string str)
+{
+    if(level > debug_level)
+        return;
+    if(flag_status_or_debug) //if last displayed message is status
+        //printf("\n");
+        std::cout << std::endl;
+    //printf("DEBUG (level %d): %s\n", level, str);
+    std::cout << "DEBUG (level " << level << "): " << str << std::endl;
+    //fflush(stdout);
+    std::cout << std::flush;
+    flag_status_or_debug = false;
 }
 
-
-void Debug(int level, char *str)
+/*void Debug(int level, const char *str)
 {
     if(level > debug_level)
         return;
@@ -272,15 +291,4 @@ void Debug(int level, char *str)
     printf("DEBUG (level %d): %s\n", level, str);
     fflush(stdout);
     flag_status_or_debug = false;
-}
-
-void Debug(int level, const char *str)
-{
-    if(level > debug_level)
-        return;
-    if(flag_status_or_debug) //if last displayed message is status
-        printf("\n");
-    printf("DEBUG (level %d): %s\n", level, str);
-    fflush(stdout);
-    flag_status_or_debug = false;
-}
+}*/
