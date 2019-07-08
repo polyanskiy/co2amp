@@ -1,4 +1,6 @@
 #include  "co2amp.h"
+#include  "component.h"
+#include  "component_am.h"
 
 
 void UpdateDynamicsFiles(double t)
@@ -7,7 +9,7 @@ void UpdateDynamicsFiles(double t)
     FILE *file;
 
     ////////////////////////// Discharge //////////////////////////
-    if(!strcmp(pumping, "discharge")){
+    if(pumping == "discharge"){
         if(t==0.0){
             file = fopen("data_discharge.dat", "w");
             fprintf(file, "# time[us] current[A] voltage[V]\n");
@@ -19,7 +21,7 @@ void UpdateDynamicsFiles(double t)
     }
 
     ////////////////////////////// q //////////////////////////////
-    if(!strcmp(pumping, "discharge")){
+    if(pumping == "discharge"){
         if(t==0.0){
             file = fopen("data_q.dat", "w");
             fprintf(file, "# time[us] q2 q3 q4 qT\n");
@@ -74,7 +76,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     Power = new double[x0];
     double Energy = 0;
     double Dt = t_pulse_lim/(n0-1);
-    double Dr = component_Dr[layout_component[k]];
+    double Dr = components[layout_component[k]].Dr;
 
     for(x=0; x<x0; x++)
         Fluence[x] = 0;
@@ -200,9 +202,9 @@ void SaveGainSpectrum(int pulse, int k){
     bool firstAmSection = true;
     int pass = 0;
     for(i=0; i<k; i++){
-        if(!strcmp(component_type[layout_component[i]], "AM") || pulse>0)
+        if(components[layout_component[i]].type == "AM" || pulse>0)
             firstAmSection = false;
-        if(component_id[layout_component[i]]==component_id[layout_component[k]])
+        if(components[layout_component[i]].id==components[layout_component[k]].id)
             pass++;
     }
 

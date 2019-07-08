@@ -8,11 +8,13 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += \
-    amplification.cpp \
-    band.cpp \
-    boltzmann.cpp \
+    am_amplification.cpp \
+    am_band.cpp \
+    am_boltzmann.cpp \
+    am_dynamics.cpp \
     calc.cpp \
-    dynamics.cpp \
+    component.cpp \
+    component_am.cpp \
     input.cpp \
     main.cpp \
     memory.cpp \
@@ -20,7 +22,9 @@ SOURCES += \
     output.cpp \
     yaml.cpp
 HEADERS += \
-    co2amp.h
+    co2amp.h \
+    component.h \
+    component_am.h
 QMAKE_CFLAGS += -ffast-math -fopenmp
 QMAKE_CXXFLAGS += -ffast-math -fopenmp
 QMAKE_LFLAGS += -fopenmp

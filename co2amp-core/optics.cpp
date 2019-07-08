@@ -1,11 +1,13 @@
 #include  "co2amp.h"
+#include  "component.h"
+#include  "component_am.h"
 
 
 void BeamPropagation(int pulse, int k, double t)
 {
     double z = layout_distance[k];
-    double Dr1 = component_Dr[layout_component[k]];
-    double Dr2 = component_Dr[layout_component[k+1]];
+    double Dr1 = components[layout_component[k]].Dr;
+    double Dr2 = components[layout_component[k+1]].Dr;
 
     if(z==0.0 && Dr1-Dr2==0.0)  //nothing to be done
         return;
@@ -291,7 +293,7 @@ void Filter(int pulse, char* yaml_file_path)
 
     // read transmission profile data string from YAML file
     Debug(2, "a");
-    YamlGetValue(yaml_str, yaml_file_path, "transmittance");
+    //YamlGetValue(yaml_str, yaml_file_path, "transmittance");
     Debug(2, "b");
     sprintf(debug_out, "Transmission data:\n%s", yaml_str);
     Debug(2, debug_out);

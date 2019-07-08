@@ -3,6 +3,9 @@
 //#include  <math.h>
 //#include <string>
 #include <iostream>
+#include <fstream>
+#include<regex>
+#include <vector>
 //#include <ostream>
 #include  <cmath>
 #include  <complex>
@@ -27,16 +30,17 @@ extern double t_inj;
 extern int n_pulses;
 extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
-extern int n_components, n_propagations;
-extern int n_A, n_AF, n_AM, n_AT, n_BF, n_F, n_L, n_M, n_P, n_S, n_SF, n_W;
-extern char **component_id, **component_type, **component_yaml;
-extern double *component_Dr;
+extern int n_AM, n_propagations;
+//extern int n_components, n_propagations;
+//extern int n_A, n_AF, n_AM, n_AT, n_BF, n_F, n_L, n_M, n_P, n_S, n_SF, n_W;
+//extern std::string *component_id, *component_type, *component_yaml;
+//extern double *component_Dr;
 extern double *layout_distance, *layout_time;
 extern int *layout_component;
 extern bool noprop;
 //extern double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- PUMPING -------
-extern char pumping[16]; // pumping type ("discharge" or "optical")
+extern std::string pumping; // pumping type ("discharge" or "optical")
 extern int n_discharge_points; // number of pints in the discharge profile
 extern double **discharge; // time current voltage
 extern double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
@@ -82,6 +86,8 @@ extern double *f;
 extern double c, h; // spped of light [m/s]; Plank's [J s]
 // ------- MISC. GLOBAL VARIABLES -------
 extern double humidity; // air humidity [%]
+
+
 
 
 // -------------------------- FUNCTIONS --------------------------
@@ -161,13 +167,7 @@ int BitReversal(int x);
 
 //////////////////////////// yaml.cpp ///////////////////////////
 //void YamlGetValue(char *value, char* path, char* key);
-void YamlGetValue(std::string value, std::string path, std::string key);
+void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
-////////////////////////// component classes ///////////////////
 
-class Component{
-public:
-    char *type;
-    Component();
-};

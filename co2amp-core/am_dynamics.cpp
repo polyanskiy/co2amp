@@ -18,7 +18,7 @@ void PumpingAndRelaxation(double t)
     double y3 = p_He/(p_CO2+p_N2+p_He);
 
     // re-solve Boltzmann equation from time to time; use linear interpolation otherwise
-    if(!strcmp(pumping, "discharge")){ // Discharge pumping
+    if(pumping == "discharge"){ // Discharge pumping
         double step = 25.0e-9;
         if(t-Dt_pump/2<=t_b && t+Dt_pump/2>t_b){
             q2_a = q2_b;
@@ -146,7 +146,7 @@ void InitializePopulations()
           e4[k][x] = 1.0/(exp(3350.0/T0)-1.0);
           e2[k][x] = 2.0/(exp(960.0/T0)-1.0);
           e3[k][x] = 1.0/(exp(3380.0/T0)-1.0);
-          if(!strcmp(pumping, "optical")){ // optical pumping
+          if(pumping == "optical"){ // optical pumping
               int i;
               double Temp2, e1, fluence;
               fluence = pump_fluence / (h*c/pump_wl); // photons/m^2

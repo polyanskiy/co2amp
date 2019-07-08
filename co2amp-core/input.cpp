@@ -1,4 +1,6 @@
 #include  "co2amp.h"
+#include  "component.h"
+#include  "component_am.h"
 
 void ReadCommandLine(int argc, char **argv)
 {
@@ -43,12 +45,14 @@ void ReadCommandLine(int argc, char **argv)
     bands = 7;              // All bands (1 for regular + 2 for hot + 4 for sequence)
 
     //Read command line
-    char debug_str[1024];
-    strcpy(debug_str, "Command line: ");
+    std::string debug_str = "Command line: ";
+    //strcpy(debug_str, "Command line: ");
     for (i=1; i<argc; i++){
         // debug string
-        strcat(debug_str, argv[i]);
-        strcat(debug_str, " ");
+        debug_str += argv[i];
+        debug_str += " ";
+        //strcat(debug_str, argv[i]);
+        //strcat(debug_str, " ");
         // ------- INITIAL PULSE -------
         if (!strcmp(argv[i], "-from_file"))
             from_file = atoi(argv[i+1]);
@@ -134,7 +138,7 @@ void ConstantsInit(void)
     v_max = vc + Dv*(n0-1)/2;
 
     // Count number of data points in the discharge profile
-    /*if(!strcmp(pumping, "discharge")){
+    /*if(pumping == "discharge")){
         int size;
         char *str, *file_str;
         n_discharge_points = 0;
@@ -156,107 +160,63 @@ void ConstantsInit(void)
     }*/
 
     // Optical layout: count number of components and active medium sections
-    int size;
-    char *str, *file_str;
-    n_components = 0;
-    n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
-    FILE *file;
-    file = fopen("components.txt", "r");
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    rewind(file);
-    //file_str = malloc(size+1);
-    file_str = new char[size+1];
-    fread(file_str, size, 1, file);
-    file_str[size] = '\0'; // string terminating character
-    str = strtok (file_str," \t\n\r");
-    while(str != nullptr){
-        if(!strcmp(str, "A")){
-            n_components ++;
-            n_A ++;
-        }
-        if(!strcmp(str, "AF")){
-            n_components ++;
-            n_AF ++;
-        }
-        if(!strcmp(str, "AM")){
-            n_components ++;
-            n_AM ++;
-        }
-        if(!strcmp(str, "AT")){
-            n_components ++;
-            n_AT ++;
-        }
-        if(!strcmp(str, "BF")){
-            n_components ++;
-            n_BF ++;
-        }
-        if(!strcmp(str, "F")){
-            n_components ++;
-            n_F ++;
-        }
-        if(!strcmp(str, "L")){
-            n_components ++;
-            n_L ++;
-        }
-        if(!strcmp(str, "M")){
-            n_components ++;
-            n_M ++;
-        }
-        if(!strcmp(str, "P")){
-            n_components ++;
-            n_P ++;
-        }
-        if(!strcmp(str, "S")){
-            n_components ++;
-            n_S ++;
-        }
-        if(!strcmp(str, "SF")){
-            n_components ++;
-            n_SF ++;
-        }
-        if(!strcmp(str, "W")){
-            n_components ++;
-            n_W ++;
-        }
-        str = strtok(nullptr," \t\n\r");
+    std::string str, file_str;
+    std::ifstream in;
+
+    //n_components = 0;
+    //n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
+
+    in = std::ifstream("components.txt", std::ios::in);
+    if (in){
+        file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        in.close();
     }
-    delete file_str;
-    fclose(file);
+
+    std::string id, type, yaml;
+    std::istringstream iss, iss2;
+    iss = std::istringstream(file_str);
+    while(std::getline(iss, str)){
+        iss2 = std::istringstream(str);
+        std::getline(iss2, id, '\t');
+        std::getline(iss2, type, '\t');
+        std::getline(iss2, yaml, '\t');
+
+        if(type=="A" || type=="AF"|| type=="AT" || type=="BF" || type=="F"
+                || type=="L" || type=="M" || type=="P" || type=="S" || type=="SF" || type=="W")
+            components.push_back(Component(id, type, yaml));
+        if(type=="AM")
+            components.push_back(AM(id, type, yaml));
+    }
 
     // Optical layout: count number of propagations
     n_propagations = 0;
-    file = fopen("layout.txt", "r");
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    rewind(file);
-    file_str = new char[size+1];
-    fread(file_str, size, 1, file);
-    file_str[size] = '\0'; // string terminating character
-    str = strtok (file_str," -\t\n\r");
-    while(str != nullptr){
+    in = std::ifstream("layout.txt", std::ios::in);
+    if (in){
+        file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        in.close();
+    }
+
+    std::regex rgx("[\\s,\\-\\(\\)]+");
+    std::sregex_token_iterator iter(file_str.begin(), file_str.end(), rgx, -1);
+    std::sregex_token_iterator end;
+    for ( ; iter != end; ++iter){
+        //std::cout << *iter << '\n';
         n_propagations ++;
-        str = strtok(nullptr," -\t\n\r");
     }
     n_propagations = (n_propagations+1)/2;
-    delete file_str;
-    fclose(file);
 
-    printf("components: %d; propagations: %d; pulses: %d\n",n_components, n_propagations, n_pulses);
-    printf("A: %d\n",  n_A);
-    printf("AF: %d\n", n_AF);
-    printf("AM: %d\n", n_AM);
-    printf("AT: %d\n", n_AT);
-    printf("BF: %d\n", n_BF);
-    printf("F: %d\n",  n_F);
-    printf("L: %d\n",  n_L);
-    printf("M: %d\n",  n_M);
-    printf("P: %d\n",  n_P);
-    printf("S: %d\n",  n_S);
-    printf("SF: %d\n", n_SF);
-    printf("W: %d\n",  n_W);
-    fflush(stdout);
+    std::cout << "components: " << components.size()
+              << "; propagations: " << n_propagations
+              << "; pulses: " << n_pulses << std::endl << std::flush;
 
+    std::vector<Component>::iterator itr;
+    for(itr=components.begin(); itr!=components.end(); itr++){
+        std::cout << itr->id << "\t"
+                  << itr->type << "\t"
+                  << itr->yaml << "\t"
+                  << itr->Dr << "\t"
+                  << itr->test << std::endl;
+    }
 }
 
 
@@ -417,7 +377,7 @@ void IntensityNormalization(void) // Field amplitude adjustment (to match initia
 {
     int pulse, x, n;
     double Energy, af;
-    double Dr = component_Dr[layout_component[0]];
+    double Dr = components[layout_component[0]].Dr;
     double Dt = t_pulse_lim/(n0-1);
 
     for(pulse=0; pulse<=n_pulses-1; pulse++){
@@ -441,7 +401,7 @@ void InitializeE()
     int pulse, x, n;
     FILE *file;
 
-    double Dr = component_Dr[layout_component[0]];
+    double Dr = components[layout_component[0]].Dr;
     double Dt = t_pulse_lim/(n0-1);
 
     if(!from_file){
