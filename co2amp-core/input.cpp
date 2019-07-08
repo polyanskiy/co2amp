@@ -1,6 +1,4 @@
 #include  "co2amp.h"
-#include  "component.h"
-#include  "component_am.h"
 
 void ReadCommandLine(int argc, char **argv)
 {
@@ -181,9 +179,9 @@ void ConstantsInit(void)
         std::getline(iss2, type, '\t');
         std::getline(iss2, yaml, '\t');
 
-        if(type=="A" || type=="AF"|| type=="AT" || type=="BF" || type=="F"
+        /*if(type=="A" || type=="AF"|| type=="AT" || type=="BF" || type=="F"
                 || type=="L" || type=="M" || type=="P" || type=="S" || type=="SF" || type=="W")
-            components.push_back(Component(id, type, yaml));
+            components.push_back(Component(id, type, yaml));*/
         if(type=="AM")
             components.push_back(AM(id, type, yaml));
     }

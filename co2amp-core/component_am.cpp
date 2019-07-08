@@ -1,15 +1,4 @@
 #include "co2amp.h"
-#include "component_am.h"
-
-
-AM::AM()
-{
-    this->id = "";
-    this->type = "";
-    this->yaml = "";
-    this->test = "";
-    this->Dr = 0;
-}
 
 
 AM::AM(std::string id, std::string type, std::string yaml)

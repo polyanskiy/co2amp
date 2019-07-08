@@ -13,7 +13,6 @@ SOURCES += \
     am_boltzmann.cpp \
     am_dynamics.cpp \
     calc.cpp \
-    component.cpp \
     component_am.cpp \
     input.cpp \
     main.cpp \
@@ -22,9 +21,7 @@ SOURCES += \
     output.cpp \
     yaml.cpp
 HEADERS += \
-    co2amp.h \
-    component.h \
-    component_am.h
+    co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp
 QMAKE_CXXFLAGS += -ffast-math -fopenmp
 QMAKE_LFLAGS += -fopenmp

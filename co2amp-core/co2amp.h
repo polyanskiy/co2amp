@@ -1,3 +1,7 @@
+#ifndef CO2AMP_H
+#define CO2AMP_H
+
+
 //#include  <stdio.h>
 //#include  <stdlib.h>
 //#include  <math.h>
@@ -140,7 +144,7 @@ void Attenuator(int pulse, double transmission);
 void Window(int pulse, int k, double t, char *material, double thickness);
 void Stretcher(int pulse, double stretching);
 void Bandpass(int pulse, double bandcenter, double bandwidth);
-void Filter(int pulse, char* yamlfile);
+void Filter(int pulse, std::string yamlfile);
 void Apodizer(int pulse, double alpha);
 void Air(int pulse, int k, double t, double humidity, double length);
 
@@ -168,6 +172,30 @@ int BitReversal(int x);
 //////////////////////////// yaml.cpp ///////////////////////////
 //void YamlGetValue(char *value, char* path, char* key);
 void YamlGetValue(std::string *value, std::string path, std::string key);
+
+
+class Component
+{
+public:
+    std::string id;
+    std::string type;
+    std::string yaml;
+    std::string test;
+    double Dr; //m
+    Component(){}
+};
+
+extern std::vector<Component> components;
+
+
+class AM: public Component
+{
+public:
+    AM(std::string id, std::string type, std::string yaml);
+};
+
+
+#endif // CO2AMP_H
 
 
 

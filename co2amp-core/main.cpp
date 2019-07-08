@@ -1,6 +1,4 @@
 #include "co2amp.h"
-#include  "component.h"
-#include  "component_am.h"
 
 
 // GLOBAL VARIABLES

@@ -1,6 +1,4 @@
 #include  "co2amp.h"
-#include  "component.h"
-#include  "component_am.h"
 
 
 void BeamPropagation(int pulse, int k, double t)
@@ -283,30 +281,31 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
 }
 
 
-void Filter(int pulse, char* yaml_file_path)
+void Filter(int pulse, std::string yaml_file_path)
 {
     int x, n, n_raw_data_points, i;
     double Dv = (v_max-v_min) / (n0-1);
     double v;
-    char debug_out[65535], yaml_str[65535], yaml_str_copy[65535]; // // max array size in C (not a good practice to do it this way - change in future)
+    //char debug_out[65535], yaml_str[65535], yaml_str_copy[65535]; // // max array size in C (not a good practice to do it this way - change in future)
+    std::string debug_out, yaml_str, yaml_str_copy;
     char* tmp_str;
 
     // read transmission profile data string from YAML file
     Debug(2, "a");
-    //YamlGetValue(yaml_str, yaml_file_path, "transmittance");
+    YamlGetValue(&yaml_str, yaml_file_path, "transmittance");
     Debug(2, "b");
-    sprintf(debug_out, "Transmission data:\n%s", yaml_str);
+    debug_out = "Transmission data:\n" + yaml_str;
     Debug(2, debug_out);
 
     // count number of data points (= number of lines in the data string)
     n_raw_data_points = 0;
-    strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
-    tmp_str = strtok(yaml_str_copy,"\n");
+    yaml_str_copy = yaml_str; //strtok() modifies input string, so use a copy
+    //tmp_str = strtok(yaml_str_copy,"\n");
     while(tmp_str != nullptr){
         n_raw_data_points ++;
         tmp_str = strtok(nullptr,"\n");
     }
-    sprintf(debug_out, "number of data points: %i", n_raw_data_points);
+    debug_out = "number of data points: =" + std::to_string(n_raw_data_points);
     Debug(2, debug_out);
 
     // create "raw" transmittance array
@@ -318,8 +317,8 @@ void Filter(int pulse, char* yaml_file_path)
     raw_data[0] = new double[n_raw_data_points];
     raw_data[1] = new double[n_raw_data_points];
 
-    strcpy(yaml_str_copy, yaml_str); //strtok() modifies input string, so use a copy
-    tmp_str = strtok(yaml_str_copy," \t\n\r");
+    yaml_str_copy = yaml_str; //strtok() modifies input string, so use a copy
+    //tmp_str = strtok(yaml_str_copy," \t\n\r");
     //printf("%s ", tmp_str);
     i=0;
     //while(tmp_str != NULL){
@@ -334,11 +333,10 @@ void Filter(int pulse, char* yaml_file_path)
     }
 
     if(debug_level>=2){
-        printf("\nTRANSMITTANCE PROFILE:\n");
-        printf("Freq, THz\tTransmittance\n");
+        std::cout << "\nTRANSMITTANCE PROFILE:\n";
+        std::cout << "Freq, THz\tTransmittance\n";
         for(i=0; i<n_raw_data_points; i++)
-            printf("%f\t%f\n", raw_data[0][i]*1e-12, raw_data[1][i]);
-        fflush(stdout);
+            std::cout << raw_data[0][i]*1e-12 << "\t" << raw_data[1][i] << "std::endl";
     }
 
 
