@@ -8,15 +8,18 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += \
-    am_amplification.cpp \
-    am_band.cpp \
-    am_boltzmann.cpp \
-    am_dynamics.cpp \
     calc.cpp \
-    component_am.cpp \
     input.cpp \
     main.cpp \
     memory.cpp \
+    opptic_a.cpp \
+    optic_af.cpp \
+    optic_am.cpp \
+    optic_am_amplification.cpp \
+    optic_am_band.cpp \
+    optic_am_boltzmann.cpp \
+    optic_am_dynamics.cpp \
+    optic_at.cpp \
     optics.cpp \
     output.cpp \
     yaml.cpp

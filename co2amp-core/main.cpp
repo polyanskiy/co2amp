@@ -10,7 +10,7 @@ double t_inj;
 int n_pulses;
 double Dt_train;
 // ------- OPTICS, GEOMETRY -------
-std::vector<Component> components;
+std::vector<Optic> optics;
 int n_AM, n_propagations;
 //int n_components, n_propagations;
 //int n_A, n_AF, n_AM, n_AT, n_BF, n_F, n_L, n_M, n_P, n_S, n_SF, n_W;
@@ -157,10 +157,10 @@ void Calculations()
                     UpdateOutputFiles(pulse, k, t_cur);
 
                     // amplification
-                    if(components[K].type == "AM"){ //active medium
+                    if(optics[K].type == "AM"){ //active medium
                         int am_section = 0;
                         for(i=0; i<K; i++){
-                            if(components[i].type == "AM")
+                            if(optics[i].type == "AM")
                                 am_section++;
                         }
                         if(p_CO2>0){
@@ -231,11 +231,11 @@ void StatusDisplay(int pulse, int k, double t, std::string status)
     else{
 	K = layout_component[k];
         if(n_pulses==1)
-            std::cout << "\r" << t*1e6 << " us; Component " << components[K].id << "(" <<  k+1
+            std::cout << "\r" << t*1e6 << " us; Optic " << optics[K].id << "(" <<  k+1
                       << " of " << n_propagations << "): " << status
                       << "                    ";
         else
-            std::cout << "\r" << t*1e6 << " us; Component " << components[K].id << "(" <<  k+1
+            std::cout << "\r" << t*1e6 << " us; Optic " << optics[K].id << "(" <<  k+1
                       << " of " << n_propagations << "); Pulse " << pulse+1 << ": " << status
                       << "                    ";
     }

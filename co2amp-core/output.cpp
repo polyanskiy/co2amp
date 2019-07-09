@@ -74,7 +74,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     Power = new double[x0];
     double Energy = 0;
     double Dt = t_pulse_lim/(n0-1);
-    double Dr = components[layout_component[k]].Dr;
+    double Dr = optics[layout_component[k]].Dr;
 
     for(x=0; x<x0; x++)
         Fluence[x] = 0;
@@ -200,9 +200,9 @@ void SaveGainSpectrum(int pulse, int k){
     bool firstAmSection = true;
     int pass = 0;
     for(i=0; i<k; i++){
-        if(components[layout_component[i]].type == "AM" || pulse>0)
+        if(optics[layout_component[i]].type == "AM" || pulse>0)
             firstAmSection = false;
-        if(components[layout_component[i]].id==components[layout_component[k]].id)
+        if(optics[layout_component[i]].id==optics[layout_component[k]].id)
             pass++;
     }
 

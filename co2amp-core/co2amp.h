@@ -174,7 +174,7 @@ int BitReversal(int x);
 void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
-class Component
+class Optic
 {
 public:
     std::string id;
@@ -182,16 +182,44 @@ public:
     std::string yaml;
     std::string test;
     double Dr; //m
-    Component(){}
+    Optic(){}
 };
 
-extern std::vector<Component> components;
+extern std::vector<Optic> optics;
 
 
-class AM: public Component
+class A: public Optic
+{
+public:
+    A(std::string id, std::string type, std::string yaml);
+};
+
+
+class AF: public Optic
+{
+public:
+    AF(std::string id, std::string type, std::string yaml);
+};
+
+
+class AM: public Optic
 {
 public:
     AM(std::string id, std::string type, std::string yaml);
+};
+
+
+class AT: public Optic
+{
+public:
+    AT(std::string id, std::string type, std::string yaml);
+};
+
+
+class BF: public Optic
+{
+public:
+    BF(std::string id, std::string type, std::string yaml);
 };
 
 

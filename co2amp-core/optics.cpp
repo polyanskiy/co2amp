@@ -4,8 +4,8 @@
 void BeamPropagation(int pulse, int k, double t)
 {
     double z = layout_distance[k];
-    double Dr1 = components[layout_component[k]].Dr;
-    double Dr2 = components[layout_component[k+1]].Dr;
+    double Dr1 = optics[layout_component[k]].Dr;
+    double Dr2 = optics[layout_component[k+1]].Dr;
 
     if(z==0.0 && Dr1-Dr2==0.0)  //nothing to be done
         return;

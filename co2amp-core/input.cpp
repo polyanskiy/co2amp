@@ -182,8 +182,31 @@ void ConstantsInit(void)
         /*if(type=="A" || type=="AF"|| type=="AT" || type=="BF" || type=="F"
                 || type=="L" || type=="M" || type=="P" || type=="S" || type=="SF" || type=="W")
             components.push_back(Component(id, type, yaml));*/
+        if(type=="A")
+            optics.push_back(A(id, type, yaml));
+        if(type=="AF")
+            optics.push_back(AF(id, type, yaml));
         if(type=="AM")
-            components.push_back(AM(id, type, yaml));
+            optics.push_back(AM(id, type, yaml));
+        if(type=="AT")
+            optics.push_back(AT(id, type, yaml));
+        if(type=="BF")
+            optics.push_back(BF(id, type, yaml));
+        if(type=="F")
+            optics.push_back(F(id, type, yaml));
+        if(type=="L")
+            optics.push_back(L(id, type, yaml));
+        if(type=="M")
+            optics.push_back(M(id, type, yaml));
+        if(type=="P")
+            optics.push_back(P(id, type, yaml));
+        if(type=="S")
+            optics.push_back(S(id, type, yaml));
+        if(type=="SF")
+            optics.push_back(SF(id, type, yaml));
+        if(type=="W")
+            optics.push_back(W(id, type, yaml));
+
     }
 
     // Optical layout: count number of propagations
@@ -203,12 +226,12 @@ void ConstantsInit(void)
     }
     n_propagations = (n_propagations+1)/2;
 
-    std::cout << "components: " << components.size()
+    std::cout << "optics: " << optics.size()
               << "; propagations: " << n_propagations
               << "; pulses: " << n_pulses << std::endl << std::flush;
 
-    std::vector<Component>::iterator itr;
-    for(itr=components.begin(); itr!=components.end(); itr++){
+    std::vector<Optic>::iterator itr;
+    for(itr=optics.begin(); itr!=optics.end(); itr++){
         std::cout << itr->id << "\t"
                   << itr->type << "\t"
                   << itr->yaml << "\t"
@@ -375,7 +398,7 @@ void IntensityNormalization(void) // Field amplitude adjustment (to match initia
 {
     int pulse, x, n;
     double Energy, af;
-    double Dr = components[layout_component[0]].Dr;
+    double Dr = optics[layout_component[0]].Dr;
     double Dt = t_pulse_lim/(n0-1);
 
     for(pulse=0; pulse<=n_pulses-1; pulse++){
@@ -399,7 +422,7 @@ void InitializeE()
     int pulse, x, n;
     FILE *file;
 
-    double Dr = components[layout_component[0]].Dr;
+    double Dr = optics[layout_component[0]].Dr;
     double Dt = t_pulse_lim/(n0-1);
 
     if(!from_file){
