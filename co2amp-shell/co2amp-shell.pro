@@ -4,8 +4,8 @@
 TARGET = co2amp
 TEMPLATE = app
 SOURCES += main.cpp \
-    components.cpp \
     mainwindow.cpp \
+    optics.cpp \
     plot.cpp \
     clipboard.cpp \
     settings.cpp \

@@ -179,33 +179,20 @@ void ConstantsInit(void)
         std::getline(iss2, type, '\t');
         std::getline(iss2, yaml, '\t');
 
-        /*if(type=="A" || type=="AF"|| type=="AT" || type=="BF" || type=="F"
-                || type=="L" || type=="M" || type=="P" || type=="S" || type=="SF" || type=="W")
-            components.push_back(Component(id, type, yaml));*/
         if(type=="A")
             optics.push_back(A(id, type, yaml));
-        if(type=="AF")
-            optics.push_back(AF(id, type, yaml));
-        if(type=="AM")
-            optics.push_back(AM(id, type, yaml));
-        if(type=="AT")
-            optics.push_back(AT(id, type, yaml));
-        if(type=="BF")
-            optics.push_back(BF(id, type, yaml));
-        if(type=="F")
-            optics.push_back(F(id, type, yaml));
+        if(type=="C")
+            optics.push_back(C(id, type, yaml));
         if(type=="L")
             optics.push_back(L(id, type, yaml));
         if(type=="M")
             optics.push_back(M(id, type, yaml));
+        if(type=="ND")
+            optics.push_back(ND(id, type, yaml));
         if(type=="P")
             optics.push_back(P(id, type, yaml));
-        if(type=="S")
-            optics.push_back(S(id, type, yaml));
         if(type=="SF")
             optics.push_back(SF(id, type, yaml));
-        if(type=="W")
-            optics.push_back(W(id, type, yaml));
 
     }
 
@@ -235,8 +222,7 @@ void ConstantsInit(void)
         std::cout << itr->id << "\t"
                   << itr->type << "\t"
                   << itr->yaml << "\t"
-                  << itr->Dr << "\t"
-                  << itr->test << std::endl;
+                  << itr->Dr << "\t" << std::endl;
     }
 }
 

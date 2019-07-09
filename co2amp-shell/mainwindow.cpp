@@ -582,7 +582,7 @@ void MainWindow::on_tabWidget_main_currentChanged(int tab)
 }
 
 
-void MainWindow::on_comboBox_component_activated(QString)
+void MainWindow::on_comboBox_optic_activated(QString)
 {
     flag_plot_modified = true;
     Plot();

@@ -26,12 +26,12 @@ class CoreVariables
         QString input_file;
         int n_pulses;
         QString E0, w0, tau0, vc, t_inj, Dt_train;
-        QStringList component_id, component_type, component_yaml;
+        QStringList optic_id, optic_type, optic_yaml;
         QString layout;
         bool noprop;
         QString t_pulse_min, t_pulse_max;
         int precision_t, precision_r;
-        int component, pulse;
+        int optic, pulse;
 };
 
 
@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_plot_postponed_modified;
         bool flag_comments_modified;
         bool flag_input_file_error;
-        //bool noam; // no active medium components
+        //bool noam; // no amplifier optics
         QElapsedTimer timer;
         CoreVariables Saved, Memorized;
         void LoadProject();
@@ -69,15 +69,15 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
         void on_toolButton_input_file_clicked();
-        void on_toolButton_component_add_clicked();
-        void on_toolButton_component_up_clicked();
-        void on_toolButton_component_down_clicked();
-        void on_toolButton_component_rename_clicked();
-        void on_toolButton_component_remove_clicked();
-        void on_listWidget_components_currentRowChanged(int);
-        void on_plainTextEdit_component_textChanged();
-        void on_pushButton_component_load_clicked();
-        void on_pushButton_component_save_clicked();
+        void on_toolButton_optic_add_clicked();
+        void on_toolButton_optic_up_clicked();
+        void on_toolButton_optic_down_clicked();
+        void on_toolButton_optic_rename_clicked();
+        void on_toolButton_optic_remove_clicked();
+        void on_listWidget_optics_currentRowChanged(int);
+        void on_plainTextEdit_optic_textChanged();
+        void on_pushButton_optic_load_clicked();
+        void on_pushButton_optic_save_clicked();
         void closeEvent(QCloseEvent*);
         void on_svg_fig1_customContextMenuRequested();
         void on_svg_fig2_customContextMenuRequested();
@@ -89,7 +89,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
         void on_tabWidget_main_currentChanged(int tab);
-        void on_comboBox_component_activated(QString);
+        void on_comboBox_optic_activated(QString);
         void on_comboBox_pulse_activated(QString);
         void on_lineEdit_passes_textEdited(QString str);
         void on_lineEdit_passes_returnPressed();
@@ -107,7 +107,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void MemorizeSettings();
         void SaveProject();
         void LoadSettings(QString);
-        void PopulateComponentsList();
+        void PopulateOpticsList();
         void NewProject();
         void ClearWorkDir();
         void Calculate();
@@ -121,8 +121,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void SaveSVG(QString svg_path);
         void UpdateTerminal();
         void UpdateControls();
-        QString SuggestComponentID(QString type);
-        bool ComponentIDExists(QString ID);
+        QString SuggestOpticID(QString type);
+        bool OpticIDExists(QString ID);
         void BeforeProcessStarted();
         void AfterProcessFinished();
         void OnModified();

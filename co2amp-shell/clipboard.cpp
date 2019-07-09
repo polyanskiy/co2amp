@@ -127,7 +127,7 @@ void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
     if(m==1){ //data
         QString line, out;
         QRegExp separators("[\t\n]");
-        int comp_n = comboBox_component->currentIndex();
+        int comp_n = comboBox_optic->currentIndex();
         int am_n = AmNumber(comp_n);
         QFile file("data_temperatures.dat");
         file.open(QFile::ReadOnly);
@@ -154,7 +154,7 @@ void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / mo
     if(m==1){ //data
         QString line, out;
         QRegExp separators("[\t\n]");
-        int comp_n = comboBox_component->currentIndex();
+        int comp_n = comboBox_optic->currentIndex();
         int am_n = AmNumber(comp_n);
         QFile file("data_e.dat");
         file.open(QFile::ReadOnly);
@@ -209,7 +209,7 @@ void MainWindow::CopyMultipassData(QString filename)
     QFile file(filename);
     file.open(QFile::ReadOnly);
     int pass_n;
-    int comp_n = comboBox_component->currentIndex();
+    int optic_n = comboBox_optic->currentIndex();
     int pulse_n = comboBox_pulse->currentIndex();
     bool flag_xfilled = false;
 
@@ -222,7 +222,7 @@ void MainWindow::CopyMultipassData(QString filename)
         while(!file.atEnd()){
             if(line.section(separators, 0, 0) == "#pulse"
                && line.section(separators, 1, 1).toInt() == pulse_n
-               && line.section(separators, 3, 3).toInt() == comp_n
+               && line.section(separators, 3, 3).toInt() == optic_n
                && line.section(separators, 5, 5).toInt() == pass_n){
                 line = file.readLine();
                 while(line!=QString() && line[0]!='#' && line[0]!='\n'){

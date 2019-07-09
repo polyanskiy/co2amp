@@ -12,14 +12,17 @@ SOURCES += \
     input.cpp \
     main.cpp \
     memory.cpp \
-    opptic_a.cpp \
-    optic_af.cpp \
-    optic_am.cpp \
-    optic_am_amplification.cpp \
-    optic_am_band.cpp \
-    optic_am_boltzmann.cpp \
-    optic_am_dynamics.cpp \
-    optic_at.cpp \
+    optic_A.cpp \
+    optic_A_amplification.cpp \
+    optic_A_band.cpp \
+    optic_A_boltzmann.cpp \
+    optic_A_dynamics.cpp \
+    optic_C.cpp \
+    optic_L.cpp \
+    optic_M.cpp \
+    optic_ND.cpp \
+    optic_P.cpp \
+    optic_SF.cpp \
     optics.cpp \
     output.cpp \
     yaml.cpp

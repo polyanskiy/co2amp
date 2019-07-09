@@ -12,10 +12,10 @@ void MainWindow::UpdateControls()
     //////////////////////////// block signals ///////////////////////////
     BlockSignals(true);
 
-    /////////// check if there is any active madium section among the components //////////
+    /////////// check if there is any active madium section among the optics //////////
     /*noam = true;
     QStringList list1, list2;
-    list1 = Memorized.components;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
+    list1 = Memorized.optics;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
     for(i=0; i<=list1.count()-1; i++){
         list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
         if(list2.count() >= 2 && list2[1]=="AM")
@@ -95,24 +95,24 @@ void MainWindow::UpdateControls()
     if(!lineEdit_t_inj->hasFocus())
         lineEdit_t_inj->setText(Memorized.t_inj);
 
-    /////////////////////////////// OPTICSAL COMPONENTS AND CONFIGURATION /////////////////////////////////
-    int component_count = listWidget_components->count();
-    int current_component = listWidget_components->currentRow();
-    bl = component_count > 0;
+    /////////////////////////////// OPTICSAL OPTICSS AND LAYOUT /////////////////////////////////
+    int optic_count = listWidget_optics->count();
+    int current_optic = listWidget_optics->currentRow();
+    bl = optic_count > 0;
     if(bl)
-        plainTextEdit_component->setPlainText(Memorized.component_yaml[current_component]);
+        plainTextEdit_optic->setPlainText(Memorized.optic_yaml[current_optic]);
     else
-        plainTextEdit_component->setPlainText("");
-    pushButton_component_load->setEnabled(bl);
-    pushButton_component_save->setEnabled(bl);
-    plainTextEdit_component->setEnabled(bl);
-    toolButton_component_remove->setEnabled(bl);
-    toolButton_component_rename->setEnabled(bl);
-    toolButton_component_up->setEnabled(current_component > 0);
-    toolButton_component_down->setEnabled(current_component >= 0 && current_component < component_count-1);
+        plainTextEdit_optic->setPlainText("");
+    pushButton_optic_load->setEnabled(bl);
+    pushButton_optic_save->setEnabled(bl);
+    plainTextEdit_optic->setEnabled(bl);
+    toolButton_optic_remove->setEnabled(bl);
+    toolButton_optic_rename->setEnabled(bl);
+    toolButton_optic_up->setEnabled(current_optic > 0);
+    toolButton_optic_down->setEnabled(current_optic >= 0 && current_optic < optic_count-1);
 
-    //if(!plainTextEdit_components->hasFocus())
-    //    plainTextEdit_components->setPlainText(Memorized.components);
+    //if(!plainTextEdit_optics->hasFocus())
+    //    plainTextEdit_optics->setPlainText(Memorized.optics);
     if(!plainTextEdit_layout->hasFocus())
         plainTextEdit_layout->setPlainText(Memorized.layout);
     checkBox_noprop->setChecked(Memorized.noprop);
@@ -141,19 +141,19 @@ void MainWindow::UpdateControls()
     lineEdit_t_pulse_max->setEnabled(!bl);
 
     /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB //////////////////////////////
-    //components
-    //index = comboBox_component->currentIndex();
-    comboBox_component->clear();
-    //list1 = Saved.component_id;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
-    for(i=0; i<=Saved.component_id.count()-1; i++){
+    //optics
+    //index = comboBox_optic->currentIndex();
+    comboBox_optic->clear();
+    //list1 = Saved.optic_id;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
+    for(i=0; i<=Saved.optic_id.count()-1; i++){
         //list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
         //if(list2.count() >= 1)
-            comboBox_component->addItem(Saved.component_id[i]);
+            comboBox_optic->addItem(Saved.optic_id[i]);
     }
-    if(Memorized.component == -1 || Memorized.component+1 > comboBox_component->count())
-        comboBox_component->setCurrentIndex(0);
+    if(Memorized.optic == -1 || Memorized.optic+1 > comboBox_optic->count())
+        comboBox_optic->setCurrentIndex(0);
     else
-        comboBox_component->setCurrentIndex(Memorized.component);
+        comboBox_optic->setCurrentIndex(Memorized.optic);
 
     //pulse
     //index = comboBox_pulse->currentIndex();
@@ -170,10 +170,10 @@ void MainWindow::UpdateControls()
     index = comboBox_energyPlot->currentIndex();
     comboBox_energyPlot->clear();
     comboBox_energyPlot->addItem("all");
-    comboBox_energyPlot->addItem("component");
+    comboBox_energyPlot->addItem("optic");
     if(Saved.n_pulses > 1){
         comboBox_energyPlot->addItem("pulse");
-        comboBox_energyPlot->addItem("component, pulse");
+        comboBox_energyPlot->addItem("optic, pulse");
     }
     if(index == -1 || index+1 > comboBox_pulse->count()){
         if(Saved.n_pulses == 1) // single pulse
@@ -205,8 +205,8 @@ void MainWindow::BlockSignals(bool block)
     checkBox_from_file->blockSignals(block);
     lineEdit_input_file->blockSignals(block);
     checkBox_noprop->blockSignals(block);
-    listWidget_components->blockSignals(block);
-    plainTextEdit_component->blockSignals(block);
+    listWidget_optics->blockSignals(block);
+    plainTextEdit_optic->blockSignals(block);
     plainTextEdit_layout->blockSignals(block);
     comboBox_precision_t->blockSignals(block);
     comboBox_precision_r->blockSignals(block);

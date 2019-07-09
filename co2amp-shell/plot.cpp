@@ -31,7 +31,7 @@ void MainWindow::Plot()
     checkBox_labels->isChecked() ? common_plot_param = "set key" + newline : common_plot_param = "unset key" + newline;
     if(checkBox_grid->isChecked())
         common_plot_param += "set grid" + newline;
-    int comp_n = comboBox_component->currentIndex();
+    int comp_n = comboBox_optic->currentIndex();
     int am_n = AmNumber(comp_n);
     int pulse_n = comboBox_pulse->currentIndex();
     int pass_n, plot_n, set_n;
@@ -352,7 +352,7 @@ void MainWindow::SelectEnergies()
     QString line;
     QRegExp separators("[\t\n]");
     int pulse_n = comboBox_pulse->currentIndex();
-    int comp_n = comboBox_component->currentIndex();
+    int comp_n = comboBox_optic->currentIndex();
 
     QFile file_all("data_energy.dat");
     file_all.open(QFile::ReadOnly);
@@ -367,7 +367,7 @@ void MainWindow::SelectEnergies()
 	    case 0: // all energies
 		out << line.section(separators, 0, 1) << "\n";
 		break;
-	    case 1: // component
+        case 1: // optic
 		if(line.section(separators, 3, 3).toInt() == comp_n)
 		    out << line.section(separators, 0, 1) << "\n";
 		break;
@@ -375,7 +375,7 @@ void MainWindow::SelectEnergies()
 		if(line.section(separators, 2, 2).toInt() == pulse_n)
 		    out << line.section(separators, 0, 1) << "\n";
 		break;
-	    case 3: // comp + pulse
+        case 3: // optic + pulse
 		if(line.section(separators, 2, 2).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == comp_n)
 		    out << line.section(separators, 0, 1) << "\n";
 		break;

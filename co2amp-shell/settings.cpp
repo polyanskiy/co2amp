@@ -30,18 +30,18 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("debug/hotBand", checkBox_hotBand->isChecked());
         settings.setValue("debug/seqBand", checkBox_seqBand->isChecked());
 
-        // save component list, component specs (yaml), and optical configuration in separate files
+        // save optic list, optic specs (yaml), and optical configuration in separate files
         int i;
-        int component_count = Memorized.component_id.size();
+        int optic_count = Memorized.optic_id.size();
         QFile file;
         QTextStream out(&file);
 
-        file.setFileName("components.txt");
+        file.setFileName("optics.txt");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        for(i=0; i<component_count; i++){
-            out << Memorized.component_id[i] << "\t"
-                << Memorized.component_type[i] << "\t"
-                << "component" << QString().setNum(i) << ".yml\n";
+        for(i=0; i<optic_count; i++){
+            out << Memorized.optic_id[i] << "\t"
+                << Memorized.optic_type[i] << "\t"
+                << "optic" << QString().setNum(i) << ".yml\n";
         }
         file.close();
 
@@ -50,10 +50,10 @@ void MainWindow::SaveSettings(QString what_to_save)
         out << Memorized.layout;// << "\n";
         file.close();
 
-        for(i=0; i<component_count; i++){
-            file.setFileName("component" + QString().setNum(i)+".yml");
+        for(i=0; i<optic_count; i++){
+            file.setFileName("optic" + QString().setNum(i)+".yml");
             file.open(QFile::WriteOnly | QFile::Truncate);
-            out << Memorized.component_yaml[i];
+            out << Memorized.optic_yaml[i];
             file.close();
         }
 
@@ -61,7 +61,7 @@ void MainWindow::SaveSettings(QString what_to_save)
     }
 
     if(what_to_save == "all" || what_to_save == "plot"){
-        settings.setValue("plot/component", Memorized.component);
+        settings.setValue("plot/optic", Memorized.optic);
         settings.setValue("plot/pulse", Memorized.pulse);
         settings.setValue("plot/energyPlot", comboBox_energyPlot->currentIndex());
         settings.setValue("plot/passes", lineEdit_passes->text());
@@ -92,11 +92,11 @@ void MainWindow::LoadSettings(QString path)
     Memorized.n_pulses = settings.value("general/n_pulses", 1).toInt();
     Memorized.Dt_train = settings.value("co2amp/Dt_train", 0.1).toString();
 
-    // Components and optical layout
-    Memorized.component_id.clear();
-    Memorized.component_type.clear();
-    Memorized.component_yaml.clear();
-    Memorized.layout = settings.value("co2amp/layout", "p - 100 - am - 100 - p - ??").toString();
+    // Opticss and optical layout
+    Memorized.optic_id.clear();
+    Memorized.optic_type.clear();
+    Memorized.optic_yaml.clear();
+    Memorized.layout = settings.value("co2amp/layout", "P1 (1000) A1 (1000) P1").toString();
 
     int i;//, j;
     QString str;
@@ -110,7 +110,7 @@ void MainWindow::LoadSettings(QString path)
         file.close();
     }
 
-    file.setFileName("components.txt");
+    file.setFileName("optics.txt");
     if(file.open(QIODevice::ReadOnly | QFile::Text)){
         str = in.readAll();
         file.close();
@@ -118,17 +118,17 @@ void MainWindow::LoadSettings(QString path)
         for(i=0; i<list.size(); i++){
             line = list[i].split("\t");
             if(line.size() == 3){
-                Memorized.component_id.append(line[0]);
-                Memorized.component_type.append(line[1]);
+                Memorized.optic_id.append(line[0]);
+                Memorized.optic_type.append(line[1]);
                 file2.setFileName(line[2]);
                 file2.open(QIODevice::ReadOnly | QFile::Text);
-                Memorized.component_yaml.append(in2.readAll());
+                Memorized.optic_yaml.append(in2.readAll());
                 file2.close();
             }
         }
     }
 
-    PopulateComponentsList();
+    PopulateOpticsList();
 
     // Calculation net
     Memorized.precision_t = settings.value("co2amp/precision_t", 6).toInt();
@@ -140,7 +140,7 @@ void MainWindow::LoadSettings(QString path)
     plainTextEdit_comments->setPlainText(settings.value("comments/comments", "- default configuration -").toString());
 
     // Plot
-    Memorized.component = settings.value("plot/component", 0).toInt();
+    Memorized.optic = settings.value("plot/optic", 0).toInt();
     Memorized.pulse = settings.value("plot/pulse", 0).toInt();
     lineEdit_passes->setText(settings.value("plot/passes", "1,2").toString());
     if(Saved.n_pulses == 1) // single pulse
@@ -221,7 +221,7 @@ void MainWindow::MemorizeSettings()
     if(lineEdit_Dt_train->isVisible() && lineEdit_Dt_train->isEnabled())
         Memorized.Dt_train = lineEdit_Dt_train->text();
     /////////////////////////////////// OPTICS //////////////////////////////////////
-    //Memorized.components = plainTextEdit_components->toPlainText();
+    //Memorized.optics = plainTextEdit_optics->toPlainText();
     Memorized.layout = plainTextEdit_layout->toPlainText();
     Memorized.noprop = checkBox_noprop->isChecked();
     /////////////////////////////////// GAS MIXTURE //////////////////////////////////////
@@ -264,6 +264,6 @@ void MainWindow::MemorizeSettings()
     if(comboBox_precision_r->isEnabled())
         Memorized.precision_r = comboBox_precision_r->currentIndex();
     /////////////////////////////////// PLOT //////////////////////////////////////
-    Memorized.component = comboBox_component->currentIndex();
+    Memorized.optic = comboBox_optic->currentIndex();
     Memorized.pulse = comboBox_pulse->currentIndex();
 }

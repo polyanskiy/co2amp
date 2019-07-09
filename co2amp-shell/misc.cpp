@@ -48,12 +48,12 @@ int MainWindow::PassNumber(int i)
 }
 
 
-int MainWindow::AmNumber(int component_number)
+int MainWindow::AmNumber(int optic_number)
 {
     QStringList list;
-    list = Saved.component_type;
+    list = Saved.optic_type;
 
-    if(list.count()==0 || list[component_number] != "AM")
+    if(list.count()==0 || list[optic_number] != "A")
         return -1;
 
     int i;
@@ -61,7 +61,7 @@ int MainWindow::AmNumber(int component_number)
     for(i=0; i <= list.count()-1; i++){
         if(list[i] == "AM")
             count++;
-        if(i == component_number)
+        if(i == optic_number)
             break;
     }
 
