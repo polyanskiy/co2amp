@@ -111,7 +111,7 @@ void FreeMemory()
 }
 
 
-void AllocateMemoryBoltzmann(void)
+void A::AllocateMemoryBoltzmann(void)
 {
     int j;
 
@@ -153,7 +153,7 @@ void AllocateMemoryBoltzmann(void)
 }
 
 
-void FreeMemoryBoltzmann(void)
+void A::FreeMemoryBoltzmann(void)
 {
     int j;
 

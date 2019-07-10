@@ -1,7 +1,7 @@
 #include "co2amp.h"
 
 
-void Boltzmann(double t)
+void A::Boltzmann(double t)
 {
     int i;
     double u_lim;
@@ -50,7 +50,7 @@ void Boltzmann(double t)
 
 
 
-void WriteEquations(void)
+void A::WriteEquations(void)
 {
     int i, j, k;
 
@@ -94,7 +94,7 @@ void WriteEquations(void)
 }
 
 
-void SolveEquations(void)
+void A::SolveEquations(void)
 {
     int i, j, jj;
     double a;
@@ -142,7 +142,7 @@ void SolveEquations(void)
 }
 
 
-void CalculateQ(void)
+void A::CalculateQ(void)
 {
     int i, k;
     double v = 0; // electron speed, cm/s
@@ -223,7 +223,7 @@ void CalculateQ(void)
 
 
 // Create fine array from coars input crossection data by linear interpolation
-void InterpolateArray(double* input_x, double* input_y, int input_size, double* output_array)
+void A::InterpolateArray(double* input_x, double* input_y, int input_size, double* output_array)
 {
     int i, j;
     double x, x1, x2, y1, y2;
@@ -262,7 +262,7 @@ void InterpolateArray(double* input_x, double* input_y, int input_size, double* 
     }
 }
 
-void InitInputArrays(void)
+void A::InitInputArrays(void)
 {
     //--------------------- Q ---------------------
     double Q_x[] = {0.0015,	0.050,	0.250,	0.500,	0.800,	1.000,	1.500,	1.800,	1.900,	2.000,	2.150,	2.430,	2.600,	2.750,	2.900,	3.250,	3.600,	4.000,	4.500,	5.000,	5.500,	7.000,	9.000,	11.000,	15.000,	22.000,	25.000};
@@ -436,7 +436,7 @@ void InitInputArrays(void)
 }
 
 
-void Save_f()
+void A::Save_f()
 {
     FILE *file;
     int i;

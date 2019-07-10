@@ -1,7 +1,7 @@
 #include  "co2amp.h"
 
 
-void AmplificationBand(void)
+void A::AmplificationBand(void)
 {
     int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
     int ba; // band                 0 - regular; 1 - hot-e 2 - hot-f; 3 - sequence

@@ -26,6 +26,8 @@ int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 double c, h; // spped of light [m/s]; Plank's [J s]
+// ------- OUTPUT ARRAY -------
+std::complex<double> ***E;
 
 
 

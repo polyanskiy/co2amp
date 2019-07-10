@@ -2,9 +2,6 @@
 #define CO2AMP_H
 
 
-//#include  <stdio.h>
-//#include  <stdlib.h>
-//#include  <math.h>
 //#include <string>
 #include <iostream>
 #include <fstream>
@@ -25,7 +22,6 @@
 //#define false 0
 #define I std::complex<double>(0,1)
 
-//using namespace std; //this is considered a bad practice. Use std::... all the time instead
 
 // ------- INITIAL PULSE -------
 extern int from_file;
@@ -42,12 +38,16 @@ extern bool noprop;
 extern double t_pulse_lim, t_pulse_shift;
 extern double Dt_pump; // "main time" - for pumping/relaxation
 extern int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+extern double v_min, v_max;       // frequency limits, Hz
 // ------- DEBUGGING -------
 extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
 extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 extern double c, h; // spped of light [m/s]; Plank's [J s]
+
+// ------- OUTPUT ARRAY -------
+extern std::complex<double> ***E;
 
 
 
@@ -58,8 +58,6 @@ extern double c, h; // spped of light [m/s]; Plank's [J s]
 void Calculations(void);
 void StatusDisplay(int pulse, int k, double t, std::string status);
 void Debug(int level, std::string str);
-
-
 
 /////////////////////////// input.cpp ////////////////////////////
 void ReadCommandLine(int, char**);
@@ -72,8 +70,6 @@ std::complex<double> field(double, double);
 /////////////////////////// memory.cpp ///////////////////////////
 void AllocateMemory(void);
 void FreeMemory(void);
-void AllocateMemoryBoltzmann(void);
-void FreeMemoryBoltzmann(void);
 
 /////////////////////////// optics.cpp ///////////////////////////
 void BeamPropagation(int pulse, int k, double t);
@@ -96,7 +92,6 @@ void UpdateDynamicsFiles(double);
 void SaveGainSpectrum(int pulse, int component);
 void SaveOutputField(void);
 
-
 ///////////////////////////// calc.cpp /////////////////////////////
 void FFT(std::complex<double> *in, std::complex<double> *out);
 void IFFT(std::complex<double> *in, std::complex<double> *out);
@@ -104,7 +99,6 @@ void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
 int BitReversal(int x);
 
 //////////////////////////// yaml.cpp ///////////////////////////
-//void YamlGetValue(char *value, char* path, char* key);
 void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
@@ -141,7 +135,6 @@ private:
     double p_626, p_628, p_828, p_636, p_638, p_838;
     double T0;
     // ------- SPECTROSCOPY -------
-    double v_min, v_max;       // frequency limits, Hz
     double nop[6][4][3][61];   // normalized populations
     double v[6][4][4][61];     // transition frequencies, Hz
     double sigma[6][4][4][61]; // transition cross-sections, m^2
@@ -159,7 +152,6 @@ private:
     double **M;
     double *f;
     // ------- OUTPUT ARRAYS -------
-    std::complex<double> ***E;
     double **T, **e2, **e3, **e4;
     double *gainSpectrum;
 
@@ -182,6 +174,8 @@ private:
 
     /////////////////////////// boltzmann.cpp ///////////////////////////
     void Boltzmann(double);
+    void AllocateMemoryBoltzmann(void);
+    void FreeMemoryBoltzmann(void);
     void WriteEquations(void);
     void SolveEquations(void);
     void CalculateQ(void);

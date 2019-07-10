@@ -1,7 +1,7 @@
 #include  "co2amp.h"
 
 
-void Amplification(int pulse, int k, double t, int am_section, double length)
+void A::Amplification(int pulse, int k, double t, int am_section, double length)
 {
     if(length == 0.0)
         return;

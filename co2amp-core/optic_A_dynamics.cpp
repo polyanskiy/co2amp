@@ -1,7 +1,7 @@
 #include  "co2amp.h"
 
 
-void PumpingAndRelaxation(double t)
+void A::PumpingAndRelaxation(double t)
 {
     int x, k;
     double A, X, W;
@@ -97,7 +97,7 @@ void PumpingAndRelaxation(double t)
 }
 
 
-double Current(double t) //t - time in s
+double A::Current(double t) //t - time in s
 {
     int i;
     for(i=0; i<n_discharge_points-1; i++)
@@ -107,7 +107,7 @@ double Current(double t) //t - time in s
 }
 
 
-double Voltage(double t) //t - time in s
+double A::Voltage(double t) //t - time in s
 {
     int i;
     for(i=0; i<n_discharge_points-1; i++)
@@ -137,7 +137,7 @@ double Voltage(double t) //t - time in s
 }*/
 
 
-void InitializePopulations()
+void A::InitializePopulations()
 {
   int k, x;
   for(k=0; k<=n_AM-1; k++)
@@ -169,13 +169,13 @@ void InitializePopulations()
 	}
 }
 
-double e2e(double T)
+double A::e2e(double T)
 {
   return 2.0/(exp(960.0/T)-1.0);
 }
 
 
-double VibrationalTemperatures(int am_section, int x, int mode){
+double A::VibrationalTemperatures(int am_section, int x, int mode){
     // See Nevdakh 2005 for details: dx.doi.org/10.1007/s10812-005-0034-4
 
     //int i;
