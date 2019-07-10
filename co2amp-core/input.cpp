@@ -164,7 +164,7 @@ void ConstantsInit(void)
     //n_components = 0;
     //n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
 
-    in = std::ifstream("components.txt", std::ios::in);
+    in = std::ifstream("optics.txt", std::ios::in);
     if (in){
         file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
