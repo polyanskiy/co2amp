@@ -8,7 +8,7 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
 
     int x;                                                           // coordinate step number
     int count = 0;
-    char status[64];
+    std::string status;
     double Dt = t_pulse_lim/(n0-1);                                  // time step, s
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
@@ -29,8 +29,9 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
     #pragma omp parallel for// multithreaded
     for(x=0; x<x0; x++){
         count++;
-        sprintf(status, "amplification: %d of % d", count, x0);
-        StatusDisplay(pulse, k, t, status);
+        //sprintf(status, "amplification: %d of % d", count, x0);
+        status = "amplification: " + std::to_string(count) + " of " + std::to_string(x0);
+        Core::StatusDisplay(pulse, k, t, status);
 
         int n;  // time step number
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838

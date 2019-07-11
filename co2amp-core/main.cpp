@@ -36,15 +36,16 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-07-05" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-07-11" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)
         std::cout << "number of CPU cores: " << omp_get_num_threads() << std::endl << std::endl << std::flush;
+
     ReadCommandLine(argc, argv);
-    Debug(1, "Command line read done!");
+    Core::Debug(1, "Command line read done!");
     ConstantsInit();
-    Debug(1, "Constants init done!");
+    Core::Debug(1, "Constants init done!");
     /*AllocateMemory();
     Debug(1, "Allocate memory done!");
     ArraysInit();
@@ -73,20 +74,20 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    std::cout << std::endl << "CALCULATING:" << std::endl << std::flush;
+    //std::cout << std::endl << "CALCULATING:" << std::endl;
 
     // 1 Fill out spectroscoic arrays &
     // 2 Populations and field initialization
-    if(n_AM>0 && p_CO2+p_N2+p_He>0){
+    /*if(n_AM>0 && p_CO2+p_N2+p_He>0){
         AmplificationBand();
         InitializePopulations();
-    }
+    }*/
 
-    StatusDisplay(-1, -1, -1, "initial field...");
-    InitializeE();
+    //StatusDisplay(-1, -1, -1, "initial field...");
+    //InitializeE();
 
     // 3 Initial q's
-    if(n_AM>0 && p_CO2+p_N2+p_He>0){
+    /*if(n_AM>0 && p_CO2+p_N2+p_He>0){
         StatusDisplay(-1, -1, 0, "pumping and relaxation...");
         if(pumping == "discharge"){
             Boltzmann(0);
@@ -96,16 +97,16 @@ void Calculations()
             qT_b = qT;
             t_b = 0;
         }
-    }
+    }*/
 
     // 4 Calculation of field dynamics:
     for(t=0; t<=layout_time[n_propagations-1] + Dt_train*(n_pulses-1) + Dt_pump; t+=Dt_pump){
 
         // molecular dynamics calculations
-        if(n_AM>0 && p_CO2+p_N2+p_He>0){
+        /*if(n_AM>0 && p_CO2+p_N2+p_He>0){
             StatusDisplay(-1, -1, t, "pumping and relaxation...");
             PumpingAndRelaxation(t);
-        }
+        }*/
 
         for(k=0; k<n_propagations; k++){
             for(pulse=0; pulse<n_pulses; pulse++){
@@ -114,7 +115,7 @@ void Calculations()
                     K = layout_component[k]; // component number in the "components" list
 
                     // files written on component input (ex: before amplification)
-                    StatusDisplay(pulse, k, t_cur, "saving...");
+                    Core::StatusDisplay(pulse, k, t_cur, "saving...");
                     UpdateOutputFiles(pulse, k, t_cur);
 
                     // amplification
@@ -125,9 +126,9 @@ void Calculations()
                                 am_section++;
                         }
                         if(p_CO2>0){
-                            Debug(1, "amplification: starting...");
+                            Core::Debug(1, "amplification: starting...");
                             //Amplification(pulse, k, t_cur, am_section, atof(component_param1[K])*1e-2); //param1: amplification length, cm -> m
-                            Debug(1, "amplification: done");
+                            Core::Debug(1, "amplification: done");
                             SaveGainSpectrum(pulse, k);
                         }
                     }
@@ -167,9 +168,9 @@ void Calculations()
                     //propagation to next component
                     if(k!=n_propagations-1){ //no propagation after last surface
                         if(!noprop){ //running without -noprop option
-                            Debug(1, "propagation: starting...");
+                            Core::Debug(1, "propagation: starting...");
                             BeamPropagation(pulse, k, t_cur);
-                            Debug(1, "propagation: done");
+                            Core::Debug(1, "propagation: done");
                         }
                     }
                 }
@@ -178,7 +179,7 @@ void Calculations()
     }
 }
 
-void StatusDisplay(int pulse, int k, double t, std::string status)
+void Core::StatusDisplay(int pulse, int k, double t, std::string status)
 {
     int K;
     if(k == -1){
@@ -205,7 +206,7 @@ void StatusDisplay(int pulse, int k, double t, std::string status)
 }
 
 
-void Debug(int level, std::string str)
+void Core::Debug(int level, std::string str)
 {
     if(level > debug_level)
         return;

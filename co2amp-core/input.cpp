@@ -15,23 +15,6 @@ void ReadCommandLine(int argc, char **argv)
     Dt_train = 0.1e-6;      // Delay between pulses in the train, s (only for n_pulses > 1)
     // ------- OPTICS, GEOMETRY -------
     noprop = false;         // Skip propagation calculations
-    // ------- PUMPING -------
-    /*strcpy(pumping, "discharge"); // Pumping type (discharge or optical)
-    Vd = 0.0085;            // Ddischarge volume, m^3
-    D = 0.085;              // Ddistance between electrodes, m
-    pump_wl = 2.79e-6;      // Wavelength of optical pumping, m
-    pump_sigma = 1e-25;     // Absorption cross-section for optical pumping, m^2
-    pump_fluence = 1e4;     // Fluence of optical pumping, J/m^2
-    // -------- GAS MIXTURE --------
-    p_626 = 0.5;            // 16O-12C-16O pressure, bar
-    p_628 = 0;              // 16O-12C-18O pressure, bar
-    p_828 = 0;              // 18O-12C-18O pressure, bar
-    p_636 = 0;              // 16O-13C-16O pressure, bar
-    p_638 = 0;              // 16O-13C-18O pressure, bar
-    p_838 = 0;              // 18O-13C-18O pressure, bar
-    p_N2 = 0.5;             // N2 pressure, bar
-    p_He = 2;               // He pressure, bar
-    T0 = 300;               // Initial gas temperature, K*/
     // ------- CALCULATION NET -------
     x0 = 64;
     n0 = 64;
@@ -44,13 +27,9 @@ void ReadCommandLine(int argc, char **argv)
 
     //Read command line
     std::string debug_str = "Command line: ";
-    //strcpy(debug_str, "Command line: ");
     for (i=1; i<argc; i++){
-        // debug string
         debug_str += argv[i];
         debug_str += " ";
-        //strcat(debug_str, argv[i]);
-        //strcat(debug_str, " ");
         // ------- INITIAL PULSE -------
         if (!strcmp(argv[i], "-from_file"))
             from_file = atoi(argv[i+1]);
@@ -71,39 +50,6 @@ void ReadCommandLine(int argc, char **argv)
         // ------- LAYOUT -------
         if (!strcmp(argv[i], "-noprop"))
             noprop = true;
-        // ------- PUMPING -------
-        /*if (!strcmp(argv[i], "-pumping"))
-            strcpy(pumping, argv[i+1]);
-        if (!strcmp(argv[i], "-Vd"))
-            Vd = atof(argv[i+1])*1e-6;      // cm^3->m^3
-        if (!strcmp(argv[i], "-D"))
-            D = atof(argv[i+1])*1e-3;       // mm->m
-        if (!strcmp(argv[i], "-pump_wl"))
-            pump_wl = atof(argv[i+1])*1e-6;   // um -> m
-        if (!strcmp(argv[i], "-pump_sigma"))
-            pump_sigma = atof(argv[i+1])*1e-4;   // cm^2 -> m^2
-        if (!strcmp(argv[i], "-pump_fluence"))
-            pump_fluence = atof(argv[i+1])*1e4;   // J/cm^2 -> J/m^2
-        // ------- GAS MIXTURE -------
-        if (!strcmp(argv[i], "-p_626"))
-            p_626 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_628"))
-            p_628 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_828"))
-            p_828 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_636"))
-            p_636 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_638"))
-            p_638 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_838"))
-            p_838 = atof(argv[i+1]);
-        p_CO2 = p_626+p_628+p_828+p_636+p_638+p_838; // Total CO2 pressure, bar
-        if (!strcmp(argv[i], "-p_N2"))
-            p_N2 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-p_He"))
-            p_He = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-T0"))
-            T0 = atof(argv[i+1]);*/
         // ------- CALCULATION NET -------
         if (!strcmp(argv[i], "-x0"))
             x0 = atoi(argv[i+1]);
@@ -120,7 +66,7 @@ void ReadCommandLine(int argc, char **argv)
             bands = atoi(argv[i+1]);
     }
     
-    Debug(2, debug_str);
+    Core::Debug(2, debug_str);
 }
 
 
@@ -160,9 +106,6 @@ void ConstantsInit(void)
     // Optical layout: count number of components and active medium sections
     std::string str, file_str;
     std::ifstream in;
-
-    //n_components = 0;
-    //n_A=0; n_AF=0; n_AM=0; n_AT=0; n_BF=0; n_F=0; n_L=0; n_M=0; n_P=0; n_S=0; n_SF=0; n_W=0;
 
     in = std::ifstream("optics.txt", std::ios::in);
     if (in){
@@ -215,7 +158,7 @@ void ConstantsInit(void)
 
     std::cout << "optics: " << optics.size()
               << "; propagations: " << n_propagations
-              << "; pulses: " << n_pulses << std::endl << std::flush;
+              << "; pulses: " << n_pulses << std::endl;
 
     std::vector<Optic>::iterator itr;
     for(itr=optics.begin(); itr!=optics.end(); itr++){

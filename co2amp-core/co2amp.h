@@ -56,8 +56,7 @@ extern std::complex<double> ***E;
 
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
-void StatusDisplay(int pulse, int k, double t, std::string status);
-void Debug(int level, std::string str);
+
 
 /////////////////////////// input.cpp ////////////////////////////
 void ReadCommandLine(int, char**);
@@ -102,6 +101,16 @@ int BitReversal(int x);
 void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
+class Core
+{
+public:
+    Core(){}
+    static void Abort(std::string){}
+    static void StatusDisplay(int pulse, int k, double t, std::string status);
+    static void Debug(int level, std::string str);
+};
+
+
 class Optic
 {
 public:
@@ -111,6 +120,8 @@ public:
     std::string test;
     double Dr; //m
     Optic(){}
+    void InternalDynamics(double){}
+    void PulseInteraction(int){}
 };
 
 extern std::vector<Optic> optics;
@@ -120,6 +131,8 @@ class A: public Optic // Amplifier section
 {
 public:
     A(std::string id, std::string type, std::string yaml);
+    void InternalDynamics(double);
+    void PulseInteraction(int);
 private:
     // ------- PUMPING -------
     std::string pumping; // pumping type ("discharge" or "optical")
