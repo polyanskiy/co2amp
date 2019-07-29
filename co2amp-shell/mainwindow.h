@@ -22,7 +22,7 @@
 class CoreVariables
 {
     public:
-        QStringList optic_id, optic_type, optic_yaml;
+        QStringList configFile_basename, configFile_type, configFile_content;
         QString layout;
         bool noprop;
         QString vc, t_pulse_min, t_pulse_max;
@@ -64,15 +64,15 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
-        void on_toolButton_optic_add_clicked();
-        void on_toolButton_optic_up_clicked();
-        void on_toolButton_optic_down_clicked();
-        void on_toolButton_optic_rename_clicked();
-        void on_toolButton_optic_remove_clicked();
-        void on_listWidget_optics_currentRowChanged(int);
-        void on_plainTextEdit_optic_textChanged();
-        void on_pushButton_optic_load_clicked();
-        void on_pushButton_optic_save_clicked();
+        void on_toolButton_configFile_add_clicked();
+        void on_toolButton_configFile_up_clicked();
+        void on_toolButton_configFile_down_clicked();
+        void on_toolButton_configFile_rename_clicked();
+        void on_toolButton_configFile_remove_clicked();
+        void on_listWidget_configFile_list_currentRowChanged(int);
+        void on_plainTextEdit_configFile_content_textChanged();
+        void on_pushButton_configFile_load_clicked();
+        void on_pushButton_configFile_save_clicked();
         void closeEvent(QCloseEvent*);
         void on_svg_fig1_customContextMenuRequested();
         void on_svg_fig2_customContextMenuRequested();
@@ -102,7 +102,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void MemorizeSettings();
         void SaveProject();
         void LoadSettings(QString);
-        void PopulateOpticsList();
+        void PopulateConfigFileList();
         void NewProject();
         void ClearWorkDir();
         void Calculate();
@@ -116,8 +116,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void SaveSVG(QString svg_path);
         void UpdateTerminal();
         void UpdateControls();
-        QString SuggestOpticID(QString type);
-        bool OpticIDExists(QString ID);
+        QString SuggestConfigFileName(QString type);
+        bool ConfigFileNameExists(QString ID);
         void BeforeProcessStarted();
         void AfterProcessFinished();
         void OnModified();

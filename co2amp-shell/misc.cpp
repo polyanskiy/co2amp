@@ -51,7 +51,7 @@ int MainWindow::PassNumber(int i)
 int MainWindow::AmNumber(int optic_number)
 {
     QStringList list;
-    list = Saved.optic_type;
+    list = Saved.configFile_type;
 
     if(list.count()==0 || list[optic_number] != "A")
         return -1;

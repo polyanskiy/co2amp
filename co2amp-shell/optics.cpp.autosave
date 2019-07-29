@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 
-void MainWindow::on_toolButton_optic_add_clicked()
+void MainWindow::on_toolButton_file_add_clicked()
 {
     QStringList selection_list = {"Amplifier section (A)",
                                   "Probe (P)",
@@ -9,11 +9,14 @@ void MainWindow::on_toolButton_optic_add_clicked()
                                   "Matter (M)",
                                   "Spatial filter (ND)",
                                   "Spectral filter (SF)",
-                                  "Chirp (C)"};
-    QStringList type_list = {"A", "P", "L", "M", "ND", "SF", "C"};
+                                  "Chirp (C)",
+                                  "PULSE",
+                                  "LAYOUT",
+                                  "COMMENT"};
+    QStringList type_list = {"A", "P", "L", "M", "ND", "SF", "C", "PULSE", "LAYOUT", "COMMENT"};
     bool ok_pressed;
 
-    QString type = QInputDialog().getItem(this, "co2amp", "Optic type", selection_list, 0, false, &ok_pressed);
+    QString type = QInputDialog().getItem(this, "co2amp", "File type", selection_list, 0, false, &ok_pressed);
     if(!ok_pressed)
         return;  
     type = type_list[selection_list.indexOf(type)];
@@ -21,16 +24,16 @@ void MainWindow::on_toolButton_optic_add_clicked()
     QString id="";
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "Optic ID:", QLineEdit::Normal, SuggestOpticID(type), &ok_pressed);
+        id = QInputDialog().getText(this, "co2amp", "Base name:", QLineEdit::Normal, SuggestOpticID(type), &ok_pressed);
         if(!ok_pressed)
             return;
         id.replace( " ", "" );
         if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide an optic name");
+            QMessageBox().warning(this, "co2amp", "Please provide a unique name");
             continue;
         }
         if(OpticIDExists(id)){
-            QMessageBox().warning(this, "co2amp", "Optic name already exists");
+            QMessageBox().warning(this, "co2amp", "Name already exists");
             continue;
         }
         good_id_provided = true;
@@ -47,7 +50,7 @@ void MainWindow::on_toolButton_optic_add_clicked()
 }
 
 
-void MainWindow::on_toolButton_optic_up_clicked()
+void MainWindow::on_toolButton_file_up_clicked()
 {
     int current_optic = listWidget_optics->currentRow();
     if(current_optic == 0)
@@ -63,7 +66,7 @@ void MainWindow::on_toolButton_optic_up_clicked()
 }
 
 
-void MainWindow::on_toolButton_optic_down_clicked()
+void MainWindow::on_toolButton_file_down_clicked()
 {
     int current_optic = listWidget_optics->currentRow();
     if(current_optic == listWidget_optics->count()-1)
@@ -79,7 +82,7 @@ void MainWindow::on_toolButton_optic_down_clicked()
 }
 
 
-void MainWindow::on_toolButton_optic_rename_clicked()
+void MainWindow::on_toolButton_file_rename_clicked()
 {
     int current_optic = listWidget_optics->currentRow();
 
@@ -89,16 +92,16 @@ void MainWindow::on_toolButton_optic_rename_clicked()
     bool ok_pressed;
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "Optic ID:", QLineEdit::Normal, oldid, &ok_pressed);
+        id = QInputDialog().getText(this, "co2amp", "Base name:", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
         id.replace( " ", "" );
         if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide an optic name");
+            QMessageBox().warning(this, "co2amp", "Please provide a unique name");
             continue;
         }
         if(OpticIDExists(id)){
-            QMessageBox().warning(this, "co2amp", "Optic name already exists");
+            QMessageBox().warning(this, "co2amp", "Name already exists");
             continue;
         }
         good_id_provided = true;
@@ -110,7 +113,7 @@ void MainWindow::on_toolButton_optic_rename_clicked()
 }
 
 
-void MainWindow::on_toolButton_optic_remove_clicked()
+void MainWindow::on_toolButton_file_remove_clicked()
 {
     if(listWidget_optics->count() == 0)
         return;
@@ -129,20 +132,20 @@ void MainWindow::on_toolButton_optic_remove_clicked()
 }
 
 
-void MainWindow::on_listWidget_optics_currentRowChanged(int)
+void MainWindow::on_listWidget_files_currentRowChanged(int)
 {
     UpdateControls();
 }
 
 
-void MainWindow::on_plainTextEdit_optic_textChanged()
+void MainWindow::on_plainTextEdit_file_textChanged()
 {
     int current_optic = listWidget_optics->currentRow();
     Memorized.optic_yaml[current_optic] = plainTextEdit_optic->toPlainText();
 }
 
 
-void MainWindow::on_pushButton_optic_load_clicked()
+void MainWindow::on_pushButton_file_load_clicked()
 {
     QFileInfo fileinfo;
 
@@ -170,7 +173,7 @@ void MainWindow::on_pushButton_optic_load_clicked()
 }
 
 
-void MainWindow::on_pushButton_optic_save_clicked()
+void MainWindow::on_pushButton_file_save_clicked()
 {
     QFileInfo fileinfo;
 
@@ -196,7 +199,7 @@ void MainWindow::on_pushButton_optic_save_clicked()
 }
 
 
-QString MainWindow::SuggestOpticID(QString type)
+QString MainWindow::SuggestFileName(QString type)
 {
     int i = 1;
     while(OpticIDExists(type + QString().setNum(i)))
@@ -205,7 +208,7 @@ QString MainWindow::SuggestOpticID(QString type)
 }
 
 
-bool MainWindow::OpticIDExists(QString id)
+bool MainWindow::FileNameExists(QString id)
 {
     int optics_count = Memorized.optic_id.size();
 
@@ -219,9 +222,9 @@ bool MainWindow::OpticIDExists(QString id)
     return false;
 }
 
-void MainWindow::PopulateOpticsList()
+void MainWindow::PopulateFileList()
 {
-    BlockSignals(true); // don't call UpdateOptics() when optics being removed/added
+    BlockSignals(true); // don't call UpdateFile() when optics being removed/added
     listWidget_optics->clear();
 
     int optic_count = Memorized.optic_id.size();

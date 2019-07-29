@@ -29,15 +29,15 @@ void MainWindow::SaveSettings(QString what_to_save)
 
         // save optic list, optic specs (yaml), and optical configuration in separate files
         int i;
-        int optic_count = Memorized.optic_id.size();
+        int optic_count = Memorized.configFile_basename.size();
         QFile file;
         QTextStream out(&file);
 
         file.setFileName("optics.txt");
         file.open(QFile::WriteOnly | QFile::Truncate);
         for(i=0; i<optic_count; i++){
-            out << Memorized.optic_id[i] << "\t"
-                << Memorized.optic_type[i] << "\t"
+            out << Memorized.configFile_basename[i] << "\t"
+                << Memorized.configFile_type[i] << "\t"
                 << "optic" << QString().setNum(i) << ".yml\n";
         }
         file.close();
@@ -50,7 +50,7 @@ void MainWindow::SaveSettings(QString what_to_save)
         for(i=0; i<optic_count; i++){
             file.setFileName("optic" + QString().setNum(i)+".yml");
             file.open(QFile::WriteOnly | QFile::Truncate);
-            out << Memorized.optic_yaml[i];
+            out << Memorized.configFile_content[i];
             file.close();
         }
 
@@ -86,9 +86,9 @@ void MainWindow::LoadSettings(QString path)
     Memorized.Dt_train = settings.value("co2amp/Dt_train", 0.1).toString();*/
 
     // Opticss and optical layout
-    Memorized.optic_id.clear();
-    Memorized.optic_type.clear();
-    Memorized.optic_yaml.clear();
+    Memorized.configFile_basename.clear();
+    Memorized.configFile_type.clear();
+    Memorized.configFile_content.clear();
     //Memorized.layout = settings.value("co2amp/layout", "P1 (1000) A1 (1000) P1").toString();
 
     int i;//, j;
@@ -111,17 +111,17 @@ void MainWindow::LoadSettings(QString path)
         for(i=0; i<list.size(); i++){
             line = list[i].split("\t");
             if(line.size() == 3){
-                Memorized.optic_id.append(line[0]);
-                Memorized.optic_type.append(line[1]);
+                Memorized.configFile_basename.append(line[0]);
+                Memorized.configFile_type.append(line[1]);
                 file2.setFileName(line[2]);
                 file2.open(QIODevice::ReadOnly | QFile::Text);
-                Memorized.optic_yaml.append(in2.readAll());
+                Memorized.configFile_content.append(in2.readAll());
                 file2.close();
             }
         }
     }
 
-    PopulateOpticsList();
+    PopulateConfigFileList();
 
     // Calculation net
     Memorized.vc = settings.value("co2amp/vc", 30).toString();

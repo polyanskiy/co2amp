@@ -39,21 +39,21 @@ void MainWindow::UpdateControls()
     checkBox_showCalculationTime->setEnabled(flag_calculating);
 
 
-    /////////////////////////////// OPTICS AND LAYOUT /////////////////////////////////
-    int optic_count = listWidget_optics->count();
-    int current_optic = listWidget_optics->currentRow();
+    /////////////////////////////// CONFIGURATION FILES /////////////////////////////////
+    int optic_count = listWidget_configFile_list->count();
+    int current_optic = listWidget_configFile_list->currentRow();
     bl = optic_count > 0;
     if(bl)
-        plainTextEdit_optic->setPlainText(Memorized.optic_yaml[current_optic]);
+        plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_optic]);
     else
-        plainTextEdit_optic->setPlainText("");
-    pushButton_optic_load->setEnabled(bl);
-    pushButton_optic_save->setEnabled(bl);
-    plainTextEdit_optic->setEnabled(bl);
-    toolButton_optic_remove->setEnabled(bl);
-    toolButton_optic_rename->setEnabled(bl);
-    toolButton_optic_up->setEnabled(current_optic > 0);
-    toolButton_optic_down->setEnabled(current_optic >= 0 && current_optic < optic_count-1);
+        plainTextEdit_configFile_content->setPlainText("");
+    pushButton_configFile_load->setEnabled(bl);
+    pushButton_configFile_save->setEnabled(bl);
+    plainTextEdit_configFile_content->setEnabled(bl);
+    toolButton_configFile_remove->setEnabled(bl);
+    toolButton_configFile_rename->setEnabled(bl);
+    toolButton_configFile_up->setEnabled(current_optic > 0);
+    toolButton_configFile_down->setEnabled(current_optic >= 0 && current_optic < optic_count-1);
 
     checkBox_noprop->setChecked(Memorized.noprop);
 
@@ -85,10 +85,10 @@ void MainWindow::UpdateControls()
     //index = comboBox_optic->currentIndex();
     comboBox_optic->clear();
     //list1 = Saved.optic_id;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
-    for(i=0; i<=Saved.optic_id.count()-1; i++){
+    for(i=0; i<=Saved.configFile_basename.count()-1; i++){
         //list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
         //if(list2.count() >= 1)
-            comboBox_optic->addItem(Saved.optic_id[i]);
+            comboBox_optic->addItem(Saved.configFile_basename[i]);
     }
     if(Memorized.optic == -1 || Memorized.optic+1 > comboBox_optic->count())
         comboBox_optic->setCurrentIndex(0);
@@ -143,8 +143,8 @@ void MainWindow::UpdateControls()
 void MainWindow::BlockSignals(bool block)
 {
     checkBox_noprop->blockSignals(block);
-    listWidget_optics->blockSignals(block);
-    plainTextEdit_optic->blockSignals(block);
+    listWidget_configFile_list->blockSignals(block);
+    plainTextEdit_configFile_content->blockSignals(block);
     comboBox_precision_t->blockSignals(block);
     comboBox_precision_r->blockSignals(block);
 }
