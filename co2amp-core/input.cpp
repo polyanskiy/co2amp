@@ -66,7 +66,7 @@ void ReadCommandLine(int argc, char **argv)
             bands = atoi(argv[i+1]);
     }
     
-    Core::Debug(2, debug_str);
+    CO2AMP::Debug(2, debug_str);
 }
 
 

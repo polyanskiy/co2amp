@@ -22,14 +22,10 @@
 class CoreVariables
 {
     public:
-        bool from_file;
-        QString input_file;
-        int n_pulses;
-        QString E0, w0, tau0, vc, t_inj, Dt_train;
         QStringList optic_id, optic_type, optic_yaml;
         QString layout;
         bool noprop;
-        QString t_pulse_min, t_pulse_max;
+        QString vc, t_pulse_min, t_pulse_max;
         int precision_t, precision_r;
         int optic, pulse;
 };
@@ -68,7 +64,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
-        void on_toolButton_input_file_clicked();
         void on_toolButton_optic_add_clicked();
         void on_toolButton_optic_up_clicked();
         void on_toolButton_optic_down_clicked();

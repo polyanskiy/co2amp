@@ -54,7 +54,7 @@ A::A(std::string id, std::string type, std::string yaml)
     }
 
     if(pumping != "optical" && pumping == "discharge")
-        Core::Abort("Wrong pumpinge type (must be \"discharge\" or \"optical\"");
+        Abort("Wrong pumpinge type (must be \"discharge\" or \"optical\"");
 
     // ------- GAS MIXTURE -------
     YamlGetValue(&value, yaml, "p_626");
@@ -122,7 +122,7 @@ A::A(std::string id, std::string type, std::string yaml)
 
 void A::InternalDynamics(double t)
 {
-    Core::StatusDisplay(-1, -1, t, "pumping and relaxation...");
+    StatusDisplay(-1, -1, t, "pumping and relaxation...");
     PumpingAndRelaxation(t);
 }
 

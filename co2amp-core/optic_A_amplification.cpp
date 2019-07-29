@@ -31,7 +31,7 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
         count++;
         //sprintf(status, "amplification: %d of % d", count, x0);
         status = "amplification: " + std::to_string(count) + " of " + std::to_string(x0);
-        Core::StatusDisplay(pulse, k, t, status);
+        StatusDisplay(pulse, k, t, status);
 
         int n;  // time step number
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838

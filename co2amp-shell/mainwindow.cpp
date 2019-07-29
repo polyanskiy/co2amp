@@ -51,12 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     project_file = QString();
 
     //////////////////////////////////////// Validators ///////////////////////////////////////
-    lineEdit_E0->setValidator(new QDoubleValidator(this));
-    lineEdit_w0->setValidator(new QDoubleValidator(this));
-    lineEdit_tau0->setValidator(new QDoubleValidator(this));
     lineEdit_vc->setValidator(new QDoubleValidator(this));
-    lineEdit_t_inj->setValidator(new QDoubleValidator(this));
-    lineEdit_Dt_train->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_min->setValidator(new QDoubleValidator(this));
     lineEdit_t_pulse_max->setValidator(new QDoubleValidator(this));
 
@@ -78,17 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
     connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
-    connect(plainTextEdit_comments, SIGNAL(textChanged()), this, SLOT(Comments()));
-    connect(checkBox_from_file, SIGNAL(clicked()), this, SLOT(OnModified()));
-    connect(spinBox_n_pulses, SIGNAL(valueChanged(int)), this, SLOT(OnModified()));
-    connect(lineEdit_input_file, SIGNAL(textChanged(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_w0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_tau0, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_vc, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_t_inj, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_Dt_train, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(plainTextEdit_layout, SIGNAL(textChanged()), this, SLOT(OnModified()));
     connect(checkBox_noprop, SIGNAL(clicked()), this, SLOT(OnModified()));
     connect(comboBox_precision_t, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
@@ -149,16 +134,6 @@ void MainWindow::Abort()
 }
 
 
-void MainWindow::on_toolButton_input_file_clicked()
-{
-    QString str = QFileDialog::getOpenFileName(this, QString(), def_dir, tr("CO2 projects with field (*.co2x)"));
-    if(str == QString())
-        return;
-    Memorized.input_file = QDir::toNativeSeparators(str);
-    lineEdit_input_file->setText(Memorized.input_file);
-}
-
-
 void MainWindow::Calculate()
 {
     BeforeProcessStarted(); //prepare everything
@@ -168,21 +143,8 @@ void MainWindow::Calculate()
 
     arguments << path_to_core;
 
-    if(Memorized.from_file) // Load field from file
-        arguments << "-from_file 1";
-    else{
-        arguments << "-from_file 0";
-        arguments << "-E0" << Memorized.E0;
-        arguments << "-w0" << Memorized.w0;
-        arguments << "-tau0" << Memorized.tau0;
-    }
     // vc, n_pulses, and Dt_train may be different form memorized if loading input pulse from file
     arguments << "-vc" << lineEdit_vc->text();
-    arguments << "-t_inj" << Memorized.t_inj;
-    arguments << "-n_pulses" << spinBox_n_pulses->text();
-    if(spinBox_n_pulses->text() != "1")
-        arguments << "-Dt_train" << lineEdit_Dt_train->text();
-
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
     arguments << "-x0" << comboBox_precision_r->currentText();
@@ -193,7 +155,6 @@ void MainWindow::Calculate()
         arguments << "-noprop";
 
     arguments << "-debug" << spinBox_debugLevel->text();
-    arguments << "-bands" << QString::number(checkBox_regBand->isChecked() + 2*checkBox_hotBand->isChecked() + 4*checkBox_seqBand->isChecked());
 
     //////////////////// Starting The Process ////////////////////
     process = new QProcess(this);
@@ -489,15 +450,15 @@ void MainWindow::OnModified()
 
 void MainWindow::LoadInputPulse()
 {
-    if(!Memorized.from_file)
-        return;
+    //if(!Memorized.from_file)
+    //    return;
 
     flag_input_file_error = false;
 
     QFile::remove("field_in.bin");
 
     QString file_to_load;
-    QFileInfo fileinfo(Memorized.input_file);
+    /*QFileInfo fileinfo(Memorized.input_file);
     if(fileinfo.fileName()==Memorized.input_file) //file name without directory - assume same directory as the project file
         file_to_load = QDir::toNativeSeparators(def_dir+"/"+Memorized.input_file);
     else
@@ -507,7 +468,7 @@ void MainWindow::LoadInputPulse()
     if(Memorized.input_file=="" || !file.exists()){
         flag_input_file_error = true;
         return;
-    }
+    }*/
 
     QProcess *proc;
     proc = new QProcess(this);
@@ -528,23 +489,18 @@ void MainWindow::LoadInputPulse()
     if( settings.value("co2amp/t_pulse_min", "x").toString() == "x"
            || settings.value("co2amp/t_pulse_max", "x").toString() == "x"
            || settings.value("co2amp/vc", "x").toString() == "x"
-           || settings.value("general/n_pulses", "x").toString() == "x"
            || !QFile::exists("field_in.bin") )
         flag_input_file_error = true;
     else{
         Saved.t_pulse_min = settings.value("co2amp/t_pulse_min", "").toString();
         Saved.t_pulse_max = settings.value("co2amp/t_pulse_max", "").toString();
         Saved.vc = settings.value("co2amp/vc", "").toString();
-        Saved.Dt_train = settings.value("co2amp/Dt_train", "").toString();
-        Saved.n_pulses = settings.value("general/n_pulses", 1).toInt();
         Saved.precision_t = settings.value("co2amp/precision_t", 2).toInt();
         Saved.precision_r = settings.value("co2amp/precision_r", 2).toInt();
 
         Memorized.t_pulse_min = Saved.t_pulse_min;
         Memorized.t_pulse_max = Saved.t_pulse_max;
         Memorized.vc = Saved.vc;
-        Memorized.Dt_train = Saved.Dt_train;
-        Memorized.n_pulses = Saved.n_pulses;
         Memorized.precision_t = Saved.precision_t;
         Memorized.precision_r = Saved.precision_r;
     }
@@ -575,7 +531,7 @@ void MainWindow::Comments()
 
 void MainWindow::on_tabWidget_main_currentChanged(int tab)
 {
-    if(tab != 1)
+    if(tab != 2)
         return;
     if(flag_plot_postponed)
         Plot();

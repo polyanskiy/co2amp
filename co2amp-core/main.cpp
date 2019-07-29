@@ -4,9 +4,9 @@
 // GLOBAL VARIABLES
 
 // ------- INITIAL PULSE -------
-int from_file;
-double E0, w0, tau0, vc;
-double t_inj;
+//int from_file;
+//double E0, w0, tau0, vc;
+//double t_inj;
 int n_pulses;
 double Dt_train;
 // ------- OPTICS, GEOMETRY -------
@@ -36,16 +36,18 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-07-11" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-07-23" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)
         std::cout << "number of CPU cores: " << omp_get_num_threads() << std::endl << std::endl << std::flush;
 
+    //co2amp = new CO2AMP();
+
     ReadCommandLine(argc, argv);
-    Core::Debug(1, "Command line read done!");
+    Debug(1, "Command line read done!");
     ConstantsInit();
-    Core::Debug(1, "Constants init done!");
+    Debug(1, "Constants init done!");
     /*AllocateMemory();
     Debug(1, "Allocate memory done!");
     ArraysInit();
@@ -115,7 +117,7 @@ void Calculations()
                     K = layout_component[k]; // component number in the "components" list
 
                     // files written on component input (ex: before amplification)
-                    Core::StatusDisplay(pulse, k, t_cur, "saving...");
+                    StatusDisplay(pulse, k, t_cur, "saving...");
                     UpdateOutputFiles(pulse, k, t_cur);
 
                     // amplification
@@ -126,9 +128,9 @@ void Calculations()
                                 am_section++;
                         }
                         if(p_CO2>0){
-                            Core::Debug(1, "amplification: starting...");
+                            Debug(1, "amplification: starting...");
                             //Amplification(pulse, k, t_cur, am_section, atof(component_param1[K])*1e-2); //param1: amplification length, cm -> m
-                            Core::Debug(1, "amplification: done");
+                            Debug(1, "amplification: done");
                             SaveGainSpectrum(pulse, k);
                         }
                     }
@@ -168,9 +170,9 @@ void Calculations()
                     //propagation to next component
                     if(k!=n_propagations-1){ //no propagation after last surface
                         if(!noprop){ //running without -noprop option
-                            Core::Debug(1, "propagation: starting...");
+                            Debug(1, "propagation: starting...");
                             BeamPropagation(pulse, k, t_cur);
-                            Core::Debug(1, "propagation: done");
+                            Debug(1, "propagation: done");
                         }
                     }
                 }
@@ -179,7 +181,7 @@ void Calculations()
     }
 }
 
-void Core::StatusDisplay(int pulse, int k, double t, std::string status)
+void StatusDisplay(int pulse, int k, double t, std::string status)
 {
     int K;
     if(k == -1){
@@ -206,7 +208,7 @@ void Core::StatusDisplay(int pulse, int k, double t, std::string status)
 }
 
 
-void Core::Debug(int level, std::string str)
+void Debug(int level, std::string str)
 {
     if(level > debug_level)
         return;

@@ -24,9 +24,6 @@
 
 
 // ------- INITIAL PULSE -------
-extern int from_file;
-extern double E0, w0, tau0, vc;
-extern double t_inj;
 extern int n_pulses;
 extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
@@ -41,21 +38,19 @@ extern int x0, n0, K0; // number of points in radial and time nets and number of
 extern double v_min, v_max;       // frequency limits, Hz
 // ------- DEBUGGING -------
 extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
-extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
+//extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 extern double c, h; // spped of light [m/s]; Plank's [J s]
-
-// ------- OUTPUT ARRAY -------
-extern std::complex<double> ***E;
-
-
 
 
 // -------------------------- FUNCTIONS --------------------------
 
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
+void Abort(std::string){}
+void StatusDisplay(int pulse, int k, double t, std::string status);
+void Debug(int level, std::string str);
 
 
 /////////////////////////// input.cpp ////////////////////////////
@@ -101,13 +96,15 @@ int BitReversal(int x);
 void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
-class Core
+class Pulse
 {
 public:
-    Core(){}
-    static void Abort(std::string){}
-    static void StatusDisplay(int pulse, int k, double t, std::string status);
-    static void Debug(int level, std::string str);
+    int from_file;
+    double E0, w0, tau0, vc;
+    double t_inj;
+    // ------- OUTPUT ARRAY -------
+    std::complex<double> **E;
+    Pulse(){}
 };
 
 
@@ -134,6 +131,10 @@ public:
     void InternalDynamics(double);
     void PulseInteraction(int);
 private:
+    // ------- BANDS -------
+    bool band_reg;
+    bool band_seq;
+    bool band_hot;
     // ------- PUMPING -------
     std::string pumping; // pumping type ("discharge" or "optical")
     int n_discharge_points; // number of pints in the discharge profile
