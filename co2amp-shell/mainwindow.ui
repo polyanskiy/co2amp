@@ -203,19 +203,6 @@ p, li { white-space: pre-wrap; }
         <string>Ctrl + I</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_18">
-        <item row="4" column="1" colspan="2">
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>788</width>
-            <height>17</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="4" column="0">
          <widget class="QPushButton" name="pushButton_calculate">
           <property name="minimumSize">
@@ -238,6 +225,19 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
+        <item row="4" column="1" colspan="2">
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>788</width>
+            <height>17</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="2" column="0" colspan="3">
          <widget class="QGroupBox" name="groupBox_optics">
           <property name="sizePolicy">
@@ -249,7 +249,7 @@ p, li { white-space: pre-wrap; }
           <property name="title">
            <string>CONFIGURATION FILES</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_9">
+          <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="4">
             <spacer name="horizontalSpacer_9">
              <property name="orientation">
@@ -266,34 +266,43 @@ p, li { white-space: pre-wrap; }
              </property>
             </spacer>
            </item>
-           <item row="0" column="2">
-            <widget class="QToolButton" name="toolButton_configFile_down">
-             <property name="minimumSize">
+           <item row="1" column="0" colspan="7">
+            <widget class="QListWidget" name="listWidget_configFile_list">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
               <size>
-               <width>25</width>
-               <height>0</height>
+               <width>200</width>
+               <height>16777215</height>
               </size>
              </property>
-             <property name="text">
-              <string>▼</string>
+             <property name="font">
+              <font>
+               <family>Courier</family>
+               <pointsize>8</pointsize>
+              </font>
              </property>
             </widget>
            </item>
            <item row="1" column="7" colspan="3">
-            <widget class="QPlainTextEdit" name="plainTextEdit_configFile_content"/>
+            <widget class="QPlainTextEdit" name="plainTextEdit_configFile_content">
+             <property name="font">
+              <font>
+               <family>Courier</family>
+              </font>
+             </property>
+            </widget>
            </item>
-           <item row="0" column="9">
-            <spacer name="horizontalSpacer_7">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="0" column="8">
+            <widget class="QPushButton" name="pushButton_configFile_save">
+             <property name="text">
+              <string>Save copy...</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>539</width>
-               <height>17</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
            <item row="0" column="5">
             <widget class="QToolButton" name="toolButton_configFile_remove">
@@ -308,69 +317,18 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QToolButton" name="toolButton_configFile_rename">
-             <property name="minimumSize">
-              <size>
-               <width>25</width>
-               <height>0</height>
-              </size>
+           <item row="2" column="0" colspan="10">
+            <widget class="QLabel" name="label_configFile_info">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="font">
+              <font>
+               <family>Courier</family>
+              </font>
              </property>
              <property name="text">
-              <string>I</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="7">
-            <widget class="QPushButton" name="pushButton_configFile_load">
-             <property name="text">
-              <string>Load...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="6">
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Minimum</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>122</width>
-               <height>19</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="8">
-            <widget class="QPushButton" name="pushButton_configFile_save">
-             <property name="text">
-              <string>Save...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="7">
-            <widget class="QListWidget" name="listWidget_configFile_list">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QToolButton" name="toolButton_configFile_up">
-             <property name="minimumSize">
-              <size>
-               <width>25</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>▲</string>
+              <string>TextLabel</string>
              </property>
             </widget>
            </item>
@@ -392,6 +350,81 @@ p, li { white-space: pre-wrap; }
               <string>+</string>
              </property>
             </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QToolButton" name="toolButton_configFile_up">
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>▲</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>539</width>
+               <height>17</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="2">
+            <widget class="QToolButton" name="toolButton_configFile_down">
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>▼</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QToolButton" name="toolButton_configFile_rename">
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>I</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QPushButton" name="pushButton_configFile_load">
+             <property name="text">
+              <string>Copy from...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="6">
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Minimum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>12</width>
+               <height>19</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -1296,8 +1329,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>642</width>
-             <height>628</height>
+             <width>646</width>
+             <height>637</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">

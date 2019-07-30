@@ -40,20 +40,25 @@ void MainWindow::UpdateControls()
 
 
     /////////////////////////////// CONFIGURATION FILES /////////////////////////////////
-    int optic_count = listWidget_configFile_list->count();
-    int current_optic = listWidget_configFile_list->currentRow();
-    bl = optic_count > 0;
-    if(bl)
-        plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_optic]);
-    else
+    int config_file_count = listWidget_configFile_list->count();
+    int current_config_file = listWidget_configFile_list->currentRow();
+    bl = config_file_count > 0;
+    if(bl){
+        plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_config_file]);
+        label_configFile_info->setText(Memorized.configFile_basename[current_config_file]
+                                       + ".yml   (type: " + Memorized.configFile_type[current_config_file] + ")");
+    }
+    else{
         plainTextEdit_configFile_content->setPlainText("");
+        label_configFile_info->setText("");
+    }
     pushButton_configFile_load->setEnabled(bl);
     pushButton_configFile_save->setEnabled(bl);
     plainTextEdit_configFile_content->setEnabled(bl);
     toolButton_configFile_remove->setEnabled(bl);
     toolButton_configFile_rename->setEnabled(bl);
-    toolButton_configFile_up->setEnabled(current_optic > 0);
-    toolButton_configFile_down->setEnabled(current_optic >= 0 && current_optic < optic_count-1);
+    toolButton_configFile_up->setEnabled(current_config_file > 0);
+    toolButton_configFile_down->setEnabled(current_config_file >= 0 && current_config_file < config_file_count-1);
 
     checkBox_noprop->setChecked(Memorized.noprop);
 
@@ -81,48 +86,44 @@ void MainWindow::UpdateControls()
 
 
     /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB //////////////////////////////
-    //optics
-    //index = comboBox_optic->currentIndex();
+    //optic and pulse
     comboBox_optic->clear();
-    //list1 = Saved.optic_id;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
+    comboBox_pulse->clear();
     for(i=0; i<=Saved.configFile_basename.count()-1; i++){
-        //list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
-        //if(list2.count() >= 1)
-            comboBox_optic->addItem(Saved.configFile_basename[i]);
+        QString type = Saved.configFile_type[i];
+        if(type != "PULSE" && type != "LAYOUT" && type != "COMMENT")
+            comboBox_optic->addItem(Saved.configFile_basename[i]);       
+        if(type == "PULSE")
+            comboBox_pulse->addItem(Saved.configFile_basename[i]);
     }
     if(Memorized.optic == -1 || Memorized.optic+1 > comboBox_optic->count())
         comboBox_optic->setCurrentIndex(0);
     else
-        comboBox_optic->setCurrentIndex(Memorized.optic);
-
-    //pulse
-    //index = comboBox_pulse->currentIndex();
-    comboBox_pulse->clear();
-    /*for(i=0; i<=Saved.n_pulses-1; i++)
-        comboBox_pulse->addItem(QString::number(i+1));
+        comboBox_optic->setCurrentIndex(Memorized.optic);   
     if(Memorized.pulse == -1 || Memorized.pulse+1 > comboBox_pulse->count())
         comboBox_pulse->setCurrentIndex(0);
     else
         comboBox_pulse->setCurrentIndex(Memorized.pulse);
-    groupBox_pulse->setDisabled(Saved.n_pulses == 1); // Hide pulse combo if n_pulses==1*/
+
+
 
     //energyPlot
     index = comboBox_energyPlot->currentIndex();
     comboBox_energyPlot->clear();
     comboBox_energyPlot->addItem("all");
     comboBox_energyPlot->addItem("optic");
-    /*if(Saved.n_pulses > 1){
+    if(comboBox_pulse->count() > 1){
         comboBox_energyPlot->addItem("pulse");
         comboBox_energyPlot->addItem("optic, pulse");
     }
     if(index == -1 || index+1 > comboBox_pulse->count()){
-        if(Saved.n_pulses == 1) // single pulse
+        if(comboBox_pulse->count() == 1) // single pulse
             comboBox_energyPlot->setCurrentIndex(1);
         else
             comboBox_energyPlot->setCurrentIndex(3);
     }
     else
-        comboBox_energyPlot->setCurrentIndex(index);*/
+        comboBox_energyPlot->setCurrentIndex(index);
 
     /////////////////////// ENABLE/DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
     bl = (flag_projectloaded || flag_calculation_success);

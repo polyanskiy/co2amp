@@ -18,32 +18,38 @@ void MainWindow::SaveSettings(QString what_to_save)
 
         settings.setValue("debug/debugLevel", spinBox_debugLevel->text());
 
-        // save optic list, optic specs (yaml), and optical configuration in separate files
+
+
+        // Write configuration files
         int i;
-        int optic_count = Memorized.configFile_basename.size();
+        int config_file_count = Memorized.configFile_basename.size();
+
         QFile file;
         QTextStream out(&file);
 
-        file.setFileName("optics.txt");
+
+
+        file.setFileName("config_files.yml");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        for(i=0; i<optic_count; i++){
-            out << Memorized.configFile_basename[i] << "\t"
-                << Memorized.configFile_type[i] << "\t"
-                << "optic" << QString().setNum(i) << ".yml\n";
+
+
+        for(i=0; i<config_file_count; i++){
+            out << "- file: " << Memorized.configFile_basename[i] << ".yml\n"
+                << "  type: " << Memorized.configFile_type[i] << "\n"
+                << "  id: " << Memorized.configFile_basename[i] << "\n";
         }
         file.close();
 
-        file.setFileName("layout.txt");
-        file.open(QFile::WriteOnly | QFile::Truncate);
-        out << Memorized.layout;// << "\n";
-        file.close();
 
-        for(i=0; i<optic_count; i++){
-            file.setFileName("optic" + QString().setNum(i)+".yml");
+
+
+        for(i=0; i<config_file_count; i++){
+            file.setFileName(Memorized.configFile_basename[i]+".yml");
             file.open(QFile::WriteOnly | QFile::Truncate);
             out << Memorized.configFile_content[i];
             file.close();
         }
+
 
         Saved = Memorized;
     }
@@ -66,45 +72,42 @@ void MainWindow::LoadSettings(QString path)
 
     flag_projectloaded = false;
 
-    // Input pulse
 
-    // Opticss and optical layout
+
+    // Configuration files
     Memorized.configFile_basename.clear();
     Memorized.configFile_type.clear();
     Memorized.configFile_content.clear();
-    //Memorized.layout = settings.value("co2amp/layout", "P1 (1000) A1 (1000) P1").toString();
 
-    int i;//, j;
+    int i;
     QString str;
-    QStringList list, line;
-    QFile file, file2;
-    QTextStream in(&file), in2(&file2);
+    QStringList file_list, file_record;
+    QFile file;//, file2;
+    QTextStream in(&file);//, in2(&file2);
 
-    file.setFileName("layout.txt");
-    if(file.open(QIODevice::ReadOnly | QFile::Text)){
-        Memorized.layout = in.readAll();
-        file.close();
-    }
 
-    file.setFileName("optics.txt");
+    file.setFileName("config_files.yml");
     if(file.open(QIODevice::ReadOnly | QFile::Text)){
         str = in.readAll();
         file.close();
-        list = str.split("\n");
-        for(i=0; i<list.size(); i++){
-            line = list[i].split("\t");
-            if(line.size() == 3){
-                Memorized.configFile_basename.append(line[0]);
-                Memorized.configFile_type.append(line[1]);
-                file2.setFileName(line[2]);
-                file2.open(QIODevice::ReadOnly | QFile::Text);
-                Memorized.configFile_content.append(in2.readAll());
-                file2.close();
+        file_list = str.split("- ", QString::SkipEmptyParts);
+        for(i=0; i<file_list.size(); i++){
+            file_record = file_list[i].split("\n", QString::SkipEmptyParts);
+            if(file_record.size() == 3){ // "file: ...", "type: ...", "id: ..."
+                Memorized.configFile_basename.append(file_record[2].split(": ")[1]); // "  id: ..."
+                Memorized.configFile_type.append(file_record[1].split(": ")[1]);     // "  type: ..."
+                file.setFileName(file_record[0].split(": ")[1]);                     // "  file: ..."
+                file.open(QIODevice::ReadOnly | QFile::Text);
+                Memorized.configFile_content.append(in.readAll());
+                file.close();
             }
         }
     }
 
+
     PopulateConfigFileList();
+
+
 
     // Calculation net
     Memorized.vc = settings.value("co2amp/vc", 30).toString();
@@ -112,6 +115,11 @@ void MainWindow::LoadSettings(QString path)
     Memorized.precision_r = settings.value("co2amp/precision_r", 1).toInt();
     Memorized.t_pulse_min = settings.value("co2amp/t_pulse_min", -100).toString();
     Memorized.t_pulse_max = settings.value("co2amp/t_pulse_max", 400).toString();
+
+    // Debugging
+    spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
+    Memorized.noprop = settings.value("co2amp/noprop", 0).toBool();
+
 
     // Plot
     Memorized.optic = settings.value("plot/optic", 0).toInt();
@@ -125,9 +133,7 @@ void MainWindow::LoadSettings(QString path)
     comboBox_freqScale->setCurrentIndex(settings.value("plot/freqScale", 2).toInt());
     checkBox_log->setChecked(settings.value("plot/log", 0).toBool());
 
-    // Debugging
-    spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
-    Memorized.noprop = settings.value("co2amp/noprop", 0).toBool();
+
 
     // //////////////////////// backwards compatibility start ////////////////////////////////////////////
     /*double w0 = settings.value("co2amp/w0", 0).toDouble();
@@ -165,6 +171,7 @@ void MainWindow::LoadSettings(QString path)
     }*/
     // //////////////////////// backwards compatibility end /////////////////////////////////////////////
 
+
     Saved = Memorized;
     flag_projectloaded = true;
     UpdateControls();
@@ -185,3 +192,9 @@ void MainWindow::MemorizeSettings()
     Memorized.optic = comboBox_optic->currentIndex();
     Memorized.pulse = comboBox_pulse->currentIndex();
 }
+
+
+
+
+
+
