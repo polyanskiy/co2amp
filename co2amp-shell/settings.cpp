@@ -6,16 +6,7 @@ void MainWindow::SaveSettings(QString what_to_save)
     QSettings settings("project.ini", QSettings::IniFormat);
 
     if(what_to_save == "all"){
-        settings.setValue("general/version", version );
-        //settings.setValue("general/n_pulses", Memorized.n_pulses );
-        //settings.setValue("general/from_file", Memorized.from_file );
-        //settings.setValue("general/input_file", Memorized.input_file );
-
-        //settings.setValue("co2amp/E0", Memorized.E0);
-        //settings.setValue("co2amp/w0", Memorized.w0);
-        //settings.setValue("co2amp/tau0", Memorized.tau0);
-        //settings.setValue("co2amp/t_inj", Memorized.t_inj);
-        //settings.setValue("co2amp/Dt_train", Memorized.Dt_train);
+        settings.setValue("general/version", "20190730" );
 
         settings.setValue("co2amp/noprop", Memorized.noprop);  //move to debug!
 
@@ -75,15 +66,7 @@ void MainWindow::LoadSettings(QString path)
 
     flag_projectloaded = false;
 
-    /*// Input pulse
-    Memorized.from_file = settings.value("general/from_file", 0).toBool();
-    Memorized.input_file = settings.value("general/input_file", QString()).toString();
-    Memorized.E0 = settings.value("co2amp/E0", 0.01).toString();
-    Memorized.w0 = settings.value("co2amp/w0", 2.5).toString();
-    Memorized.tau0 = settings.value("co2amp/tau0", 5).toString();
-    Memorized.t_inj = settings.value("co2amp/t_inj", 0.65).toString();
-    Memorized.n_pulses = settings.value("general/n_pulses", 1).toInt();
-    Memorized.Dt_train = settings.value("co2amp/Dt_train", 0.1).toString();*/
+    // Input pulse
 
     // Opticss and optical layout
     Memorized.configFile_basename.clear();
