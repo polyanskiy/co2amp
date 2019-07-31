@@ -14,9 +14,19 @@ void MainWindow::on_toolButton_configFile_add_clicked()
                                   "OPTIC - Spectral filter (S)",
                                   "OPTIC - Chirper (C)"};
     QStringList type_list = {"PULSE", "LAYOUT", "COMMENT", "A", "P", "L", "M", "F", "S", "C"};
+
+    // allow only one layout
+    for(int i=0; i<Memorized.configFile_basename.size(); i++){
+        if(Memorized.configFile_type[i] == "LAYOUT"){
+            selection_list.removeOne("LAYOUT");
+            type_list.removeOne("LAYOUT");
+        }
+    }
+
     bool ok_pressed;
 
-    QString type = QInputDialog().getItem(this, "co2amp", "Type of configuration file", selection_list, 0, false, &ok_pressed);
+    QString type = QInputDialog().getItem(this, "co2amp", "Type of configuration file",
+                                          selection_list, 0, false, &ok_pressed);
     if(!ok_pressed)
         return;  
     type = type_list[selection_list.indexOf(type)];
@@ -24,7 +34,8 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QString id="";
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "Base name of the file (element ID)", QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
+        id = QInputDialog().getText(this, "co2amp", "Base name of the file (element ID)",
+                                    QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
         id.replace( " ", "" );
@@ -124,7 +135,7 @@ void MainWindow::on_toolButton_configFile_remove_clicked()
         Memorized.configFile_type.removeAt(current_optic);
         Memorized.configFile_content.removeAt(current_optic);
         BlockSignals(true);
-        //next line would pre-maturely trigger UpdateControls() - row is changed before item deleted:
+        //next line would prematurely trigger UpdateControls() - row is changed before item deleted:
         delete listWidget_configFile_list->currentItem();
         UpdateControls();
     }
@@ -213,28 +224,20 @@ QString MainWindow::SuggestConfigFileName(QString type)
 
 bool MainWindow::ConfigFileNameExists(QString id)
 {
-    int optics_count = Memorized.configFile_basename.size();
-
-    if(optics_count == 0)
-        return false;
-
-    for(int i=0; i<optics_count; i++)
+    for(int i=0; i<Memorized.configFile_basename.size(); i++)
         if(Memorized.configFile_basename[i] == id)
             return true;
 
     return false;
 }
 
+
 void MainWindow::PopulateConfigFileList()
 {
     BlockSignals(true); // don't call UpdateFile() when optics being removed/added
     listWidget_configFile_list->clear();
 
-    int config_file_count = Memorized.configFile_basename.size();
-    if(config_file_count == 0)
-        return;
-
-    for(int i=0; i<config_file_count; i++)
+    for(int i=0; i<Memorized.configFile_basename.size(); i++)
         listWidget_configFile_list->addItem(Memorized.configFile_basename[i]);
 
     listWidget_configFile_list->setCurrentRow(0);   

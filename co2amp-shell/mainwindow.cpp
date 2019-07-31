@@ -10,9 +10,9 @@ MainWindow::MainWindow(QWidget *parent)
     flag_calculating = false;
     flag_calculation_success = false;
     flag_comments_modified = false;
-    flag_plot_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
+    flag_plot_modified = false;
     flag_plot_postponed = false;
     flag_plot_postponed_modified = false;
 
@@ -143,7 +143,7 @@ void MainWindow::Calculate()
 
     arguments << path_to_core;
 
-    // vc, n_pulses, and Dt_train may be different form memorized if loading input pulse from file
+    // vc, n_pulses, and Dt_train may be different from memorized if loading input pulse from file
     arguments << "-vc" << lineEdit_vc->text();
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
@@ -341,8 +341,7 @@ void MainWindow::UpdateTerminal()
 
     int number_of_returns = strlist.size() - 1;
 
-    int i;
-    for (i=0; i<=number_of_returns; i++){
+    for (int i=0; i<=number_of_returns; i++){
         textBrowser_terminal->insertPlainText(strlist[i]);
         textBrowser_terminal->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
     }
@@ -367,6 +366,7 @@ void MainWindow::BeforeProcessStarted()
     SaveSettings("all"); // save all settings - input and plot
     LoadInputPulse();
     UpdateControls();
+    tabWidget_main->setCurrentIndex(1); // Process tab
     timer.start();
 }
 
@@ -376,7 +376,9 @@ void MainWindow::AfterProcessFinished()
     delete process;
     bool showtime, save;
     flag_calculating = false;
-    QMessageBox mb( "Info - co2amp", "Calculation time: " + QString::number(timer.elapsed()/1000) + " s", QMessageBox::Information, QMessageBox::Ok, 0, 0);
+    QMessageBox mb( "Info - co2amp", "Calculation time: " +
+                    QString::number(timer.elapsed()/1000) + " s",
+                    QMessageBox::Information, QMessageBox::Ok, 0, 0);
     if(flag_calculation_success){
         flag_field_ready_to_save = true;
         save = checkBox_saveWhenFinished->isChecked();
@@ -384,7 +386,7 @@ void MainWindow::AfterProcessFinished()
         flag_plot_postponed = true;
         flag_results_modified = true;
         //Plot();
-        tabWidget_main->setCurrentIndex(1); // Output tab (Plot will be called)
+        tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
         if(save)
             SaveProject();
         if(showtime)

@@ -31,7 +31,7 @@ void MainWindow::UpdateControls()
     pushButton_new->setDisabled(flag_calculating);
     pushButton_open->setDisabled(flag_calculating);
     pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_comments_modified || flag_results_modified) || project_file==QString());
-    //pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
+    pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
     pushButton_calculate->setDisabled(flag_calculating);
     textBrowser_terminal->setEnabled(flag_calculating); //terminal
     pushButton_abort->setEnabled(flag_calculating);
