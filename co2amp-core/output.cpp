@@ -3,6 +3,7 @@
 
 void UpdateDynamicsFiles(double t)
 {
+/*
     int i;
     FILE *file;
 
@@ -59,11 +60,13 @@ void UpdateDynamicsFiles(double t)
         fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", VibrationalTemperatures(i,0,2), VibrationalTemperatures(i,0,3), 3350/log(1/e4[i][0]+1), T[i][0]);
     fprintf(file, "\n");
     fclose(file);
+*/
 }
 
 
 void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
 {
+/*
     int x, n, i;
     FILE *file;
 
@@ -149,9 +152,9 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
         average_spectrum[i] = 0;
 
     // FAST: single point spectrum (comment SLOW or FAST)
-    /*FFT(E[pulse][50], spectrum);
-    for(i=0; i<n0; i++)
-        average_spectrum[i] = pow(cabs(spectrum[i]), 2);*/
+    //FFT(E[pulse][50], spectrum);
+    //for(i=0; i<n0; i++)
+    //    average_spectrum[i] = pow(cabs(spectrum[i]), 2);
 
     // SLOW: averaged across the beam (comment SLOW or FAST)
     //#pragma omp parallel for shared(average_spectrum) private(spectrum, x, i) // multithreaded
@@ -188,10 +191,12 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     delete Fluence;
     delete average_spectrum;
     delete spectrum;
+*/
 }
 
 
 void SaveGainSpectrum(int pulse, int k){
+/*
     int i, n;
     FILE *file;
     double Dv = (v_max-v_min)/(n0-1); // frequency time step, Hz
@@ -218,11 +223,13 @@ void SaveGainSpectrum(int pulse, int k){
     for(n=0; n<n0; n++)
         fprintf(file, "%.7f\t%.7f\n", (v_min+Dv*n)*1e-12, gainSpectrum[n]); //frequency in THz, gain in m-1 (<=> %/cm)
     fclose(file);
+*/
 }
 
 
 void SaveOutputField()
 {
+/*
     int pulse, x;
     FILE *file;
 
@@ -234,6 +241,7 @@ void SaveOutputField()
             fwrite(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
     }
     fclose(file);
+*/
 
     // Gaussian beam diffraction in empty space: analytical solution for test purposes
     /*double ld = 0.5*2*M_PI*vc*pow(r0,2);

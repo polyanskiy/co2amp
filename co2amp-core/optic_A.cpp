@@ -1,10 +1,10 @@
 #include "co2amp.h"
 
 
-A::A(std::string id, std::string type, std::string yaml)
+A::A(std::string id, std::string yaml)
 {
     this->id = id;
-    this->type = type;
+    this->type = "A";
     this->yaml = yaml;
 
     pumping = "";
@@ -53,8 +53,8 @@ A::A(std::string id, std::string type, std::string yaml)
         pump_fluence = std::stod(value)*1e4; // J/cm^2 -> J/m^2
     }
 
-    if(pumping != "optical" && pumping == "discharge")
-        Abort("Wrong pumpinge type (must be \"discharge\" or \"optical\"");
+    //if(pumping != "optical" && pumping == "discharge")
+        //Abort("Wrong pumpinge type (must be \"discharge\" or \"optical\"");
 
     // ------- GAS MIXTURE -------
     YamlGetValue(&value, yaml, "p_626");

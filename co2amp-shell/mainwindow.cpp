@@ -359,6 +359,7 @@ void MainWindow::UpdateTerminal()
 
 void MainWindow::BeforeProcessStarted()
 {
+    textBrowser_terminal->clear();
     flag_calculating = true;
     flag_calculation_success = true;
     flag_results_modified = false;
@@ -386,7 +387,7 @@ void MainWindow::AfterProcessFinished()
         flag_plot_postponed = true;
         flag_results_modified = true;
         //Plot();
-        tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
+        //tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
         if(save)
             SaveProject();
         if(showtime)

@@ -1,29 +1,28 @@
 #include  "co2amp.h"
 
-void ReadCommandLine(int argc, char **argv)
+bool ReadCommandLine(int argc, char **argv)
 {
     int i;
 
     // ------- INITIAL PULSE -------
-    from_file = 0;          // 1: use input field from files 'field_in_re.dat' and 'field_in_im.dat'
-    E0 = 1;                 // Initial pulse energy, J
-    w0 = 0.01;              // Initial beam radius (w), m
-    tau0 = 5e-12;           // Initial pulse duration (FWHM), s
-    vc = 2.8306225e13;      // Carrying frequency, Hz; default 10P(20) line
-    t_inj = 0;              // Injection moment, s
-    n_pulses = 1;           // Number of pulses in the train
-    Dt_train = 0.1e-6;      // Delay between pulses in the train, s (only for n_pulses > 1)
+    //from_file = 0;          // 1: use input field from files 'field_in_re.dat' and 'field_in_im.dat'
+    //E0 = 1;                 // Initial pulse energy, J
+    //w0 = 0.01;              // Initial beam radius (w), m
+    //tau0 = 5e-12;           // Initial pulse duration (FWHM), s
+    //vc = -1;      // Carrying frequency, Hz; default 10P(20) line
+    //t_inj = 0;              // Injection moment, s
+    //n_pulses = 1;           // Number of pulses in the train
     // ------- OPTICS, GEOMETRY -------
-    noprop = false;         // Skip propagation calculations
+    noprop = false;           // Skip propagation calculations
     // ------- CALCULATION NET -------
-    x0 = 64;
-    n0 = 64;
-    t_pulse_lim = 80e-12;   // Pulse time calculation limit, s
-    t_pulse_shift = 15e-12; // Pulse shift from 0, s
-    Dt_pump = 2.0e-9;       // Time net step for pumping/relaxation calculations, s (fixed!)
+    vc = -1;                  // Center frequency, Hz
+    x0 = -1;
+    n0 = -1;
+    t_pulse_lim = -1;         // Pulse time calculation limit, s
+    t_pulse_shift = -1;       // Pulse shift from 0, s
+    Dt_pump = 2.0e-9;         // Time net step for pumping/relaxation calculations, s (fixed!)
     // ---------- DEBUGGING ----------
-    debug_level = 0;        // No debugging info output by default
-    bands = 7;              // All bands (1 for regular + 2 for hot + 4 for sequence)
+    debug_level = 0;          // No debugging info output by default
 
     //Read command line
     std::string debug_str = "Command line: ";
@@ -31,22 +30,8 @@ void ReadCommandLine(int argc, char **argv)
         debug_str += argv[i];
         debug_str += " ";
         // ------- INITIAL PULSE -------
-        if (!strcmp(argv[i], "-from_file"))
-            from_file = atoi(argv[i+1]);
-        if (!strcmp(argv[i], "-E0"))
-            E0 = atof(argv[i+1]);
-        if (!strcmp(argv[i], "-w0"))
-            w0 = atof(argv[i+1])*1e-3;      // mm->m
-        if (!strcmp(argv[i], "-tau0"))
-            tau0 = atof(argv[i+1])*1e-12;   // ps->s
         if (!strcmp(argv[i], "-vc"))
             vc = atof(argv[i+1])*1e12;      // THz->Hz;
-        if (!strcmp(argv[i], "-t_inj"))
-            t_inj = atof(argv[i+1])*1e-6;   // us->s
-        if (!strcmp(argv[i], "-n_pulses"))
-            n_pulses = atoi(argv[i+1]);
-        if (!strcmp(argv[i], "-Dt_train"))
-            Dt_train = atof(argv[i+1])*1e-6; // us->s
         // ------- LAYOUT -------
         if (!strcmp(argv[i], "-noprop"))
             noprop = true;
@@ -62,90 +47,96 @@ void ReadCommandLine(int argc, char **argv)
         // --------- DEBUGGING ---------
         if (!strcmp(argv[i], "-debug"))
             debug_level = atoi(argv[i+1]);
-        if (!strcmp(argv[i], "-bands"))
-            bands = atoi(argv[i+1]);
     }
     
-    CO2AMP::Debug(2, debug_str);
+    Debug(2, debug_str);
+
+    if(vc < 0 || x0 < 0 || n0 < 0 || t_pulse_lim < 0 || t_pulse_shift < 0){
+        std::cout << "Input ERROR: Missing command line argument(s)\n";
+        return false;
+    }
+
+    return true;
 }
 
 
-void ConstantsInit(void)
+bool ConstantsInit(void)
 {
     // Constants
     c = 2.99792458e8; // m/s
     h = 6.626069e-34; // J*s
 
-    double Dt = t_pulse_lim/(n0-1); // pulse time step, s
-    double Dv = 1.0/(Dt*n0);        // frequency step, Hz
-    v_min = vc - Dv*(n0-1)/2;
-    v_max = vc + Dv*(n0-1)/2;
-
-    // Count number of data points in the discharge profile
-    /*if(pumping == "discharge")){
-        int size;
-        char *str, *file_str;
-        n_discharge_points = 0;
-        FILE *file;
-        file = fopen("discharge.txt", "r");
-        fseek(file, 0, SEEK_END);
-        size = ftell(file);
-        rewind(file);
-        file_str = malloc(size+1);
-        fread(file_str, size, 1, file);
-        file_str[size] = '\0'; // string terminating character
-        str = strtok(file_str,"\n");
-        while(str != NULL){
-            n_discharge_points ++;
-            str = strtok(NULL,"\n");
-        }
-        free(file_str);
-        fclose(file);
-    }*/
+    //double Dt = t_pulse_lim/(n0-1); // pulse time step, s
+    //double Dv = 1.0/(Dt*n0);        // frequency step, Hz
+    //double v_min = vc - Dv*(n0-1)/2;
+    //double v_max = vc + Dv*(n0-1)/2;
 
     // Optical layout: count number of components and active medium sections
     std::string str, file_str;
     std::ifstream in;
 
-    in = std::ifstream("optics.txt", std::ios::in);
+    in = std::ifstream("config_files.yml", std::ios::in);
     if (in){
         file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
+    Debug(2, "config_files.yml content:\n" + file_str);
 
-    std::string id, type, yaml;
+    std::string key, value, id="", type="", yaml="", layout_file_name="";
     std::istringstream iss, iss2;
     iss = std::istringstream(file_str);
+    Debug(2, "Interpreting config_files.yml...");
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
-        std::getline(iss2, id, '\t');
-        std::getline(iss2, type, '\t');
-        std::getline(iss2, yaml, '\t');
-
-        if(type=="A")
-            optics.push_back(A(id, type, yaml));
-        if(type=="C")
-            optics.push_back(C(id, type, yaml));
-        if(type=="L")
-            optics.push_back(L(id, type, yaml));
-        if(type=="M")
-            optics.push_back(M(id, type, yaml));
-        if(type=="ND")
-            optics.push_back(ND(id, type, yaml));
-        if(type=="P")
-            optics.push_back(P(id, type, yaml));
-        if(type=="SF")
-            optics.push_back(SF(id, type, yaml));
-
+        std::getline(iss2, key, ':');
+        std::getline(iss2, value);
+        if(key == "- file")
+            yaml = value.substr(1); // remove extra space in the beginning of the line
+        if(key == "  type")
+            type = value.substr(1); // remove extra space in the beginning of the line
+        if(key == "  id")
+            id = value.substr(1); // remove extra space in the beginning of the line
+        if(yaml != "" && type != "" && id != ""){
+            if(type=="A")
+                optics.push_back(A(id, yaml));
+            if(type=="C")
+                optics.push_back(C(id, yaml));
+            if(type=="L")
+                optics.push_back(L(id, yaml));
+            if(type=="M")
+                optics.push_back(M(id, yaml));
+            if(type=="F")
+                optics.push_back(F(id, yaml));
+            if(type=="P")
+                optics.push_back(P(id, yaml));
+            if(type=="S")
+                optics.push_back(S(id, yaml));
+            if(type=="PULSE")
+                pulses.push_back(Pulse(id, yaml));
+            if(type=="LAYOUT")
+                layout_file_name =  yaml;
+            Debug(2, "Config file: \"" + yaml + "\" ID: \"" + id + "\" Type: \"" + type + "\"");
+            yaml = "";
+            id = "";
+            type = "";
+        }
     }
+
+    if(layout_file_name == ""){
+        std::cout << "Input ERROR: No Layout file (?)\n";
+        return false;
+    }
+
+
 
     // Optical layout: count number of propagations
     n_propagations = 0;
-    in = std::ifstream("layout.txt", std::ios::in);
+    in = std::ifstream(layout_file_name, std::ios::in);
     if (in){
         file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
+    Debug(2, "Layout configuration file content:\n" + file_str);
 
     std::regex rgx("[\\s,\\-\\(\\)]+");
     std::sregex_token_iterator iter(file_str.begin(), file_str.end(), rgx, -1);
@@ -156,17 +147,24 @@ void ConstantsInit(void)
     }
     n_propagations = (n_propagations+1)/2;
 
-    std::cout << "optics: " << optics.size()
+    std::cout << "pulses: " << pulses.size()
+              << "; optics: " << optics.size()
               << "; propagations: " << n_propagations
-              << "; pulses: " << n_pulses << std::endl;
+              << std::endl;
 
-    std::vector<Optic>::iterator itr;
+    //if(n_propagations ==0){
+    //    std::cout
+    //}
+
+    /*std::vector<Optic>::iterator itr;
     for(itr=optics.begin(); itr!=optics.end(); itr++){
         std::cout << itr->id << "\t"
                   << itr->type << "\t"
                   << itr->yaml << "\t"
                   << itr->Dr << "\t" << std::endl;
-    }
+    }*/
+
+    return true;
 }
 
 
@@ -325,7 +323,7 @@ void ArraysInit(void)
 
 void IntensityNormalization(void) // Field amplitude adjustment (to match initial pulse energy)
 {
-    int pulse, x, n;
+    /*int pulse, x, n;
     double Energy, af;
     double Dr = optics[layout_component[0]].Dr;
     double Dt = t_pulse_lim/(n0-1);
@@ -342,13 +340,13 @@ void IntensityNormalization(void) // Field amplitude adjustment (to match initia
             for(x=0; x<x0; x++)
                 E[pulse][x][n] *= af;
         }
-    }
+    }*/
 }
 
 
 void InitializeE()
 {
-    int pulse, x, n;
+    /*int pulse, x, n;
     FILE *file;
 
     double Dr = optics[layout_component[0]].Dr;
@@ -370,17 +368,17 @@ void InitializeE()
                 fread(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
         }
         fclose(file);
-    }
+    }*/
 }
 
 
 std::complex<double> field(double r, double t)
 {
-    double xx;
+    /*double xx;
     xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
     std::complex<double> pulse = exp(-pow((t-t_pulse_shift)/xx, 2));
     //xx = r0/sqrt(log(2.0)/2.0);   //(hwhm -> half-width @ 1/e^2)
     //double beam = exp(-pow(r/xx, 2.0));
     std::complex<double> beam = exp(-pow(r/w0, 2.0));
-    return pulse*beam;
+    return pulse*beam;*/
 }

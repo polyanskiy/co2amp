@@ -3,7 +3,7 @@
 
 void A::PumpingAndRelaxation(double t)
 {
-    int x, k;
+/*    int x, k;
     double A, X, W;
     double K, K31, K32, K33, K21, K22, K23;
     double ra, rc, r2, r3;
@@ -94,6 +94,7 @@ void A::PumpingAndRelaxation(double t)
         }
     }
     UpdateDynamicsFiles(t);
+*/
 }
 
 

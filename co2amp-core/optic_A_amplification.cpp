@@ -3,6 +3,7 @@
 
 void A::Amplification(int pulse, int k, double t, int am_section, double length)
 {
+/*
     if(length == 0.0)
         return;
 
@@ -119,7 +120,8 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                     if(N[i]==0.0)
                         continue;
                     for(ba=0; ba<4; ba++){
-                        if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                        //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                        if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
                             continue;
                         for(br=0; br<4; br++){
                             for(j=0; j<61; j++){
@@ -139,7 +141,8 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                 if(N[i]==0.0)
                     continue;
                 for(ba=0; ba<4; ba++){
-                    if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                    //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                    if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
                         continue;
                     for(br=0; br<4; br++){
                         for(j=0; j<61; j++){
@@ -170,7 +173,8 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
             for(i=0; i<6; i++){
                 if(N[i]==0.0) continue;
                 for(ba=0; ba<4; ba++){
-                    if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                    //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
+                    if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
                         continue;
                     for(j=0; j<61; j++){
                         // ROTATIONAL REFILL
@@ -182,8 +186,8 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                                 continue;
                             //delta = 2.0 * (rho[i][ba][br][j]*conj(E[pulse][x][n]) + conj(rho[i][ba][br][j]*conj(E[pulse][x][n]))) * Dt ;
                             delta = 4.0 * real(rho[i][ba][br][j]*conj(E[pulse][x][n])) * Dt;
-                            /*if(x==0)
-                                DELTA += delta;*/
+                            //if(x==0)
+                            //    DELTA += delta;
                             // upper level
                             Nvib[i][ba][0] += delta;
                             if(br==0 || br==2) // P
@@ -218,5 +222,5 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
         }
 
     }
-
+*/
 }

@@ -7,15 +7,12 @@
 #include <fstream>
 #include<regex>
 #include <vector>
-//#include <ostream>
 #include  <cmath>
 #include  <complex>
-//#include  <time.h>
-//#include  <string.h>
-//#include  <ctype.h>
 #include  <omp.h>
 
 #include <../libyaml/yaml.h>
+
 
 //#define bool int
 //#define true 1
@@ -24,18 +21,19 @@
 
 
 // ------- INITIAL PULSE -------
-extern int n_pulses;
-extern double Dt_train;
+//extern int n_pulses;
+//extern double Dt_train;
 // ------- OPTICS, GEOMETRY -------
 extern int n_AM, n_propagations;
 extern double *layout_distance, *layout_time;
 extern int *layout_component;
 extern bool noprop;
 // ------- CALCULATION NET -------
+extern double vc; // center frequency
 extern double t_pulse_lim, t_pulse_shift;
 extern double Dt_pump; // "main time" - for pumping/relaxation
-extern int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
-extern double v_min, v_max;       // frequency limits, Hz
+extern int x0, n0; // number of points in radial and time nets and number of pulses in the train
+//extern double v_min, v_max;       // frequency limits, Hz
 // ------- DEBUGGING -------
 extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
 //extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
@@ -48,14 +46,14 @@ extern double c, h; // spped of light [m/s]; Plank's [J s]
 
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
-void Abort(std::string){}
+//void Abort(std::string){}
 void StatusDisplay(int pulse, int k, double t, std::string status);
 void Debug(int level, std::string str);
 
 
 /////////////////////////// input.cpp ////////////////////////////
-void ReadCommandLine(int, char**);
-void ConstantsInit(void);
+bool ReadCommandLine(int, char**);
+bool ConstantsInit(void);
 void ArraysInit(void);
 void IntensityNormalization(void);
 void InitializeE(void);
@@ -99,35 +97,39 @@ void YamlGetValue(std::string *value, std::string path, std::string key);
 class Pulse
 {
 public:
+    Pulse(std::string id, std::string yaml);
+    std::string id;
+    std::string yaml;
     int from_file;
     double E0, w0, tau0, vc;
     double t_inj;
     // ------- OUTPUT ARRAY -------
     std::complex<double> **E;
-    Pulse(){}
 };
 
 
 class Optic
 {
 public:
+    Optic(){}
     std::string id;
     std::string type;
     std::string yaml;
     std::string test;
     double Dr; //m
-    Optic(){}
     void InternalDynamics(double){}
     void PulseInteraction(int){}
 };
 
+
 extern std::vector<Optic> optics;
+extern std::vector<Pulse> pulses;
 
 
 class A: public Optic // Amplifier section
 {
 public:
-    A(std::string id, std::string type, std::string yaml);
+    A(std::string id, std::string yaml);
     void InternalDynamics(double);
     void PulseInteraction(int);
 private:
@@ -202,42 +204,42 @@ private:
 class C: public Optic // Chirp (Stretcher/Compressor)
 {
 public:
-    C(std::string id, std::string type, std::string yaml);
+    C(std::string id, std::string yaml);
 };
 
 
 class L: public Optic // Lens
 {
 public:
-    L(std::string id, std::string type, std::string yaml);
+    L(std::string id, std::string yaml);
 };
 
 
 class M: public Optic // Matter (window, air)
 {
 public:
-    M(std::string id, std::string type, std::string yaml);
+    M(std::string id, std::string yaml);
 };
 
 
-class ND: public Optic // Spatial (ND) filter
+class F: public Optic // Spatial (ND) filter
 {
 public:
-    ND(std::string id, std::string type, std::string yaml);
+    F(std::string id, std::string yaml);
 };
 
 
 class P: public Optic // Probe
 {
 public:
-    P(std::string id, std::string type, std::string yaml);
+    P(std::string id, std::string yaml);
 };
 
 
-class SF: public Optic // Spectral filter
+class S: public Optic // Spectral filter
 {
 public:
-    SF(std::string id, std::string type, std::string yaml);
+    S(std::string id, std::string yaml);
 };
 
 

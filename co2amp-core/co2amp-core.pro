@@ -18,13 +18,14 @@ SOURCES += \
     optic_A_boltzmann.cpp \
     optic_A_dynamics.cpp \
     optic_C.cpp \
+    optic_F.cpp \
     optic_L.cpp \
     optic_M.cpp \
-    optic_ND.cpp \
     optic_P.cpp \
-    optic_SF.cpp \
+    optic_S.cpp \
     optics.cpp \
     output.cpp \
+    pulses.cpp \
     yaml.cpp
 HEADERS += \
     co2amp.h

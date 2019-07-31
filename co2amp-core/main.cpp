@@ -3,12 +3,13 @@
 
 // GLOBAL VARIABLES
 
-// ------- INITIAL PULSE -------
+// ------- PULSES -------
+std::vector<Pulse> pulses;
 //int from_file;
 //double E0, w0, tau0, vc;
 //double t_inj;
-int n_pulses;
-double Dt_train;
+//int n_pulses;
+//double Dt_train;
 // ------- OPTICS, GEOMETRY -------
 std::vector<Optic> optics;
 int n_AM, n_propagations;
@@ -17,17 +18,18 @@ int *layout_component;
 bool noprop;
 //double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- CALCULATION NET -------
+double vc;//, v_max, v_min;
 double t_pulse_lim, t_pulse_shift;
 double Dt_pump; // "main time" - for pumping/relaxation
-int x0, n0, K0; // number of points in radial and time nets and number of pulses in the train
+int x0, n0; // number of points in radial and time nets and number of pulses in the train
 // ------- DEBUGGING -------
 int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
-int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
+//int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 double c, h; // spped of light [m/s]; Plank's [J s]
 // ------- OUTPUT ARRAY -------
-std::complex<double> ***E;
+//std::complex<double> ***E;
 
 
 
@@ -36,7 +38,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-07-23" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-07-31" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)
@@ -44,9 +46,15 @@ int main(int argc, char **argv)
 
     //co2amp = new CO2AMP();
 
-    ReadCommandLine(argc, argv);
+    if (!ReadCommandLine(argc, argv)){
+        std::cout << "Error in command line. Aborting...\n";
+        return -1;
+    }
     Debug(1, "Command line read done!");
-    ConstantsInit();
+    if (!ConstantsInit()){
+        std::cout << "Error in configuration file(s). Aborting...\n";
+        return -1;
+    }
     Debug(1, "Constants init done!");
     /*AllocateMemory();
     Debug(1, "Allocate memory done!");
@@ -102,7 +110,7 @@ void Calculations()
     }*/
 
     // 4 Calculation of field dynamics:
-    for(t=0; t<=layout_time[n_propagations-1] + Dt_train*(n_pulses-1) + Dt_pump; t+=Dt_pump){
+//    for(t=0; t<=layout_time[n_propagations-1] + Dt_train*(n_pulses-1) + Dt_pump; t+=Dt_pump){
 
         // molecular dynamics calculations
         /*if(n_AM>0 && p_CO2+p_N2+p_He>0){
@@ -110,8 +118,8 @@ void Calculations()
             PumpingAndRelaxation(t);
         }*/
 
-        for(k=0; k<n_propagations; k++){
-            for(pulse=0; pulse<n_pulses; pulse++){
+/*        for(k=0; k<n_propagations; k++){
+            for(pulse=0; pulse<pulses.size(); pulse++){
                 t_cur = layout_time[k] + Dt_train*pulse;
                 if(t-Dt_pump/2<t_cur && t+Dt_pump/2>=t_cur){
                     K = layout_component[k]; // component number in the "components" list
@@ -134,7 +142,7 @@ void Calculations()
                             SaveGainSpectrum(pulse, k);
                         }
                     }
-
+*/
                     // optical components
                     /*if(!strcmp(component_type[K], "MASK"))
                         Mask(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: mask radius, cm -> m
@@ -168,7 +176,7 @@ void Calculations()
                     }*/
 
                     //propagation to next component
-                    if(k!=n_propagations-1){ //no propagation after last surface
+/*                    if(k!=n_propagations-1){ //no propagation after last surface
                         if(!noprop){ //running without -noprop option
                             Debug(1, "propagation: starting...");
                             BeamPropagation(pulse, k, t_cur);
@@ -179,6 +187,7 @@ void Calculations()
             }
         }
     }
+*/
 }
 
 void StatusDisplay(int pulse, int k, double t, std::string status)
@@ -194,7 +203,7 @@ void StatusDisplay(int pulse, int k, double t, std::string status)
     }
     else{
 	K = layout_component[k];
-        if(n_pulses==1)
+        if(pulses.size()==1)
             std::cout << "\r" << t*1e6 << " us; Optic " << optics[K].id << "(" <<  k+1
                       << " of " << n_propagations << "): " << status
                       << "                    ";
