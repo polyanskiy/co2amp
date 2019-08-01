@@ -71,21 +71,30 @@ bool ConstantsInit(void)
     //double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
 
-    // Optical layout: count number of components and active medium sections
-    std::string str, file_str;
-    std::ifstream in;
 
+    std::string str, file_content_str, key, value;
+    std::ifstream in;
+    std::istringstream iss, iss2;
+
+    ////////////////// PROCESS 'config_files.yml', INITIALIZE PULSES AND PULSES /////////////////////////////
+
+    Debug(2, "Interpreting config_files.yml...");
     in = std::ifstream("config_files.yml", std::ios::in);
-    if (in){
-        file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    if(in){
+        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
-    Debug(2, "config_files.yml content:\n" + file_str);
+    else{
+        std::cout << "Error reading config_files.yml)\n";
+        return false;
+    }
+    Debug(2, "config_files.yml content:\n" + file_content_str);
 
-    std::string key, value, id="", type="", yaml="", layout_file_name="";
-    std::istringstream iss, iss2;
-    iss = std::istringstream(file_str);
-    Debug(2, "Interpreting config_files.yml...");
+    std::string id="";
+    std::string type="";
+    std::string yaml="";
+    std::string layout_file_name="";
+    iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
@@ -115,21 +124,66 @@ bool ConstantsInit(void)
                 pulses.push_back(Pulse(id, yaml));
             if(type=="LAYOUT")
                 layout_file_name =  yaml;
-            Debug(2, "Config file: \"" + yaml + "\" ID: \"" + id + "\" Type: \"" + type + "\"");
+            Debug(2, "Config file: \"" + yaml + "\"; ID: \"" + id + "\"; Type: \"" + type + "\"");
             yaml = "";
             id = "";
             type = "";
         }
     }
 
+    /////////////// PROCESS LAYOUT CONFIGURATION FILE, INITIALIZE LAYOUT CONFIGURATION ///////////////
+
     if(layout_file_name == ""){
         std::cout << "Input ERROR: No Layout file (?)\n";
         return false;
     }
 
+    Debug(2, "Interpreting layout configuration file (" + layout_file_name +")...");
+    in = std::ifstream(layout_file_name, std::ios::in);
+    if(in){
+        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        in.close();
+    }
+    else{
+        std::cout << "Error reading " + layout_file_name + "\n";
+        return false;
+    }
+    Debug(2, layout_file_name + " content:\n" + file_content_str);
+
+    std::string propagate = "";
+    int and_back = -1;
+    int times_repeat = -1;
+    iss = std::istringstream(file_content_str);
+    while(std::getline(iss, str)){
+        iss2 = std::istringstream(str);
+        std::getline(iss2, key, ':');
+        std::getline(iss2, value);
+        if(key == "- propagate"){
+            propagate = value;
+            propagate.erase(remove_if(propagate.begin(), propagate.end(), isspace), propagate.end()); // remove spaces
+        }
+        if(key == "  and_back"){
+            if(value.find("true") != std::string::npos)
+                and_back = 1;
+            if(value.find("false") != std::string::npos)
+                and_back = 0;
+        }
+        if(key == "  times_repeat")
+            times_repeat = std::stoi(value);
+        if(propagate != "" && and_back != -1 && times_repeat != -1){
+            Debug(2, "Propagate: \"" + propagate + "\"; and_back = " + std::to_string(and_back) + "; times_repeat = " + std::to_string(times_repeat));
+
+            iss2 = std::istringstream(propagate);
+            std::getline(iss2, value, '>>');
+
+            propagate = "";
+            and_back = -1;
+            times_repeat = -1;
+        }
+    }
 
 
-    // Optical layout: count number of propagations
+    /*// Optical layout: count number of propagations
     n_propagations = 0;
     in = std::ifstream(layout_file_name, std::ios::in);
     if (in){
@@ -154,7 +208,7 @@ bool ConstantsInit(void)
 
     //if(n_propagations ==0){
     //    std::cout
-    //}
+    //}*/
 
     /*std::vector<Optic>::iterator itr;
     for(itr=optics.begin(); itr!=optics.end(); itr++){

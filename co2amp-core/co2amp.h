@@ -122,8 +122,24 @@ public:
 };
 
 
+class LayoutComponent
+{
+public:
+    Optic *optic;
+    double distance;
+    double time;
+    LayoutComponent(Optic *optic, double distance, double time)
+    {
+        this->optic = optic;
+        this->distance = distance;
+        this->time = time;
+    }
+};
+
+
 extern std::vector<Optic> optics;
 extern std::vector<Pulse> pulses;
+extern std::vector<LayoutComponent> layout;
 
 
 class A: public Optic // Amplifier section
