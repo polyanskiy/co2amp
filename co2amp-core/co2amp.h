@@ -13,85 +13,7 @@
 
 #include <../libyaml/yaml.h>
 
-
-//#define bool int
-//#define true 1
-//#define false 0
 #define I std::complex<double>(0,1)
-
-
-// ------- INITIAL PULSE -------
-//extern int n_pulses;
-//extern double Dt_train;
-// ------- OPTICS, GEOMETRY -------
-extern int n_AM, n_propagations;
-extern double *layout_distance, *layout_time;
-extern int *layout_component;
-extern bool noprop;
-// ------- CALCULATION NET -------
-extern double vc; // center frequency
-extern double t_pulse_lim, t_pulse_shift;
-extern double Dt_pump; // "main time" - for pumping/relaxation
-extern int x0, n0; // number of points in radial and time nets and number of pulses in the train
-//extern double v_min, v_max;       // frequency limits, Hz
-// ------- DEBUGGING -------
-extern int debug_level; // debug output control 0 - nothing; 1 - some; 2 - everything
-//extern int bands;       // SUMM of 1 for regular + 2 for hot + 4 for sequence
-extern bool flag_status_or_debug; // last message displayed: True if status False if debug
-// ------- MISC. CONSTANTS -------
-extern double c, h; // spped of light [m/s]; Plank's [J s]
-
-
-// -------------------------- FUNCTIONS --------------------------
-
-//////////////////////////// main.cpp ///////////////////////////
-void Calculations(void);
-//void Abort(std::string){}
-void StatusDisplay(int pulse, int k, double t, std::string status);
-void Debug(int level, std::string str);
-
-
-/////////////////////////// input.cpp ////////////////////////////
-bool ReadCommandLine(int, char**);
-bool ConstantsInit(void);
-void ArraysInit(void);
-void IntensityNormalization(void);
-void InitializeE(void);
-std::complex<double> field(double, double);
-
-/////////////////////////// memory.cpp ///////////////////////////
-void AllocateMemory(void);
-void FreeMemory(void);
-
-/////////////////////////// optics.cpp ///////////////////////////
-void BeamPropagation(int pulse, int k, double t);
-double RefractiveIndex(char* material, double frequency);
-double NonlinearIndex(char* material);
-void Probe(void);
-void Lens(int pulse, double Dr, double F);
-void Mask(int pulse, double Dr, double radius);
-void Attenuator(int pulse, double transmission);
-void Window(int pulse, int k, double t, char *material, double thickness);
-void Stretcher(int pulse, double stretching);
-void Bandpass(int pulse, double bandcenter, double bandwidth);
-void Filter(int pulse, std::string yamlfile);
-void Apodizer(int pulse, double alpha);
-void Air(int pulse, int k, double t, double humidity, double length);
-
-/////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(int pulse, int component, double time);
-void UpdateDynamicsFiles(double);
-void SaveGainSpectrum(int pulse, int component);
-void SaveOutputField(void);
-
-///////////////////////////// calc.cpp /////////////////////////////
-void FFT(std::complex<double> *in, std::complex<double> *out);
-void IFFT(std::complex<double> *in, std::complex<double> *out);
-void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
-int BitReversal(int x);
-
-//////////////////////////// yaml.cpp ///////////////////////////
-void YamlGetValue(std::string *value, std::string path, std::string key);
 
 
 class Pulse
@@ -125,21 +47,17 @@ public:
 class LayoutComponent
 {
 public:
+    LayoutComponent(Optic *optic)
+    {
+        this->optic = optic;
+        this->distance = 0;
+        this->time = 0;
+    }
     Optic *optic;
     double distance;
     double time;
-    LayoutComponent(Optic *optic, double distance, double time)
-    {
-        this->optic = optic;
-        this->distance = distance;
-        this->time = time;
-    }
 };
 
-
-extern std::vector<Optic> optics;
-extern std::vector<Pulse> pulses;
-extern std::vector<LayoutComponent> layout;
 
 
 class A: public Optic // Amplifier section
@@ -187,8 +105,11 @@ private:
     double **T, **e2, **e3, **e4;
     double *gainSpectrum;
 
-    // ------- MISC. GLOBAL VARIABLES -------
-    double humidity; // air humidity [%]
+    // ------- OTHER VARIABLES -------
+    //double humidity; // air humidity [%]
+
+
+
 
     //////////////////////////// band.cpp /////////////////////////////
     void AmplificationBand(void);
@@ -257,6 +178,83 @@ class S: public Optic // Spectral filter
 public:
     S(std::string yaml);
 };
+
+
+
+//////////////////////////////////////// GLOGAL STUFF ////////////////////////////////////////
+
+// --------------------------------------- VARIABLES -----------------------------------------
+
+// -- PULSES, OPTICS, GEOMETRY ---
+extern std::vector<Pulse> pulses;
+extern std::vector<Optic> optics;
+extern std::vector<LayoutComponent> layout;
+extern int n_AM, n_propagations;
+extern bool noprop;
+// ------- CALCULATION NET -------
+extern double vc;                 // center frequency
+extern double t_pulse_lim, t_pulse_shift;
+extern double Dt_pump;            // "main time" - for pumping/relaxation
+extern int x0, n0;                // number of points in radial and time nets
+//extern double v_min, v_max;     // frequency limits, Hz
+// ------- DEBUGGING -------
+extern int debug_level;           // debug output control 0 - nothing; 1 - some; 2 - everything
+extern bool flag_status_or_debug; // last message displayed: True if status False if debug
+// ------- MISC. CONSTANTS -------
+extern double c, h;               // spped of light [m/s]; Plank's [J s]
+
+
+// --------------------------------------- FUNCTIONS -------------------------------------------
+
+//////////////////////////// main.cpp ///////////////////////////
+void Calculations(void);
+//void Abort(std::string){}
+void StatusDisplay(int pulse, int k, double t, std::string status);
+void Debug(int level, std::string str);
+
+/////////////////////////// misc.cpp /////////////////////////////
+Optic* FindOpticByID(std::string str);
+bool is_number(std::string);
+void YamlGetValue(std::string *value, std::string path, std::string key);
+
+/////////////////////////// input.cpp ////////////////////////////
+bool ReadCommandLine(int, char**);
+bool ConstantsInit(void);
+void ArraysInit(void);
+void IntensityNormalization(void);
+void InitializeE(void);
+std::complex<double> field(double, double);
+
+/////////////////////////// memory.cpp ///////////////////////////
+void AllocateMemory(void);
+void FreeMemory(void);
+
+/////////////////////////// optics.cpp ///////////////////////////
+void BeamPropagation(int pulse, int k, double t);
+double RefractiveIndex(char* material, double frequency);
+double NonlinearIndex(char* material);
+void Probe(void);
+void Lens(int pulse, double Dr, double F);
+void Mask(int pulse, double Dr, double radius);
+void Attenuator(int pulse, double transmission);
+void Window(int pulse, int k, double t, char *material, double thickness);
+void Stretcher(int pulse, double stretching);
+void Bandpass(int pulse, double bandcenter, double bandwidth);
+void Filter(int pulse, std::string yamlfile);
+void Apodizer(int pulse, double alpha);
+void Air(int pulse, int k, double t, double humidity, double length);
+
+/////////////////////////// output.cpp ///////////////////////////
+void UpdateOutputFiles(int pulse, int component, double time);
+void UpdateDynamicsFiles(double);
+void SaveGainSpectrum(int pulse, int component);
+void SaveOutputField(void);
+
+///////////////////////////// calc.cpp /////////////////////////////
+void FFT(std::complex<double> *in, std::complex<double> *out);
+void IFFT(std::complex<double> *in, std::complex<double> *out);
+void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
+int BitReversal(int x);
 
 
 #endif // CO2AMP_H

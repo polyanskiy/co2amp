@@ -3,18 +3,11 @@
 
 // GLOBAL VARIABLES
 
-// ------- PULSES -------
+// -- PULSES, OPTICS, GEOMETRY ---
 std::vector<Pulse> pulses;
-//int from_file;
-//double E0, w0, tau0, vc;
-//double t_inj;
-//int n_pulses;
-//double Dt_train;
-// ------- OPTICS, GEOMETRY -------
 std::vector<Optic> optics;
+std::vector<LayoutComponent> layout;
 int n_AM, n_propagations;
-double *layout_distance, *layout_time;
-int *layout_component;
 bool noprop;
 //double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- CALCULATION NET -------
@@ -192,7 +185,7 @@ void Calculations()
 
 void StatusDisplay(int pulse, int k, double t, std::string status)
 {
-    int K;
+/*    int K;
     if(k == -1){
         if(t < 0)
             std::cout << "\r" << status
@@ -213,7 +206,7 @@ void StatusDisplay(int pulse, int k, double t, std::string status)
                       << "                    ";
     }
     std::cout << std::flush;
-    flag_status_or_debug = true;
+    flag_status_or_debug = true;*/
 }
 
 

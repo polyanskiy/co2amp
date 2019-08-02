@@ -1,6 +1,23 @@
 #include  "co2amp.h"
 
 
+Optic* FindOpticByID(std::string id){
+    for(unsigned int i = 0; i<optics.size(); i++){
+        if(optics[i].id == id)
+            return &optics[i];
+    }
+    return nullptr;
+}
+
+
+bool is_number(std::string s)
+{
+    char* end = nullptr;
+    double val = strtod(s.c_str(), &end);
+    return end != s.c_str() && val != HUGE_VAL;
+}
+
+
 void YamlGetValue(std::string *value, std::string path, std::string key)
 {
     yaml_parser_t parser;

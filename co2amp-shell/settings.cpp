@@ -28,7 +28,7 @@ void MainWindow::SaveSettings(QString what_to_save)
         file.open(QFile::WriteOnly | QFile::Truncate);
 
         for(i=0; i<config_file_count; i++){
-            out << "- file: " << Memorized.configFile_id[i] << ".yml\n"
+            out << "- id: " << Memorized.configFile_id[i] << "\n"
                 << "  type: " << Memorized.configFile_type[i] << "\n";
         }
         file.close();
@@ -80,10 +80,10 @@ void MainWindow::LoadSettings(QString path)
         file_list = str.split("- ", QString::SkipEmptyParts);
         for(i=0; i<file_list.size(); i++){
             file_record = file_list[i].split("\n", QString::SkipEmptyParts);
-            if(file_record.size() == 3){ // "file: ...", "type: ...", "id: ..."
-                Memorized.configFile_id.append(file_record[2].split(": ")[1]);   // "  id: ..."
+            if(file_record.size() == 2){ // "- id: ...", "type: ..."
+                Memorized.configFile_id.append(file_record[0].split(": ")[1]);   // "- id: ..."
                 Memorized.configFile_type.append(file_record[1].split(": ")[1]); // "  type: ..."
-                file.setFileName(file_record[0].split(": ")[1]);                 // "  file: ..."
+                file.setFileName(Memorized.configFile_id[i] + ".yml");
                 file.open(QIODevice::ReadOnly | QFile::Text);
                 Memorized.configFile_content.append(in.readAll());
                 file.close();

@@ -12,6 +12,7 @@ SOURCES += \
     input.cpp \
     main.cpp \
     memory.cpp \
+    misc.cpp \
     optic_A.cpp \
     optic_A_amplification.cpp \
     optic_A_band.cpp \
@@ -25,8 +26,7 @@ SOURCES += \
     optic_S.cpp \
     optics.cpp \
     output.cpp \
-    pulses.cpp \
-    yaml.cpp
+    pulses.cpp
 HEADERS += \
     co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp

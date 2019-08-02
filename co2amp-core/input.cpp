@@ -98,14 +98,11 @@ bool ConstantsInit(void)
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
-        if(key == "- file"){
-            value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
-            std::getline(std::istringstream(value), id, '.'); //remove extension
-        }
-        if(key == "  type"){
-            value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
+        value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
+        if(key == "- id")
+            id = value;
+        if(key == "  type")
             type = value;
-        }
         if(id != "" && type != ""){
             Debug(2, "ID: \"" + id + "\"; Type: \"" + type + "\"");
             if(type=="A")
@@ -150,9 +147,11 @@ bool ConstantsInit(void)
     }
     Debug(2, layout_file_name + " content:\n" + file_content_str);
 
+    Debug(2, "Creating layout form file \'" + layout_file_name + "\'...");
     std::string propagate = "";
     int and_back = -1;
     int times = -1;
+    int i = -1;
     iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
@@ -170,17 +169,59 @@ bool ConstantsInit(void)
         }
         if(key == "  times")
             times = std::stoi(value);
+
         if(propagate != "" && and_back != -1 && times != -1){
-            Debug(2, "Propagate: \"" + propagate + "\"; and_back = " + std::to_string(and_back) +
+            Debug(2, "propagate = \"" + propagate + "\"; and_back = " + std::to_string(and_back) +
                   "; times = " + std::to_string(times));
 
+            Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
+
             iss2 = std::istringstream(propagate);
-            std::getline(iss2, value, '>');
+            while(std::getline(iss2, value, '>')){
+                if(value != ""){
+                    if(is_number(value)){
+                        Debug(2, "Beam propagation distance: " + value + " mm");
+                        if(i==-1){
+                            std::cout << "Layout error: first entry must be an optic\n";
+                            return false;
+                        }
+                        bool flag = layout[i].distance == 0;
+                        layout[i].distance += std::stod(value);
+                        if(flag)
+                            Debug(2, "propagation after layout component #" + std::to_string(i) +
+                                  " set at " + std::to_string(layout[i].distance) + " mm");
+                        else
+                            Debug(2, "added " + value + " mm propagation after layout component #" +
+                              std::to_string(i) + " (now " + std::to_string(layout[i].distance) + " mm)");
+                    }
+                    else{
+                        i++;
+                        Debug(2, "Optic entry: \"" + value + "\"");
+                        Optic *optic = FindOpticByID(value);
+                        if(optic == nullptr){
+                            std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
+                            return false;
+                        }
+                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(i));
+                        layout.push_back(optic);
+                    }
+                }
+            }
 
             propagate = "";
             and_back = -1;
             times = -1;
         }
+    }
+
+    if(layout[i].optic->type != "P"){
+        std::cout << "Layout error: last optic must be type \'P\' (probe)\n";
+        return false;
+    }
+
+    if(layout[i].distance != 0){
+        std::cout << "Layout error: there should be no propagation after the last optic\n";
+        return false;
     }
 
 

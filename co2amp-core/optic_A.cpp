@@ -7,7 +7,7 @@ A::A(std::string id)
     this->type = "A";
     this->yaml = id + ".yml";
 
-    Debug(2, "Initialializing " + this->type + " from file " + this->yaml + " ...");
+    Debug(2, "Creating optic type \'" + this->type + "\' from file \'" + this->yaml + "\' ...");
 
     pumping = "";
     Vd = 0;
