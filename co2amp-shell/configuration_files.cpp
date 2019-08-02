@@ -16,7 +16,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QStringList type_list = {"PULSE", "LAYOUT", "COMMENT", "A", "P", "L", "M", "F", "S", "C"};
 
     // allow only one layout
-    for(int i=0; i<Memorized.configFile_basename.size(); i++){
+    for(int i=0; i<Memorized.configFile_id.size(); i++){
         if(Memorized.configFile_type[i] == "LAYOUT"){
             selection_list.removeOne("LAYOUT");
             type_list.removeOne("LAYOUT");
@@ -34,7 +34,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QString id="";
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "Base name of the file (element ID)",
+        id = QInputDialog().getText(this, "co2amp", " ID (basename) of the file",
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
@@ -52,7 +52,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
     int current_optic = listWidget_configFile_list->currentRow();
 
-    Memorized.configFile_basename.insert(current_optic+1, id);
+    Memorized.configFile_id.insert(current_optic+1, id);
     Memorized.configFile_type.insert(current_optic+1, type);
     Memorized.configFile_content.insert(current_optic+1, "# Configuration YAML file, type " + type);
 
@@ -67,7 +67,7 @@ void MainWindow::on_toolButton_configFile_up_clicked()
     if(current_optic == 0)
         return;
 
-    Memorized.configFile_basename.swap(current_optic, current_optic-1);
+    Memorized.configFile_id.swap(current_optic, current_optic-1);
     Memorized.configFile_type.swap(current_optic, current_optic-1);
     Memorized.configFile_content.swap(current_optic, current_optic-1);
 
@@ -83,7 +83,7 @@ void MainWindow::on_toolButton_configFile_down_clicked()
     if(current_optic == listWidget_configFile_list->count()-1)
         return;
 
-    Memorized.configFile_basename.swap(current_optic, current_optic+1);
+    Memorized.configFile_id.swap(current_optic, current_optic+1);
     Memorized.configFile_type.swap(current_optic, current_optic+1);
     Memorized.configFile_content.swap(current_optic, current_optic+1);
 
@@ -97,13 +97,13 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
 {
     int current_optic = listWidget_configFile_list->currentRow();
 
-    QString oldid = Memorized.configFile_basename[current_optic];
+    QString oldid = Memorized.configFile_id[current_optic];
 
     QString id="";
     bool ok_pressed;
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "Base name:", QLineEdit::Normal, oldid, &ok_pressed);
+        id = QInputDialog().getText(this, "co2amp", "ID (basename):", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
         id.replace( " ", "" );
@@ -118,7 +118,7 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
         good_id_provided = true;
     }
 
-    Memorized.configFile_basename[current_optic] = id;
+    Memorized.configFile_id[current_optic] = id;
 
     listWidget_configFile_list->currentItem()->setText(id);
 }
@@ -131,7 +131,7 @@ void MainWindow::on_toolButton_configFile_remove_clicked()
     int current_optic = listWidget_configFile_list->currentRow();
 
     if(QMessageBox::question(this, "co2amp", "Sure?") == QMessageBox::Yes){
-        Memorized.configFile_basename.removeAt(current_optic);
+        Memorized.configFile_id.removeAt(current_optic);
         Memorized.configFile_type.removeAt(current_optic);
         Memorized.configFile_content.removeAt(current_optic);
         BlockSignals(true);
@@ -224,8 +224,8 @@ QString MainWindow::SuggestConfigFileName(QString type)
 
 bool MainWindow::ConfigFileNameExists(QString id)
 {
-    for(int i=0; i<Memorized.configFile_basename.size(); i++)
-        if(Memorized.configFile_basename[i] == id)
+    for(int i=0; i<Memorized.configFile_id.size(); i++)
+        if(Memorized.configFile_id[i] == id)
             return true;
 
     return false;
@@ -237,8 +237,8 @@ void MainWindow::PopulateConfigFileList()
     BlockSignals(true); // don't call UpdateFile() when optics being removed/added
     listWidget_configFile_list->clear();
 
-    for(int i=0; i<Memorized.configFile_basename.size(); i++)
-        listWidget_configFile_list->addItem(Memorized.configFile_basename[i]);
+    for(int i=0; i<Memorized.configFile_id.size(); i++)
+        listWidget_configFile_list->addItem(Memorized.configFile_id[i]);
 
     listWidget_configFile_list->setCurrentRow(0);   
     BlockSignals(false);

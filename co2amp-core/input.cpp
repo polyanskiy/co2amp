@@ -92,40 +92,40 @@ bool ConstantsInit(void)
 
     std::string id="";
     std::string type="";
-    std::string yaml="";
     std::string layout_file_name="";
     iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
-        if(key == "- file")
-            yaml = value.substr(1); // remove extra space in the beginning of the line
-        if(key == "  type")
-            type = value.substr(1); // remove extra space in the beginning of the line
-        if(key == "  id")
-            id = value.substr(1); // remove extra space in the beginning of the line
-        if(yaml != "" && type != "" && id != ""){
+        if(key == "- file"){
+            value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
+            std::getline(std::istringstream(value), id, '.'); //remove extension
+        }
+        if(key == "  type"){
+            value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
+            type = value;
+        }
+        if(id != "" && type != ""){
+            Debug(2, "ID: \"" + id + "\"; Type: \"" + type + "\"");
             if(type=="A")
-                optics.push_back(A(id, yaml));
+                optics.push_back(A(id));
             if(type=="C")
-                optics.push_back(C(id, yaml));
+                optics.push_back(C(id));
             if(type=="L")
-                optics.push_back(L(id, yaml));
+                optics.push_back(L(id));
             if(type=="M")
-                optics.push_back(M(id, yaml));
+                optics.push_back(M(id));
             if(type=="F")
-                optics.push_back(F(id, yaml));
+                optics.push_back(F(id));
             if(type=="P")
-                optics.push_back(P(id, yaml));
+                optics.push_back(P(id));
             if(type=="S")
-                optics.push_back(S(id, yaml));
+                optics.push_back(S(id));
             if(type=="PULSE")
-                pulses.push_back(Pulse(id, yaml));
+                pulses.push_back(Pulse(id));
             if(type=="LAYOUT")
-                layout_file_name =  yaml;
-            Debug(2, "Config file: \"" + yaml + "\"; ID: \"" + id + "\"; Type: \"" + type + "\"");
-            yaml = "";
+                layout_file_name =  id + ".yml";
             id = "";
             type = "";
         }
@@ -152,7 +152,7 @@ bool ConstantsInit(void)
 
     std::string propagate = "";
     int and_back = -1;
-    int times_repeat = -1;
+    int times = -1;
     iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
@@ -168,17 +168,18 @@ bool ConstantsInit(void)
             if(value.find("false") != std::string::npos)
                 and_back = 0;
         }
-        if(key == "  times_repeat")
-            times_repeat = std::stoi(value);
-        if(propagate != "" && and_back != -1 && times_repeat != -1){
-            Debug(2, "Propagate: \"" + propagate + "\"; and_back = " + std::to_string(and_back) + "; times_repeat = " + std::to_string(times_repeat));
+        if(key == "  times")
+            times = std::stoi(value);
+        if(propagate != "" && and_back != -1 && times != -1){
+            Debug(2, "Propagate: \"" + propagate + "\"; and_back = " + std::to_string(and_back) +
+                  "; times = " + std::to_string(times));
 
             iss2 = std::istringstream(propagate);
-            std::getline(iss2, value, '>>');
+            std::getline(iss2, value, '>');
 
             propagate = "";
             and_back = -1;
-            times_repeat = -1;
+            times = -1;
         }
     }
 

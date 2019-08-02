@@ -22,7 +22,7 @@
 class CoreVariables
 {
     public:
-        QStringList configFile_basename, configFile_type, configFile_content;
+        QStringList configFile_id, configFile_type, configFile_content;
         bool noprop;
         QString vc, t_pulse_min, t_pulse_max;
         int precision_t, precision_r;

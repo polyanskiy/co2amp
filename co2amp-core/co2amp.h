@@ -97,7 +97,7 @@ void YamlGetValue(std::string *value, std::string path, std::string key);
 class Pulse
 {
 public:
-    Pulse(std::string id, std::string yaml);
+    Pulse(std::string yaml);
     std::string id;
     std::string yaml;
     int from_file;
@@ -145,7 +145,7 @@ extern std::vector<LayoutComponent> layout;
 class A: public Optic // Amplifier section
 {
 public:
-    A(std::string id, std::string yaml);
+    A(std::string yaml);
     void InternalDynamics(double);
     void PulseInteraction(int);
 private:
@@ -220,42 +220,42 @@ private:
 class C: public Optic // Chirp (Stretcher/Compressor)
 {
 public:
-    C(std::string id, std::string yaml);
+    C(std::string yaml);
 };
 
 
 class L: public Optic // Lens
 {
 public:
-    L(std::string id, std::string yaml);
+    L(std::string yaml);
 };
 
 
 class M: public Optic // Matter (window, air)
 {
 public:
-    M(std::string id, std::string yaml);
+    M(std::string yaml);
 };
 
 
 class F: public Optic // Spatial (ND) filter
 {
 public:
-    F(std::string id, std::string yaml);
+    F(std::string yaml);
 };
 
 
 class P: public Optic // Probe
 {
 public:
-    P(std::string id, std::string yaml);
+    P(std::string yaml);
 };
 
 
 class S: public Optic // Spectral filter
 {
 public:
-    S(std::string id, std::string yaml);
+    S(std::string yaml);
 };
 
 

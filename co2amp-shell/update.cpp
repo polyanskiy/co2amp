@@ -45,7 +45,7 @@ void MainWindow::UpdateControls()
     bl = config_file_count > 0;
     if(bl){
         plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_config_file]);
-        label_configFile_info->setText(Memorized.configFile_basename[current_config_file]
+        label_configFile_info->setText(Memorized.configFile_id[current_config_file]
                                        + ".yml   (type: " + Memorized.configFile_type[current_config_file] + ")");
     }
     else{
@@ -89,12 +89,12 @@ void MainWindow::UpdateControls()
     //optic and pulse
     comboBox_optic->clear();
     comboBox_pulse->clear();
-    for(i=0; i<=Saved.configFile_basename.count()-1; i++){
+    for(i=0; i<=Saved.configFile_id.count()-1; i++){
         QString type = Saved.configFile_type[i];
         if(type != "PULSE" && type != "LAYOUT" && type != "COMMENT")
-            comboBox_optic->addItem(Saved.configFile_basename[i]);       
+            comboBox_optic->addItem(Saved.configFile_id[i]);
         if(type == "PULSE")
-            comboBox_pulse->addItem(Saved.configFile_basename[i]);
+            comboBox_pulse->addItem(Saved.configFile_id[i]);
     }
     if(Memorized.optic == -1 || Memorized.optic+1 > comboBox_optic->count())
         comboBox_optic->setCurrentIndex(0);

@@ -1,7 +1,9 @@
 #include  "co2amp.h"
 
-Pulse::Pulse(std::string id, std::string yaml)
+Pulse::Pulse(std::string id)
 {
     this->id = id;
-    this->yaml = yaml;
+    this->yaml = id + ".yml";
+
+    Debug(2, "Initialializing pulse from file " + this->yaml + " ...");
 }

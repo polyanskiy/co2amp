@@ -1,11 +1,13 @@
 #include "co2amp.h"
 
 
-A::A(std::string id, std::string yaml)
+A::A(std::string id)
 {
     this->id = id;
     this->type = "A";
-    this->yaml = yaml;
+    this->yaml = id + ".yml";
+
+    Debug(2, "Initialializing " + this->type + " from file " + this->yaml + " ...");
 
     pumping = "";
     Vd = 0;

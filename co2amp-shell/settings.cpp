@@ -15,36 +15,26 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("co2amp/precision_r", Memorized.precision_r);
         settings.setValue("co2amp/t_pulse_min", Memorized.t_pulse_min);
         settings.setValue("co2amp/t_pulse_max", Memorized.t_pulse_max);
-
         settings.setValue("debug/debugLevel", spinBox_debugLevel->text());
-
-
 
         // Write configuration files
         int i;
-        int config_file_count = Memorized.configFile_basename.size();
+        int config_file_count = Memorized.configFile_id.size();
 
         QFile file;
         QTextStream out(&file);
 
-
-
         file.setFileName("config_files.yml");
         file.open(QFile::WriteOnly | QFile::Truncate);
 
-
         for(i=0; i<config_file_count; i++){
-            out << "- file: " << Memorized.configFile_basename[i] << ".yml\n"
-                << "  type: " << Memorized.configFile_type[i] << "\n"
-                << "  id: " << Memorized.configFile_basename[i] << "\n";
+            out << "- file: " << Memorized.configFile_id[i] << ".yml\n"
+                << "  type: " << Memorized.configFile_type[i] << "\n";
         }
         file.close();
 
-
-
-
         for(i=0; i<config_file_count; i++){
-            file.setFileName(Memorized.configFile_basename[i]+".yml");
+            file.setFileName(Memorized.configFile_id[i]+".yml");
             file.open(QFile::WriteOnly | QFile::Truncate);
             out << Memorized.configFile_content[i];
             file.close();
@@ -63,7 +53,6 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("plot/freqScale", comboBox_freqScale->currentIndex());
         settings.setValue("plot/log", checkBox_log->isChecked());
     }
-
 }
 
 void MainWindow::LoadSettings(QString path)
@@ -72,10 +61,8 @@ void MainWindow::LoadSettings(QString path)
 
     flag_projectloaded = false;
 
-
-
     // Configuration files
-    Memorized.configFile_basename.clear();
+    Memorized.configFile_id.clear();
     Memorized.configFile_type.clear();
     Memorized.configFile_content.clear();
 
@@ -94,20 +81,16 @@ void MainWindow::LoadSettings(QString path)
         for(i=0; i<file_list.size(); i++){
             file_record = file_list[i].split("\n", QString::SkipEmptyParts);
             if(file_record.size() == 3){ // "file: ...", "type: ...", "id: ..."
-                Memorized.configFile_basename.append(file_record[2].split(": ")[1]); // "  id: ..."
-                Memorized.configFile_type.append(file_record[1].split(": ")[1]);     // "  type: ..."
-                file.setFileName(file_record[0].split(": ")[1]);                     // "  file: ..."
+                Memorized.configFile_id.append(file_record[2].split(": ")[1]);   // "  id: ..."
+                Memorized.configFile_type.append(file_record[1].split(": ")[1]); // "  type: ..."
+                file.setFileName(file_record[0].split(": ")[1]);                 // "  file: ..."
                 file.open(QIODevice::ReadOnly | QFile::Text);
                 Memorized.configFile_content.append(in.readAll());
                 file.close();
             }
         }
     }
-
-
     PopulateConfigFileList();
-
-
 
     // Calculation net
     Memorized.vc = settings.value("co2amp/vc", 30).toString();
@@ -120,7 +103,6 @@ void MainWindow::LoadSettings(QString path)
     spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
     Memorized.noprop = settings.value("co2amp/noprop", 0).toBool();
 
-
     // Plot
     Memorized.optic = settings.value("plot/optic", 0).toInt();
     Memorized.pulse = settings.value("plot/pulse", 0).toInt();
@@ -132,8 +114,6 @@ void MainWindow::LoadSettings(QString path)
     comboBox_timeScale->setCurrentIndex(settings.value("plot/timeScale", 2).toInt());
     comboBox_freqScale->setCurrentIndex(settings.value("plot/freqScale", 2).toInt());
     checkBox_log->setChecked(settings.value("plot/log", 0).toBool());
-
-
 
     // //////////////////////// backwards compatibility start ////////////////////////////////////////////
     /*double w0 = settings.value("co2amp/w0", 0).toDouble();
@@ -171,7 +151,6 @@ void MainWindow::LoadSettings(QString path)
     }*/
     // //////////////////////// backwards compatibility end /////////////////////////////////////////////
 
-
     Saved = Memorized;
     flag_projectloaded = true;
     UpdateControls();
@@ -192,9 +171,3 @@ void MainWindow::MemorizeSettings()
     Memorized.optic = comboBox_optic->currentIndex();
     Memorized.pulse = comboBox_pulse->currentIndex();
 }
-
-
-
-
-
-
