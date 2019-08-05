@@ -149,7 +149,7 @@ bool ConstantsInit(void)
 
     Debug(2, "Creating layout form file \'" + layout_file_name + "\'...");
     std::string propagate = "";
-    int and_back = -1;
+    //int and_back = -1;
     int times = -1;
     int i = -1;
     iss = std::istringstream(file_content_str);
@@ -161,18 +161,17 @@ bool ConstantsInit(void)
             propagate = value;
             propagate.erase(remove_if(propagate.begin(), propagate.end(), isspace), propagate.end()); // remove spaces
         }
-        if(key == "  and_back"){
+        /*if(key == "  and_back"){
             if(value.find("true") != std::string::npos)
                 and_back = 1;
             if(value.find("false") != std::string::npos)
                 and_back = 0;
-        }
+        }*/
         if(key == "  times")
             times = std::stoi(value);
 
-        if(propagate != "" && and_back != -1 && times != -1){
-            Debug(2, "propagate = \"" + propagate + "\"; and_back = " + std::to_string(and_back) +
-                  "; times = " + std::to_string(times));
+        if(propagate != "" && times != -1){
+            Debug(2, "propagate = \"" + propagate + "\"; times = " + std::to_string(times));
 
             Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
 
@@ -209,7 +208,7 @@ bool ConstantsInit(void)
             }
 
             propagate = "";
-            and_back = -1;
+            //and_back = -1;
             times = -1;
         }
     }
