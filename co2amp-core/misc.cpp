@@ -18,9 +18,39 @@ bool is_number(std::string s)
 }
 
 
-void YamlGetValue(std::string *value, std::string path, std::string key)
+bool YamlGetValue(std::string *value, std::string path, std::string key)
 {
-    yaml_parser_t parser;
+    std::string str, file_content_str;
+    std::ifstream in;
+    std::istringstream iss;//, iss2;
+
+    in = std::ifstream(path, std::ios::in);
+    if(in){
+        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        in.close();
+    }
+    else{
+        std::cout << "Error reading YAML file \'" + path + "\'\n";
+        return false;
+    }
+    Debug(3, path + " content:\n" + file_content_str);
+
+    iss = std::istringstream(file_content_str);
+    while(std::getline(iss, str)){
+        std::size_t found = 1;
+        found = str.find(key + ": ");
+        if(found == 0){ //key found at the beginnig of the string
+            *value = str.substr(std::string(key + ": ").length());
+            Debug(3, key + ": " + *value);
+            return true;
+        }
+    }
+
+    std::cout << "Key \"" + key + "\" not found in YAML file \'" + path + "\'\n";
+    return false;
+
+
+    /*yaml_parser_t parser;
     yaml_token_t  token;
     FILE *file = fopen(path.c_str(), "r");
     std::string str;
@@ -68,9 +98,9 @@ void YamlGetValue(std::string *value, std::string path, std::string key)
                 if(token.type == YAML_STREAM_END_TOKEN)
                     break;
                 Debug(2, "Value found");
-                /*std::stringstream ss;
-                ss << token.data.scalar.value;
-                ss >> *value;*/
+                //std::stringstream ss;
+                //ss << token.data.scalar.value;
+                //ss >> *value;
                 *value = reinterpret_cast<char*>(token.data.scalar.value);
                 //str = reinterpret_cast<char*>(token.data.scalar.value);
             }
@@ -82,5 +112,5 @@ void YamlGetValue(std::string *value, std::string path, std::string key)
     yaml_token_delete(&token);
     yaml_parser_delete(&parser);
     fclose(file);
-    return;
+    return;*/
 }

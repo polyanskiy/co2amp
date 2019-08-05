@@ -26,7 +26,7 @@ SOURCES += \
     optic_S.cpp \
     optics.cpp \
     output.cpp \
-    pulses.cpp
+    pulse.cpp
 HEADERS += \
     co2amp.h
 QMAKE_CFLAGS += -ffast-math -fopenmp

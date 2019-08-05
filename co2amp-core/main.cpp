@@ -28,10 +28,14 @@ double c, h; // spped of light [m/s]; Plank's [J s]
 
 int main(int argc, char **argv)
 {
-    debug_level = 1;
-    flag_status_or_debug = true;
+    // Constants
+    c = 2.99792458e8; // m/s
+    h = 6.626069e-34; // J*s
 
-    std::cout << "co2amp-core v.2019-07-31" << std::endl << std::flush;
+    debug_level = 1;
+    flag_status_or_debug = true;  
+
+    std::cout << "co2amp-core v.2019-08-05" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)
@@ -44,11 +48,11 @@ int main(int argc, char **argv)
         return -1;
     }
     Debug(1, "Command line read done!");
-    if (!ConstantsInit()){
+    if (!ReadConfigFiles("config_files.yml")){
         std::cout << "Error in configuration file(s). Aborting...\n";
         return -1;
     }
-    Debug(1, "Constants init done!");
+    Debug(1, "Processing configuration files done!");
     /*AllocateMemory();
     Debug(1, "Allocate memory done!");
     ArraysInit();

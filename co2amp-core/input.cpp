@@ -60,11 +60,9 @@ bool ReadCommandLine(int argc, char **argv)
 }
 
 
-bool ConstantsInit(void)
+bool ReadConfigFiles(std::string path)
 {
-    // Constants
-    c = 2.99792458e8; // m/s
-    h = 6.626069e-34; // J*s
+
 
     //double Dt = t_pulse_lim/(n0-1); // pulse time step, s
     //double Dv = 1.0/(Dt*n0);        // frequency step, Hz
@@ -76,19 +74,17 @@ bool ConstantsInit(void)
     std::ifstream in;
     std::istringstream iss, iss2;
 
-    ////////////////// PROCESS 'config_files.yml', INITIALIZE PULSES AND PULSES /////////////////////////////
-
-    Debug(2, "Interpreting config_files.yml...");
-    in = std::ifstream("config_files.yml", std::ios::in);
+    Debug(2, "Interpreting configuration file list \"" + path + "\"...");
+    in = std::ifstream(path, std::ios::in);
     if(in){
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
     else{
-        std::cout << "Error reading config_files.yml)\n";
+        std::cout << "Error reading configuration file list \"" + path + "\"\n";
         return false;
     }
-    Debug(2, "config_files.yml content:\n" + file_content_str);
+    Debug(3, path + " content:\n" + file_content_str);
 
     std::string id="";
     std::string type="";
@@ -122,36 +118,39 @@ bool ConstantsInit(void)
             if(type=="PULSE")
                 pulses.push_back(Pulse(id));
             if(type=="LAYOUT")
-                layout_file_name =  id + ".yml";
+                if(!ReadLayoutConfigFile(id + ".yml"))
+                    return false;
             id = "";
             type = "";
         }
     }
+    return true;
+}
 
-    /////////////// PROCESS LAYOUT CONFIGURATION FILE, INITIALIZE LAYOUT CONFIGURATION ///////////////
 
-    if(layout_file_name == ""){
-        std::cout << "Input ERROR: No Layout file (?)\n";
-        return false;
-    }
+bool ReadLayoutConfigFile(std::string path){
 
-    Debug(2, "Interpreting layout configuration file (" + layout_file_name +")...");
-    in = std::ifstream(layout_file_name, std::ios::in);
+    std::string str, file_content_str, key, value;
+    std::ifstream in;
+    std::istringstream iss, iss2;
+    std::string propagate = "";
+    int times = -1;
+    int component_counter = -1;
+    int propagation_counter;
+
+    Debug(2, "Interpreting layout configuration file \"" + path +"\"...");
+    in = std::ifstream(path, std::ios::in);
     if(in){
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
     else{
-        std::cout << "Error reading " + layout_file_name + "\n";
+        std::cout << "Error reading layout file \'" + path + "\'\n";
         return false;
     }
-    Debug(2, layout_file_name + " content:\n" + file_content_str);
+    Debug(3, path + " content:\n" + file_content_str);
 
-    Debug(2, "Creating layout form file \'" + layout_file_name + "\'...");
-    std::string propagate = "";
-    //int and_back = -1;
-    int times = -1;
-    int i = -1;
+    Debug(2, "Creating layout form file \'" + path + "\'...");
     iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
@@ -161,103 +160,73 @@ bool ConstantsInit(void)
             propagate = value;
             propagate.erase(remove_if(propagate.begin(), propagate.end(), isspace), propagate.end()); // remove spaces
         }
-        /*if(key == "  and_back"){
-            if(value.find("true") != std::string::npos)
-                and_back = 1;
-            if(value.find("false") != std::string::npos)
-                and_back = 0;
-        }*/
         if(key == "  times")
             times = std::stoi(value);
 
-        if(propagate != "" && times != -1){
+        if(propagate != "" && times != -1){            
             Debug(2, "propagate = \"" + propagate + "\"; times = " + std::to_string(times));
-
             Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
-
-            iss2 = std::istringstream(propagate);
-            while(std::getline(iss2, value, '>')){
-                if(value != ""){
+            for(propagation_counter=0; propagation_counter<times; propagation_counter++){
+                Debug(2, "Propagation #" + std::to_string(propagation_counter+1) + " of " + std::to_string(times) + " ...");
+                iss2 = std::istringstream(propagate);
+                while(std::getline(iss2, value, '>')){
+                    if(value == "")
+                        continue;
                     if(is_number(value)){
                         Debug(2, "Beam propagation distance: " + value + " mm");
-                        if(i==-1){
+                        if(component_counter==-1){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
-                        bool flag = layout[i].distance == 0;
-                        layout[i].distance += std::stod(value);
+                        bool flag = layout[component_counter].distance == 0;
+                        layout[component_counter].distance += std::stod(value);
                         if(flag)
-                            Debug(2, "propagation after layout component #" + std::to_string(i) +
-                                  " set at " + std::to_string(layout[i].distance) + " mm");
+                            Debug(2, "propagation after layout component #" + std::to_string(component_counter) +
+                                  " set at " + std::to_string(layout[component_counter].distance) + " mm");
                         else
                             Debug(2, "added " + value + " mm propagation after layout component #" +
-                              std::to_string(i) + " (now " + std::to_string(layout[i].distance) + " mm)");
+                              std::to_string(component_counter) + " (now " + std::to_string(layout[component_counter].distance) + " mm)");
                     }
                     else{
-                        i++;
+                        component_counter++;
                         Debug(2, "Optic entry: \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
                         if(optic == nullptr){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
-                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(i));
+                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(component_counter));
                         layout.push_back(optic);
                     }
                 }
             }
 
             propagate = "";
-            //and_back = -1;
             times = -1;
         }
     }
 
-    if(layout[i].optic->type != "P"){
+    if(layout[component_counter].optic->type != "P"){
         std::cout << "Layout error: last optic must be type \'P\' (probe)\n";
         return false;
     }
 
-    if(layout[i].distance != 0){
+    if(layout[component_counter].distance != 0){
         std::cout << "Layout error: there should be no propagation after the last optic\n";
         return false;
     }
 
-
-    /*// Optical layout: count number of propagations
-    n_propagations = 0;
-    in = std::ifstream(layout_file_name, std::ios::in);
-    if (in){
-        file_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-        in.close();
+    Debug(1, "LAYOUT:");
+    if(debug_level>=1){
+        for(component_counter=0; component_counter<layout.size(); component_counter++){
+            std::cout << layout[component_counter].optic->id;
+            if(component_counter != layout.size()-1)
+                std::cout << "<<" ;
+            if(layout[component_counter].distance != 0)
+                std::cout << std::to_string(layout[component_counter].distance) << "<<";
+        }
+        std::cout << "\n";
     }
-    Debug(2, "Layout configuration file content:\n" + file_str);
-
-    std::regex rgx("[\\s,\\-\\(\\)]+");
-    std::sregex_token_iterator iter(file_str.begin(), file_str.end(), rgx, -1);
-    std::sregex_token_iterator end;
-    for ( ; iter != end; ++iter){
-        //std::cout << *iter << '\n';
-        n_propagations ++;
-    }
-    n_propagations = (n_propagations+1)/2;
-
-    std::cout << "pulses: " << pulses.size()
-              << "; optics: " << optics.size()
-              << "; propagations: " << n_propagations
-              << std::endl;
-
-    //if(n_propagations ==0){
-    //    std::cout
-    //}*/
-
-    /*std::vector<Optic>::iterator itr;
-    for(itr=optics.begin(); itr!=optics.end(); itr++){
-        std::cout << itr->id << "\t"
-                  << itr->type << "\t"
-                  << itr->yaml << "\t"
-                  << itr->Dr << "\t" << std::endl;
-    }*/
 
     return true;
 }

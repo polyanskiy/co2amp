@@ -1,17 +1,15 @@
 #ifndef CO2AMP_H
 #define CO2AMP_H
 
-
-//#include <string>
 #include <iostream>
 #include <fstream>
-#include<regex>
+#include <regex>
 #include <vector>
-#include  <cmath>
-#include  <complex>
-#include  <omp.h>
+#include <cmath>
+#include <complex>
+#include <omp.h>
 
-#include <../libyaml/yaml.h>
+//#include <../libyaml/yaml.h>
 
 #define I std::complex<double>(0,1)
 
@@ -23,8 +21,7 @@ public:
     std::string id;
     std::string yaml;
     int from_file;
-    double E0, w0, tau0, vc;
-    double t_inj;
+    double E0, w0, tau0, vc, t_inj;
     // ------- OUTPUT ARRAY -------
     std::complex<double> **E;
 };
@@ -215,11 +212,12 @@ void Debug(int level, std::string str);
 /////////////////////////// misc.cpp /////////////////////////////
 Optic* FindOpticByID(std::string str);
 bool is_number(std::string);
-void YamlGetValue(std::string *value, std::string path, std::string key);
+bool YamlGetValue(std::string *value, std::string path, std::string key);
 
 /////////////////////////// input.cpp ////////////////////////////
 bool ReadCommandLine(int, char**);
-bool ConstantsInit(void);
+bool ReadConfigFiles(std::string);
+bool ReadLayoutConfigFile(std::string);
 void ArraysInit(void);
 void IntensityNormalization(void);
 void InitializeE(void);
@@ -258,6 +256,3 @@ int BitReversal(int x);
 
 
 #endif // CO2AMP_H
-
-
-
