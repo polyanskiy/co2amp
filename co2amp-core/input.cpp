@@ -4,14 +4,6 @@ bool ReadCommandLine(int argc, char **argv)
 {
     int i;
 
-    // ------- INITIAL PULSE -------
-    //from_file = 0;          // 1: use input field from files 'field_in_re.dat' and 'field_in_im.dat'
-    //E0 = 1;                 // Initial pulse energy, J
-    //w0 = 0.01;              // Initial beam radius (w), m
-    //tau0 = 5e-12;           // Initial pulse duration (FWHM), s
-    //vc = -1;      // Carrying frequency, Hz; default 10P(20) line
-    //t_inj = 0;              // Injection moment, s
-    //n_pulses = 1;           // Number of pulses in the train
     // ------- OPTICS, GEOMETRY -------
     noprop = false;           // Skip propagation calculations
     // ------- CALCULATION NET -------
@@ -62,13 +54,10 @@ bool ReadCommandLine(int argc, char **argv)
 
 bool ReadConfigFiles(std::string path)
 {
-
-
     //double Dt = t_pulse_lim/(n0-1); // pulse time step, s
     //double Dv = 1.0/(Dt*n0);        // frequency step, Hz
     //double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
-
 
     std::string str, file_content_str, key, value;
     std::ifstream in;
@@ -385,64 +374,4 @@ void ArraysInit(void)
 }
 
 
-void IntensityNormalization(void) // Field amplitude adjustment (to match initial pulse energy)
-{
-    /*int pulse, x, n;
-    double Energy, af;
-    double Dr = optics[layout_component[0]].Dr;
-    double Dt = t_pulse_lim/(n0-1);
 
-    for(pulse=0; pulse<=n_pulses-1; pulse++){
-        Energy = 0;
-        for(n=0; n<n0-1; n++){
-            for(x=0; x<x0-1; x++)
-                Energy += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
-            }
-
-        af = sqrt(E0/Energy);
-        for(n=0; n<n0; n++){
-            for(x=0; x<x0; x++)
-                E[pulse][x][n] *= af;
-        }
-    }*/
-}
-
-
-void InitializeE()
-{
-    /*int pulse, x, n;
-    FILE *file;
-
-    double Dr = optics[layout_component[0]].Dr;
-    double Dt = t_pulse_lim/(n0-1);
-
-    if(!from_file){
-        for(pulse=0; pulse<n_pulses; pulse++){
-            for(x=0; x<x0; x++){
-                for(n=0; n<n0; n++)
-                    E[pulse][x][n] = field(Dr*x, Dt*n);
-            }
-        }
-        IntensityNormalization();
-    }
-    else{
-        file = fopen("field_in.bin", "rb");
-        for(pulse=0; pulse<n_pulses; pulse++){
-            for(x=0; x<x0; x++)
-                fread(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
-        }
-        fclose(file);
-    }*/
-}
-
-
-std::complex<double> field(double r, double t)
-{
-    /*double xx;
-    xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
-    std::complex<double> pulse = exp(-pow((t-t_pulse_shift)/xx, 2));
-    //xx = r0/sqrt(log(2.0)/2.0);   //(hwhm -> half-width @ 1/e^2)
-    //double beam = exp(-pow(r/xx, 2.0));
-    std::complex<double> beam = exp(-pow(r/w0, 2.0));
-    return pulse*beam;*/
-}

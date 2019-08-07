@@ -105,7 +105,7 @@ A::A(std::string id)
     }
 
     StatusDisplay(-1, -1, -1, "initial field...");
-    InitializeE();
+    //InitializeE();
 
     // 3 Initial q's
     if(p_CO2+p_N2+p_He>0){

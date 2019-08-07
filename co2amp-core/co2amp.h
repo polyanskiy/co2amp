@@ -24,6 +24,10 @@ public:
     double E0, w0, tau0, vc, t_inj;
     // ------- OUTPUT ARRAY -------
     std::complex<double> **E;
+private:
+    void IntensityNormalization(void);
+    void InitializeE(void);
+    std::complex<double> field(double, double);
 };
 
 
@@ -35,7 +39,8 @@ public:
     std::string type;
     std::string yaml;
     std::string test;
-    double Dr; //m
+    double CA; // clear aperture, m
+    double Dr; // m
     void InternalDynamics(double){}
     void PulseInteraction(int){}
 };
@@ -219,9 +224,6 @@ bool ReadCommandLine(int, char**);
 bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 void ArraysInit(void);
-void IntensityNormalization(void);
-void InitializeE(void);
-std::complex<double> field(double, double);
 
 /////////////////////////// memory.cpp ///////////////////////////
 void AllocateMemory(void);
