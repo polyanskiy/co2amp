@@ -54,11 +54,6 @@ bool ReadCommandLine(int argc, char **argv)
 
 bool ReadConfigFiles(std::string path)
 {
-    //double Dt = t_pulse_lim/(n0-1); // pulse time step, s
-    //double Dv = 1.0/(Dt*n0);        // frequency step, Hz
-    //double v_min = vc - Dv*(n0-1)/2;
-    //double v_max = vc + Dv*(n0-1)/2;
-
     std::string str, file_content_str, key, value;
     std::ifstream in;
     std::istringstream iss, iss2;
@@ -104,15 +99,24 @@ bool ReadConfigFiles(std::string path)
                 optics.push_back(P(id));
             if(type=="S")
                 optics.push_back(S(id));
+            if(type=="LAYOUT")
+                layout_file_name = id + ".yml";
             if(type=="PULSE")
                 pulses.push_back(Pulse(id));
-            if(type=="LAYOUT")
-                if(!ReadLayoutConfigFile(id + ".yml"))
-                    return false;
             id = "";
             type = "";
         }
     }
+
+
+    // When all optics created, create layout...
+    if(!ReadLayoutConfigFile(layout_file_name))
+        return false;
+
+    // ... and then initialize pulses (CA of first layout element needed)
+    for(unsigned int i=0; i<pulses.size(); i++)
+        pulses[i].InitializeE();
+
     return true;
 }
 
@@ -221,9 +225,9 @@ bool ReadLayoutConfigFile(std::string path){
 }
 
 
-void ArraysInit(void)
+/*void ArraysInit(void)
 {
-    /*int i, k, K;
+    int i, k, K;
 
     int N_symm = 0;  //Number of symmetric CO2 molecules
     int N_asymm = 0; // --''-- asymmetric --''--
@@ -370,8 +374,8 @@ void ArraysInit(void)
         printf("\nError in optical layout :(\nAbnormal program termination\n");
         FreeMemory();
         abort();
-    }*/
-}
+    }
+}*/
 
 
 

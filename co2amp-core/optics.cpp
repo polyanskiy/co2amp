@@ -101,7 +101,7 @@ void BeamPropagation(int pulse, int k, double t)
 }
 
 
-void Probe()
+/*void Probe()
 {
     // do nothing
 }
@@ -109,7 +109,6 @@ void Probe()
 
 void Lens(int pulse, double Dr, double F)
 {
-/*
     if(F==0.0)
         return;
     int x, n;
@@ -117,13 +116,11 @@ void Lens(int pulse, double Dr, double F)
         for(n=0; n<n0; n++)
             E[pulse][x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
     }
-*/
 }
 
 
 void Mask(int pulse, double Dr, double radius)
 {
-/*
     int x, n;
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
@@ -131,25 +128,22 @@ void Mask(int pulse, double Dr, double radius)
                 E[pulse][x][n] = 0;
         }
     }
-*/
 }
 
 
 void Attenuator(int pulse, double transmission)
 {
-/*
     int x, n;
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++)
             E[pulse][x][n] *=  sqrt(transmission);
     }
-*/
 }
+*/
 
-
+/*
 void Window(int pulse, int k, double t, char *material, double thickness)
 {
-/*
     int i, x, n;
     char status[64];
     int count=0;
@@ -211,8 +205,7 @@ void Window(int pulse, int k, double t, char *material, double thickness)
                 E[pulse][x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
 
-        }
-*/
+        }*/
 
         // temporary - nonlinear absorption in Ge
         /*if(!strcmp(material,"Ge") || !strcmp(material,"Ge-Brewster")){
@@ -238,12 +231,11 @@ void Window(int pulse, int k, double t, char *material, double thickness)
         //for(n=n0/2; n<n0; n++)
         //    E[pulse][x][n]=0;
 //    }
-}
+//}
 
-
+/*
 void Stretcher(int pulse, double stretching) // stretching: s/Hz
 {
-/*
     int x;
     double Dv = (v_max-v_min) / (n0-1);
 
@@ -264,13 +256,11 @@ void Stretcher(int pulse, double stretching) // stretching: s/Hz
         //free(spectrum);
         delete spectrum;
     }
-*/
 }
 
 
 void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, bandwidth: Hz
 {
-/*
     int x;
     double Dv = (v_max-v_min) / (n0-1);
 
@@ -289,13 +279,11 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
         //free(spectrum);
         delete spectrum;
     }
-*/
 }
 
 
 void Filter(int pulse, std::string yaml_file_path)
 {
-/*
     int x, n, n_raw_data_points, i;
     double Dv = (v_max-v_min) / (n0-1);
     double v;
@@ -403,13 +391,11 @@ void Filter(int pulse, std::string yaml_file_path)
 
     //free(transmittance);
     delete transmittance;
-*/
 }
 
 
 void Apodizer(int pulse, double alpha)
 {
-/*
     if(alpha==0.0)
         return;
     int x, n;
@@ -421,17 +407,15 @@ void Apodizer(int pulse, double alpha)
             E[pulse][x][n] *=  sqrt(transmission);
         }
     }
-*/
 }
 
 
 void Air(int pulse, int k, double t, double H, double length)
 {
-/*
     humidity = H;
     Window(pulse, k, t, "air", length);
-*/
 }
+*/
 
 
 double RefractiveIndex(char* material, double nu)

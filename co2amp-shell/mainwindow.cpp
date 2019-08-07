@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_pulse_max, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(pushButton_calculate, SIGNAL(clicked()), this, SLOT(Calculate()));
+    connect(pushButton_go, SIGNAL(clicked()), this, SLOT(Calculate()));
     connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
 
     /////////////////////////////// Process command line //////////////////////////////////////

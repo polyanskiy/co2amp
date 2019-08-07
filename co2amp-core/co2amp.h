@@ -17,7 +17,8 @@
 class Pulse
 {
 public:
-    Pulse(std::string yaml);
+    Pulse(std::string yaml);  
+    void InitializeE(void);
     std::string id;
     std::string yaml;
     int from_file;
@@ -25,8 +26,6 @@ public:
     // ------- OUTPUT ARRAY -------
     std::complex<double> **E;
 private:
-    void IntensityNormalization(void);
-    void InitializeE(void);
     std::complex<double> field(double, double);
 };
 
@@ -111,8 +110,6 @@ private:
     //double humidity; // air humidity [%]
 
 
-
-
     //////////////////////////// band.cpp /////////////////////////////
     void AmplificationBand(void);
 
@@ -191,7 +188,7 @@ public:
 extern std::vector<Pulse> pulses;
 extern std::vector<Optic> optics;
 extern std::vector<LayoutComponent> layout;
-extern int n_AM, n_propagations;
+//extern int n_AM, n_propagations;
 extern bool noprop;
 // ------- CALCULATION NET -------
 extern double vc;                 // center frequency
@@ -223,7 +220,7 @@ bool YamlGetValue(std::string *value, std::string path, std::string key);
 bool ReadCommandLine(int, char**);
 bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
-void ArraysInit(void);
+//void ArraysInit(void);
 
 /////////////////////////// memory.cpp ///////////////////////////
 void AllocateMemory(void);
@@ -233,16 +230,16 @@ void FreeMemory(void);
 void BeamPropagation(int pulse, int k, double t);
 double RefractiveIndex(char* material, double frequency);
 double NonlinearIndex(char* material);
-void Probe(void);
-void Lens(int pulse, double Dr, double F);
-void Mask(int pulse, double Dr, double radius);
-void Attenuator(int pulse, double transmission);
-void Window(int pulse, int k, double t, char *material, double thickness);
-void Stretcher(int pulse, double stretching);
-void Bandpass(int pulse, double bandcenter, double bandwidth);
-void Filter(int pulse, std::string yamlfile);
-void Apodizer(int pulse, double alpha);
-void Air(int pulse, int k, double t, double humidity, double length);
+//void Probe(void);
+//void Lens(int pulse, double Dr, double F);
+//void Mask(int pulse, double Dr, double radius);
+//void Attenuator(int pulse, double transmission);
+//void Window(int pulse, int k, double t, char *material, double thickness);
+//void Stretcher(int pulse, double stretching);
+//void Bandpass(int pulse, double bandcenter, double bandwidth);
+//void Filter(int pulse, std::string yamlfile);
+//void Apodizer(int pulse, double alpha);
+//void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.cpp ///////////////////////////
 void UpdateOutputFiles(int pulse, int component, double time);

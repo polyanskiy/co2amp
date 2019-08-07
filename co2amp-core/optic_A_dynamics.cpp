@@ -140,7 +140,7 @@ double A::Voltage(double t) //t - time in s
 
 void A::InitializePopulations()
 {
-  int k, x;
+  /*int k, x;
   for(k=0; k<=n_AM-1; k++)
 	for(x=0; x<=x0-1; x++){
           T[k][x] = T0;
@@ -167,7 +167,7 @@ void A::InitializePopulations()
               }
           }
 
-	}
+    }*/
 }
 
 double A::e2e(double T)

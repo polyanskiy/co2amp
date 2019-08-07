@@ -66,42 +66,57 @@ void UpdateDynamicsFiles(double t)
 
 void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
 {
-/*
+    std::complex<double> **E = pulses[pulse].E;
+
+    Debug(2, "qq1");
+
     int x, n, i;
     FILE *file;
 
-    ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
     double *Fluence;
     Fluence = new double[x0];
     double *Power;
-    Power = new double[x0];
+    Power = new double[n0];
     double Energy = 0;
-    double Dt = t_pulse_lim/(n0-1);
-    double Dr = optics[layout_component[k]].Dr;
+    double Dt = t_pulse_lim/(n0-1); // pulse time step, s
+    double Dv = 1.0/(Dt*n0);        // frequency step, Hz
+    double v_min = vc - Dv*(n0-1)/2;
+    double v_max = vc + Dv*(n0-1)/2;
+    double Dr = layout[k].optic->Dr;
+
+    ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
+
+    Debug(2, "qq2");
 
     for(x=0; x<x0; x++)
         Fluence[x] = 0;
     for(n=0; n<n0; n++)
         Power[n]=0;
 
+    Debug(2, "qq2.5");
+
     //#pragma omp parallel for private(x, n) // multithreaded
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
-                Energy     += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1]+E[pulse][x+1][n]+E[pulse][x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                Energy     += 2.0 * h * vc * pow(abs(E[x][n]+E[x][n+1]+E[x+1][n]+E[x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
             if(x+1<x0)
-                Power[n]   += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
+                Power[n]   += 2.0 * h * vc * pow(abs(E[x][n]+E[x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
             if(n+1<n0)
-                Fluence[x] += 2.0 * h * vc * pow(abs(E[pulse][x][n]+E[pulse][x][n+1])/2, 2) * Dt; // J/m2
+                Fluence[x] += 2.0 * h * vc * pow(abs(E[x][n]+E[x][n+1])/2, 2) * Dt; // J/m2
         }
     }
+
+    Debug(2, "qq3");
 
     // Count pass number through current element
     int pass_number = 0;
     for(i=0; i<k; i++){
-        if(layout_component[i] == layout_component[k])
+        if(layout[i].optic == layout[k].optic)
             pass_number++;
     }
+
+    Debug(2, "qq4");
 
     // Write fluence file
     if(pulse==0 && k==0){
@@ -112,10 +127,12 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
         file = fopen("data_fluence.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %d component %d pass %d\n", pulse, layout_component[k], pass_number);
+    fprintf(file, "#pulse %s component %s pass %d\n", pulses[pulse].id.c_str(), layout[k].optic->id.c_str(), pass_number);
     for(x=0; x<x0; x++)
         fprintf(file, "%7f\t%.15f\n", Dr*x*1e2, Fluence[x]*1e3*1e-4); //radial coordinate in cm, fluence in mJ/cm2
     fclose(file);
+
+    Debug(2, "qq5");
 
     // Write power file
     if(pulse==0 && k==0){
@@ -126,7 +143,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
         file = fopen("data_power.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %d component %d pass %d\n", pulse, layout_component[k], pass_number);
+    fprintf(file, "#pulse %s component %s pass %d\n", pulses[pulse].id.c_str(), layout[k].optic->id.c_str(), pass_number);
     for(n=0; n<n0; n++)
         fprintf(file, "%7f\t%.15f\n", (Dt*n-t_pulse_shift)*1e12, Power[n]*1e-9); //time in ps, power in GW
     fclose(file);
@@ -138,11 +155,10 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     }
     else
         file = fopen("data_energy.dat", "a");
-    fprintf(file, "%f\t%.15f\t%d\t%d\t%d\n", t*1e6, Energy, pulse, layout_component[k], pass_number);
+    fprintf(file, "%f\t%.15f\t%s\t%s\t%d\n", t*1e6, Energy, pulses[pulse].id.c_str(), layout[k].optic->id.c_str(), pass_number);
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
-    double Dv = (v_max-v_min)/(n0-1);
     double *average_spectrum;
     average_spectrum = new double[n0];
     std::complex<double> *spectrum;
@@ -159,7 +175,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     // SLOW: averaged across the beam (comment SLOW or FAST)
     //#pragma omp parallel for shared(average_spectrum) private(spectrum, x, i) // multithreaded
     for(x=0; x<x0; x++){
-        FFT(E[pulse][x], spectrum);
+        FFT(E[x], spectrum);
         for(i=0; i<n0; i++)
             average_spectrum[i] += (0.5+x) * pow(abs(spectrum[i]), 2);
     }
@@ -182,7 +198,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
         file = fopen("data_spectra.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %d component %d pass %d\n", pulse, layout_component[k], pass_number);
+    fprintf(file, "#pulse %s component %s pass %d\n", pulses[pulse].id.c_str(), layout[k].optic->id.c_str(), pass_number);
     for(n=0; n<=n0-1; n++)
         fprintf(file, "%.7f\t%.7f\n", (v_min+Dv*n)*1e-12, average_spectrum[n]); //frequency in THz, normalized intensity in a.u.
     fclose(file);
@@ -191,7 +207,7 @@ void UpdateOutputFiles(int pulse, int k, double t) //pulse #, component #, time
     delete Fluence;
     delete average_spectrum;
     delete spectrum;
-*/
+
 }
 
 

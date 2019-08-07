@@ -7,7 +7,7 @@
 std::vector<Pulse> pulses;
 std::vector<Optic> optics;
 std::vector<LayoutComponent> layout;
-int n_AM, n_propagations;
+//int n_AM, n_propagations;
 bool noprop;
 //double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- CALCULATION NET -------
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;  
 
-    std::cout << "co2amp-core v.2019-08-05" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-07" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)
@@ -53,6 +53,8 @@ int main(int argc, char **argv)
         return -1;
     }
     Debug(1, "Processing configuration files done!");
+
+    Calculations(); // Main program !!!
     /*AllocateMemory();
     Debug(1, "Allocate memory done!");
     ArraysInit();
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
 void Calculations()
 {
     int pulse, k, K, i;
-    double t, t_cur;
+    double t, t_cur=0;
 
      // Total pumping energy
     /*if(n_amsections>0 && p_CO2+p_N2+p_He>0){
@@ -81,7 +83,7 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    //std::cout << std::endl << "CALCULATING:" << std::endl;
+    std::cout << std::endl << "CALCULATING:" << std::endl;
 
     // 1 Fill out spectroscoic arrays &
     // 2 Populations and field initialization
@@ -115,18 +117,20 @@ void Calculations()
             PumpingAndRelaxation(t);
         }*/
 
-/*        for(k=0; k<n_propagations; k++){
+        for(k=0; k<optics.size(); k++){
             for(pulse=0; pulse<pulses.size(); pulse++){
-                t_cur = layout_time[k] + Dt_train*pulse;
-                if(t-Dt_pump/2<t_cur && t+Dt_pump/2>=t_cur){
-                    K = layout_component[k]; // component number in the "components" list
+//                t_cur = layout_time[k] + Dt_train*pulse;
+//                if(t-Dt_pump/2<t_cur && t+Dt_pump/2>=t_cur){
+//                    K = layout_component[k]; // component number in the "components" list
 
                     // files written on component input (ex: before amplification)
                     StatusDisplay(pulse, k, t_cur, "saving...");
                     UpdateOutputFiles(pulse, k, t_cur);
+            }
+        }
 
                     // amplification
-                    if(optics[K].type == "AM"){ //active medium
+                    /*if(optics[K].type == "AM"){ //active medium
                         int am_section = 0;
                         for(i=0; i<K; i++){
                             if(optics[i].type == "AM")
@@ -138,8 +142,8 @@ void Calculations()
                             Debug(1, "amplification: done");
                             SaveGainSpectrum(pulse, k);
                         }
-                    }
-*/
+                    }*/
+
                     // optical components
                     /*if(!strcmp(component_type[K], "MASK"))
                         Mask(pulse, component_Dr[K], atof(component_param1[K])*1e-2); //param1: mask radius, cm -> m
@@ -189,7 +193,6 @@ void Calculations()
 
 void StatusDisplay(int pulse, int k, double t, std::string status)
 {
-/*    int K;
     if(k == -1){
         if(t < 0)
             std::cout << "\r" << status
@@ -199,18 +202,17 @@ void StatusDisplay(int pulse, int k, double t, std::string status)
                       << "                                               ";
     }
     else{
-	K = layout_component[k];
         if(pulses.size()==1)
-            std::cout << "\r" << t*1e6 << " us; Optic " << optics[K].id << "(" <<  k+1
-                      << " of " << n_propagations << "): " << status
+            std::cout << "\r" << t*1e6 << " us; Optic " << layout[k].optic->id << " (" <<  k+1
+                      << " of " << layout.size() << "): " << status
                       << "                    ";
         else
-            std::cout << "\r" << t*1e6 << " us; Optic " << optics[K].id << "(" <<  k+1
-                      << " of " << n_propagations << "); Pulse " << pulse+1 << ": " << status
+            std::cout << "\r" << t*1e6 << " us; Optic " << layout[k].optic->id << " (" <<  k+1
+                      << " of " << layout.size() << "); Pulse " << pulse+1 << ": " << status
                       << "                    ";
     }
     std::cout << std::flush;
-    flag_status_or_debug = true;*/
+    flag_status_or_debug = true;
 }
 
 

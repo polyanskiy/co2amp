@@ -34,18 +34,26 @@ Pulse::Pulse(std::string id)
     E = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
         E[x] = new std::complex<double>[n0];
-
-    InitializeE();
 }
 
 
-void Pulse::IntensityNormalization(void) // Field amplitude adjustment (to match initial pulse energy)
+void Pulse::InitializeE()
 {
+    Debug(2, "Initializing field array for pulse \'" + this->id + "\' ...");
+
     int x, n;
     double Energy, af;
+    //FILE *file;
+
     double Dr = optics[0].Dr;
     double Dt = t_pulse_lim/(n0-1);
 
+    // Create 2D array
+    for(x=0; x<x0; x++)
+        for(n=0; n<n0; n++)
+            E[x][n] = field(Dr*x, Dt*n);
+
+    // Normalize intensity
     Energy = 0;
     for(n=0; n<n0-1; n++){
         for(x=0; x<x0-1; x++)
@@ -57,22 +65,8 @@ void Pulse::IntensityNormalization(void) // Field amplitude adjustment (to match
         for(x=0; x<x0; x++)
             E[x][n] *= af;
     }
-}
 
 
-void Pulse::InitializeE()
-{
-    int x, n;
-    //FILE *file;
-
-    double Dr = optics[0].Dr;
-    double Dt = t_pulse_lim/(n0-1);
-
-    for(x=0; x<x0; x++)
-        for(n=0; n<n0; n++)
-            E[x][n] = field(Dr*x, Dt*n);
-
-    //IntensityNormalization();
     /*else{
         file = fopen("field_in.bin", "rb");
         for(pulse=0; pulse<n_pulses; pulse++){
