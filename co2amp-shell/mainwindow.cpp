@@ -148,8 +148,8 @@ void MainWindow::Calculate()
     // n0, x0, t_pulse_min, and t_pulse_max may be different form memorized if loading input pulse from file
     arguments << "-n0" << comboBox_precision_t->currentText();
     arguments << "-x0" << comboBox_precision_r->currentText();
-    arguments << "-t_pulse_lim" << QString::number(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
-    arguments << "-t_pulse_shift" << QString::number(-1*lineEdit_t_pulse_min->text().toDouble());
+    arguments << "-t_pulse_min" << QString::number(lineEdit_t_pulse_min->text().toDouble());
+    arguments << "-t_pulse_max" << QString::number(lineEdit_t_pulse_max->text().toDouble());
 
     if(Memorized.noprop)
         arguments << "-noprop";

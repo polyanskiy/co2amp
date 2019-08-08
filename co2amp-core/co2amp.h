@@ -9,8 +9,6 @@
 #include <complex>
 #include <omp.h>
 
-//#include <../libyaml/yaml.h>
-
 #define I std::complex<double>(0,1)
 
 
@@ -22,7 +20,7 @@ public:
     std::string id;
     std::string yaml;
     int from_file;
-    double E0, w0, tau0, vc, t_inj;
+    double E0, w0, tau0, nu0, t0;
     // ------- OUTPUT ARRAY -------
     std::complex<double> **E;
 private:
@@ -192,7 +190,7 @@ extern std::vector<LayoutComponent> layout;
 extern bool noprop;
 // ------- CALCULATION NET -------
 extern double vc;                 // center frequency
-extern double t_pulse_lim, t_pulse_shift;
+extern double t_pulse_min, t_pulse_max;
 extern double Dt_pump;            // "main time" - for pumping/relaxation
 extern int x0, n0;                // number of points in radial and time nets
 //extern double v_min, v_max;     // frequency limits, Hz
@@ -242,7 +240,7 @@ double NonlinearIndex(char* material);
 //void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, double time);
+void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, double time);
 void UpdateDynamicsFiles(double);
 void SaveGainSpectrum(int pulse, int component);
 void SaveOutputField(void);

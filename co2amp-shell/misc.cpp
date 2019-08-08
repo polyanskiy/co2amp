@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 
-int MainWindow::DatasetNumber(int pulse_n, int comp_n, int pass_n, QString filename)
+int MainWindow::DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename)
 {
     if(pass_n < 0)
         return -1;
@@ -21,7 +21,7 @@ int MainWindow::DatasetNumber(int pulse_n, int comp_n, int pass_n, QString filen
             continue;
         if(line[0] == '#'){
             set_n ++;
-            if(line.section(separators, 1, 1).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == comp_n && line.section(separators, 5, 5).toInt() == pass_n){
+            if(line.section(separators, 1, 1).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == optic_n && line.section(separators, 5, 5).toInt() == pass_n){
                 found = true;
                 break;
             }

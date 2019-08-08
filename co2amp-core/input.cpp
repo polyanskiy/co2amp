@@ -10,32 +10,43 @@ bool ReadCommandLine(int argc, char **argv)
     vc = -1;                  // Center frequency, Hz
     x0 = -1;
     n0 = -1;
-    t_pulse_lim = -1;         // Pulse time calculation limit, s
-    t_pulse_shift = -1;       // Pulse shift from 0, s
+    t_pulse_min = -1;         // Pulse time calculation limit, s
+    t_pulse_max = -1;       // Pulse shift from 0, s
     Dt_pump = 2.0e-9;         // Time net step for pumping/relaxation calculations, s (fixed!)
     // ---------- DEBUGGING ----------
     debug_level = 0;          // No debugging info output by default
 
     //Read command line
+    int count = 0;
     std::string debug_str = "Command line: ";
     for (i=1; i<argc; i++){
         debug_str += argv[i];
         debug_str += " ";
         // ------- INITIAL PULSE -------
-        if (!strcmp(argv[i], "-vc"))
-            vc = atof(argv[i+1])*1e12;      // THz->Hz;
+        if (!strcmp(argv[i], "-vc")){
+            vc = atof(argv[i+1]);
+            count = count | 1;
+        }
         // ------- LAYOUT -------
         if (!strcmp(argv[i], "-noprop"))
             noprop = true;
         // ------- CALCULATION NET -------
-        if (!strcmp(argv[i], "-x0"))
+        if (!strcmp(argv[i], "-x0")){
             x0 = atoi(argv[i+1]);
-        if (!strcmp(argv[i], "-n0"))
+            count = count | 2;
+        }
+        if (!strcmp(argv[i], "-n0")){
             n0 = atoi(argv[i+1]);
-        if (!strcmp(argv[i], "-t_pulse_lim"))
-            t_pulse_lim = atof(argv[i+1])*1e-12;   // ps->s
-        if (!strcmp(argv[i], "-t_pulse_shift"))
-            t_pulse_shift = atof(argv[i+1])*1e-12; // ps->s
+            count = count | 4;
+        }
+        if (!strcmp(argv[i], "-t_pulse_min")){
+            t_pulse_min = atof(argv[i+1]);
+            count = count | 8;
+        }
+        if (!strcmp(argv[i], "-t_pulse_max")){
+            t_pulse_max = atof(argv[i+1]);
+            count = count | 16;
+        }
         // --------- DEBUGGING ---------
         if (!strcmp(argv[i], "-debug"))
             debug_level = atoi(argv[i+1]);
@@ -43,7 +54,7 @@ bool ReadCommandLine(int argc, char **argv)
     
     Debug(2, debug_str);
 
-    if(vc < 0 || x0 < 0 || n0 < 0 || t_pulse_lim < 0 || t_pulse_shift < 0){
+    if(count != 31){ //1+2+4+6+8+16
         std::cout << "Input ERROR: Missing command line argument(s)\n";
         return false;
     }

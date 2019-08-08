@@ -122,7 +122,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void OnModified();
         void LoadInputPulse();
         int PassNumber(int);
-        int DatasetNumber(int pulse_n, int comp_n, int pass_n, QString filename);
+        int DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename);
         int AmNumber(int);
         bool SaveBeforeClose();
         void BlockSignals(bool block);

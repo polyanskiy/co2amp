@@ -64,11 +64,10 @@ void UpdateDynamicsFiles(double t)
 }
 
 
-void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, double t)
+void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, double t)
 {
-    Pulse *pulse = &pulses[pulse_number];
+    Pulse *pulse = &pulses[pulse_n];
     Optic *optic = layout[layout_position].optic;
-    std::complex<double> **E = pulse->E;
 
     int x, n, i;
     FILE *file;
@@ -76,11 +75,18 @@ void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, 
     double *Fluence = new double[x0];
     double *Power = new double[n0];
     double Energy = 0;
-    double Dt = t_pulse_lim/(n0-1); // pulse time step, s
+    double Dt = (t_pulse_max-t_pulse_min)/(n0-1); // pulse time step, s
     double Dv = 1.0/(Dt*n0);        // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
     double Dr = optic->Dr;
+
+    unsigned int optic_n = 0;
+    for(i=0; i<optics.size(); i++)
+        if(&optics[i] == optic)
+            optic_n = i;
+
+    std::complex<double> **E = pulse->E;
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
@@ -93,57 +99,57 @@ void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, 
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
-                Energy     += 2.0 * h * vc * pow(abs(E[x][n]+E[x][n+1]+E[x+1][n]+E[x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                Energy     += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x][n+1]+E[x+1][n]+E[x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
             if(x+1<x0)
-                Power[n]   += 2.0 * h * vc * pow(abs(E[x][n]+E[x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
+                Power[n]   += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
             if(n+1<n0)
-                Fluence[x] += 2.0 * h * vc * pow(abs(E[x][n]+E[x][n+1])/2, 2) * Dt; // J/m2
+                Fluence[x] += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x][n+1])/2, 2) * Dt; // J/m2
         }
     }
 
     // Count pass number through current element
-    int pass_number = 0;
+    int pass_n = 0;
     for(i=0; i<layout_position; i++){
         if(layout[i].optic == layout[layout_position].optic)
-            pass_number++;
+            pass_n++;
     }
 
     // Write fluence file
-    if(pulse_number==0 && layout_position==0){
+    if(pulse_n==0 && layout_position==0){
         file = fopen("data_fluence.dat", "w");
-        fprintf(file, "# r[cm] fluence[mJ/cm^2]\n");
+        fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     }
     else{
         file = fopen("data_fluence.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %s component %s pass %d\n", pulse->id.c_str(), optic->id.c_str(), pass_number);
+    fprintf(file, "#pulse_n %d optic_n %d, pass_n %d\n", pulse_n, optic_n, pass_n);
     for(x=0; x<x0; x++)
-        fprintf(file, "%7f\t%.15f\n", Dr*x*1e2, Fluence[x]*1e3*1e-4); //radial coordinate in cm, fluence in mJ/cm2
+        fprintf(file, "%e\t%e\n", Dr*x, Fluence[x]);
     fclose(file);
 
     // Write power file
-    if(pulse_number==0 && layout_position==0){
+    if(pulse_n==0 && layout_position==0){
         file = fopen("data_power.dat", "w");
-        fprintf(file, "# time[ps] power[GW]\n");
+        fprintf(file, "#Data format:  time[s] power[W]\n");
     }
     else{
         file = fopen("data_power.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %s component %s pass %d\n", pulse->id.c_str(), optic->id.c_str(), pass_number);
+    fprintf(file, "#pulse_n %d optic_n %d, pass_n %d\n", pulse_n, optic_n, pass_n);
     for(n=0; n<n0; n++)
-        fprintf(file, "%7f\t%.15f\n", (Dt*n-t_pulse_shift)*1e12, Power[n]*1e-9); //time in ps, power in GW
+        fprintf(file, "%e\t%e\n", (t_pulse_min + Dt*n), Power[n]);
     fclose(file);
 
     // Write energy file
-    if(pulse_number==0 && layout_position==0){
+    if(pulse_n==0 && layout_position==0){
         file = fopen("data_energy.dat", "w");
-        fprintf(file, "# time[us] energy[J] pulse_number component_number pass_number\n");
+        fprintf(file, "#Data format: time[s] energy[J] pulse_n optic_n pass_number\n");
     }
     else
         file = fopen("data_energy.dat", "a");
-    fprintf(file, "%f\t%.15f\t%s\t%s\t%d\n", t*1e6, Energy, pulse->id.c_str(), optic->id.c_str(), pass_number);
+    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", t, Energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
@@ -178,25 +184,23 @@ void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, 
             average_spectrum[n] /= max_int;
 
     // Write spectra file
-    if(pulse_number==0 && layout_position==0){
+    if(pulse_n==0 && layout_position==0){
         file = fopen("data_spectra.dat", "w");
-        fprintf(file, "# frequency[THz] intensity[au]\n");
+        fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     }
     else{
         file = fopen("data_spectra.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %s component %s pass %d\n", pulse->id.c_str(), optic->id.c_str(), pass_number);
+    fprintf(file, "#pulse_n %d optic_n %d, pass_n %d\n", pulse_n, optic_n, pass_n);
     for(n=0; n<=n0-1; n++)
-        fprintf(file, "%.7f\t%.7f\n", (v_min+Dv*n)*1e-12, average_spectrum[n]); //frequency in THz, normalized intensity in a.u.
+        fprintf(file, "%e\t%e\n", v_min+Dv*n, average_spectrum[n]);
     fclose(file);
 
     delete[] Power;
     delete[] Fluence;
     delete average_spectrum;
     delete spectrum;
-
-    //Debug(2, "qq");
 }
 
 

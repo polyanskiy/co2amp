@@ -190,7 +190,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -991,7 +991,7 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="0">
             <widget class="QLabel" name="label_vc">
              <property name="text">
-              <string>Central frequency (THz)</string>
+              <string>Central frequency (Hz)</string>
              </property>
             </widget>
            </item>
@@ -1169,7 +1169,7 @@ p, li { white-space: pre-wrap; }
            <item row="3" column="0">
             <widget class="QLabel" name="label_t_range">
              <property name="text">
-              <string>Time range (ps)</string>
+              <string>Time range (s)</string>
              </property>
              <property name="wordWrap">
               <bool>false</bool>
@@ -1239,7 +1239,7 @@ p, li { white-space: pre-wrap; }
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Δt = ... ps;   Δν = ... THz</string>
+              <string>Δt = ... s;   Δν = ... Hz</string>
              </property>
             </widget>
            </item>

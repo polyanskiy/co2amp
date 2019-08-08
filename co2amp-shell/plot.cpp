@@ -109,7 +109,7 @@ void MainWindow::Plot()
     SelectEnergies();
     out << "reset" << newline;
     out << "set output \"fig_energy.svg\"" << newline;
-    out << "set xlabel \"Time, µs\"" << newline;
+    out << "set xlabel \"Time, s\"" << newline;
     out << "set ylabel \"Pulse energy, J\"" << newline;
     checkBox_log->isChecked() ? out << "set logscale y" << newline : out << "set yrange [0:*]" << newline;
     out << common_plot_param;
@@ -120,8 +120,8 @@ void MainWindow::Plot()
     out << "reset" << newline;
     out << "set output \"fig_fluence.svg\"" << newline;
     out << common_plot_param;
-    out << "set xlabel \"r, cm\"" << newline;
-    out << "set ylabel \"Fluence, mJ/cm^2\"" << newline;
+    out << "set xlabel \"r, m\"" << newline;
+    out << "set ylabel \"Fluence, J/m^2\"" << newline;
     for(i=0; i<=9; i++){
         pass_n = PassNumber(i);
         set_n = DatasetNumber(pulse_n, comp_n, pass_n, "data_fluence.dat");
@@ -144,11 +144,11 @@ void MainWindow::Plot()
     out << "reset" << newline;
     out << "set output \"fig_power.svg\"" << newline;
     out << common_plot_param;
-    out << "set xlabel \"Time, ps\"" << newline;
+    out << "set xlabel \"Time, s\"" << newline;
     double tmin = Saved.t_pulse_min.toDouble()/pow(2, comboBox_timeScale->currentIndex());
     double tmax = Saved.t_pulse_max.toDouble()/pow(2, comboBox_timeScale->currentIndex());
     out << "set xrange [" << tmin << ":" << tmax << "]" << newline;
-    out << "set ylabel \"Power, GW\"" << newline;
+    out << "set ylabel \"Power, W\"" << newline;
     for(i=0; i<=9; i++){
         pass_n = PassNumber(i);
         set_n = DatasetNumber(pulse_n, comp_n, pass_n, "data_power.dat");
@@ -169,13 +169,13 @@ void MainWindow::Plot()
     // GnuPlot script: Spectra
     int n0 = comboBox_precision_t->currentText().toInt(); // number of points in the pulse time calculation net
     double Delta_t = (Saved.t_pulse_max.toDouble()-Saved.t_pulse_min.toDouble()) / (n0-1); // pulse time step
-    double Delta_v = 1.0/(Delta_t*n0); // frequency step, THz
+    double Delta_v = 1.0/(Delta_t*n0); // frequency step
     double v_spread = Delta_v*(n0-1)/pow(2, comboBox_freqScale->currentIndex()+1);
     plot_n = 0;
     out << "reset" << newline;
     out << "set output \"fig_spectra.svg\"" << newline;
     out << common_plot_param;
-    out << "set xlabel \"Frequency, THz\"" << newline;
+    out << "set xlabel \"Frequency, Hz\"" << newline;
     out << "set xrange [" << Saved.vc.toDouble()-v_spread << ":" << Saved.vc.toDouble()+v_spread << "]" << newline;
     out << "set ylabel \"Intensity, a.u.\"" << newline;
     out << "set yrange [0:*]" << newline;
@@ -200,7 +200,7 @@ void MainWindow::Plot()
         // GnuPlot script: Temperatures
         out << "reset" << newline;
         out << "set output \"fig_temperatures.svg\"" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, s\"" << newline;
         out << "set ylabel \"Temperature, K\"" << newline;
         out << common_plot_param;
         out << "set yrange [0:*]" << newline;
@@ -212,7 +212,7 @@ void MainWindow::Plot()
         // GnuPlot script: e
         out << "reset" << newline;
         out << "set output \"fig_e.svg\"" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, s\"" << newline;
         out << "set ylabel \"e (# of quanta / molecule)\"" << newline;
         out << common_plot_param;
         out << "set yrange [0:*]" << newline;
@@ -226,7 +226,7 @@ void MainWindow::Plot()
         out << "reset" << newline;
         out << "set output \"fig_band.svg\"" << newline;
         out << common_plot_param;
-        out << "set xlabel \"Frequency, THz\"" << newline;
+        out << "set xlabel \"Frequency, Hz\"" << newline;
         out << "set xrange [" << Saved.vc.toDouble()-v_spread << ":" << Saved.vc.toDouble()+v_spread << "]" << newline;
         out << "set ylabel \"Gain, %/cm\"" << newline;
         for(i=0; i<10; i++){
@@ -252,7 +252,7 @@ void MainWindow::Plot()
         out << "set y2range [0:*]" << newline;
         out << "set ytics nomirror" << newline;
         out << "set y2tics nomirror" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, s\"" << newline;
         out << "set ylabel \"Current, kA\"" << newline;
         out << "set y2label \"Voltage, kV\"" << newline;
         out << common_plot_param;
@@ -263,7 +263,7 @@ void MainWindow::Plot()
         out << "reset" << newline;
         out << "set output \"fig_q.svg\"" << newline;
         out << "set yrange [0:1]" << newline;
-        out << "set xlabel \"Time, µs\"" << newline;
+        out << "set xlabel \"Time, s\"" << newline;
         out << "set ylabel \"q\"" << newline;
         out << common_plot_param;
         out << "plot \"data_q.dat\" using 1:2 with lines ti \"Lower: q2\",\\" << newline;
@@ -352,7 +352,7 @@ void MainWindow::SelectEnergies()
     QString line;
     QRegExp separators("[\t\n]");
     int pulse_n = comboBox_pulse->currentIndex();
-    int comp_n = comboBox_optic->currentIndex();
+    int optic_n = comboBox_optic->currentIndex();
 
     QFile file_all("data_energy.dat");
     file_all.open(QFile::ReadOnly);
@@ -368,7 +368,7 @@ void MainWindow::SelectEnergies()
 		out << line.section(separators, 0, 1) << "\n";
 		break;
         case 1: // optic
-		if(line.section(separators, 3, 3).toInt() == comp_n)
+        if(line.section(separators, 3, 3).toInt() == optic_n)
 		    out << line.section(separators, 0, 1) << "\n";
 		break;
 	    case 2: // pulse
@@ -376,7 +376,7 @@ void MainWindow::SelectEnergies()
 		    out << line.section(separators, 0, 1) << "\n";
 		break;
         case 3: // optic + pulse
-		if(line.section(separators, 2, 2).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == comp_n)
+        if(line.section(separators, 2, 2).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == optic_n)
 		    out << line.section(separators, 0, 1) << "\n";
 		break;
 	    }

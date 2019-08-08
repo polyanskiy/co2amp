@@ -12,7 +12,7 @@ bool noprop;
 //double *alpha;  // temporary - for nonlinear absorption in Ge
 // ------- CALCULATION NET -------
 double vc;//, v_max, v_min;
-double t_pulse_lim, t_pulse_shift;
+double t_pulse_min, t_pulse_max;
 double Dt_pump; // "main time" - for pumping/relaxation
 int x0, n0; // number of points in radial and time nets and number of pulses in the train
 // ------- DEBUGGING -------

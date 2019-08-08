@@ -17,7 +17,7 @@ void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out:
         out[n0-i-1] = tmp;
     }
 
-    double Dt = t_pulse_lim/(n0-1);
+    double Dt = (t_pulse_max-t_pulse_min)/(n0-1);
     for(i=0; i<n0; i++)
         out[i] *= Dt;
 
@@ -46,7 +46,7 @@ void IFFT(std::complex<double> *in, std::complex<double> *out) // in: spectrum, 
 
     delete qq;
 
-    double Dt = t_pulse_lim/(n0-1);
+    double Dt = (t_pulse_max-t_pulse_min)/(n0-1);
     for(i=0; i<n0; i++)
         out[i] /= (Dt*n0);
 }

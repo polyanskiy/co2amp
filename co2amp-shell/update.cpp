@@ -76,8 +76,8 @@ void MainWindow::UpdateControls()
     comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
     double delta_t = (lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
     double delta_v = 1.0/(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
-    label_deltas->setText("(Δt = " + QString::number(delta_t) + " ps;   Δν = " + QString::number(delta_v) + " THz)");
-    label_um->setText("(λ = " + QString::number(299.792458/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[THz] * 1e-6
+    label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
+    label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
 
     /*comboBox_precision_t->setEnabled(!bl);
     comboBox_precision_r->setEnabled(!bl);
