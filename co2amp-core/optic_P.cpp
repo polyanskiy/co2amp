@@ -10,8 +10,8 @@ P::P(std::string id)
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\' ...");
 
     std::string value="";
-    //YamlGetValue(&value, yaml, "diameter");
-    //this->Dr = std::stod(value) / 2 / (x0-1) / 1000; // mm->m
-    CA = 10;
-    Dr = CA/2/(x0-1);
+    if(YamlGetValue(&value, yaml, "CA"))
+        Dr = std::stod(value)/2/(x0-1);
+    else
+        std::cout << "ERROR: cannot find \'CA\' value in optics config file \'" << yaml << "\'";
 }

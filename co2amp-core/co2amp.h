@@ -242,7 +242,7 @@ double NonlinearIndex(char* material);
 //void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(int pulse, int component, double time);
+void UpdateOutputFiles(unsigned int pulse_number, unsigned int layout_position, double time);
 void UpdateDynamicsFiles(double);
 void SaveGainSpectrum(int pulse, int component);
 void SaveOutputField(void);

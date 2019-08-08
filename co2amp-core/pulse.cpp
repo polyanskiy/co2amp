@@ -14,22 +14,22 @@ Pulse::Pulse(std::string id)
     Debug(2, "Creating pulse from file \'" + this->yaml + "\' ...");
 
     std::string value="";    
-    if(YamlGetValue(&value, this->yaml, "E0"))
-        this->E0 = std::stod(value);
-    if(YamlGetValue(&value, this->yaml, "w0"))
-        this->w0 = std::stod(value);
-    if(YamlGetValue(&value, this->yaml, "tau0"))
-        this->tau0 = std::stod(value);
-    if(YamlGetValue(&value, this->yaml, "vc"))
-        this->vc = std::stod(value);
-    if(YamlGetValue(&value, this->yaml, "t_inj"))
-        this->t_inj = std::stod(value);
+    if(YamlGetValue(&value, yaml, "E0"))
+        E0 = std::stod(value);
+    if(YamlGetValue(&value, yaml, "w0"))
+        w0 = std::stod(value);
+    if(YamlGetValue(&value, yaml, "tau0"))
+        tau0 = std::stod(value);
+    if(YamlGetValue(&value, yaml, "vc"))
+        vc = std::stod(value);
+    if(YamlGetValue(&value, yaml, "t_inj"))
+        t_inj = std::stod(value);
 
     Debug(2, "E0 = " + std::to_string(E0) + " J");
-    Debug(2, "w0 = " + std::to_string(w0) + " mm");
-    Debug(2, "tau0 = " + std::to_string(tau0) + " ps");
-    Debug(2, "vc = " + std::to_string(vc) + " THz");
-    Debug(2, "t_inj = " + std::to_string(t_inj) + " μs");
+    Debug(2, "w0 = " + std::to_string(w0) + " m");
+    Debug(2, "tau0 = " + std::to_string(tau0) + " s");
+    Debug(2, "vc = " + std::to_string(vc) + " Hz");
+    Debug(2, "t_inj = " + std::to_string(t_inj) + " s");
 
     E = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
