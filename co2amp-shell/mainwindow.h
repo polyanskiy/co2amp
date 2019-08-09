@@ -24,7 +24,7 @@ class CoreVariables
     public:
         QStringList configFile_id, configFile_type, configFile_content;
         bool noprop;
-        QString vc, t_pulse_min, t_pulse_max;
+        QString vc, t_min, t_max, clock_tick;
         int precision_t, precision_r;
         int optic, pulse;
 };

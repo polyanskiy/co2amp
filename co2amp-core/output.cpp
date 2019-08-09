@@ -64,7 +64,7 @@ void UpdateDynamicsFiles(double t)
 }
 
 
-void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, double t)
+void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 {
     Pulse *pulse = &pulses[pulse_n];
     Optic *optic = layout[layout_position].optic;
@@ -75,16 +75,13 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
     double *Fluence = new double[x0];
     double *Power = new double[n0];
     double Energy = 0;
-    double Dt = (t_pulse_max-t_pulse_min)/(n0-1); // pulse time step, s
+    double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
     double Dv = 1.0/(Dt*n0);        // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
     double Dr = optic->Dr;
 
-    unsigned int optic_n = 0;
-    for(i=0; i<optics.size(); i++)
-        if(&optics[i] == optic)
-            optic_n = i;
+    int optic_n = optic->optic_n;
 
     std::complex<double> **E = pulse->E;
 
@@ -145,7 +142,7 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
     }
     fprintf(file, "#pulse_n %d optic_n %d, pass_n %d\n", pulse_n, optic_n, pass_n);
     for(n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", (t_pulse_min + Dt*n), Power[n]);
+        fprintf(file, "%e\t%e\n", (t_min + Dt*n), Power[n]);
     fclose(file);
 
     // Write energy file
@@ -155,7 +152,7 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
     }
     else
         file = fopen("data_energy.dat", "a");
-    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", t, Energy, pulse_n, optic_n, pass_n);
+    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", clock_time, Energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
@@ -209,7 +206,7 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
 }
 
 
-void SaveGainSpectrum(int pulse, int k){
+void SaveGainSpectrum(int pulse_n, int k){
 /*
     int i, n;
     FILE *file;

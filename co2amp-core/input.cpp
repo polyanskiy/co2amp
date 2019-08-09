@@ -10,9 +10,9 @@ bool ReadCommandLine(int argc, char **argv)
     vc = -1;                  // Center frequency, Hz
     x0 = -1;
     n0 = -1;
-    t_pulse_min = -1;         // Pulse time calculation limit, s
-    t_pulse_max = -1;       // Pulse shift from 0, s
-    Dt_pump = 2.0e-9;         // Time net step for pumping/relaxation calculations, s (fixed!)
+    t_min = -1;               // Pulse time calculation limit, s
+    t_max = -1;               // Pulse shift from 0, s
+    clock_tick = -1;         // Time net step for pumping/relaxation calculations, s (fixed!)
     // ---------- DEBUGGING ----------
     debug_level = 0;          // No debugging info output by default
 
@@ -22,15 +22,17 @@ bool ReadCommandLine(int argc, char **argv)
     for (i=1; i<argc; i++){
         debug_str += argv[i];
         debug_str += " ";
-        // ------- INITIAL PULSE -------
+
+        // ------- LAYOUT -------
+        if (!strcmp(argv[i], "-noprop"))
+            noprop = true;
+
+        // ------- CALCULATION GRID -------
         if (!strcmp(argv[i], "-vc")){
             vc = atof(argv[i+1]);
             count = count | 1;
         }
-        // ------- LAYOUT -------
-        if (!strcmp(argv[i], "-noprop"))
-            noprop = true;
-        // ------- CALCULATION NET -------
+
         if (!strcmp(argv[i], "-x0")){
             x0 = atoi(argv[i+1]);
             count = count | 2;
@@ -39,13 +41,17 @@ bool ReadCommandLine(int argc, char **argv)
             n0 = atoi(argv[i+1]);
             count = count | 4;
         }
-        if (!strcmp(argv[i], "-t_pulse_min")){
-            t_pulse_min = atof(argv[i+1]);
+        if (!strcmp(argv[i], "-t_min")){
+            t_min = atof(argv[i+1]);
             count = count | 8;
         }
-        if (!strcmp(argv[i], "-t_pulse_max")){
-            t_pulse_max = atof(argv[i+1]);
+        if (!strcmp(argv[i], "-t_max")){
+            t_max = atof(argv[i+1]);
             count = count | 16;
+        }
+        if (!strcmp(argv[i], "-clock_tick")){
+            clock_tick = atof(argv[i+1]);
+            count = count | 32;
         }
         // --------- DEBUGGING ---------
         if (!strcmp(argv[i], "-debug"))
@@ -54,7 +60,7 @@ bool ReadCommandLine(int argc, char **argv)
     
     Debug(2, debug_str);
 
-    if(count != 31){ //1+2+4+6+8+16
+    if(count != 63){ //1+2+4+6+8+16+32
         std::cout << "Input ERROR: Missing command line argument(s)\n";
         return false;
     }
@@ -119,14 +125,19 @@ bool ReadConfigFiles(std::string path)
         }
     }
 
+    // add optic numbers to all optics
+    for(int optic_n=0; optic_n<optics.size(); optic_n++)
+        optics[optic_n].optic_n =optic_n;
 
     // When all optics created, create layout...
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
-    // ... and then initialize pulses (CA of first layout element needed)
-    for(unsigned int i=0; i<pulses.size(); i++)
-        pulses[i].InitializeE();
+    // ... and then initialize pulses (CA of first layout element needed for 'InitializeE')
+    for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
+        pulses[pulse_n].pulse_n = pulse_n;
+        pulses[pulse_n].InitializeE();
+    }
 
     return true;
 }
@@ -139,8 +150,8 @@ bool ReadLayoutConfigFile(std::string path){
     std::istringstream iss, iss2;
     std::string propagate = "";
     int times = -1;
-    int component_counter = -1;
-    int propagation_counter;
+    int layout_position = -1;
+    int prop_n;
 
     Debug(2, "Interpreting layout configuration file \"" + path +"\"...");
     in = std::ifstream(path, std::ios::in);
@@ -170,36 +181,36 @@ bool ReadLayoutConfigFile(std::string path){
         if(propagate != "" && times != -1){            
             Debug(2, "propagate = \"" + propagate + "\"; times = " + std::to_string(times));
             Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
-            for(propagation_counter=0; propagation_counter<times; propagation_counter++){
-                Debug(2, "Propagation #" + std::to_string(propagation_counter+1) + " of " + std::to_string(times) + " ...");
+            for(prop_n=0; prop_n<times; prop_n++){
+                Debug(2, "Propagation #" + std::to_string(prop_n+1) + " of " + std::to_string(times) + " ...");
                 iss2 = std::istringstream(propagate);
                 while(std::getline(iss2, value, '>')){
                     if(value == "")
                         continue;
                     if(is_number(value)){
                         Debug(2, "Beam propagation distance: " + value + " mm");
-                        if(component_counter==-1){
+                        if(layout_position==-1){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
-                        bool flag = layout[component_counter].distance == 0;
-                        layout[component_counter].distance += std::stod(value);
+                        bool flag = layout[layout_position].space == 0;
+                        layout[layout_position].space += std::stod(value);
                         if(flag)
-                            Debug(2, "propagation after layout component #" + std::to_string(component_counter) +
-                                  " set at " + std::to_string(layout[component_counter].distance) + " mm");
+                            Debug(2, "space after layout component #" + std::to_string(layout_position) +
+                                  " set at " + std::to_string(layout[layout_position].space) + " m");
                         else
-                            Debug(2, "added " + value + " mm propagation after layout component #" +
-                              std::to_string(component_counter) + " (now " + std::to_string(layout[component_counter].distance) + " mm)");
+                            Debug(2, "added " + value + " m space after layout component #" +
+                              std::to_string(layout_position) + " (now " + std::to_string(layout[layout_position].space) + " m)");
                     }
                     else{
-                        component_counter++;
+                        layout_position++;
                         Debug(2, "Optic entry: \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
                         if(optic == nullptr){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
-                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(component_counter));
+                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(layout_position));
                         layout.push_back(optic);
                     }
                 }
@@ -210,26 +221,34 @@ bool ReadLayoutConfigFile(std::string path){
         }
     }
 
-    if(layout[component_counter].optic->type != "P"){
+    // Print full layout for debugging
+    Debug(1, "LAYOUT:");
+    if(debug_level>=1){
+        for(layout_position=0; layout_position<layout.size(); layout_position++){
+            std::cout << layout[layout_position].optic->id;
+            if(layout_position != layout.size()-1)
+                std::cout << ">>" ;
+            if(layout[layout_position].space != 0)
+                std::cout << std::to_string(layout[layout_position].space) << ">>";
+        }
+        std::cout << "\n";
+    }
+
+    if(layout[layout.size()-1].optic->type != "P"){
         std::cout << "Layout error: last optic must be type \'P\' (probe)\n";
         return false;
     }
 
-    if(layout[component_counter].distance != 0){
-        std::cout << "Layout error: there should be no propagation after the last optic\n";
+    if(layout[layout.size()-1].space != 0){
+        std::cout << "Layout error: there should be no space after the last optic\n";
         return false;
     }
 
-    Debug(1, "LAYOUT:");
-    if(debug_level>=1){
-        for(component_counter=0; component_counter<layout.size(); component_counter++){
-            std::cout << layout[component_counter].optic->id;
-            if(component_counter != layout.size()-1)
-                std::cout << ">>" ;
-            if(layout[component_counter].distance != 0)
-                std::cout << std::to_string(layout[component_counter].distance) << ">>";
-        }
-        std::cout << "\n";
+    // calculate layout component's "time" (distance from first surface in seconds)
+    double time = 0;
+    for(layout_position=0; layout_position<layout.size(); layout_position++){
+        layout[layout_position].time = time;
+        time += layout[layout_position].space / c;
     }
 
     return true;

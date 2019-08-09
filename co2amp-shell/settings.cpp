@@ -13,8 +13,9 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("co2amp/vc", Memorized.vc);
         settings.setValue("co2amp/precision_t", Memorized.precision_t);
         settings.setValue("co2amp/precision_r", Memorized.precision_r);
-        settings.setValue("co2amp/t_pulse_min", Memorized.t_pulse_min);
-        settings.setValue("co2amp/t_pulse_max", Memorized.t_pulse_max);
+        settings.setValue("co2amp/t_min", Memorized.t_min);
+        settings.setValue("co2amp/t_max", Memorized.t_max);
+        settings.setValue("co2amp/clock_tick", Memorized.clock_tick);
         settings.setValue("debug/debugLevel", spinBox_debugLevel->text());
 
         // Write configuration files
@@ -96,8 +97,9 @@ void MainWindow::LoadSettings(QString path)
     Memorized.vc = settings.value("co2amp/vc", 30).toString();
     Memorized.precision_t = settings.value("co2amp/precision_t", 6).toInt();
     Memorized.precision_r = settings.value("co2amp/precision_r", 1).toInt();
-    Memorized.t_pulse_min = settings.value("co2amp/t_pulse_min", -100).toString();
-    Memorized.t_pulse_max = settings.value("co2amp/t_pulse_max", 400).toString();
+    Memorized.t_min = settings.value("co2amp/t_min", -100e-12).toString();
+    Memorized.t_max = settings.value("co2amp/t_max", 400e-12).toString();
+    Memorized.clock_tick = settings.value("co2amp/clock_tick", 2e-9).toString();
 
     // Debugging
     spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
@@ -159,10 +161,11 @@ void MainWindow::LoadSettings(QString path)
 
 void MainWindow::MemorizeSettings()
 {
-    /////////////////////////////////// CALCULATION NET //////////////////////////////////////
+    /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
     Memorized.vc = lineEdit_vc->text();
-    Memorized.t_pulse_min = lineEdit_t_pulse_min->text();
-    Memorized.t_pulse_max = lineEdit_t_pulse_max->text();
+    Memorized.t_min = lineEdit_t_min->text();
+    Memorized.t_max = lineEdit_t_max->text();
+    Memorized.clock_tick = lineEdit_clock_tick->text();
     Memorized.precision_t = comboBox_precision_t->currentIndex();
     Memorized.precision_r = comboBox_precision_r->currentIndex();
     /////////////////////////////////// DEBUGGING //////////////////////////////////////

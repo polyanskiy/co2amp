@@ -12,17 +12,20 @@
 #define I std::complex<double>(0,1)
 
 
+
+
 class Pulse
 {
 public:
-    Pulse(std::string yaml);  
+    Pulse(std::string yaml);
     void InitializeE(void);
+    void Propagate(int from, int to, double clock_time);
     std::string id;
     std::string yaml;
+    int pulse_n;
     int from_file;
     double E0, w0, tau0, nu0, t0;
-    // ------- OUTPUT ARRAY -------
-    std::complex<double> **E;
+    std::complex<double> **E; // field array
 private:
     std::complex<double> field(double, double);
 };
@@ -34,12 +37,13 @@ public:
     Optic(){}
     std::string id;
     std::string type;
-    std::string yaml;
-    std::string test;
-    double CA; // clear aperture, m
-    double Dr; // m
-    void InternalDynamics(double){}
-    void PulseInteraction(int){}
+    std::string yaml;   // path to configuration file
+    int optic_n;
+    double CA;          // clear aperture, m
+    double Dr;          // m
+    double clock;       // optic's internal clock (e.g. for pumping/relaxation calculations), s
+    void InternalDynamics(double clock_time){}
+    void PulseInteraction(int pulse_n){}
 };
 
 
@@ -49,11 +53,10 @@ public:
     LayoutComponent(Optic *optic)
     {
         this->optic = optic;
-        this->distance = 0;
-        this->time = 0;
+        this->space = 0;
     }
     Optic *optic;
-    double distance;
+    double space;
     double time;
 };
 
@@ -63,8 +66,8 @@ class A: public Optic // Amplifier section
 {
 public:
     A(std::string yaml);
-    void InternalDynamics(double);
-    void PulseInteraction(int);
+    void InternalDynamics(double clock_time);
+    void PulseInteraction(int pulse_n);
 private:
     // ------- BANDS -------
     bool band_reg;
@@ -186,14 +189,12 @@ public:
 extern std::vector<Pulse> pulses;
 extern std::vector<Optic> optics;
 extern std::vector<LayoutComponent> layout;
-//extern int n_AM, n_propagations;
 extern bool noprop;
 // ------- CALCULATION NET -------
 extern double vc;                 // center frequency
-extern double t_pulse_min, t_pulse_max;
-extern double Dt_pump;            // "main time" - for pumping/relaxation
+extern double t_min, t_max;       // fast ("pulse") time
+extern double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 extern int x0, n0;                // number of points in radial and time nets
-//extern double v_min, v_max;     // frequency limits, Hz
 // ------- DEBUGGING -------
 extern int debug_level;           // debug output control 0 - nothing; 1 - some; 2 - everything
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
@@ -225,7 +226,7 @@ void AllocateMemory(void);
 void FreeMemory(void);
 
 /////////////////////////// optics.cpp ///////////////////////////
-void BeamPropagation(int pulse, int k, double t);
+void BeamPropagation(int pulse_n, int layout_position, double clock_time);
 double RefractiveIndex(char* material, double frequency);
 double NonlinearIndex(char* material);
 //void Probe(void);
@@ -240,9 +241,9 @@ double NonlinearIndex(char* material);
 //void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, double time);
+void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time);
 void UpdateDynamicsFiles(double);
-void SaveGainSpectrum(int pulse, int component);
+void SaveGainSpectrum(int pulse, int layout_position);
 void SaveOutputField(void);
 
 ///////////////////////////// calc.cpp /////////////////////////////

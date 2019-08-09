@@ -145,8 +145,8 @@ void MainWindow::Plot()
     out << "set output \"fig_power.svg\"" << newline;
     out << common_plot_param;
     out << "set xlabel \"Time, s\"" << newline;
-    double tmin = Saved.t_pulse_min.toDouble()/pow(2, comboBox_timeScale->currentIndex());
-    double tmax = Saved.t_pulse_max.toDouble()/pow(2, comboBox_timeScale->currentIndex());
+    double tmin = Saved.t_min.toDouble()/pow(2, comboBox_timeScale->currentIndex());
+    double tmax = Saved.t_max.toDouble()/pow(2, comboBox_timeScale->currentIndex());
     out << "set xrange [" << tmin << ":" << tmax << "]" << newline;
     out << "set ylabel \"Power, W\"" << newline;
     for(i=0; i<=9; i++){
@@ -168,7 +168,7 @@ void MainWindow::Plot()
 
     // GnuPlot script: Spectra
     int n0 = comboBox_precision_t->currentText().toInt(); // number of points in the pulse time calculation net
-    double Delta_t = (Saved.t_pulse_max.toDouble()-Saved.t_pulse_min.toDouble()) / (n0-1); // pulse time step
+    double Delta_t = (Saved.t_max.toDouble()-Saved.t_min.toDouble()) / (n0-1); // pulse time step
     double Delta_v = 1.0/(Delta_t*n0); // frequency step
     double v_spread = Delta_v*(n0-1)/pow(2, comboBox_freqScale->currentIndex()+1);
     plot_n = 0;

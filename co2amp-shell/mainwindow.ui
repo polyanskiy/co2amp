@@ -403,38 +403,18 @@ p, li { white-space: pre-wrap; }
            <string>TERMINAL</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_10">
-           <item row="1" column="0">
-            <widget class="QPushButton" name="pushButton_abort">
-             <property name="minimumSize">
+           <item row="1" column="3">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
               <size>
-               <width>120</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Abort</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="checkBox_saveWhenFinished">
-             <property name="text">
-              <string>Save when finished</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QCheckBox" name="checkBox_showCalculationTime">
-             <property name="text">
-              <string>Show calculation time</string>
-             </property>
-            </widget>
+            </spacer>
            </item>
            <item row="0" column="0" colspan="4">
             <widget class="QTextBrowser" name="textBrowser_terminal">
@@ -905,18 +885,38 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="checkBox_showCalculationTime">
+             <property name="text">
+              <string>Show calculation time</string>
              </property>
-             <property name="sizeHint" stdset="0">
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="checkBox_saveWhenFinished">
+             <property name="text">
+              <string>Save when finished</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButton_abort">
+             <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>120</width>
                <height>0</height>
               </size>
              </property>
-            </spacer>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Abort</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -982,12 +982,151 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
+        <item row="4" column="0">
+         <widget class="QPushButton" name="pushButton_go">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Go!</string>
+          </property>
+          <property name="shortcut">
+           <string>Alt+X</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_net">
+         <widget class="QGroupBox" name="groupBox_grid">
           <property name="title">
-           <string>CALCULATION NET</string>
+           <string>CALCULATION GRID</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
+           <item row="1" column="0" colspan="3">
+            <widget class="QLabel" name="label_um">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>(λ = ... μm)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QComboBox" name="comboBox_precision_r">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>32</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>64</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>128</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>256</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>512</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1024</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2048</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>4096</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_accuracy">
+             <property name="text">
+              <string>Precision (time, coord.)</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLineEdit" name="lineEdit_t_max">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_t_range">
+             <property name="text">
+              <string>Pulse time range (s)</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_vc">
              <property name="text">
@@ -1017,13 +1156,32 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_accuracy">
-             <property name="text">
-              <string>Precision (time, coord.)</string>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEdit_t_min">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_clock_tick">
+             <property name="text">
+              <string>Main clock tick (s)</string>
              </property>
             </widget>
            </item>
@@ -1104,80 +1262,8 @@ p, li { white-space: pre-wrap; }
              </item>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QComboBox" name="comboBox_precision_r">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <item>
-              <property name="text">
-               <string>32</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>64</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>128</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>256</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>512</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1024</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2048</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>4096</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_t_range">
-             <property name="text">
-              <string>Time range (s)</string>
-             </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit_t_pulse_min">
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lineEdit_clock_tick">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1198,42 +1284,7 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QLineEdit" name="lineEdit_t_pulse_max">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="3">
-            <widget class="QLabel" name="label_um">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>(λ = ... μm)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="3">
+           <item row="5" column="0" colspan="3">
             <widget class="QLabel" name="label_deltas">
              <property name="enabled">
               <bool>false</bool>
@@ -1244,28 +1295,6 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QPushButton" name="pushButton_go">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>120</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Go!</string>
-          </property>
-          <property name="shortcut">
-           <string>Alt+X</string>
-          </property>
          </widget>
         </item>
        </layout>
@@ -1927,7 +1956,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-08-07&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-08-09&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Documentation: &lt;/span&gt;&lt;a href=&quot;https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Manual and detailed program description (PDF)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/gpl.html&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;GPL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;a href=&quot;mailto:Mikhail Polyanskiy &amp;lt;polyanskiy@bnl.gov&amp;gt;&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Mikhail N. Polyanskiy&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, Brookhaven National Laboratory, USA&lt;br /&gt;Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia&lt;/span&gt;&lt;/p&gt;
@@ -1988,8 +2017,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>tabWidget_main</tabstop>
   <tabstop>comboBox_precision_t</tabstop>
   <tabstop>comboBox_precision_r</tabstop>
-  <tabstop>lineEdit_t_pulse_min</tabstop>
-  <tabstop>lineEdit_t_pulse_max</tabstop>
+  <tabstop>lineEdit_t_min</tabstop>
+  <tabstop>lineEdit_t_max</tabstop>
   <tabstop>comboBox_optic</tabstop>
   <tabstop>comboBox_pulse</tabstop>
   <tabstop>lineEdit_passes</tabstop>

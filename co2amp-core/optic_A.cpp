@@ -104,9 +104,6 @@ A::A(std::string id)
         InitializePopulations();
     }
 
-    StatusDisplay(-1, -1, -1, "initial field...");
-    //InitializeE();
-
     // 3 Initial q's
     if(p_CO2+p_N2+p_He>0){
         StatusDisplay(-1, -1, 0, "pumping and relaxation...");
@@ -122,14 +119,14 @@ A::A(std::string id)
 }
 
 
-void A::InternalDynamics(double t)
+void A::InternalDynamics(double clock_time)
 {
-    StatusDisplay(-1, -1, t, "pumping and relaxation...");
-    PumpingAndRelaxation(t);
+    StatusDisplay(-1, -1, clock_time, "pumping and relaxation...");
+    PumpingAndRelaxation(clock_time);
 }
 
 
-void PulseInteraction(int)
+void A::PulseInteraction(int pulse_n)
 {
 
 }

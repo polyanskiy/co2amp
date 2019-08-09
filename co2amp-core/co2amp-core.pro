@@ -29,10 +29,10 @@ SOURCES += \
     pulse.cpp
 HEADERS += \
     co2amp.h
-QMAKE_CFLAGS += -ffast-math -fopenmp
-QMAKE_CXXFLAGS += -ffast-math -fopenmp
+#QMAKE_CFLAGS += -ffast-math -fopenmp
+QMAKE_CXXFLAGS += -ffast-math -fopenmp -Wno-sign-compare
 QMAKE_LFLAGS += -fopenmp
 
 
-LIBS += -L$$PWD/../libyaml/ -lyaml
+#LIBS += -L$$PWD/../libyaml/ -lyaml
 #LIBS += -L$$PWD/../libyaml/ -llibyaml.dll

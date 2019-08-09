@@ -63,26 +63,28 @@ void MainWindow::UpdateControls()
     checkBox_noprop->setChecked(Memorized.noprop);
 
 
-    /////////////////////////////////// CALCULATION NET //////////////////////////////////////
+    /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
 
 
     if(!lineEdit_vc->hasFocus())
         lineEdit_vc->setText(Memorized.vc);
-    if(!lineEdit_t_pulse_min->hasFocus())
-        lineEdit_t_pulse_min->setText(Memorized.t_pulse_min);
-    if(!lineEdit_t_pulse_max->hasFocus())
-        lineEdit_t_pulse_max->setText(Memorized.t_pulse_max);
+    if(!lineEdit_t_min->hasFocus())
+        lineEdit_t_min->setText(Memorized.t_min);
+    if(!lineEdit_t_max->hasFocus())
+        lineEdit_t_max->setText(Memorized.t_max);
+    if(!lineEdit_clock_tick->hasFocus())
+        lineEdit_clock_tick->setText(Memorized.clock_tick);
     comboBox_precision_t->setCurrentIndex(Memorized.precision_t);
     comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
-    double delta_t = (lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
-    double delta_v = 1.0/(lineEdit_t_pulse_max->text().toDouble()-lineEdit_t_pulse_min->text().toDouble());
+    double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
+    double delta_v = 1.0/(lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble());
     label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
     label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
 
     /*comboBox_precision_t->setEnabled(!bl);
     comboBox_precision_r->setEnabled(!bl);
-    lineEdit_t_pulse_min->setEnabled(!bl);
-    lineEdit_t_pulse_max->setEnabled(!bl);*/
+    lineEdit_t_min->setEnabled(!bl);
+    lineEdit_t_max->setEnabled(!bl);*/
 
 
     /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB //////////////////////////////
