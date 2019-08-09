@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;  
 
-    std::cout << "co2amp-core v.2019-08-07" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-08" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if (omp_get_thread_num() == 0)

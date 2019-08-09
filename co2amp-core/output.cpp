@@ -99,20 +99,26 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
     for(x=0; x<x0; x++){
         for(n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
-                Energy     += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x][n+1]+E[x+1][n]+E[x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                Energy += 2.0 * h * pulse->nu0 *
+                        (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
+                        pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4 *
+                        2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
             if(x+1<x0)
-                Power[n]   += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x+1][n])/2 ,2) * 2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
+                Power[n] += 2.0 * h * pulse->nu0 *
+                        (pow(abs(E[x][n]),2) + pow(abs(E[x+1][n]),2))/2 *
+                        2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
             if(n+1<n0)
-                Fluence[x] += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]+E[x][n+1])/2, 2) * Dt; // J/m2
+                Fluence[x] += 2.0 * h * pulse->nu0 *
+                        (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2))/2 *
+                        Dt; // J/m2
         }
     }
 
     // Count pass number through current element
     int pass_n = 0;
-    for(i=0; i<layout_position; i++){
+    for(i=0; i<layout_position; i++)
         if(layout[i].optic == layout[layout_position].optic)
             pass_n++;
-    }
 
     // Write fluence file
     if(pulse_n==0 && layout_position==0){
@@ -176,10 +182,9 @@ void UpdateOutputFiles(unsigned int pulse_n, unsigned int layout_position, doubl
 
     // spectrum normalization
     double max_int=0;
-    for(n=0; n<n0; n++){
+    for(n=0; n<n0; n++)
         if(average_spectrum[n] >= max_int)
             max_int = average_spectrum[n];
-    }
     for(n=0; n<n0 && max_int>0; n++)
             average_spectrum[n] /= max_int;
 

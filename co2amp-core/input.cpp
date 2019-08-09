@@ -225,9 +225,9 @@ bool ReadLayoutConfigFile(std::string path){
         for(component_counter=0; component_counter<layout.size(); component_counter++){
             std::cout << layout[component_counter].optic->id;
             if(component_counter != layout.size()-1)
-                std::cout << "<<" ;
+                std::cout << ">>" ;
             if(layout[component_counter].distance != 0)
-                std::cout << std::to_string(layout[component_counter].distance) << "<<";
+                std::cout << std::to_string(layout[component_counter].distance) << ">>";
         }
         std::cout << "\n";
     }

@@ -62,7 +62,10 @@ void Pulse::InitializeE()
     Energy = 0;
     for(n=0; n<n0-1; n++)
         for(x=0; x<x0-1; x++)
-            Energy += 2.0 * h * nu0 * pow(abs(E[x][n]+E[x][n+1]+E[x+1][n]+E[x+1][n+1])/4, 2) * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+            Energy += 2.0 * h * nu0 *
+                    (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
+                    pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4 *
+                    2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
 
     af = sqrt(E0/Energy);
     for(n=0; n<n0; n++)

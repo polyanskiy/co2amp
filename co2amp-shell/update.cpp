@@ -105,8 +105,6 @@ void MainWindow::UpdateControls()
     else
         comboBox_pulse->setCurrentIndex(Memorized.pulse);
 
-
-
     //energyPlot
     index = comboBox_energyPlot->currentIndex();
     comboBox_energyPlot->clear();
@@ -116,7 +114,7 @@ void MainWindow::UpdateControls()
         comboBox_energyPlot->addItem("pulse");
         comboBox_energyPlot->addItem("optic, pulse");
     }
-    if(index == -1 || index+1 > comboBox_pulse->count()){
+    if(index == -1 || index+1 > comboBox_energyPlot->count()){
         if(comboBox_pulse->count() == 1) // single pulse
             comboBox_energyPlot->setCurrentIndex(1);
         else
