@@ -144,16 +144,17 @@ void Pulse::Propagate(int from, int to, double clock_time)
     else{ //Huygens-Fresnell diffraction
         double lambda = c/vc; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
-        char status[64];
         int count=0;
         double rho, R_min, R_max, R, delta_R;
         std::complex<double> tmp;
 
-        #pragma omp parallel for shared(E, E1) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
+        #pragma omp parallel for shared(E, E1, count) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
         for(x=0; x<x0; x++){ // output plane radial coordinate
-            count ++;
-            sprintf(status, "propagation: %d of % d", count, x0);
-            StatusDisplay(this->pulse_n, from, clock_time, status);
+            #pragma omp critical
+            {
+                StatusDisplay(this->pulse_n, from, clock_time,
+                          "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
+            }
             for(rho=0.5; rho<x0-0.5; rho++){ // x0-1 rings in the input plane
                 R_min = sqrt(pow(rho*Dr1-x*Dr2,2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
                 R_max = sqrt(pow(rho*Dr1+x*Dr2,2)+pow(z,2)); // maximum --''--
@@ -169,7 +170,6 @@ void Pulse::Propagate(int from, int to, double clock_time)
                     E[x][n] += (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2.0 * tmp;
             }
         }
-
     }
     Debug(2, "propagation: integration done");
 

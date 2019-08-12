@@ -27,12 +27,12 @@ int main(int argc, char **argv)
     h = 6.626069e-34; // J*s
 
     debug_level = 1;
-    flag_status_or_debug = true;  
+    flag_status_or_debug = true;
 
     std::cout << "co2amp-core v.2019-08-08" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
-    if (omp_get_thread_num() == 0)
+    if(omp_get_thread_num() == 0)
         std::cout << "number of CPU cores: " << omp_get_num_threads() << std::endl << std::endl << std::flush;
 
     //co2amp = new CO2AMP();
@@ -108,25 +108,33 @@ void Calculations()
 
 void StatusDisplay(int pulse_n, int layout_position, double clock_time, std::string status)
 {
+    std::string str;
     if(layout_position == -1){
         if(clock_time < 0)
-            std::cout << "\r" << status
-                      << "                                               ";
+            str = "\r" + status
+                    + "                                               ";
         else
-            std::cout << "\r" << clock_time << " s: " << status
-                      << "                                               ";
+            str = "\r" + std::to_string(clock_time) + " s: " + status
+                    + "                                               ";
     }
     else{
         if(pulses.size()==1)
-            std::cout << "\r" << clock_time << " s; Optic " << layout[layout_position].optic->id << " (" <<  layout_position+1
-                      << " of " << layout.size() << "): " << status
-                      << "                    ";
+            str = "\r" + std::to_string(clock_time) + " s; Optic "
+                    + layout[layout_position].optic->id + " ("
+                    + std::to_string(layout_position+1) + " of "
+                    + std::to_string(layout.size()) + "): " + status
+                    + "                    ";
         else
-            std::cout << "\r" << clock_time << " s; Optic " << layout[layout_position].optic->id << " (" <<  layout_position+1
-                      << " of " << layout.size() << "); Pulse " << pulses[pulse_n].id << ": " << status
-                      << "                    ";
+            str = "\r" + std::to_string(clock_time) + " s; Optic "
+                    + layout[layout_position].optic->id + " ("
+                    + std::to_string(layout_position+1) + " of "
+                    + std::to_string(layout.size()) + "); Pulse "
+                    + pulses[pulse_n].id + " ("
+                    + std::to_string(pulse_n+1) + " of "
+                    + std::to_string(pulses.size()) + "): " + status
+                    + "                    ";
     }
-    std::cout << std::flush;
+    std::cout << str << std::flush;
     flag_status_or_debug = true;
 }
 

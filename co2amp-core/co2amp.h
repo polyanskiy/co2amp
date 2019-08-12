@@ -8,6 +8,7 @@
 #include <cmath>
 #include <complex>
 #include <omp.h>
+#include <stdio.h>
 
 #define I std::complex<double>(0,1)
 
