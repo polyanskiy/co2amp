@@ -1,6 +1,9 @@
 #include "co2amp.h"
 
 
+//////////////////////////////// LENS ///////////////////////////////////////
+
+
 L::L(std::string id)
 {
     this->id = id;
@@ -9,7 +12,35 @@ L::L(std::string id)
 
     Debug(2, "Creating optic type \'" + this->type + "\' from file \'" + this->yaml + "\' ...");
 
-    //std::string value="";
-    //YamlGetValue(&value, yaml, "diameter");
-    //this->Dr = std::stod(value) / 2 / (x0-1) / 1000; // mm->m
+    std::string value="";
+
+    if(YamlGetValue(&value, yaml, "CA"))
+        Dr = std::stod(value)/2/(x0-1);
+    else
+        std::cout << "ERROR: cannot find \'CA\' value in optics config file \'" << yaml << "\'";
+
+    if(YamlGetValue(&value, yaml, "F")){
+        F = std::stof(value);
+        Debug(2, "F = " + std::to_string(F) + " m");
+    }
+    else
+        std::cout << "ERROR: cannot find \'F\' value in \'Lens\' config file \'" << yaml << "\'";
+}
+
+
+void L::InternalDynamics(double clock_time)
+{
+
+}
+
+
+void L::PulseInteraction(int pulse_n)
+{
+    if(F==0.0)
+        return;
+    Debug(2, "Lens interaction, F = " + std::to_string(F) + " m");
+    int x, n;
+    for(x=0; x<x0; x++)
+        for(n=0; n<n0; n++)
+            pulses[pulse_n].E[x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
 }

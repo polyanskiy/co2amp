@@ -15,3 +15,16 @@ P::P(std::string id)
     else
         std::cout << "ERROR: cannot find \'CA\' value in optics config file \'" << yaml << "\'";
 }
+
+
+void P::InternalDynamics(double clock_time)
+{
+
+}
+
+
+void P::PulseInteraction(int pulse_n)
+{
+
+}
+

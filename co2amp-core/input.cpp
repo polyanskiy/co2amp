@@ -102,20 +102,34 @@ bool ReadConfigFiles(std::string path)
             type = value;
         if(id != "" && type != ""){
             Debug(2, "ID: \"" + id + "\"; Type: \"" + type + "\"");
-            if(type=="A")
-                optics.push_back(A(id));
-            if(type=="C")
-                optics.push_back(C(id));
-            if(type=="L")
-                optics.push_back(L(id));
-            if(type=="M")
-                optics.push_back(M(id));
-            if(type=="F")
-                optics.push_back(F(id));
-            if(type=="P")
-                optics.push_back(P(id));
-            if(type=="S")
-                optics.push_back(S(id));
+            if(type=="A"){
+                opticAs.push_back(A(id));
+                optics.push_back(&opticAs[opticAs.size()-1]);
+            }
+            if(type=="C"){
+                opticCs.push_back(C(id));
+                optics.push_back(&opticCs[opticCs.size()-1]);
+            }
+            if(type=="F"){
+                opticFs.push_back(F(id));
+                optics.push_back(&opticFs[opticFs.size()-1]);
+            }
+            if(type=="L"){
+                opticLs.push_back(L(id));
+                optics.push_back(&opticLs[opticLs.size()-1]);
+            }
+            if(type=="M"){
+                opticMs.push_back(M(id));
+                optics.push_back(&opticMs[opticMs.size()-1]);
+            }
+            if(type=="P"){
+                opticPs.push_back(P(id));
+                optics.push_back(&opticPs[opticPs.size()-1]);
+            }
+            if(type=="S"){
+                opticSs.push_back(S(id));
+                optics.push_back(&opticSs[opticSs.size()-1]);
+            }
             if(type=="LAYOUT")
                 layout_file_name = id + ".yml";
             if(type=="PULSE")
@@ -126,8 +140,10 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add optic numbers to all optics
-    for(int optic_n=0; optic_n<optics.size(); optic_n++)
-        optics[optic_n].optic_n =optic_n;
+    for(int optic_n=0; optic_n<optics.size(); optic_n++){
+        optics[optic_n]->optic_n =optic_n;
+        optics[optic_n]->Identify();
+    }
 
     // When all optics created, create layout...
     if(!ReadLayoutConfigFile(layout_file_name))
@@ -188,7 +204,7 @@ bool ReadLayoutConfigFile(std::string path){
                     if(value == "")
                         continue;
                     if(is_number(value)){
-                        Debug(2, "Beam propagation distance: " + value + " mm");
+                        Debug(2, "Beam propagation distance: " + value + " m");
                         if(layout_position==-1){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
@@ -206,6 +222,7 @@ bool ReadLayoutConfigFile(std::string path){
                         layout_position++;
                         Debug(2, "Optic entry: \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
+                        optic->Identify();
                         if(optic == nullptr){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;

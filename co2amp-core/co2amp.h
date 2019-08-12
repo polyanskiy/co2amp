@@ -8,7 +8,6 @@
 #include <cmath>
 #include <complex>
 #include <omp.h>
-#include <stdio.h>
 
 #define I std::complex<double>(0,1)
 
@@ -36,6 +35,10 @@ class Optic
 {
 public:
     Optic(){}
+    virtual void InternalDynamics(double clock_time){}
+    virtual void PulseInteraction(int pulse_n){}
+    virtual void Identify(){std::cout << "\nI am an OPTIC\n";}
+
     std::string id;
     std::string type;
     std::string yaml;   // path to configuration file
@@ -43,8 +46,6 @@ public:
     double CA;          // clear aperture, m
     double Dr;          // m
     double clock;       // optic's internal clock (e.g. for pumping/relaxation calculations), s
-    void InternalDynamics(double clock_time){}
-    void PulseInteraction(int pulse_n){}
 };
 
 
@@ -67,8 +68,8 @@ class A: public Optic // Amplifier section
 {
 public:
     A(std::string yaml);
-    void InternalDynamics(double clock_time);
-    void PulseInteraction(int pulse_n);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
 private:
     // ------- BANDS -------
     bool band_reg;
@@ -143,6 +144,8 @@ class C: public Optic // Chirp (Stretcher/Compressor)
 {
 public:
     C(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
 };
 
 
@@ -150,6 +153,10 @@ class L: public Optic // Lens
 {
 public:
     L(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
+    virtual void Identify(){std::cout << "\nI am a LENS\n";}
+    double F; // focal length, m
 };
 
 
@@ -157,6 +164,8 @@ class M: public Optic // Matter (window, air)
 {
 public:
     M(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
 };
 
 
@@ -164,6 +173,8 @@ class F: public Optic // Spatial (ND) filter
 {
 public:
     F(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
 };
 
 
@@ -171,6 +182,9 @@ class P: public Optic // Probe
 {
 public:
     P(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
+    virtual void Identify(){std::cout << "\nI am a PROBE\n";}
 };
 
 
@@ -178,6 +192,8 @@ class S: public Optic // Spectral filter
 {
 public:
     S(std::string yaml);
+    virtual void InternalDynamics(double clock_time);
+    virtual void PulseInteraction(int pulse_n);
 };
 
 
@@ -188,8 +204,16 @@ public:
 
 // -- PULSES, OPTICS, GEOMETRY ---
 extern std::vector<Pulse> pulses;
-extern std::vector<Optic> optics;
+extern std::vector<Optic*> optics;
 extern std::vector<LayoutComponent> layout;
+extern std::vector<A> opticAs;
+extern std::vector<C> opticCs;
+extern std::vector<F> opticFs;
+extern std::vector<L> opticLs;
+extern std::vector<M> opticMs;
+extern std::vector<P> opticPs;
+extern std::vector<S> opticSs;
+
 extern bool noprop;
 // ------- CALCULATION NET -------
 extern double vc;                 // center frequency

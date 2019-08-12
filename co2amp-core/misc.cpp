@@ -3,8 +3,8 @@
 
 Optic* FindOpticByID(std::string id){
     for(unsigned int i = 0; i<optics.size(); i++){
-        if(optics[i].id == id)
-            return &optics[i];
+        if(optics[i]->id == id)
+            return optics[i];
     }
     return nullptr;
 }

@@ -5,8 +5,15 @@
 
 // -- PULSES, OPTICS, GEOMETRY ---
 std::vector<Pulse> pulses;
-std::vector<Optic> optics;
+std::vector<Optic*> optics;
 std::vector<LayoutComponent> layout;
+std::vector<A> opticAs;
+std::vector<C> opticCs;
+std::vector<F> opticFs;
+std::vector<L> opticLs;
+std::vector<M> opticMs;
+std::vector<P> opticPs;
+std::vector<S> opticSs;
 bool noprop;
 // ------- CALCULATION NET -------
 double vc;
@@ -84,7 +91,7 @@ void Calculations()
     for(clock_time=0; clock_time<=(layout[layout.size()-1].time + pulses[pulses.size()-1].t0 + clock_tick); clock_time+=clock_tick){
 
         for(optic_n=0; optic_n<optics.size(); optic_n++)
-            optics[optic_n].InternalDynamics(clock_time);
+            optics[optic_n]->InternalDynamics(clock_time);
 
         for(layout_position=0; layout_position<layout.size(); layout_position++){
             for(pulse_n=0; pulse_n<pulses.size(); pulse_n++){
@@ -108,33 +115,29 @@ void Calculations()
 
 void StatusDisplay(int pulse_n, int layout_position, double clock_time, std::string status)
 {
-    std::string str;
     if(layout_position == -1){
         if(clock_time < 0)
-            str = "\r" + status
-                    + "                                               ";
+            std::cout << "\r" << status
+                      << "                                               ";
         else
-            str = "\r" + std::to_string(clock_time) + " s: " + status
-                    + "                                               ";
+            std::cout << "\r" << std::to_string(clock_time) << " s: " << status
+                      << "                                               ";
     }
     else{
         if(pulses.size()==1)
-            str = "\r" + std::to_string(clock_time) + " s; Optic "
-                    + layout[layout_position].optic->id + " ("
-                    + std::to_string(layout_position+1) + " of "
-                    + std::to_string(layout.size()) + "): " + status
-                    + "                    ";
+            std::cout << "\r" << clock_time << " s; "
+                      << "Optic " << layout[layout_position].optic->id
+                      << " (" << layout_position+1 << " of " << layout.size() << "): "
+                      << status << "                                     ";
         else
-            str = "\r" + std::to_string(clock_time) + " s; Optic "
-                    + layout[layout_position].optic->id + " ("
-                    + std::to_string(layout_position+1) + " of "
-                    + std::to_string(layout.size()) + "); Pulse "
-                    + pulses[pulse_n].id + " ("
-                    + std::to_string(pulse_n+1) + " of "
-                    + std::to_string(pulses.size()) + "): " + status
-                    + "                    ";
+            std::cout << "\r" << clock_time << " s; "
+                      << "Optic " << layout[layout_position].optic->id
+                      << " (" << layout_position+1 << " of " << layout.size() << "); "
+                      << "Pulse " << pulses[pulse_n].id
+                      << " (" << pulse_n+1 << " of " << pulses.size() << "): "
+                      << status << "                                     ";
     }
-    std::cout << str << std::flush;
+    std::cout << std::flush;
     flag_status_or_debug = true;
 }
 

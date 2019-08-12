@@ -13,3 +13,16 @@ C::C(std::string id)
     //YamlGetValue(&value, yaml, "diameter");
     //this->Dr = std::stod(value) / 2 / (x0-1) / 1000; // mm->m
 }
+
+
+void C::InternalDynamics(double clock_time)
+{
+
+}
+
+
+void C::PulseInteraction(int pulse_n)
+{
+
+}
+
