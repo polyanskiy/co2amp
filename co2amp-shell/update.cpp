@@ -25,8 +25,6 @@ void MainWindow::UpdateControls()
     ////////////////////////////////// GUI CONTROLS //////////////////////////////////
     if(!flag_calculating){
         checkBox_saveWhenFinished->setChecked(0);
-        checkBox_showCalculationTime->setChecked(0);
-        //textBrowser->clear();
     }
     pushButton_new->setDisabled(flag_calculating);
     pushButton_open->setDisabled(flag_calculating);
@@ -36,7 +34,6 @@ void MainWindow::UpdateControls()
     //textBrowser_terminal->setEnabled(flag_calculating); //terminal
     pushButton_abort->setEnabled(flag_calculating);
     checkBox_saveWhenFinished->setEnabled(flag_calculating && project_file!=QString());
-    checkBox_showCalculationTime->setEnabled(flag_calculating);
 
 
     /////////////////////////////// CONFIGURATION FILES /////////////////////////////////

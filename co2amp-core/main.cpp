@@ -3,25 +3,28 @@
 
 // GLOBAL VARIABLES
 
-// -- PULSES, OPTICS, GEOMETRY ---
+// --- PULSES, OPTICS, GEOMETRY ----
 std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
 std::vector<LayoutComponent*> layout;
-// ------- CALCULATION NET -------
+// ------- CALCULATION GRID --------
 double vc;
 double t_min, t_max;       // fast ("pulse") time
 double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 int x0, n0; // number of points in radial and time nets and number of pulses in the train
-// ------- DEBUGGING -------
+// ----------- DEBUGGING -----------
 int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
 bool noprop;
 bool flag_status_or_debug; // last message displayed: True if status False if debug
-// ------- MISC. CONSTANTS -------
+// --- MISC CONSTANTS AND FLAGS ----
 double c, h;               // spped of light [m/s]; Plank's [J s]
+bool configuration_error = false;
 
 
 int main(int argc, char **argv)
 {
+    std::clock_t start_time = std::clock();
+
     // Constants
     c = 2.99792458e8; // m/s
     h = 6.626069e-34; // J*s
@@ -29,7 +32,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-08" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-13" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
@@ -38,15 +41,15 @@ int main(int argc, char **argv)
     //co2amp = new CO2AMP();
 
     if (!ReadCommandLine(argc, argv)){
-        std::cout << "Error in command line. Aborting...\n";
+        std::cout << "Error in command line. Aborting.\n";
         return -1;
     }
-    Debug(1, "Command line read done!");
+    Debug(1, "Command line read done");
     if (!ReadConfigFiles("config_files.yml")){
-        std::cout << "Error in configuration file(s). Aborting...\n";
+        std::cout << "Error in configuration file(s). Aborting.\n";
         return -1;
     }
-    Debug(1, "Processing configuration files done!");
+    Debug(1, "Processing configuration files done");
 
     Calculations(); // Main program !!!
     /*AllocateMemory();
@@ -59,7 +62,10 @@ int main(int argc, char **argv)
     FreeMemory();*/
 
     Debug(2,"Success!");
-    StatusDisplay(-1, -1, -1, "all done!");
+    StatusDisplay(-1, -1, -1, "All done!");
+
+    std::cout << std:: endl << "Execution time: "  << (std::clock()-start_time)/CLOCKS_PER_SEC << " s";
+
     return 0;
 }
 
@@ -80,7 +86,7 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    std::cout << std::endl << "CALCULATING:" << std::endl;
+    std::cout << std::endl << "CALCULATION" << std::endl;
 
     for(clock_time=0; clock_time<=(layout[layout.size()-1]->time + pulses[pulses.size()-1]->t0 + clock_tick); clock_time+=clock_tick){
 

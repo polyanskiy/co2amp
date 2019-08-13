@@ -377,23 +377,17 @@ void MainWindow::BeforeProcessStarted()
 void MainWindow::AfterProcessFinished()
 {
     delete process;
-    bool showtime, save;
+    bool save;
     flag_calculating = false;
-    QMessageBox mb( "Info - co2amp", "Calculation time: " +
-                    QString::number(timer.elapsed()/1000) + " s",
-                    QMessageBox::Information, QMessageBox::Ok, 0, 0);
     if(flag_calculation_success){
         flag_field_ready_to_save = true;
         save = checkBox_saveWhenFinished->isChecked();
-        showtime = checkBox_showCalculationTime->isChecked();
         flag_plot_postponed = true;
         flag_results_modified = true;
         //Plot();
         //tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
         if(save)
             SaveProject();
-        if(showtime)
-            mb.exec();
     }
     UpdateControls();
 }

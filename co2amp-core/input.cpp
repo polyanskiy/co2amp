@@ -75,7 +75,7 @@ bool ReadConfigFiles(std::string path)
     std::ifstream in;
     std::istringstream iss, iss2;
 
-    Debug(2, "Interpreting configuration file list \"" + path + "\"...");
+    Debug(2, "Interpreting configuration file list \'" + path + "\'");
     in = std::ifstream(path, std::ios::in);
     if(in){
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
@@ -101,7 +101,7 @@ bool ReadConfigFiles(std::string path)
         if(key == "  type")
             type = value;
         if(id != "" && type != ""){
-            Debug(2, "ID: \"" + id + "\"; Type: \"" + type + "\"");
+            Debug(2, "Found entry: ID \"" + id + "\", Type \"" + type + "\"");
             if(type=="A")
                 optics.push_back(new A(id));
             if(type=="C")
@@ -123,6 +123,8 @@ bool ReadConfigFiles(std::string path)
             id = "";
             type = "";
         }
+        if(configuration_error)
+            return false;
     }
 
     // add optic numbers to all optics
@@ -153,7 +155,7 @@ bool ReadLayoutConfigFile(std::string path){
     int layout_position = -1;
     int prop_n;
 
-    Debug(2, "Interpreting layout configuration file \"" + path +"\"...");
+    Debug(2, "Interpreting layout configuration file \'" + path +"\'");
     in = std::ifstream(path, std::ios::in);
     if(in){
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
@@ -165,7 +167,7 @@ bool ReadLayoutConfigFile(std::string path){
     }
     Debug(3, path + " content:\n" + file_content_str);
 
-    Debug(2, "Creating layout form file \'" + path + "\'...");
+    Debug(2, "Creating layout form file \'" + path + "\'");
     iss = std::istringstream(file_content_str);
     while(std::getline(iss, str)){
         iss2 = std::istringstream(str);
@@ -182,7 +184,7 @@ bool ReadLayoutConfigFile(std::string path){
             Debug(2, "propagate = \"" + propagate + "\"; times = " + std::to_string(times));
             Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
             for(prop_n=0; prop_n<times; prop_n++){
-                Debug(2, "Propagation #" + std::to_string(prop_n+1) + " of " + std::to_string(times) + " ...");
+                Debug(2, "Propagation #" + std::to_string(prop_n+1) + " of " + std::to_string(times));
                 iss2 = std::istringstream(propagate);
                 while(std::getline(iss2, value, '>')){
                     if(value == "")

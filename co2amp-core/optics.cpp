@@ -2,29 +2,6 @@
 
 
 /*
-void Mask(int pulse, double Dr, double radius)
-{
-    int x, n;
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++){
-            if(Dr*x < radius)
-                E[pulse][x][n] = 0;
-        }
-    }
-}
-
-
-void Attenuator(int pulse, double transmission)
-{
-    int x, n;
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++)
-            E[pulse][x][n] *=  sqrt(transmission);
-    }
-}
-*/
-
-/*
 void Window(int pulse, int k, double t, char *material, double thickness)
 {
     int i, x, n;
@@ -138,8 +115,8 @@ void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, ban
         delete spectrum;
     }
 }
-
-
+*/
+/*
 void Filter(int pulse, std::string yaml_file_path)
 {
     int x, n, n_raw_data_points, i;
@@ -252,20 +229,7 @@ void Filter(int pulse, std::string yaml_file_path)
 }
 
 
-void Apodizer(int pulse, double alpha)
-{
-    if(alpha==0.0)
-        return;
-    int x, n;
-    double transmission;
-    for(x=(int)ceil((x0-1.0)*(1.0-alpha)); x<x0; x++){
-        //transmission = 0.5 * (1.0 + cos(M_PI*( (x/(x0-1.0)-1.0)/alpha + 1.0)));
-        transmission = pow(sin(M_PI*(x0-1.0-x)/(2.0*alpha*(x0-1.0))),2); // here (x0-1) is R from manual
-        for(n=0; n<n0; n++){
-            E[pulse][x][n] *=  sqrt(transmission);
-        }
-    }
-}
+
 
 
 void Air(int pulse, int k, double t, double H, double length)

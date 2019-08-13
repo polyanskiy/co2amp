@@ -7,24 +7,40 @@
 L::L(std::string id)
 {
     this->id = id;
-    this->type = "L";
-    this->yaml = id + ".yml";
+    type = "L";
+    yaml = id + ".yml";
 
-    Debug(2, "Creating optic type \'" + this->type + "\' from file \'" + this->yaml + "\' ...");
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
 
     std::string value="";
 
-    if(YamlGetValue(&value, yaml, "CA"))
-        Dr = std::stod(value)/2/(x0-1);
-    else
-        std::cout << "ERROR: cannot find \'CA\' value in optics config file \'" << yaml << "\'";
-
-    if(YamlGetValue(&value, yaml, "F")){
-        F = std::stof(value);
-        Debug(2, "F = " + toExpString(F) + " m");
+    // type
+    if(!YamlGetValue(&value, yaml, "type")){
+        configuration_error = true;
+        return;
     }
-    else
-        std::cout << "ERROR: cannot find \'F\' value in \'Lens\' config file \'" << yaml << "\'";
+    if(value != type){
+        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
+                  << "\' (must be \'" << type << "\')" << std::endl;
+        configuration_error = true;
+        return;
+    }
+
+    // Rmax -> Dr
+    if(!YamlGetValue(&value, yaml, "Rmax")){
+        configuration_error = true;
+        return;
+    }
+    Debug(2, "Rmax = " + toExpString(std::stod(value)) + " m");
+    Dr = std::stod(value)/(x0-1);
+
+    // F
+    if(!YamlGetValue(&value, yaml, "F")){
+        configuration_error = true;
+        return;
+    }
+    F = std::stof(value);
+    Debug(2, "F = " + toExpString(F) + " m");
 }
 
 

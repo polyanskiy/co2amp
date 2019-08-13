@@ -3,27 +3,47 @@
 Pulse::Pulse(std::string id)
 {
     this->id = id;
-    this->yaml = id + ".yml";
+    yaml = id + ".yml";
 
-    this->E0 = -1;
-    this->w0 = -1;
-    this->tau0 = -1;
-    this->nu0 = -1;
-    this->t0 = -1;
+    E0 = -1;
+    w0 = -1;
+    tau0 = -1;
+    nu0 = -1;
+    t0 = -1;
 
-    Debug(2, "Creating pulse from file \'" + this->yaml + "\' ...");
+    Debug(2, "Creating pulse from file \'" + yaml + "\'");
 
-    std::string value="";    
-    if(YamlGetValue(&value, yaml, "E0"))
-        E0 = std::stod(value);
-    if(YamlGetValue(&value, yaml, "w0"))
-        w0 = std::stod(value);
-    if(YamlGetValue(&value, yaml, "tau0"))
-        tau0 = std::stod(value);
-    if(YamlGetValue(&value, yaml, "nu0"))
-        nu0 = std::stod(value);
-    if(YamlGetValue(&value, yaml, "t0"))
-        t0 = std::stod(value);
+    std::string value="";
+
+    if(!YamlGetValue(&value, yaml, "E0")){
+        configuration_error = true;
+        return;
+    }
+    E0 = std::stod(value);
+
+    if(!YamlGetValue(&value, yaml, "w0")){
+        configuration_error = true;
+        return;
+    }
+    w0 = std::stod(value);
+
+    if(!YamlGetValue(&value, yaml, "tau0")){
+        configuration_error = true;
+        return;
+    }
+    tau0 = std::stod(value);
+
+    if(!YamlGetValue(&value, yaml, "nu0")){
+        configuration_error = true;
+        return;
+    }
+    nu0 = std::stod(value);
+
+    if(!YamlGetValue(&value, yaml, "t0")){
+        configuration_error = true;
+        return;
+    }
+    t0 = std::stod(value);
 
     Debug(2, "E0 = " + toExpString(E0) + " J");
     Debug(2, "w0 = " + toExpString(w0) + " m");
@@ -39,7 +59,7 @@ Pulse::Pulse(std::string id)
 
 void Pulse::InitializeE()
 {
-    Debug(2, "Initializing field array for pulse \'" + this->id + "\' ...");
+    Debug(2, "Initializing field array for pulse \'" + this->id + "\'");
 
     int x, n;
     double Energy, af;

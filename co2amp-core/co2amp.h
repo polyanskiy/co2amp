@@ -1,6 +1,7 @@
 #ifndef CO2AMP_H
 #define CO2AMP_H
 
+# include <ctime>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -38,8 +39,8 @@ public:
     virtual void InternalDynamics(double clock_time){}
     virtual void PulseInteraction(int pulse_n){}
 
-    std::string id;
     std::string type;
+    std::string id;
     std::string yaml;   // path to configuration file
     int optic_n;
     double CA;          // clear aperture, m
@@ -174,6 +175,8 @@ public:
     F(std::string yaml);
     virtual void InternalDynamics(double clock_time);
     virtual void PulseInteraction(int pulse_n);
+private:
+    double *Transmittance; // transmittance array
 };
 
 
@@ -200,21 +203,22 @@ public:
 
 // --------------------------------------- VARIABLES -----------------------------------------
 
-// -- PULSES, OPTICS, GEOMETRY ---
+// --- PULSES, OPTICS, GEOMETRY ----
 extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
 extern std::vector<LayoutComponent*> layout;
-// ------- CALCULATION NET -------
+// ------- CALCULATION GRID --------
 extern double vc;                 // center frequency
 extern double t_min, t_max;       // fast ("pulse") time
 extern double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 extern int x0, n0;                // number of points in radial and time nets
-// ------- DEBUGGING -------
+// ----------- DEBUGGING -----------
 extern int debug_level;           // debug output control 0 - nothing; 1 - some; 2 - everything
 extern bool noprop;
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
-// ------- MISC. CONSTANTS -------
+// --- MISC CONSTANTS AND FLAGS ----
 extern double c, h;               // spped of light [m/s]; Plank's [J s]
+extern bool configuration_error;  // true if error in a configuration file is detected
 
 
 // --------------------------------------- FUNCTIONS -------------------------------------------
@@ -229,6 +233,8 @@ void Debug(int level, std::string str);
 Optic* FindOpticByID(std::string str);
 bool is_number(std::string);
 bool YamlGetValue(std::string *value, std::string path, std::string key);
+bool YamlGetData(std::vector<double> *data, std::string path, std::string key, int column_n);
+double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 
 /////////////////////////// input.cpp ////////////////////////////
