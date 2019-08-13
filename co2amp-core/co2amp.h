@@ -37,7 +37,6 @@ public:
     Optic(){}
     virtual void InternalDynamics(double clock_time){}
     virtual void PulseInteraction(int pulse_n){}
-    virtual void Identify(){std::cout << "\nI am an OPTIC\n";}
 
     std::string id;
     std::string type;
@@ -146,6 +145,7 @@ public:
     C(std::string yaml);
     virtual void InternalDynamics(double clock_time);
     virtual void PulseInteraction(int pulse_n);
+    double chirp; // s/Hz
 };
 
 
@@ -155,7 +155,6 @@ public:
     L(std::string yaml);
     virtual void InternalDynamics(double clock_time);
     virtual void PulseInteraction(int pulse_n);
-    virtual void Identify(){std::cout << "\nI am a LENS\n";}
     double F; // focal length, m
 };
 
@@ -184,7 +183,6 @@ public:
     P(std::string yaml);
     virtual void InternalDynamics(double clock_time);
     virtual void PulseInteraction(int pulse_n);
-    virtual void Identify(){std::cout << "\nI am a PROBE\n";}
 };
 
 
@@ -203,18 +201,9 @@ public:
 // --------------------------------------- VARIABLES -----------------------------------------
 
 // -- PULSES, OPTICS, GEOMETRY ---
-extern std::vector<Pulse> pulses;
+extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
-extern std::vector<LayoutComponent> layout;
-extern std::vector<A> opticAs;
-extern std::vector<C> opticCs;
-extern std::vector<F> opticFs;
-extern std::vector<L> opticLs;
-extern std::vector<M> opticMs;
-extern std::vector<P> opticPs;
-extern std::vector<S> opticSs;
-
-extern bool noprop;
+extern std::vector<LayoutComponent*> layout;
 // ------- CALCULATION NET -------
 extern double vc;                 // center frequency
 extern double t_min, t_max;       // fast ("pulse") time
@@ -222,6 +211,7 @@ extern double clock_tick;         // slow "layout" time - e.g. for pumping/relax
 extern int x0, n0;                // number of points in radial and time nets
 // ------- DEBUGGING -------
 extern int debug_level;           // debug output control 0 - nothing; 1 - some; 2 - everything
+extern bool noprop;
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 extern double c, h;               // spped of light [m/s]; Plank's [J s]
@@ -239,6 +229,7 @@ void Debug(int level, std::string str);
 Optic* FindOpticByID(std::string str);
 bool is_number(std::string);
 bool YamlGetValue(std::string *value, std::string path, std::string key);
+std::string toExpString(double num);
 
 /////////////////////////// input.cpp ////////////////////////////
 bool ReadCommandLine(int, char**);

@@ -21,7 +21,7 @@ L::L(std::string id)
 
     if(YamlGetValue(&value, yaml, "F")){
         F = std::stof(value);
-        Debug(2, "F = " + std::to_string(F) + " m");
+        Debug(2, "F = " + toExpString(F) + " m");
     }
     else
         std::cout << "ERROR: cannot find \'F\' value in \'Lens\' config file \'" << yaml << "\'";
@@ -38,9 +38,9 @@ void L::PulseInteraction(int pulse_n)
 {
     if(F==0.0)
         return;
-    Debug(2, "Lens interaction, F = " + std::to_string(F) + " m");
+    Debug(2, "Lens interaction, F = " + toExpString(F) + " m");
     int x, n;
     for(x=0; x<x0; x++)
         for(n=0; n<n0; n++)
-            pulses[pulse_n].E[x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
+            pulses[pulse_n]->E[x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
 }

@@ -18,6 +18,14 @@ bool is_number(std::string s)
 }
 
 
+std::string toExpString(double num)
+{
+    std::ostringstream out;
+    out << std::scientific << num;
+    return out.str();
+}
+
+
 bool YamlGetValue(std::string *value, std::string path, std::string key)
 {
     std::string str, file_content_str;

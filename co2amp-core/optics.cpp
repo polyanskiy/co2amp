@@ -1,27 +1,7 @@
 #include  "co2amp.h"
 
 
-
-
-
-/*void Probe()
-{
-    // do nothing
-}
-
-
-void Lens(int pulse, double Dr, double F)
-{
-    if(F==0.0)
-        return;
-    int x, n;
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++)
-            E[pulse][x][n] *= exp(I*2.0*M_PI*(vc/c)*pow(Dr*x,2)/(2.0*F));
-    }
-}
-
-
+/*
 void Mask(int pulse, double Dr, double radius)
 {
     int x, n;
@@ -137,31 +117,6 @@ void Window(int pulse, int k, double t, char *material, double thickness)
 //}
 
 /*
-void Stretcher(int pulse, double stretching) // stretching: s/Hz
-{
-    int x;
-    double Dv = (v_max-v_min) / (n0-1);
-
-    #pragma omp parallel for // mulithread
-    for(x=0; x<x0; x++){
-        int n;
-        std::complex<double> *spectrum;
-        double delay;
-        //spectrum = malloc(sizeof(std::complex<double>)*n0);
-        spectrum = new std::complex<double>[n0];
-        FFT(E[pulse][x], spectrum);
-        for(n=0; n<n0; n++){
-            delay = (v_min+Dv*n-vc) * stretching; // delay increases with frequency (red chirp) - group delay
-            delay *= 0.5; // conversion to phase delay.
-            spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
-        }
-        IFFT(spectrum, E[pulse][x]);
-        //free(spectrum);
-        delete spectrum;
-    }
-}
-
-
 void Bandpass(int pulse, double bandcenter, double bandwidth) // bandcenter, bandwidth: Hz
 {
     int x;

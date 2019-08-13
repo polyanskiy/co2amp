@@ -25,11 +25,11 @@ Pulse::Pulse(std::string id)
     if(YamlGetValue(&value, yaml, "t0"))
         t0 = std::stod(value);
 
-    Debug(2, "E0 = " + std::to_string(E0) + " J");
-    Debug(2, "w0 = " + std::to_string(w0) + " m");
-    Debug(2, "tau0 = " + std::to_string(tau0) + " s");
-    Debug(2, "nu0 = " + std::to_string(nu0) + " Hz");
-    Debug(2, "t0 = " + std::to_string(t0) + " s");
+    Debug(2, "E0 = " + toExpString(E0) + " J");
+    Debug(2, "w0 = " + toExpString(w0) + " m");
+    Debug(2, "tau0 = " + toExpString(tau0) + " s");
+    Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
+    Debug(2, "t0 = " + toExpString(t0) + " s");
 
     E = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
@@ -45,7 +45,7 @@ void Pulse::InitializeE()
     double Energy, af;
     //FILE *file;
 
-    double Dr = layout[0].optic->Dr; // use first optic in the layout
+    double Dr = layout[0]->optic->Dr; // use first optic in the layout
     double Dt = (t_max-t_min)/(n0-1);
 
     // Create 2D array
@@ -95,9 +95,9 @@ std::complex<double> Pulse::field(double r, double t)
 
 void Pulse::Propagate(int from, int to, double clock_time)
 {
-    double z = layout[from].space;
-    double Dr1 = layout[from].optic->Dr;
-    double Dr2 = layout[to].optic->Dr;
+    double z = layout[from]->space;
+    double Dr1 = layout[from]->optic->Dr;
+    double Dr2 = layout[to]->optic->Dr;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;

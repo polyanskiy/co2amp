@@ -4,17 +4,9 @@
 // GLOBAL VARIABLES
 
 // -- PULSES, OPTICS, GEOMETRY ---
-std::vector<Pulse> pulses;
+std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
-std::vector<LayoutComponent> layout;
-std::vector<A> opticAs;
-std::vector<C> opticCs;
-std::vector<F> opticFs;
-std::vector<L> opticLs;
-std::vector<M> opticMs;
-std::vector<P> opticPs;
-std::vector<S> opticSs;
-bool noprop;
+std::vector<LayoutComponent*> layout;
 // ------- CALCULATION NET -------
 double vc;
 double t_min, t_max;       // fast ("pulse") time
@@ -22,6 +14,7 @@ double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 int x0, n0; // number of points in radial and time nets and number of pulses in the train
 // ------- DEBUGGING -------
 int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
+bool noprop;
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // ------- MISC. CONSTANTS -------
 double c, h;               // spped of light [m/s]; Plank's [J s]
@@ -65,6 +58,7 @@ int main(int argc, char **argv)
     StatusDisplay(-1, -1, -1, "done!");
     FreeMemory();*/
 
+    Debug(2,"Success!");
     StatusDisplay(-1, -1, -1, "all done!");
     return 0;
 }
@@ -88,22 +82,22 @@ void Calculations()
 
     std::cout << std::endl << "CALCULATING:" << std::endl;
 
-    for(clock_time=0; clock_time<=(layout[layout.size()-1].time + pulses[pulses.size()-1].t0 + clock_tick); clock_time+=clock_tick){
+    for(clock_time=0; clock_time<=(layout[layout.size()-1]->time + pulses[pulses.size()-1]->t0 + clock_tick); clock_time+=clock_tick){
 
         for(optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(clock_time);
 
         for(layout_position=0; layout_position<layout.size(); layout_position++){
             for(pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-                double time_of_arival = layout[layout_position].time + pulses[pulse_n].t0;
+                double time_of_arival = layout[layout_position]->time + pulses[pulse_n]->t0;
                 if(clock_time-clock_tick/2 < time_of_arival && clock_time+clock_tick/2 >= time_of_arival){
                     // output files are written on component input (before interaction)!!!
                     StatusDisplay(pulse_n, layout_position, clock_time, "saving...");
                     UpdateOutputFiles(pulse_n, layout_position, clock_time);
                     // now do interaction and propagation (but not with the last layout component)
                     if(layout_position != layout.size()-1){
-                        layout[layout_position].optic->PulseInteraction(pulse_n);
-                        pulses[pulse_n].Propagate(layout_position, layout_position+1, clock_time);
+                        layout[layout_position]->optic->PulseInteraction(pulse_n);
+                        pulses[pulse_n]->Propagate(layout_position, layout_position+1, clock_time);
                     }
                 }
             }
@@ -126,14 +120,14 @@ void StatusDisplay(int pulse_n, int layout_position, double clock_time, std::str
     else{
         if(pulses.size()==1)
             std::cout << "\r" << clock_time << " s; "
-                      << "Optic " << layout[layout_position].optic->id
+                      << "Optic " << layout[layout_position]->optic->id
                       << " (" << layout_position+1 << " of " << layout.size() << "): "
                       << status << "                                     ";
         else
             std::cout << "\r" << clock_time << " s; "
-                      << "Optic " << layout[layout_position].optic->id
+                      << "Optic " << layout[layout_position]->optic->id
                       << " (" << layout_position+1 << " of " << layout.size() << "); "
-                      << "Pulse " << pulses[pulse_n].id
+                      << "Pulse " << pulses[pulse_n]->id
                       << " (" << pulse_n+1 << " of " << pulses.size() << "): "
                       << status << "                                     ";
     }

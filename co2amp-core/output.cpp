@@ -66,8 +66,8 @@ void UpdateDynamicsFiles(double t)
 
 void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 {
-    Pulse *pulse = &pulses[pulse_n];
-    Optic *optic = layout[layout_position].optic;
+    Pulse *pulse = pulses[pulse_n];
+    Optic *optic = layout[layout_position]->optic;
 
     int x, n, i;
     FILE *file;
@@ -76,7 +76,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     double *Power = new double[n0];
     double Energy = 0;
     double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
-    double Dv = 1.0/(Dt*n0);        // frequency step, Hz
+    double Dv = 1.0/(Dt*n0);          // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
     double Dr = optic->Dr;
@@ -114,7 +114,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     // Count pass number through current element
     int pass_n = 0;
     for(i=0; i<layout_position; i++)
-        if(layout[i].optic == layout[layout_position].optic)
+        if(layout[i]->optic == layout[layout_position]->optic)
             pass_n++;
 
     // Write fluence file

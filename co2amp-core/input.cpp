@@ -102,48 +102,32 @@ bool ReadConfigFiles(std::string path)
             type = value;
         if(id != "" && type != ""){
             Debug(2, "ID: \"" + id + "\"; Type: \"" + type + "\"");
-            if(type=="A"){
-                opticAs.push_back(A(id));
-                optics.push_back(&opticAs[opticAs.size()-1]);
-            }
-            if(type=="C"){
-                opticCs.push_back(C(id));
-                optics.push_back(&opticCs[opticCs.size()-1]);
-            }
-            if(type=="F"){
-                opticFs.push_back(F(id));
-                optics.push_back(&opticFs[opticFs.size()-1]);
-            }
-            if(type=="L"){
-                opticLs.push_back(L(id));
-                optics.push_back(&opticLs[opticLs.size()-1]);
-            }
-            if(type=="M"){
-                opticMs.push_back(M(id));
-                optics.push_back(&opticMs[opticMs.size()-1]);
-            }
-            if(type=="P"){
-                opticPs.push_back(P(id));
-                optics.push_back(&opticPs[opticPs.size()-1]);
-            }
-            if(type=="S"){
-                opticSs.push_back(S(id));
-                optics.push_back(&opticSs[opticSs.size()-1]);
-            }
+            if(type=="A")
+                optics.push_back(new A(id));
+            if(type=="C")
+                optics.push_back(new C(id));
+            if(type=="F")
+                optics.push_back(new F(id));
+            if(type=="L")
+                optics.push_back(new L(id));
+            if(type=="M")
+                optics.push_back(new M(id));
+            if(type=="P")
+                optics.push_back(new P(id));
+            if(type=="S")
+                optics.push_back(new S(id));
             if(type=="LAYOUT")
                 layout_file_name = id + ".yml";
             if(type=="PULSE")
-                pulses.push_back(Pulse(id));
+                pulses.push_back(new Pulse(id));
             id = "";
             type = "";
         }
     }
 
     // add optic numbers to all optics
-    for(int optic_n=0; optic_n<optics.size(); optic_n++){
+    for(int optic_n=0; optic_n<optics.size(); optic_n++)
         optics[optic_n]->optic_n =optic_n;
-        optics[optic_n]->Identify();
-    }
 
     // When all optics created, create layout...
     if(!ReadLayoutConfigFile(layout_file_name))
@@ -151,8 +135,8 @@ bool ReadConfigFiles(std::string path)
 
     // ... and then initialize pulses (CA of first layout element needed for 'InitializeE')
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-        pulses[pulse_n].pulse_n = pulse_n;
-        pulses[pulse_n].InitializeE();
+        pulses[pulse_n]->pulse_n = pulse_n;
+        pulses[pulse_n]->InitializeE();
     }
 
     return true;
@@ -209,26 +193,25 @@ bool ReadLayoutConfigFile(std::string path){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
-                        bool flag = layout[layout_position].space == 0;
-                        layout[layout_position].space += std::stod(value);
+                        bool flag = layout[layout_position]->space == 0;
+                        layout[layout_position]->space += std::stod(value);
                         if(flag)
                             Debug(2, "space after layout component #" + std::to_string(layout_position) +
-                                  " set at " + std::to_string(layout[layout_position].space) + " m");
+                                  " set at " + std::to_string(layout[layout_position]->space) + " m");
                         else
                             Debug(2, "added " + value + " m space after layout component #" +
-                              std::to_string(layout_position) + " (now " + std::to_string(layout[layout_position].space) + " m)");
+                              std::to_string(layout_position) + " (now " + std::to_string(layout[layout_position]->space) + " m)");
                     }
                     else{
                         layout_position++;
                         Debug(2, "Optic entry: \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
-                        optic->Identify();
                         if(optic == nullptr){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
                         Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(layout_position));
-                        layout.push_back(optic);
+                        layout.push_back(new LayoutComponent(optic));
                     }
                 }
             }
@@ -242,21 +225,21 @@ bool ReadLayoutConfigFile(std::string path){
     Debug(1, "LAYOUT:");
     if(debug_level>=1){
         for(layout_position=0; layout_position<layout.size(); layout_position++){
-            std::cout << layout[layout_position].optic->id;
+            std::cout << layout[layout_position]->optic->id;
             if(layout_position != layout.size()-1)
                 std::cout << ">>" ;
-            if(layout[layout_position].space != 0)
-                std::cout << std::to_string(layout[layout_position].space) << ">>";
+            if(layout[layout_position]->space != 0)
+                std::cout << std::to_string(layout[layout_position]->space) << ">>";
         }
         std::cout << "\n";
     }
 
-    if(layout[layout.size()-1].optic->type != "P"){
+    if(layout[layout.size()-1]->optic->type != "P"){
         std::cout << "Layout error: last optic must be type \'P\' (probe)\n";
         return false;
     }
 
-    if(layout[layout.size()-1].space != 0){
+    if(layout[layout.size()-1]->space != 0){
         std::cout << "Layout error: there should be no space after the last optic\n";
         return false;
     }
@@ -264,8 +247,8 @@ bool ReadLayoutConfigFile(std::string path){
     // calculate layout component's "time" (distance from first surface in seconds)
     double time = 0;
     for(layout_position=0; layout_position<layout.size(); layout_position++){
-        layout[layout_position].time = time;
-        time += layout[layout_position].space / c;
+        layout[layout_position]->time = time;
+        time += layout[layout_position]->space / c;
     }
 
     return true;
