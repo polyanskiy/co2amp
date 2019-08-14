@@ -73,7 +73,7 @@ void Pulse::InitializeE()
         for(n=0; n<n0; n++)
             E[x][n] = field(Dr*x, t_min + Dt*n);
 
-    // frequency shift between central frequency of the pulse (v0) and central frequency of the calculation grig (vc)
+    // frequency shift between central frequency of the pulse (nu0) and central frequency of the calculation grig (vc)
     for(x=0; x<x0; x++)
         for(n=0; n<n0; n++)
             E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*(Dt*n));
@@ -82,10 +82,10 @@ void Pulse::InitializeE()
     Energy = 0;
     for(n=0; n<n0-1; n++)
         for(x=0; x<x0-1; x++)
-            Energy += 2.0 * h * nu0 *
-                    (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
-                    pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4 *
-                    2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+            Energy += 2.0 * h * nu0
+                    * (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2)
+                    + pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4
+                    * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
 
     af = sqrt(E0/Energy);
     for(n=0; n<n0; n++)
@@ -115,25 +115,25 @@ std::complex<double> Pulse::field(double r, double t)
 
 void Pulse::Propagate(int from, int to, double clock_time)
 {
-    double z = layout[from]->space;
+    double z   = layout[from]->space;
     double Dr1 = layout[from]->optic->Dr;
     double Dr2 = layout[to]->optic->Dr;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
 
-    int x, n;
+    //int x, n;
 
     // Create temporary field array
     std::complex<double> **E1;
     E1 = new std::complex<double>*[x0];
-    for(x=0; x<x0; x++)
+    for(int x=0; x<x0; x++)
         E1[x] = new std::complex<double>[n0];
     Debug(2, "propagation: temporary field array created");
 
     // Copy field to temporary array, zero main field array
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++){
+    for(int x=0; x<x0; x++){
+        for(int n=0; n<n0; n++){
             E1[x][n] = E[x][n];
             E[x][n] = 0;
         }
@@ -141,20 +141,18 @@ void Pulse::Propagate(int from, int to, double clock_time)
     Debug(2, "propagation: temporary field array populated");
 
     if(z==0){ //only change calculation grid step
-        double x_exact;
-        int x_lo, x_hi;
-        #pragma omp parallel for shared(E, E1) private(x, n, x_lo, x_hi, x_exact) // multithread
-        for(x=0; x<x0; x++){
-            x_exact = Dr2 / Dr1 * (double)x;
-            x_lo = (int)floor(x_exact);
-            x_hi = (int)ceil(x_exact);
+        #pragma omp parallel for
+        for(int x=0; x<x0; x++){
+            double x_exact = Dr2 / Dr1 * (double)x;
+            int x_lo = (int)floor(x_exact);
+            int x_hi = (int)ceil(x_exact);
             if( (x_lo < x0) && (x_hi < x0) ){
                 if(x_lo == x_hi){
-                    for(n=0; n<n0; n++)
+                    for(int n=0; n<n0; n++)
                         E[x][n] = E1[x_lo][n];
                 }
                 else{
-                    for(n=0; n<n0; n++)
+                    for(int n=0; n<n0; n++)
                         E[x][n] = E1[x_lo][n]*((double)x_hi-x_exact) + E1[x_hi][n]*(x_exact-(double)x_lo);
                 }
             }
@@ -165,16 +163,16 @@ void Pulse::Propagate(int from, int to, double clock_time)
         double lambda = c/vc; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
         int count=0;
-        double rho, R_min, R_max, R, delta_R;
-        std::complex<double> tmp;
 
-        #pragma omp parallel for shared(E, E1, count) private(x, n, rho, R_min, R_max, R, delta_R, tmp) // multithread
-        for(x=0; x<x0; x++){ // output plane radial coordinate
+        #pragma omp parallel for
+        for(int x=0; x<x0; x++){ // output plane radial coordinate
             #pragma omp critical
             {
                 StatusDisplay(this->pulse_n, from, clock_time,
                           "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
+            double rho, R_min, R_max, R, delta_R;
+            std::complex<double> tmp;
             for(rho=0.5; rho<x0-0.5; rho++){ // x0-1 rings in the input plane
                 R_min = sqrt(pow(rho*Dr1-x*Dr2,2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
                 R_max = sqrt(pow(rho*Dr1+x*Dr2,2)+pow(z,2)); // maximum --''--
@@ -186,7 +184,7 @@ void Pulse::Propagate(int from, int to, double clock_time)
                 //tmp *= 2*cexp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
                 tmp /= I*lambda*R;
                 tmp *= exp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
-                for(n=0; n<n0; n++)
+                for(int n=0; n<n0; n++)
                     E[x][n] += (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2.0 * tmp;
             }
         }
@@ -194,8 +192,8 @@ void Pulse::Propagate(int from, int to, double clock_time)
     Debug(2, "propagation: integration done");
 
     // delete temporary array
-    for(x=0; x<x0; x++)
-        delete E1[x];
-    delete E1;
+    for(int x=0; x<x0; x++)
+        delete[] E1[x];
+    delete[] E1;
     Debug(2, "propagation: temporary field array deleted");
 }

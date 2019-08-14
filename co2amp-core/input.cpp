@@ -135,7 +135,7 @@ bool ReadConfigFiles(std::string path)
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
-    // ... and then initialize pulses (CA of first layout element needed for 'InitializeE')
+    // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
         pulses[pulse_n]->pulse_n = pulse_n;
         pulses[pulse_n]->InitializeE();
@@ -150,7 +150,7 @@ bool ReadLayoutConfigFile(std::string path){
     std::string str, file_content_str, key, value;
     std::ifstream in;
     std::istringstream iss, iss2;
-    std::string propagate = "";
+    std::string go = "";
     int times = -1;
     int layout_position = -1;
     int prop_n;
@@ -173,24 +173,24 @@ bool ReadLayoutConfigFile(std::string path){
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
-        if(key == "- propagate"){
-            propagate = value;
-            propagate.erase(remove_if(propagate.begin(), propagate.end(), isspace), propagate.end()); // remove spaces
+        if(key == "- go"){
+            go = value;
+            go.erase(remove_if(go.begin(), go.end(), isspace), go.end()); // remove spaces
         }
         if(key == "  times")
             times = std::stoi(value);
 
-        if(propagate != "" && times != -1){            
-            Debug(2, "propagate = \"" + propagate + "\"; times = " + std::to_string(times));
-            Debug(2, "Reading \"propagate\" entries (separated by \'>\'):");
+        if(go != "" && times != -1){
+            Debug(2, "go = \"" + go + "\"; times = " + std::to_string(times));
+            Debug(2, "Reading \'go\' entries (separated by \'>\'):");
             for(prop_n=0; prop_n<times; prop_n++){
                 Debug(2, "Propagation #" + std::to_string(prop_n+1) + " of " + std::to_string(times));
-                iss2 = std::istringstream(propagate);
+                iss2 = std::istringstream(go);
                 while(std::getline(iss2, value, '>')){
                     if(value == "")
                         continue;
                     if(is_number(value)){
-                        Debug(2, "Beam propagation distance: " + value + " m");
+                        Debug(2, "Propagation distance: " + value + " m");
                         if(layout_position==-1){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
@@ -198,10 +198,10 @@ bool ReadLayoutConfigFile(std::string path){
                         bool flag = layout[layout_position]->space == 0;
                         layout[layout_position]->space += std::stod(value);
                         if(flag)
-                            Debug(2, "space after layout component #" + std::to_string(layout_position) +
+                            Debug(2, "Space after layout component #" + std::to_string(layout_position) +
                                   " set at " + std::to_string(layout[layout_position]->space) + " m");
                         else
-                            Debug(2, "added " + value + " m space after layout component #" +
+                            Debug(2, "Added " + value + " m space after layout component #" +
                               std::to_string(layout_position) + " (now " + std::to_string(layout[layout_position]->space) + " m)");
                     }
                     else{
@@ -212,13 +212,13 @@ bool ReadLayoutConfigFile(std::string path){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
-                        Debug(2, "\"" + optic->id + "\" optic found! Adding as layout component #" + std::to_string(layout_position));
+                        Debug(2, "\"" + optic->id + "\" optic found. Adding as layout component #" + std::to_string(layout_position));
                         layout.push_back(new LayoutComponent(optic));
                     }
                 }
             }
 
-            propagate = "";
+            go = "";
             times = -1;
         }
     }

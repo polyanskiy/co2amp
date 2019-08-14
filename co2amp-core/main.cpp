@@ -8,7 +8,7 @@ std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
 std::vector<LayoutComponent*> layout;
 // ------- CALCULATION GRID --------
-double vc;
+double vc;                 // central frequency
 double t_min, t_max;       // fast ("pulse") time
 double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 int x0, n0; // number of points in radial and time nets and number of pulses in the train
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-13" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-14" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
@@ -102,7 +102,7 @@ void Calculations()
                     UpdateOutputFiles(pulse_n, layout_position, clock_time);
                     // now do interaction and propagation (but not with the last layout component)
                     if(layout_position != layout.size()-1){
-                        layout[layout_position]->optic->PulseInteraction(pulse_n);
+                        layout[layout_position]->optic->PulseInteraction(pulse_n, layout_position, clock_time);
                         pulses[pulse_n]->Propagate(layout_position, layout_position+1, clock_time);
                     }
                 }

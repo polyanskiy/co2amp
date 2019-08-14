@@ -11,19 +11,7 @@ P::P(std::string id)
 
     std::string value="";
 
-    // type
-    if(!YamlGetValue(&value, yaml, "type")){
-        configuration_error = true;
-        return;
-    }
-    if(value != type){
-        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
-                  << "\' (must be \'" << type << "\')" << std::endl;
-        configuration_error = true;
-        return;
-    }
-
-    // Rmax, Dr
+    // Rmax
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -39,7 +27,7 @@ void P::InternalDynamics(double)
 }
 
 
-void P::PulseInteraction(int)
+void P::PulseInteraction(int, int, double)
 {
 
 }

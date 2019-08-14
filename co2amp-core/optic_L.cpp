@@ -14,19 +14,7 @@ L::L(std::string id)
 
     std::string value="";
 
-    // type
-    if(!YamlGetValue(&value, yaml, "type")){
-        configuration_error = true;
-        return;
-    }
-    if(value != type){
-        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
-                  << "\' (must be \'" << type << "\')" << std::endl;
-        configuration_error = true;
-        return;
-    }
-
-    // Rmax, Dr
+    // Rmax
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -50,11 +38,11 @@ void L::InternalDynamics(double)
 }
 
 
-void L::PulseInteraction(int pulse_n)
+void L::PulseInteraction(int pulse_n, int, double)
 {
+    Debug(2, "Interaction with lens, F = " + toExpString(F) + " m");
     if(F==0.0)
         return;
-    Debug(2, "Lens interaction, F = " + toExpString(F) + " m");
     int x, n;
     for(x=0; x<x0; x++)
         for(n=0; n<n0; n++)

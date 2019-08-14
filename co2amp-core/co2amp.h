@@ -24,10 +24,11 @@ public:
     std::string id;
     std::string yaml;
     int pulse_n;
-    int from_file;
-    double E0, w0, tau0, nu0, t0;
+    //int from_file;
+    double nu0, t0;
     std::complex<double> **E; // field array
 private:
+    double E0, w0, tau0;
     std::complex<double> field(double, double);
 };
 
@@ -37,13 +38,12 @@ class Optic
 public:
     Optic(){}
     virtual void InternalDynamics(double){}
-    virtual void PulseInteraction(int){}
+    virtual void PulseInteraction(int, int, double){}
 
     std::string type;
     std::string id;
     std::string yaml;   // path to configuration file
-    int optic_n;
-    double CA;          // clear aperture, m
+    int optic_n;        // number of the optic in the optics list
     double Dr;          // m
     double clock;       // optic's internal clock (e.g. for pumping/relaxation calculations), s
 };
@@ -69,7 +69,7 @@ class A: public Optic // Amplifier section
 public:
     A(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
 private:
     // ------- BANDS -------
     bool band_reg;
@@ -145,7 +145,7 @@ class C: public Optic // Chirp (Stretcher/Compressor)
 public:
     C(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
     double chirp; // s/Hz
 };
 
@@ -155,7 +155,7 @@ class L: public Optic // Lens
 public:
     L(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
     double F; // focal length, m
 };
 
@@ -165,7 +165,14 @@ class M: public Optic // Matter (window, air)
 public:
     M(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+private:
+    std::string material;
+    double thickness; // m
+    double tilt;      // radians, default=0
+    double humidity;  // %, only for air, default=50
+    double RefractiveIndex(std::string material, double nu, double humidity=0);
+    double NonlinearIndex(std::string material);
 };
 
 
@@ -174,7 +181,7 @@ class F: public Optic // Spatial (ND) filter
 public:
     F(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
 private:
     double *Transmittance; // transmittance array
 };
@@ -185,7 +192,7 @@ class P: public Optic // Probe
 public:
     P(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
 };
 
 
@@ -194,7 +201,7 @@ class S: public Optic // Spectral filter
 public:
     S(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n);
+    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
 private:
     double *Transmittance; // transmittance array
 };
@@ -210,7 +217,7 @@ extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
 extern std::vector<LayoutComponent*> layout;
 // ------- CALCULATION GRID --------
-extern double vc;                 // center frequency
+extern double vc;                 // central frequency
 extern double t_min, t_max;       // fast ("pulse") time
 extern double clock_tick;         // slow "layout" time - e.g. for pumping/relaxation
 extern int x0, n0;                // number of points in radial and time nets
@@ -251,8 +258,8 @@ void FreeMemory(void);
 
 /////////////////////////// optics.cpp ///////////////////////////
 void BeamPropagation(int pulse_n, int layout_position, double clock_time);
-double RefractiveIndex(char* material, double frequency);
-double NonlinearIndex(char* material);
+//double RefractiveIndex(char* material, double frequency);
+//double NonlinearIndex(char* material);
 //void Probe(void);
 //void Lens(int pulse, double Dr, double F);
 //void Mask(int pulse, double Dr, double radius);

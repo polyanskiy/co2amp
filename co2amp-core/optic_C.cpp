@@ -11,19 +11,7 @@ C::C(std::string id)
 
     std::string value="";
 
-    // type
-    if(!YamlGetValue(&value, yaml, "type")){
-        configuration_error = true;
-        return;
-    }
-    if(value != type){
-        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
-                  << "\' (must be \'" << type << "\')" << std::endl;
-        configuration_error = true;
-        return;
-    }
-
-    // Rmax, Dr
+    // Rmax
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -47,11 +35,11 @@ void C::InternalDynamics(double)
 }
 
 
-void C::PulseInteraction(int pulse_n)
+void C::PulseInteraction(int pulse_n, int, double)
 {
     if(chirp==0.0)
         return;
-    Debug(2, "Chirper interaction, chirp = " + toExpString(chirp) + " s/Hz");
+    Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
 
     int x;
     double Dt = (t_max-t_min)/(n0-1); // pulse time step, s

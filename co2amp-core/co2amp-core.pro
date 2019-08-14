@@ -24,7 +24,6 @@ SOURCES += \
     optic_M.cpp \
     optic_P.cpp \
     optic_S.cpp \
-    optics.cpp \
     output.cpp \
     pulse.cpp
 HEADERS += \

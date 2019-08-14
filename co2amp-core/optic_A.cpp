@@ -11,19 +11,7 @@ A::A(std::string id)
 
     std::string value="";
 
-    // type
-    if(!YamlGetValue(&value, yaml, "type")){
-        configuration_error = true;
-        return;
-    }
-    if(value != type){
-        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
-                  << "\' (must be \'" << type << "\')" << std::endl;
-        configuration_error = true;
-        return;
-    }
-
-    // Rmax, Dr
+    // Rmax
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -144,7 +132,7 @@ void A::InternalDynamics(double clock_time)
 }
 
 
-void A::PulseInteraction(int pulse_n)
+void A::PulseInteraction(int pulse_n, int layout_position, double clock_time)
 {
 
 }

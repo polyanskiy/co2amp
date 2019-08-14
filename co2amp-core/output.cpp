@@ -69,7 +69,6 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     Pulse *pulse = pulses[pulse_n];
     Optic *optic = layout[layout_position]->optic;
 
-    int x, n, i;
     FILE *file;
 
     double *Fluence = new double[x0];
@@ -87,14 +86,14 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
-    for(x=0; x<x0; x++)
+    for(int x=0; x<x0; x++)
         Fluence[x] = 0;
-    for(n=0; n<n0; n++)
+    for(int n=0; n<n0; n++)
         Power[n]=0;
 
-    //#pragma omp parallel for private(x, n) // multithreaded
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++){
+    #pragma omp parallel for shared(Energy, Power, Fluence)
+    for(int x=0; x<x0; x++){
+        for(int n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
                 Energy += 2.0 * h * pulse->nu0 *
                         (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
@@ -113,7 +112,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 
     // Count pass number through current element
     int pass_n = 0;
-    for(i=0; i<layout_position; i++)
+    for(int i=0; i<layout_position; i++)
         if(layout[i]->optic == layout[layout_position]->optic)
             pass_n++;
 
@@ -127,7 +126,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
         fprintf(file, "\n\n"); // data set separator
     }
     fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
-    for(x=0; x<x0; x++)
+    for(int x=0; x<x0; x++)
         fprintf(file, "%e\t%e\n", Dr*x, Fluence[x]);
     fclose(file);
 
@@ -141,7 +140,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
         fprintf(file, "\n\n"); // data set separator
     }
     fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
-    for(n=0; n<n0; n++)
+    for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", (t_min + Dt*n), Power[n]);
     fclose(file);
 
@@ -161,7 +160,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     std::complex<double> *spectrum;
     spectrum = new std::complex<double>[n0];
 
-    for(i=0; i<n0; i++)
+    for(int i=0; i<n0; i++)
         average_spectrum[i] = 0;
 
     // FAST: single point spectrum (comment SLOW or FAST)
@@ -171,18 +170,18 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 
     // SLOW: averaged across the beam (comment SLOW or FAST)
     //#pragma omp parallel for shared(average_spectrum) private(spectrum, x, i) // multithreaded
-    for(x=0; x<x0; x++){
+    for(int x=0; x<x0; x++){
         FFT(E[x], spectrum);
-        for(i=0; i<n0; i++)
+        for(int i=0; i<n0; i++)
             average_spectrum[i] += (0.5+x) * pow(abs(spectrum[i]), 2);
     }
 
     // spectrum normalization
     double max_int=0;
-    for(n=0; n<n0; n++)
+    for(int n=0; n<n0; n++)
         if(average_spectrum[n] >= max_int)
             max_int = average_spectrum[n];
-    for(n=0; n<n0 && max_int>0; n++)
+    for(int n=0; n<n0 && max_int>0; n++)
             average_spectrum[n] /= max_int;
 
     // Write spectra file
@@ -195,7 +194,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
         fprintf(file, "\n\n"); // data set separator
     }
     fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
-    for(n=0; n<=n0-1; n++)
+    for(int n=0; n<=n0-1; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*n, average_spectrum[n]);
     fclose(file);
 

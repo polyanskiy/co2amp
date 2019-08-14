@@ -7,30 +7,16 @@ F::F(std::string id)
     type = "F";
     yaml = id + ".yml";
 
-    double Rmin, Rmax, T, w;
-
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
 
     std::string value="";
 
-    // type
-    if(!YamlGetValue(&value, yaml, "type")){
-        configuration_error = true;
-        return;
-    }
-    if(value != type){
-        std::cout << "ERROR: wrong \'type\' in config file \'" << yaml
-                  << "\' (must be \'" << type << "\')" << std::endl;
-        configuration_error = true;
-        return;
-    }
-
-    // Rmax, Dr
+    // Rmax
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
     }
-    Rmax = std::stod(value);
+    double Rmax = std::stod(value);
     Debug(2, "Rmax = " + toExpString(Rmax) + " m");
     Dr = Rmax/(x0-1);
 
@@ -48,7 +34,7 @@ F::F(std::string id)
             configuration_error = true;
             return;
         }
-        T = std::stod(value);
+        double T = std::stod(value);
         Debug(2, "T = " + toExpString(T));
         for(int x=0; x<x0; x++)
             Transmittance[x] = T;
@@ -60,7 +46,7 @@ F::F(std::string id)
             configuration_error = true;
             return;
         }
-        Rmin = std::stod(value);
+        double Rmin = std::stod(value);
         Debug(2, "Rmin = " + toExpString(Rmin) + " m");
         for(int x=0; x<x0; x++){
             if(Dr*x <= Rmin)
@@ -76,7 +62,7 @@ F::F(std::string id)
             configuration_error = true;
             return;
         }
-        Rmin = std::stod(value);
+        double Rmin = std::stod(value);
         Debug(2, "Rmin = " + toExpString(Rmin) + " m");
         for(int x=0; x<x0; x++){
             if(Dr*x <= Rmin)
@@ -92,13 +78,13 @@ F::F(std::string id)
             configuration_error = true;
             return;
         }
-        Rmin = std::stod(value);
+        double Rmin = std::stod(value);
         Debug(2, "Rmin = " + toExpString(Rmin) + " m");
         if(!YamlGetValue(&value, yaml, "w")){
             configuration_error = true;
             return;
         }
-        w = std::stod(value);
+        double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
         for(int x=0; x<x0; x++){
             if(Dr*x <= Rmin)
@@ -109,11 +95,10 @@ F::F(std::string id)
         return;
     }
 
-
     if(kind == "FREEFORM"){
         std::vector<double> pos;
         std::vector<double> transm;
-        if(!YamlGetData(&pos, yaml, "profile", 0) || !YamlGetData(&transm, yaml, "profile", 1)){
+        if(!YamlGetData(&pos, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1)){
             configuration_error = true;
             return;
         }
@@ -138,7 +123,7 @@ void F::InternalDynamics(double)
 }
 
 
-void F::PulseInteraction(int pulse_n)
+void F::PulseInteraction(int pulse_n, int, double)
 {
     Debug(2, "Interaction with spatial filter");
     int x, n;
