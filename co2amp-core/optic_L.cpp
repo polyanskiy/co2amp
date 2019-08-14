@@ -26,7 +26,7 @@ L::L(std::string id)
         return;
     }
 
-    // Rmax -> Dr
+    // Rmax, Dr
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -44,7 +44,7 @@ L::L(std::string id)
 }
 
 
-void L::InternalDynamics(double clock_time)
+void L::InternalDynamics(double)
 {
 
 }

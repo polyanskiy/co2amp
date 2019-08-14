@@ -36,8 +36,8 @@ class Optic
 {
 public:
     Optic(){}
-    virtual void InternalDynamics(double clock_time){}
-    virtual void PulseInteraction(int pulse_n){}
+    virtual void InternalDynamics(double){}
+    virtual void PulseInteraction(int){}
 
     std::string type;
     std::string id;
@@ -195,6 +195,8 @@ public:
     S(std::string yaml);
     virtual void InternalDynamics(double clock_time);
     virtual void PulseInteraction(int pulse_n);
+private:
+    double *Transmittance; // transmittance array
 };
 
 

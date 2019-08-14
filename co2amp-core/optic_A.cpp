@@ -23,7 +23,7 @@ A::A(std::string id)
         return;
     }
 
-    // Rmax -> Dr
+    // Rmax, Dr
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;

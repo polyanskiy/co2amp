@@ -23,7 +23,7 @@ P::P(std::string id)
         return;
     }
 
-    // Rmax -> Dr
+    // Rmax, Dr
     if(!YamlGetValue(&value, yaml, "Rmax")){
         configuration_error = true;
         return;
@@ -33,13 +33,13 @@ P::P(std::string id)
 }
 
 
-void P::InternalDynamics(double clock_time)
+void P::InternalDynamics(double)
 {
 
 }
 
 
-void P::PulseInteraction(int pulse_n)
+void P::PulseInteraction(int)
 {
 
 }
