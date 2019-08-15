@@ -49,6 +49,7 @@ bool YamlGetValue(std::string *value, std::string path, std::string key)
         if(found == 0){ //key found at the beginnig of the string
             *value = str.substr(std::string(key + ": ").length());
             Debug(3, key + ": " + *value);
+            value->erase(remove_if(value->begin(), value->end(), isspace), value->end()); // remove spaces
             return true;
         }
     }

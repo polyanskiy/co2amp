@@ -78,8 +78,9 @@ private:
     bool band_hot;
     // ------- PUMPING -------
     std::string pumping; // pumping type ("discharge" or "optical")
-    int n_discharge_points; // number of pints in the discharge profile
-    double **discharge; // time current voltage
+    std::vector<double> discharge_time;
+    std::vector<double> discharge_voltage;
+    std::vector<double> discharge_current;
     double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
     double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
     double q2, q3, q4, qT;

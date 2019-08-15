@@ -24,7 +24,6 @@ M::M(std::string id)
         configuration_error = true;
         return;
     }
-    value.erase(remove_if(value.begin(), value.end(), isspace), value.end()); // remove spaces
     material = value;
     Debug(2, "material = " + material);
 

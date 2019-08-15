@@ -71,7 +71,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     int optic_n = plane->optic->number;
     double *Fluence = new double[x0];
     double *Power = new double[n0];
-    double Energy = 0;
+    double Energy;
     double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
     double Dv = 1.0/(Dt*n0);          // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
@@ -83,16 +83,17 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
+    Energy = 0;
     for(int x=0; x<x0; x++)
         Fluence[x] = 0;
     for(int n=0; n<n0; n++)
         Power[n]=0;
 
-    #pragma omp parallel for shared(Energy, Power, Fluence)
+    //#pragma omp parallel for reduction(+:Energy)
     for(int x=0; x<x0; x++){
         for(int n=0; n<n0; n++){
             if(x+1<x0 && n+1<n0)
-                Energy += 2.0 * h * pulse->nu0 *
+            Energy += 2.0 * h * pulse->nu0 *
                         (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
                         pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4 *
                         2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J

@@ -100,21 +100,23 @@ void A::PumpingAndRelaxation(double t)
 
 double A::Current(double t) //t - time in s
 {
-    int i;
+    return Interpolate(&discharge_time, &discharge_current, t);
+    /*int i;
     for(i=0; i<n_discharge_points-1; i++)
         if(discharge[0][i]<=t && discharge[0][i+1]>=t)
             return discharge[1][i] + (discharge[1][i+1]-discharge[1][i]) * (t-discharge[0][i])/(discharge[0][i+1]-discharge[0][i]);
-    return 0;
+    return 0;*/
 }
 
 
 double A::Voltage(double t) //t - time in s
 {
-    int i;
+    return Interpolate(&discharge_time, &discharge_voltage, t);
+    /*int i;
     for(i=0; i<n_discharge_points-1; i++)
         if(discharge[0][i]<=t && discharge[0][i+1]>=t)
             return discharge[2][i] + (discharge[2][i+1]-discharge[2][i]) * (t-discharge[0][i])/(discharge[0][i+1]-discharge[0][i]);
-    return discharge[2][n_discharge_points-1]; // calculation of q will fail if U=0.
+    return discharge[2][n_discharge_points-1]; // calculation of q will fail if U=0.*/
 }
 
 
