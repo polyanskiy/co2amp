@@ -64,13 +64,11 @@ void UpdateDynamicsFiles(double t)
 }
 
 
-void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 {
-    Pulse *pulse = pulses[pulse_n];
-    Optic *optic = layout[layout_position]->optic;
-
-    FILE *file;
-
+    int pulse_n = pulse->number;
+    int plane_n = plane->number;
+    int optic_n = plane->optic->number;
     double *Fluence = new double[x0];
     double *Power = new double[n0];
     double Energy = 0;
@@ -78,9 +76,8 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     double Dv = 1.0/(Dt*n0);          // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
-    double Dr = optic->Dr;
-
-    int optic_n = optic->optic_n;
+    double Dr = plane->optic->Dr;
+    FILE *file;
 
     std::complex<double> **E = pulse->E;
 
@@ -112,12 +109,12 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 
     // Count pass number through current element
     int pass_n = 0;
-    for(int i=0; i<layout_position; i++)
-        if(layout[i]->optic == layout[layout_position]->optic)
+    for(int i=0; i<plane_n; i++)
+        if(layout[i]->optic == layout[plane_n]->optic)
             pass_n++;
 
     // Write fluence file
-    if(pulse_n==0 && layout_position==0){
+    if(pulse_n==0 && plane_n==0){
         file = fopen("data_fluence.dat", "w");
         fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     }
@@ -131,7 +128,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     fclose(file);
 
     // Write power file
-    if(pulse_n==0 && layout_position==0){
+    if(pulse_n==0 && plane_n==0){
         file = fopen("data_power.dat", "w");
         fprintf(file, "#Data format:  time[s] power[W]\n");
     }
@@ -145,7 +142,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     fclose(file);
 
     // Write energy file
-    if(pulse_n==0 && layout_position==0){
+    if(pulse_n==0 && plane_n==0){
         file = fopen("data_energy.dat", "w");
         fprintf(file, "#Data format: time[s] energy[J] pulse_n optic_n pass_number\n");
     }
@@ -160,8 +157,8 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     std::complex<double> *spectrum;
     spectrum = new std::complex<double>[n0];
 
-    for(int i=0; i<n0; i++)
-        average_spectrum[i] = 0;
+    for(int n=0; n<n0; n++)
+        average_spectrum[n] = 0;
 
     // FAST: single point spectrum (comment SLOW or FAST)
     //FFT(E[pulse][50], spectrum);
@@ -169,11 +166,11 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
     //    average_spectrum[i] = pow(cabs(spectrum[i]), 2);
 
     // SLOW: averaged across the beam (comment SLOW or FAST)
-    //#pragma omp parallel for shared(average_spectrum) private(spectrum, x, i) // multithreaded
+    //#pragma omp parallel for shared(average_spectrum)// multithreaded
     for(int x=0; x<x0; x++){
         FFT(E[x], spectrum);
-        for(int i=0; i<n0; i++)
-            average_spectrum[i] += (0.5+x) * pow(abs(spectrum[i]), 2);
+        for(int n=0; n<n0; n++)
+            average_spectrum[n] += (0.5+x) * pow(abs(spectrum[n]), 2);
     }
 
     // spectrum normalization
@@ -185,7 +182,7 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
             average_spectrum[n] /= max_int;
 
     // Write spectra file
-    if(pulse_n==0 && layout_position==0){
+    if(pulse_n==0 && plane_n==0){
         file = fopen("data_spectra.dat", "w");
         fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     }
@@ -200,8 +197,8 @@ void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time)
 
     delete[] Power;
     delete[] Fluence;
-    delete average_spectrum;
-    delete spectrum;
+    delete[] average_spectrum;
+    delete[] spectrum;
 }
 
 

@@ -6,7 +6,7 @@
 // --- PULSES, OPTICS, GEOMETRY ----
 std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
-std::vector<LayoutComponent*> layout;
+std::vector<Plane*> layout;
 // ------- CALCULATION GRID --------
 double vc;                 // central frequency
 double t_min, t_max;       // fast ("pulse") time
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-14" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-15" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     FreeMemory();*/
 
     Debug(2,"Success!");
-    StatusDisplay(-1, -1, -1, "All done!");
+    StatusDisplay(nullptr, nullptr, -1, "All done!");
 
     std::cout << std:: endl << "Execution time: "  << (std::clock()-start_time)/CLOCKS_PER_SEC << " s";
 
@@ -72,10 +72,7 @@ int main(int argc, char **argv)
 
 void Calculations()
 {
-    int optic_n, pulse_n, layout_position;
-    double clock_time;
-
-     // Total pumping energy
+    // Total pumping energy
     /*if(n_amsections>0 && p_CO2+p_N2+p_He>0){
         double Epump=0;
         double t_lim = t_inj+tbp*(K0-1);
@@ -88,53 +85,51 @@ void Calculations()
 
     std::cout << std::endl << "CALCULATION" << std::endl;
 
-    for(clock_time=0; clock_time<=(layout[layout.size()-1]->time + pulses[pulses.size()-1]->t0 + clock_tick); clock_time+=clock_tick){
+    for(double clock_time=0; clock_time<=(layout[layout.size()-1]->time + pulses[pulses.size()-1]->t0 + clock_tick); clock_time+=clock_tick){
 
-        for(optic_n=0; optic_n<optics.size(); optic_n++)
+        for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(clock_time);
 
-        for(layout_position=0; layout_position<layout.size(); layout_position++){
-            for(pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-                double time_of_arival = layout[layout_position]->time + pulses[pulse_n]->t0;
+        for(int plane_n=0; plane_n<layout.size(); plane_n++){
+            for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
+                double time_of_arival = layout[plane_n]->time + pulses[pulse_n]->t0;
                 if(clock_time-clock_tick/2 < time_of_arival && clock_time+clock_tick/2 >= time_of_arival){
                     // output files are written on component input (before interaction)!!!
-                    StatusDisplay(pulse_n, layout_position, clock_time, "saving...");
-                    UpdateOutputFiles(pulse_n, layout_position, clock_time);
+                    StatusDisplay(pulses[pulse_n], layout[plane_n], clock_time, "saving...");
+                    UpdateOutputFiles(pulses[pulse_n], layout[plane_n], clock_time);
                     // now do interaction and propagation (but not with the last layout component)
-                    if(layout_position != layout.size()-1){
-                        layout[layout_position]->optic->PulseInteraction(pulse_n, layout_position, clock_time);
-                        pulses[pulse_n]->Propagate(layout_position, layout_position+1, clock_time);
+                    if(plane_n != layout.size()-1){
+                        layout[plane_n]->optic->PulseInteraction(pulses[pulse_n], layout[plane_n], clock_time);
+                        pulses[pulse_n]->Propagate(layout[plane_n], layout[plane_n+1], clock_time);
                     }
                 }
             }
         }
     }
-
 }
 
 
-void StatusDisplay(int pulse_n, int layout_position, double clock_time, std::string status)
+void StatusDisplay(Pulse *pulse, Plane *plane, double clock_time, std::string status)
 {
-    if(layout_position == -1){
+    if(pulse == nullptr){
         if(clock_time < 0)
             std::cout << "\r" << status
                       << "                                               ";
         else
-            std::cout << "\r" << std::to_string(clock_time) << " s: " << status
+            std::cout << "\r" << toExpString(clock_time) << " s: " << status
                       << "                                               ";
     }
     else{
         if(pulses.size()==1)
-            std::cout << "\r" << clock_time << " s; "
-                      << "Optic " << layout[layout_position]->optic->id
-                      << " (" << layout_position+1 << " of " << layout.size() << "): "
+            std::cout << "\r" << toExpString(clock_time) << " s; "
+                      << "Plane " << plane->optic->id
+                      << " (" << plane->number+1 << " of " << layout.size() << "): "
                       << status << "                                     ";
         else
-            std::cout << "\r" << clock_time << " s; "
-                      << "Optic " << layout[layout_position]->optic->id
-                      << " (" << layout_position+1 << " of " << layout.size() << "); "
-                      << "Pulse " << pulses[pulse_n]->id
-                      << " (" << pulse_n+1 << " of " << pulses.size() << "): "
+            std::cout << "\r" << toExpString(clock_time) << " s; "
+                      << "Pulse " << pulse->id << "; "
+                      << "Plane " << plane->optic->id
+                      << " (" << plane->number+1 << " of " << layout.size() << "): "
                       << status << "                                     ";
     }
     std::cout << std::flush;

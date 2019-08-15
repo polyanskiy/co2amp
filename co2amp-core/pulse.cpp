@@ -113,11 +113,11 @@ std::complex<double> Pulse::field(double r, double t)
 }
 
 
-void Pulse::Propagate(int from, int to, double clock_time)
+void Pulse::Propagate(Plane *from, Plane *to, double clock_time)
 {
-    double z   = layout[from]->space;
-    double Dr1 = layout[from]->optic->Dr;
-    double Dr2 = layout[to]->optic->Dr;
+    double z   = from->space;
+    double Dr1 = from->optic->Dr;
+    double Dr2 = to->optic->Dr;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
@@ -168,7 +168,7 @@ void Pulse::Propagate(int from, int to, double clock_time)
         for(int x=0; x<x0; x++){ // output plane radial coordinate
             #pragma omp critical
             {
-                StatusDisplay(this->pulse_n, from, clock_time,
+                StatusDisplay(this, from, clock_time,
                           "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
             double rho, R_min, R_max, R, delta_R;
@@ -189,11 +189,11 @@ void Pulse::Propagate(int from, int to, double clock_time)
             }
         }
     }
-    Debug(2, "propagation: integration done");
+    Debug(2, "Propagation: integration done");
 
     // delete temporary array
     for(int x=0; x<x0; x++)
         delete[] E1[x];
     delete[] E1;
-    Debug(2, "propagation: temporary field array deleted");
+    Debug(2, "Propagation: temporary field array deleted");
 }

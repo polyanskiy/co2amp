@@ -56,6 +56,14 @@ M::M(std::string id)
         Debug(2, "tilt = " + std::to_string(tilt) + " degrees");
         tilt *= M_PI/180; // degrees to radians
     }
+
+    // number of slices
+    slices = 1;
+    if(!YamlGetValue(&value, yaml, "slices"))
+        std::cout << "Using default # of slices\n";
+    else
+        slices = std::stod(value);
+    Debug(2, "# of slices = " + std::to_string(slices));
 }
 
 
@@ -73,54 +81,45 @@ void M::InternalDynamics(double)
 }
 
 
-void M::PulseInteraction(int pulse_n, int layout_position, double clock_time)
+void M::PulseInteraction(Pulse *pulse, Plane* plane, double clock_time)
 {
-
     double Dt = (t_max-t_min)/(n0-1);    // pulse time step, s
     double Dv = 1.0/(Dt*n0);             // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
 
+    // account for tilt (longer path and lower intensity)
+    // tilt = angle of incidence  (radians)
+    // refr = angle of refraction (radians)
+    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->nu0)));
+    double tilt_factor = 1;//tan(tilt); // intensity reduction due to tilt
+    double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
-
-    // account for tilt of Brewster windows
-    double tilt_factor = 1; // intensity reduction due to tilt
-    /*if(tilt!=0){
-        double theta1 = atan(RefractiveIndex(material, pulses[pulse_n]->nu0)); // Incidence angle (Brewster's)
-        double theta2 = M_PI/2 - theta1; // Refraction angle
-        thickness /= cos(theta2); // longer propagation in a tilt window
-        tilt_factor = 1/tan(theta1);
-    }*/
-
-
-
-    int nslices=10; //slice window for accounting for mutual interaction of linear and nonlinear dispersion
-    double th = thickness / tilt_factor / nslices;
+    Debug(2, "refr = " + std::to_string(refr*180/M_PI) + " degrees");
 
     int count = 0;
     #pragma omp parallel for
     for(int x=0; x<x0; x++){
         #pragma omp critical
         {
-            StatusDisplay(pulse_n, layout_position, clock_time,
+            StatusDisplay(pulse, plane, clock_time,
                       "material: " + std::to_string(++count) + " of " + std::to_string(x0));
         }
 
         double intensity, delay;
         std::complex<double> *spectrum;
 
-        for(int i=0; i<nslices; i++){ // slices
-
+        for(int i=0; i<slices; i++){
             // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
             for(int n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(abs(pulses[pulse_n]->E[x][n]), 2); // W/m2
+                intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 delay = th/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
-                pulses[pulse_n]->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
 
             // linear dispersion (full thickness of the slice)
             spectrum = new std::complex<double>[n0];
-            FFT(pulses[pulse_n]->E[x], spectrum);
+            FFT(pulse->E[x], spectrum);
             for(int n=0; n<n0; n++){
                 // linear dispersion
                 delay = th/c * (RefractiveIndex(material, v_min+Dv*n) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
@@ -129,32 +128,17 @@ void M::PulseInteraction(int pulse_n, int layout_position, double clock_time)
                 delay = -th/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
                 spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n)*delay);
             }
-            IFFT(spectrum, pulses[pulse_n]->E[x]);
+            IFFT(spectrum, pulse->E[x]);
             delete[] spectrum;
 
             // nonlinear index (n2) and nonlinear absorption Step 2 (half-thickness of the slice)
             for(int n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(abs(pulses[pulse_n]->E[x][n]), 2); // W/m2
+                intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 delay = th/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
-                pulses[pulse_n]->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
-
         }
-
-        // tests
-        /*spectrum = malloc(sizeof(double complex)*n0);
-        FFT(E[pulse][x], spectrum);
-        for(n=n0/2; n<n0; n++)
-            spectrum[n]=0;
-        IFFT(spectrum, E[pulse][x]);
-        free(spectrum);*/
-
-        //for(n=0; n<n0/2; n++)
-        //    E[pulse][x][n]=1e16;
-
-        //for(n=n0/2; n<n0; n++)
-        //    E[pulse][x][n]=0;
     }
 }
 

@@ -129,7 +129,7 @@ bool ReadConfigFiles(std::string path)
 
     // add optic numbers to all optics
     for(int optic_n=0; optic_n<optics.size(); optic_n++)
-        optics[optic_n]->optic_n =optic_n;
+        optics[optic_n]->number =optic_n;
 
     // When all optics created, create layout...
     if(!ReadLayoutConfigFile(layout_file_name))
@@ -137,9 +137,13 @@ bool ReadConfigFiles(std::string path)
 
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-        pulses[pulse_n]->pulse_n = pulse_n;
+        pulses[pulse_n]->number = pulse_n;
         pulses[pulse_n]->InitializeE();
     }
+
+    // add plane numbers to all layout planes
+    for(int plane_n=0; plane_n<layout.size(); plane_n++)
+        layout[plane_n]->number =plane_n;
 
     return true;
 }
@@ -152,7 +156,7 @@ bool ReadLayoutConfigFile(std::string path){
     std::istringstream iss, iss2;
     std::string go = "";
     int times = -1;
-    int layout_position = -1;
+    int plane_n = -1;
     int prop_n;
 
     Debug(2, "Interpreting layout configuration file \'" + path +"\'");
@@ -191,29 +195,29 @@ bool ReadLayoutConfigFile(std::string path){
                         continue;
                     if(is_number(value)){
                         Debug(2, "Propagation distance: " + value + " m");
-                        if(layout_position==-1){
+                        if(plane_n==-1){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
-                        bool flag = layout[layout_position]->space == 0;
-                        layout[layout_position]->space += std::stod(value);
+                        bool flag = layout[plane_n]->space == 0;
+                        layout[plane_n]->space += std::stod(value);
                         if(flag)
-                            Debug(2, "Space after layout component #" + std::to_string(layout_position) +
-                                  " set at " + std::to_string(layout[layout_position]->space) + " m");
+                            Debug(2, "Space after plane #" + std::to_string(plane_n) +
+                                  " set at " + std::to_string(layout[plane_n]->space) + " m");
                         else
-                            Debug(2, "Added " + value + " m space after layout component #" +
-                              std::to_string(layout_position) + " (now " + std::to_string(layout[layout_position]->space) + " m)");
+                            Debug(2, "Added " + value + " m space after plane #" +
+                              std::to_string(plane_n) + " (now " + std::to_string(layout[plane_n]->space) + " m)");
                     }
                     else{
-                        layout_position++;
-                        Debug(2, "Optic entry: \"" + value + "\"");
+                        plane_n++;
+                        Debug(2, "Plane entry: optic \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
                         if(optic == nullptr){
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
-                        Debug(2, "\"" + optic->id + "\" optic found. Adding as layout component #" + std::to_string(layout_position));
-                        layout.push_back(new LayoutComponent(optic));
+                        Debug(2, "\"" + optic->id + "\" optic found. Adding as plane #" + std::to_string(plane_n));
+                        layout.push_back(new Plane(optic));
                     }
                 }
             }
@@ -226,31 +230,31 @@ bool ReadLayoutConfigFile(std::string path){
     // Print full layout for debugging
     Debug(1, "LAYOUT:");
     if(debug_level>=1){
-        for(layout_position=0; layout_position<layout.size(); layout_position++){
-            std::cout << layout[layout_position]->optic->id;
-            if(layout_position != layout.size()-1)
+        for(plane_n=0; plane_n<layout.size(); plane_n++){
+            std::cout << layout[plane_n]->optic->id;
+            if(plane_n != layout.size()-1)
                 std::cout << ">>" ;
-            if(layout[layout_position]->space != 0)
-                std::cout << std::to_string(layout[layout_position]->space) << ">>";
+            if(layout[plane_n]->space != 0)
+                std::cout << std::to_string(layout[plane_n]->space) << ">>";
         }
         std::cout << "\n";
     }
 
     if(layout[layout.size()-1]->optic->type != "P"){
-        std::cout << "Layout error: last optic must be type \'P\' (probe)\n";
+        std::cout << "Layout error: last plane must be optic type \'P\' (probe)\n";
         return false;
     }
 
     if(layout[layout.size()-1]->space != 0){
-        std::cout << "Layout error: there should be no space after the last optic\n";
+        std::cout << "Layout error: there should be no space after the last plane\n";
         return false;
     }
 
-    // calculate layout component's "time" (distance from first surface in seconds)
+    // calculate layout plane's "time" (distance from first surface in seconds)
     double time = 0;
-    for(layout_position=0; layout_position<layout.size(); layout_position++){
-        layout[layout_position]->time = time;
-        time += layout[layout_position]->space / c;
+    for(plane_n=0; plane_n<layout.size(); plane_n++){
+        layout[plane_n]->time = time;
+        time += layout[plane_n]->space / c;
     }
 
     return true;

@@ -123,13 +123,12 @@ void F::InternalDynamics(double)
 }
 
 
-void F::PulseInteraction(int pulse_n, int, double)
+void F::PulseInteraction(Pulse *pulse, Plane*, double)
 {
     Debug(2, "Interaction with spatial filter");
-    int x, n;
-    for(x=0; x<x0; x++){
-        for(n=0; n<n0; n++)
-            pulses[pulse_n]->E[x][n] *=  sqrt(Transmittance[x]);
+    for(int x=0; x<x0; x++){
+        for(int n=0; n<n0; n++)
+            pulse->E[x][n] *=  sqrt(Transmittance[x]);
     }
 }
 

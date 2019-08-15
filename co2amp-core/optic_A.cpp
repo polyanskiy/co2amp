@@ -112,7 +112,7 @@ A::A(std::string id)
 
     // 3 Initial q's
     if(p_CO2+p_N2+p_He>0){
-        StatusDisplay(-1, -1, 0, "pumping and relaxation...");
+        StatusDisplay(nullptr, nullptr, 0, "pumping and relaxation...");
         if(pumping == "discharge"){
             Boltzmann(0);
             q2_b = q2;
@@ -127,12 +127,12 @@ A::A(std::string id)
 
 void A::InternalDynamics(double clock_time)
 {
-    StatusDisplay(-1, -1, clock_time, "pumping and relaxation...");
+    StatusDisplay(nullptr, nullptr, clock_time, "pumping and relaxation...");
     PumpingAndRelaxation(clock_time);
 }
 
 
-void A::PulseInteraction(int pulse_n, int layout_position, double clock_time)
+void A::PulseInteraction(Pulse *pulse, Plane *plane, double clock_time)
 {
 
 }

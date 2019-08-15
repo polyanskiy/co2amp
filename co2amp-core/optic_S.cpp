@@ -115,17 +115,17 @@ void S::InternalDynamics(double)
 }
 
 
-void S::PulseInteraction(int pulse_n, int, double)
+void S::PulseInteraction(Pulse *pulse, Plane*, double)
 {
     Debug(2, "Interaction with spectral filter");
     #pragma omp parallel for
     for(int x=0; x<x0; x++){
         std::complex<double> *spectrum;
         spectrum = new std::complex<double>[n0];
-        FFT(pulses[pulse_n]->E[x], spectrum);
+        FFT(pulse->E[x], spectrum);
         for(int n=0; n<n0; n++)
             spectrum[n] *= sqrt(Transmittance[n]);
-        IFFT(spectrum, pulses[pulse_n]->E[x]);
+        IFFT(spectrum, pulse->E[x]);
         delete spectrum;
     }
 }

@@ -13,6 +13,7 @@
 #define I std::complex<double>(0,1)
 
 
+class Plane; // forward-declaration
 
 
 class Pulse
@@ -20,10 +21,10 @@ class Pulse
 public:
     Pulse(std::string yaml);
     void InitializeE(void);
-    void Propagate(int from, int to, double clock_time);
+    void Propagate(Plane *from, Plane *to, double clock_time);
     std::string id;
     std::string yaml;
-    int pulse_n;
+    int number;
     //int from_file;
     double nu0, t0;
     std::complex<double> **E; // field array
@@ -38,21 +39,21 @@ class Optic
 public:
     Optic(){}
     virtual void InternalDynamics(double){}
-    virtual void PulseInteraction(int, int, double){}
+    virtual void PulseInteraction(Pulse*, Plane*, double){}
 
     std::string type;
     std::string id;
     std::string yaml;   // path to configuration file
-    int optic_n;        // number of the optic in the optics list
+    int number;         // number of the optic in the optics list
     double Dr;          // m
     double clock;       // optic's internal clock (e.g. for pumping/relaxation calculations), s
 };
 
 
-class LayoutComponent
+class Plane // Layout component
 {
 public:
-    LayoutComponent(Optic *optic)
+    Plane(Optic *optic)
     {
         this->optic = optic;
         this->space = 0;
@@ -60,8 +61,8 @@ public:
     Optic *optic;
     double space;
     double time;
+    int number;
 };
-
 
 
 class A: public Optic // Amplifier section
@@ -69,7 +70,7 @@ class A: public Optic // Amplifier section
 public:
     A(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
 private:
     // ------- BANDS -------
     bool band_reg;
@@ -145,7 +146,7 @@ class C: public Optic // Chirp (Stretcher/Compressor)
 public:
     C(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
     double chirp; // s/Hz
 };
 
@@ -155,7 +156,7 @@ class L: public Optic // Lens
 public:
     L(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
     double F; // focal length, m
 };
 
@@ -165,12 +166,13 @@ class M: public Optic // Matter (window, air)
 public:
     M(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
 private:
     std::string material;
     double thickness; // m
     double tilt;      // radians, default=0
     double humidity;  // %, only for air, default=50
+    int slices;       // number of slices (more slices - better accuracy)
     double RefractiveIndex(std::string material, double nu, double humidity=0);
     double NonlinearIndex(std::string material);
 };
@@ -181,7 +183,7 @@ class F: public Optic // Spatial (ND) filter
 public:
     F(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
 private:
     double *Transmittance; // transmittance array
 };
@@ -192,7 +194,7 @@ class P: public Optic // Probe
 public:
     P(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
 };
 
 
@@ -201,7 +203,7 @@ class S: public Optic // Spectral filter
 public:
     S(std::string yaml);
     virtual void InternalDynamics(double clock_time);
-    virtual void PulseInteraction(int pulse_n, int layout_position=0, double clock_time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double clock_time=0);
 private:
     double *Transmittance; // transmittance array
 };
@@ -215,7 +217,7 @@ private:
 // --- PULSES, OPTICS, GEOMETRY ----
 extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
-extern std::vector<LayoutComponent*> layout;
+extern std::vector<Plane*> layout;
 // ------- CALCULATION GRID --------
 extern double vc;                 // central frequency
 extern double t_min, t_max;       // fast ("pulse") time
@@ -235,7 +237,7 @@ extern bool configuration_error;  // true if error in a configuration file is de
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
 //void Abort(std::string){}
-void StatusDisplay(int pulse, int k, double t, std::string status);
+void StatusDisplay(Pulse *pulse, Plane *plane, double clock_time, std::string status);
 void Debug(int level, std::string str);
 
 /////////////////////////// misc.cpp /////////////////////////////
@@ -257,7 +259,7 @@ void AllocateMemory(void);
 void FreeMemory(void);
 
 /////////////////////////// optics.cpp ///////////////////////////
-void BeamPropagation(int pulse_n, int layout_position, double clock_time);
+void BeamPropagation(Pulse *pulse, Plane *plane, double clock_time);
 //double RefractiveIndex(char* material, double frequency);
 //double NonlinearIndex(char* material);
 //void Probe(void);
@@ -272,9 +274,9 @@ void BeamPropagation(int pulse_n, int layout_position, double clock_time);
 //void Air(int pulse, int k, double t, double humidity, double length);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(int pulse_n, int layout_position, double clock_time);
-void UpdateDynamicsFiles(double);
-void SaveGainSpectrum(int pulse, int layout_position);
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time);
+void UpdateDynamicsFiles(double clock_time);
+void SaveGainSpectrum(Pulse *pulse, Plane *plane);
 void SaveOutputField(void);
 
 ///////////////////////////// calc.cpp /////////////////////////////

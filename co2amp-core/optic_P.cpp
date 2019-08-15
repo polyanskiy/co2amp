@@ -27,7 +27,7 @@ void P::InternalDynamics(double)
 }
 
 
-void P::PulseInteraction(int, int, double)
+void P::PulseInteraction(Pulse*, Plane*, double)
 {
 
 }
