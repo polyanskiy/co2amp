@@ -1,7 +1,7 @@
 #include "co2amp.h"
 
 
-void A::Boltzmann(double t)
+void A::Boltzmann(double time)
 {
     int i;
     double u_lim;
@@ -10,7 +10,7 @@ void A::Boltzmann(double t)
     Y2 = p_N2/(p_CO2+p_N2+p_He);
     Y3 = p_He/(p_CO2+p_N2+p_He);
 
-    double E = Voltage(t)/(D*1e2); // Electric field stretch, V/cm
+    double E = Voltage(time)/(D*1e2); // Electric field stretch, V/cm
     double N = 2.7e19*(p_CO2+p_N2+p_He); // Total molecule number density, 1/cm^3
     E_over_N = E/N*1e16;
 
@@ -451,3 +451,55 @@ void A::Save_f()
     fclose(file);
 }
 
+
+void A::AllocateMemoryBoltzmann(void)
+{
+    u = new double [b0];
+
+    Q1 = new double* [11];
+    for(int j=0; j<11; j++){
+        Q1[j] = new double [b0];
+    }
+
+    Q2 = new double* [16];
+    for(int j=0; j<16; j++)
+        Q2[j] = new double [b0];
+
+    Qm1 = new double [b0];
+    Qm2 = new double [b0];
+    Qm3 = new double [b0];
+
+    Q = new double [b0];
+
+    M = new double* [b0];
+    for(int j=0; j<b0; j++)
+        M[j] =  new double [b0];
+
+    f = new double [b0];
+}
+
+
+void A::FreeMemoryBoltzmann(void)
+{
+    delete[] u;
+
+    for(int j=0; j<11; j++)
+        delete[] Q1[j];
+    delete[] Q1;
+
+    for(int j=0; j<16; j++)
+        delete[] Q2[j];
+    delete[] Q2;
+
+    delete[] Qm1;
+    delete[] Qm2;
+    delete[] Qm3;
+
+    delete[] Q;
+
+    for(int j=0; j<b0; j++)
+        delete[] M[j];
+    delete[] M;
+
+    delete[] f;
+}

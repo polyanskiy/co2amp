@@ -82,18 +82,22 @@ void M::InternalDynamics(double)
 
 void M::PulseInteraction(Pulse *pulse, Plane* plane, double clock_time)
 {
-    double Dt = (t_max-t_min)/(n0-1);    // pulse time step, s
-    double Dv = 1.0/(Dt*n0);             // frequency step, Hz
+    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
 
     // account for tilt (longer path and lower intensity)
-    // tilt = angle of incidence  (radians)
-    // refr = angle of refraction (radians)
+    // tilt = angle of incidence  (radians) - "Theta1"
+    // refr = angle of refraction (radians) - "Theta2"
     double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->nu0)));
-    double tilt_factor = 1;//tan(tilt); // intensity reduction due to tilt
+    double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
-    Debug(2, "refr = " + std::to_string(refr*180/M_PI) + " degrees");
+    if(tilt !=0 ){
+        Debug(2, "tilt = " + std::to_string(tilt*180/M_PI) + " degrees (incidence angle)");
+        Debug(2, "refr = " + std::to_string(refr*180/M_PI) + " degrees (refraction angle)");
+        Debug(2, "tilt_factor = " + std::to_string(tilt_factor) + " (intensity reduction due to tilt)");
+        Debug(2, "1/cos(refr) = " + std::to_string(1/cos(refr)) + " (effective thickness increase due to tilt)");
+    }
 
     int count = 0;
     #pragma omp parallel for

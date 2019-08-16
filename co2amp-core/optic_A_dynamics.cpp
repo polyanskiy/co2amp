@@ -1,9 +1,13 @@
 #include  "co2amp.h"
 
 
-void A::PumpingAndRelaxation(double t)
+void A::InternalDynamics(double time)
 {
-/*    int x, k;
+    if(p_CO2+p_N2+p_He <=0)
+        return;
+
+    StatusDisplay(nullptr, nullptr, time, "pumping and relaxation... (" + id +")");
+
     double A, X, W;
     double K, K31, K32, K33, K21, K22, K23;
     double ra, rc, r2, r3;
@@ -20,26 +24,26 @@ void A::PumpingAndRelaxation(double t)
     // re-solve Boltzmann equation from time to time; use linear interpolation otherwise
     if(pumping == "discharge"){ // Discharge pumping
         double step = 25.0e-9;
-        if(t-Dt_pump/2<=t_b && t+Dt_pump/2>t_b){
+        if(time-time_tick/2<=time_b && time+time_tick/2>time_b){
             q2_a = q2_b;
             q3_a = q3_b;
             q4_a = q4_b;
             qT_a = qT_b;
-            t_a = t_b;
-            t_b = t+step;
-            Boltzmann(t_b);
+            time_a = time_b;
+            time_b = time+step;
+            Boltzmann(time_b);
             q2_b = q2;
             q3_b = q3;
             q4_b = q4;
             qT_b = qT;
         }
 
-        q2 = q2_a+(q2_b-q2_a)*(t-t_a)/(t_b-t_a);
-        q3 = q3_a+(q3_b-q3_a)*(t-t_a)/(t_b-t_a);
-        q4 = q4_a+(q4_b-q4_a)*(t-t_a)/(t_b-t_a);
-        qT = qT_a+(qT_b-qT_a)*(t-t_a)/(t_b-t_a);
+        q2 = q2_a+(q2_b-q2_a)*(time-time_a)/(time_b-time_a);
+        q3 = q3_a+(q3_b-q3_a)*(time-time_a)/(time_b-time_a);
+        q4 = q4_a+(q4_b-q4_a)*(time-time_a)/(time_b-time_a);
+        qT = qT_a+(qT_b-qT_a)*(time-time_a)/(time_b-time_a);
 
-        W = Current(t)*Voltage(t) / Vd; // W/m^3
+        W = Current(time)*Voltage(time) / Vd; // W/m^3
         pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
         pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
@@ -51,72 +55,75 @@ void A::PumpingAndRelaxation(double t)
         pump2 = 0;
     }
 
-    for(k=0; k<n_AM; k++){
-        for(x=0; x<x0; x++){
-            if( t>t_inj || (k==0 && x==0) ){ // calculate only once if t<t_inj
-                A = T[k][x]/273.0 * pow(1.0+0.5*e2e(T[k][x]),-3);
-                X = pow(T[k][x],-1.0/3);
+    // time of travel from input plane to first interaction with this AM section
+    double time_from_first_plane = 0;
+    for(Plane* plane : layout)
+        if(plane->optic->id == id){
+            time_from_first_plane = plane->time_from_first_plane;
+            break;
+        }
 
-                // Collisional relaxation rates, 1/s
-                K = 240.0/pow(T[k][x],0.5) * 1e6;
-                K31 = A * exp(4.138+7.945 *X-631.24*X*X+2239.0 *X*X*X) * 1e6;
-                K32 = A * exp(-1.863+213.3*X-2796.2*X*X+9001.9 *X*X*X) * 1e6;
-                K33 = A * exp(-3.276+291.4*X-3831.8*X*X+12688.0*X*X*X) * 1e6;
-                K21 = 1160.0 * exp(-59.3*X) * 1e6;
-                K22 = 855.0  * exp(-69.0*X) * 1e6;
-                K23 = 1300.0 * exp(-40.6*X) * 1e6;
+    // time of arraival of first pulse to this AM section
+    double time_of_first_pulse_arrival = 1e12;
+    for(Pulse* pulse : pulses)
+        if(pulse->time_inj + time_from_first_plane < time_of_first_pulse_arrival)
+            time_of_first_pulse_arrival = pulse->time_inj + time_from_first_plane;
 
-                ra = K*N*y1;
-                rc = K*N*y2;
-                r2 = N*(y1*K21 + y2*K22 + y3*K23);
-                r3 = N*(y1*K31 + y2*K32 + y3*K33) ;
 
-                f2 = 2.0 * pow (1.0+e2[k][x],2) / (2.0+6.0*e2[k][x]+3.0*pow(e2[k][x],2));
-                f3 = e3[k][x]*pow(1+e2[k][x]/2.0,3) - (1.0+e3[k][x])*pow(e2[k][x]/2.0,3)*exp(-500.0/T[k][x]);
+    for(int x=0; x<x0; x++){
+        if( time > time_of_first_pulse_arrival || x==0 ){ // population is same everythere if no pulse interaction yet occured
+            A = T[x]/273.0 * pow(1.0+0.5*e2e(T[x]),-3);
+            X = pow(T[x],-1.0/3);
 
-                //collisional relaxation, pumping
-                if(y2!=0.0)
-                    e4[k][x] += ( pump4 - ra*(e4[k][x]-e3[k][x]) ) * Dt_pump;
-                if(y1!=0.0)
-                    e3[k][x] += ( pump3 + rc*(e4[k][x]-e3[k][x]) - r3*f3 ) * Dt_pump;
-                if(y1!=0.0)
-                    e2[k][x] += f2 *( pump2 + 3*r3*f3 - r2*(e2[k][x]-e2e(T[k][x])) ) * Dt_pump;
+            // Collisional relaxation rates, 1/s
+            K = 240.0/pow(T[x],0.5) * 1e6;
+            K31 = A * exp(4.138+7.945 *X-631.24*X*X+2239.0 *X*X*X) * 1e6;
+            K32 = A * exp(-1.863+213.3*X-2796.2*X*X+9001.9 *X*X*X) * 1e6;
+            K33 = A * exp(-3.276+291.4*X-3831.8*X*X+12688.0*X*X*X) * 1e6;
+            K21 = 1160.0 * exp(-59.3*X) * 1e6;
+            K22 = 855.0  * exp(-69.0*X) * 1e6;
+            K23 = 1300.0 * exp(-40.6*X) * 1e6;
 
-                cv = 2.5*(y1+y2) + 1.5*y3;
-                T[k][x] += ( y1/cv * (500.0*r3*f3 + 960.0*r2*(e2[k][x]-e2e(T[k][x]))) + 2.7e-3*W*qT/N/cv ) * Dt_pump;
-            }
-            else{
-                e4[k][x] = e4[0][0];
-                e3[k][x] = e3[0][0];
-                e2[k][x] = e2[0][0];
-                T[k][x] = T[0][0];
-            }
+            ra = K*N*y1;
+            rc = K*N*y2;
+            r2 = N*(y1*K21 + y2*K22 + y3*K23);
+            r3 = N*(y1*K31 + y2*K32 + y3*K33) ;
+
+            f2 = 2.0 * pow (1.0+e2[x],2) / (2.0+6.0*e2[x]+3.0*pow(e2[x],2));
+            f3 = e3[x]*pow(1+e2[x]/2.0,3) - (1.0+e3[x])*pow(e2[x]/2.0,3)*exp(-500.0/T[x]);
+
+            //collisional relaxation, pumping
+            if(y2!=0.0)
+                e4[x] += ( pump4 - ra*(e4[x]-e3[x]) ) * time_tick;
+            if(y1!=0.0)
+                e3[x] += ( pump3 + rc*(e4[x]-e3[x]) - r3*f3 ) * time_tick;
+            if(y1!=0.0)
+                e2[x] += f2 *( pump2 + 3*r3*f3 - r2*(e2[x]-e2e(T[x])) ) * time_tick;
+
+            cv = 2.5*(y1+y2) + 1.5*y3;
+            T[x] += ( y1/cv * (500.0*r3*f3 + 960.0*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT/N/cv ) * time_tick;
+        }
+        else{
+            e4[x] = e4[0];
+            e3[x] = e3[0];
+            e2[x] = e2[0];
+            T[x] = T[0];
         }
     }
-    UpdateDynamicsFiles(t);
-*/
+
+    UpdateDynamicsFiles(time);
 }
 
 
-double A::Current(double t) //t - time in s
+double A::Current(double time)
 {
-    return Interpolate(&discharge_time, &discharge_current, t);
-    /*int i;
-    for(i=0; i<n_discharge_points-1; i++)
-        if(discharge[0][i]<=t && discharge[0][i+1]>=t)
-            return discharge[1][i] + (discharge[1][i+1]-discharge[1][i]) * (t-discharge[0][i])/(discharge[0][i+1]-discharge[0][i]);
-    return 0;*/
+    return Interpolate(&discharge_time, &discharge_current, time);
 }
 
 
-double A::Voltage(double t) //t - time in s
+double A::Voltage(double time)
 {
-    return Interpolate(&discharge_time, &discharge_voltage, t);
-    /*int i;
-    for(i=0; i<n_discharge_points-1; i++)
-        if(discharge[0][i]<=t && discharge[0][i+1]>=t)
-            return discharge[2][i] + (discharge[2][i+1]-discharge[2][i]) * (t-discharge[0][i])/(discharge[0][i+1]-discharge[0][i]);
-    return discharge[2][n_discharge_points-1]; // calculation of q will fail if U=0.*/
+    return Interpolate(&discharge_time, &discharge_voltage, time);
 }
 
 
@@ -141,35 +148,31 @@ double A::Voltage(double t) //t - time in s
 
 
 void A::InitializePopulations()
-{
-  /*int k, x;
-  for(k=0; k<=n_AM-1; k++)
-	for(x=0; x<=x0-1; x++){
-          T[k][x] = T0;
-          e4[k][x] = 1.0/(exp(3350.0/T0)-1.0);
-          e2[k][x] = 2.0/(exp(960.0/T0)-1.0);
-          e3[k][x] = 1.0/(exp(3380.0/T0)-1.0);
-          if(pumping == "optical"){ // optical pumping
-              int i;
-              double Temp2, e1, fluence;
-              fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
-              // number of quanta added to upper state:
-              //double delta_e3 = 0.5*(1-exp(-fluence*pump_sigma)); // max 0.5 quanta per molecule (classic 2-level system)
-              double delta_e3 = 1.0*(1-exp(-fluence*pump_sigma)); // max 1 quanta per molecule (arbitrary: attempt to allow multi-photon excitation)
-              //double delta_e3 = fluence*pump_sigma; //no bleeching (no limit for number of quanta per molecule: user responsible for keeping pumping realistic)
-              e3[k][x] += delta_e3; // fraction of molecules in upper state
-              if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
-                  double delta_e2 = 2.0*delta_e3; // "0" approximation: all lower level energy goes to nu2 mode (in reality e3 = e2/2 + e1)
-                  for(i=0; i<10; i++){ // iterations: e2->Temp2->e1->e2->...
-                      Temp2 = 960.0/log(2.0/(e2[k][x]+delta_e2)+1.0); // Temp2 after excitation
-                      e1 = 1.0/(exp(1920.0/Temp2)-1); // number of quanta in nu1 at this temperature
-                      delta_e2 = 2.0*delta_e3 * (e2[k][x]+delta_e2)/(2.0*e1+e2[k][x]+delta_e2); //corrected delta_e2
-                  }
-                  e2[k][x] += delta_e2;
-              }
-          }
-
-    }*/
+{ 
+    for(int x=0; x<=x0-1; x++){
+        T[x] = T0;
+        e4[x] = 1.0/(exp(3350.0/T0)-1.0);
+        e2[x] = 2.0/(exp(960.0/T0)-1.0);
+        e3[x] = 1.0/(exp(3380.0/T0)-1.0);
+        if(pumping == "optical"){
+            double Temp2, e1, fluence;
+            fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
+            // number of quanta added to upper state:
+            //double delta_e3 = 0.5*(1-exp(-fluence*pump_sigma)); // max 0.5 quanta per molecule (classic 2-level system)
+            double delta_e3 = 1.0*(1-exp(-fluence*pump_sigma)); // max 1 quanta per molecule (arbitrary: attempt to allow multi-photon excitation)
+            //double delta_e3 = fluence*pump_sigma; //no bleeching (no limit for number of quanta per molecule: user responsible for keeping pumping realistic)
+            e3[x] += delta_e3; // fraction of molecules in upper state
+            if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
+                double delta_e2 = 2.0*delta_e3; // "0" approximation: all lower level energy goes to nu2 mode (in reality e3 = e2/2 + e1)
+                for(int i=0; i<10; i++){ // iterations: e2->Temp2->e1->e2->...
+                    Temp2 = 960.0/log(2.0/(e2[x]+delta_e2)+1.0); // Temp2 after excitation
+                    e1 = 1.0/(exp(1920.0/Temp2)-1); // number of quanta in nu1 at this temperature
+                    delta_e2 = 2.0*delta_e3 * (e2[x]+delta_e2)/(2.0*e1+e2[x]+delta_e2); //corrected delta_e2
+                }
+                e2[x] += delta_e2;
+            }
+        }
+    }
 }
 
 double A::e2e(double T)
@@ -178,23 +181,21 @@ double A::e2e(double T)
 }
 
 
-double A::VibrationalTemperatures(int am_section, int x, int mode){
+double A::VibrationalTemperatures(int x, int mode){
     // See Nevdakh 2005 for details: dx.doi.org/10.1007/s10812-005-0034-4
 
-    //int i;
-    //double X1;
-
     // zero-approximation (neglect common ground level)
-    double Temp2 = 960.0/log(2.0/e2[am_section][x]+1.0);  // equilibrium vibrational temperature of nu1 and nu2 modes
-    double Temp3 = 3380.0/log(1.0/e3[am_section][x]+1.0); // equilibrium vibrational temterature of nu3 mode
-    /*double X2 = exp(-960.0/Temp2);
+    double Temp2 = 960.0/log(2.0/e2[x]+1.0);  // equilibrium vibrational temperature of nu1 and nu2 modes
+    double Temp3 = 3380.0/log(1.0/e3[x]+1.0); // equilibrium vibrational temterature of nu3 mode
+    /*double X1;
+    double X2 = exp(-960.0/Temp2);
     double X3 = exp(-3380.0/Temp3);
 
     // iterations: solve Nevdakhs's equations
-    for(i=0; i<10; i++){
+    for(int i=0; i<10; i++){
         X1 = exp(-1920.0/Temp2); // no need to solve 1st equation (e1=...): X1 is known if X2 is known (T1=T2)
-        X3 = 1.0 - e2[am_section][x]/(1.0-X1)*(1.0-X2)/(2.0*X2); // 2nd equation (e2=...)
-        X2 = 1.0 - sqrt( e3[am_section][x]/(1.0-X1)*(1.0-X3)/X3 ); // 3rd equation (e3=...)
+        X3 = 1.0 - e2[x]/(1.0-X1)*(1.0-X2)/(2.0*X2); // 2nd equation (e2=...)
+        X2 = 1.0 - sqrt( e3[x]/(1.0-X1)*(1.0-X3)/X3 ); // 3rd equation (e3=...)
         Temp2 = -920.0/log(X2);
     }
     Temp3 = -3380.0/log(X3);*/
@@ -209,4 +210,67 @@ double A::VibrationalTemperatures(int am_section, int x, int mode){
     }
 
     return 0;
+}
+
+
+void A::UpdateDynamicsFiles(double time)
+{
+/*
+    int i;
+    FILE *file;
+
+    ////////////////////////// Discharge //////////////////////////
+    if(pumping == "discharge"){
+        if(t==0.0){
+            file = fopen("data_discharge.dat", "w");
+            fprintf(file, "# time[us] current[A] voltage[V]\n");
+        }
+        else
+            file = fopen("data_discharge.dat", "a");
+        fprintf(file, "%7f\t%.7f\t%.7f\n", t*1e6, Current(t), Voltage(t));
+        fclose(file);
+    }
+
+    ////////////////////////////// q //////////////////////////////
+    if(pumping == "discharge"){
+        if(t==0.0){
+            file = fopen("data_q.dat", "w");
+            fprintf(file, "# time[us] q2 q3 q4 qT\n");
+        }
+        else
+            file = fopen("data_q.dat", "a");
+        fprintf(file, "%7f\t%.7f\t%.7f\t%.7f\t%.7f\n", t*1e6, q2, q3, q4, qT);
+        fclose(file);
+    }
+
+    /////////////// e (average number of quanta in vibration modes) ////////////////
+    if(t==0.0){
+        file = fopen("data_e.dat", "w");
+        fprintf(file, "# time[us] e1(am1) e2(am1) e3(am1) e4(am1) e1(am2) e2(am2) e3(am2) ...\n");
+    }
+    else
+        file = fopen("data_e.dat", "a");
+    fprintf(file, "%7f", t*1e6);
+    for(i=0; i<n_AM; i++){
+        double Temp2 = 960/log(2/e2[i][0]+1);
+        double e1 = 1/(exp(1920/Temp2)-1);
+        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", e1, e2[i][0], e3[i][0], e4[i][0]);
+    }
+    fprintf(file, "\n");
+    fclose(file);
+
+    ///////////////////////// Temperatures /////////////////////////
+    if(t==0.0){
+        file = fopen("data_temperatures.dat", "w");
+        fprintf(file, "# time[us] T2(am1) T3(am1) T4(am1) T(am1) T2(am2) T3(am2) ...\n");
+    }
+    else
+        file = fopen("data_temperatures.dat", "a");
+    fprintf(file, "%7f", t*1e6);
+    for(i=0; i<n_AM; i++)
+        //fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", 960/log(2/e2[i][0]+1), 3380/log(1/e3[i][0]+1), 3350/log(1/e4[i][0]+1), T[i][0]);
+        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", VibrationalTemperatures(i,0,2), VibrationalTemperatures(i,0,3), 3350/log(1/e4[i][0]+1), T[i][0]);
+    fprintf(file, "\n");
+    fclose(file);
+*/
 }

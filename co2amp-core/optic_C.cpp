@@ -41,8 +41,7 @@ void C::PulseInteraction(Pulse *pulse, Plane*, double)
         return;
     Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
 
-    double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
-    double Dv = 1.0/(Dt*n0);          // frequency step, Hz
+    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
 
     #pragma omp parallel for // mulithread

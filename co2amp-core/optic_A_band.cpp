@@ -300,23 +300,6 @@ void A::AmplificationBand(void)
         }
     }
 
-
-    char str[50];
-    sprintf(str, "sigma(626, 10P20) = %fe-19 cm^2", sigma[0][0][0][20]*1e23);
-    Debug(2, str);
-
-
-    /*FILE *file;
-    file = fopen("band.dat", "w");
-    i = 0;
-    ba = 0;
-    for(br=0; br<4; br++){
-        for(j=0; j<61; j++){
-            if(A[i][ba][br][j] != 0)
-                fprintf(file, "%.3f\t%.3f\n", v[i][ba][br][j]/2.99792458e10, A[i][ba][br][j]);
-        }
-    }
-    fclose(file);*/
-
-    //printf("\n Es = %f J/cm2\n", h*v[0][0][0][20]/(2*sigma[0][0][0][20]*1e4));
+    Debug(2, "sigma(626, 10P20) = %fe-19 cm^2" + toExpString(sigma[0][0][0][20]*1e23));
 }
+

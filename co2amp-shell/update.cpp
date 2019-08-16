@@ -69,8 +69,8 @@ void MainWindow::UpdateControls()
         lineEdit_t_min->setText(Memorized.t_min);
     if(!lineEdit_t_max->hasFocus())
         lineEdit_t_max->setText(Memorized.t_max);
-    if(!lineEdit_clock_tick->hasFocus())
-        lineEdit_clock_tick->setText(Memorized.clock_tick);
+    if(!lineEdit_time_tick->hasFocus())
+        lineEdit_time_tick->setText(Memorized.time_tick);
     comboBox_precision_t->setCurrentIndex(Memorized.precision_t);
     comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
     double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);

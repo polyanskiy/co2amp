@@ -6,8 +6,7 @@ S::S(std::string id)
     this->id = id;
     type = "S";
     yaml = id + ".yml";
-    double Dt = (t_max-t_min)/(n0-1);    // pulse time step, s
-    double Dv = 1.0/(Dt*n0);             // frequency step, Hz
+    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
 
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
@@ -93,7 +92,7 @@ S::S(std::string id)
             configuration_error = true;
             return;
         }
-        Debug(2, "Transmittance profile:");
+        Debug(2, "Transmittance profile [Frequency(Hz) Transmittance(-)] (only displayed if debug level >= 3)");
         if(debug_level >= 2)
             for(int i=0; i<nu.size(); i++)
                 std::cout << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;

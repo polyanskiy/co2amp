@@ -19,24 +19,13 @@ A::A(std::string id)
     Debug(2, "Rmax = " + toExpString(std::stod(value)) + " m");
     Dr = std::stod(value)/(x0-1);
 
-    pumping = "";
-    Vd = 0;
-    D = 0;
-    pump_wl = 0;
-    pump_sigma = 0;
-    pump_fluence = 0;
-    p_626 = 0;
-    p_628 = 0;
-    p_828 = 0;
-    p_636 = 0;
-    p_638 = 0;
-    p_838 = 0;
-    p_CO2 = 0;
-    double O18 = 0; // Oxygen-18 content (0..1)
-    double C13 = 0; // Carbon-13 content (0..1)
-    p_N2 = 0;
-    p_He = 0;
-    T0 = 0;
+    // Length
+    if(!YamlGetValue(&value, yaml, "length")){
+        configuration_error = true;
+        return;
+    }
+    length = std::stod(value);
+    Debug(2, "length = " + toExpString(std::stod(value)) + " m");
 
 
     // ------- PUMPING -------
@@ -75,8 +64,8 @@ A::A(std::string id)
             configuration_error = true;
             return;
         }
-        Debug(2, "Discharge profile - time(s) Current(A) Voltage(V):");
-        if(debug_level >= 2)
+        Debug(2, "Discharge profile [Time(s) Current(A) Voltage(V)] (only displayed if debug level >= 3)");
+        if(debug_level >= 3)
             for(int i=0; i<discharge_time.size(); i++)
                 std::cout << toExpString(discharge_time[i]) <<  " "
                 << toExpString(discharge_current[i]) <<  " "
@@ -107,6 +96,15 @@ A::A(std::string id)
     }
 
     // ------- GAS MIXTURE -------
+    p_626 = 0;
+    p_628 = 0;
+    p_828 = 0;
+    p_636 = 0;
+    p_638 = 0;
+    p_838 = 0;
+    p_CO2 = 0;
+    double O18 = 0; // Oxygen-18 content (0..1)
+    double C13 = 0; // Carbon-13 content (0..1)
 
     if(YamlGetValue(&value, yaml, "p_CO2")){
         p_CO2 = std::stod(value);
@@ -207,38 +205,35 @@ A::A(std::string id)
     T0 = std::stod(value);
     Debug(2, "T0 = " + std::to_string(T0) + " K");
 
-
-
-    if(p_CO2+p_N2+p_He>0){
-        // 1 Fill out spectroscoic arrays &
-        AmplificationBand();
-
-        // 2 Populations and field initialization
-        InitializePopulations();
-
-        // 3 Initial q's
-        StatusDisplay(nullptr, nullptr, 0, "pumping and relaxation...");
-
-        if(pumping == "discharge"){
-            Boltzmann(0);
-            q2_b = q2;
-            q3_b = q3;
-            q4_b = q4;
-            qT_b = qT;
-            t_b = 0;
-        }
+    if(p_CO2+p_N2+p_He <=0){
+        std::cout << "Total pressure in amplifier section " + this->id + " is 0. No interaction.\n";
+        return;
     }
-}
 
+    // allocate memory
+    e2 = new double [x0];
+    e3 = new double [x0];
+    e4 = new double [x0];
+    T  = new double [x0];
+    gainSpectrum  = new double [n0];
 
-void A::InternalDynamics(double clock_time)
-{
-    StatusDisplay(nullptr, nullptr, clock_time, "pumping and relaxation...");
-    PumpingAndRelaxation(clock_time);
-}
+    // 1 Fill out spectroscoic arrays &
+    AmplificationBand();
 
+    // 2 Populations and field initialization
+    InitializePopulations();
 
-void A::PulseInteraction(Pulse *pulse, Plane *plane, double clock_time)
-{
+    // 3 Initial q's
+    //StatusDisplay(nullptr, nullptr, 0, "pumping and relaxation...");
+
+    if(pumping == "discharge"){
+        Debug(2, "Initializing q's");
+        Boltzmann(0);
+        q2_b = q2;
+        q3_b = q3;
+        q4_b = q4;
+        qT_b = qT;
+        time_b = 0;
+    }
 
 }

@@ -15,7 +15,7 @@ void MainWindow::SaveSettings(QString what_to_save)
         settings.setValue("co2amp/precision_r", Memorized.precision_r);
         settings.setValue("co2amp/t_min", Memorized.t_min);
         settings.setValue("co2amp/t_max", Memorized.t_max);
-        settings.setValue("co2amp/clock_tick", Memorized.clock_tick);
+        settings.setValue("co2amp/time_tick", Memorized.time_tick);
         settings.setValue("debug/debugLevel", spinBox_debugLevel->text());
 
         // Write configuration files
@@ -99,7 +99,7 @@ void MainWindow::LoadSettings(QString path)
     Memorized.precision_r = settings.value("co2amp/precision_r", 1).toInt();
     Memorized.t_min = settings.value("co2amp/t_min", -100e-12).toString();
     Memorized.t_max = settings.value("co2amp/t_max", 400e-12).toString();
-    Memorized.clock_tick = settings.value("co2amp/clock_tick", 2e-9).toString();
+    Memorized.time_tick = settings.value("co2amp/time_tick", 2e-9).toString();
 
     // Debugging
     spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
@@ -165,7 +165,7 @@ void MainWindow::MemorizeSettings()
     Memorized.vc = lineEdit_vc->text();
     Memorized.t_min = lineEdit_t_min->text();
     Memorized.t_max = lineEdit_t_max->text();
-    Memorized.clock_tick = lineEdit_clock_tick->text();
+    Memorized.time_tick = lineEdit_time_tick->text();
     Memorized.precision_t = comboBox_precision_t->currentIndex();
     Memorized.precision_r = comboBox_precision_r->currentIndex();
     /////////////////////////////////// DEBUGGING //////////////////////////////////////

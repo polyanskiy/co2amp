@@ -5,12 +5,6 @@ Pulse::Pulse(std::string id)
     this->id = id;
     yaml = id + ".yml";
 
-    E0 = -1;
-    w0 = -1;
-    tau0 = -1;
-    nu0 = -1;
-    t0 = -1;
-
     Debug(2, "Creating pulse from file \'" + yaml + "\'");
 
     std::string value="";
@@ -20,37 +14,37 @@ Pulse::Pulse(std::string id)
         return;
     }
     E0 = std::stod(value);
+    Debug(2, "E0 = " + toExpString(E0) + " J");
 
     if(!YamlGetValue(&value, yaml, "w0")){
         configuration_error = true;
         return;
     }
     w0 = std::stod(value);
+    Debug(2, "w0 = " + toExpString(w0) + " m");
 
     if(!YamlGetValue(&value, yaml, "tau0")){
         configuration_error = true;
         return;
     }
     tau0 = std::stod(value);
+    Debug(2, "tau0 = " + toExpString(tau0) + " s");
 
     if(!YamlGetValue(&value, yaml, "nu0")){
         configuration_error = true;
         return;
     }
     nu0 = std::stod(value);
-
-    if(!YamlGetValue(&value, yaml, "t0")){
-        configuration_error = true;
-        return;
-    }
-    t0 = std::stod(value);
-
-    Debug(2, "E0 = " + toExpString(E0) + " J");
-    Debug(2, "w0 = " + toExpString(w0) + " m");
-    Debug(2, "tau0 = " + toExpString(tau0) + " s");
     Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
-    Debug(2, "t0 = " + toExpString(t0) + " s");
 
+    time_inj = 0;
+    if(!YamlGetValue(&value, yaml, "time_inj"))
+        std::cout << "Using default injection time (0 s)\n";
+    else
+        time_inj = std::stod(value);
+    Debug(2, "time_inj = " + toExpString(time_inj) + " s");
+
+    // allocate memory
     E = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
         E[x] = new std::complex<double>[n0];
@@ -113,7 +107,7 @@ std::complex<double> Pulse::field(double r, double t)
 }
 
 
-void Pulse::Propagate(Plane *from, Plane *to, double clock_time)
+void Pulse::Propagate(Plane *from, Plane *to, double time)
 {
     double z   = from->space;
     double Dr1 = from->optic->Dr;
@@ -121,8 +115,6 @@ void Pulse::Propagate(Plane *from, Plane *to, double clock_time)
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
-
-    //int x, n;
 
     // Create temporary field array
     std::complex<double> **E1;
@@ -168,7 +160,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double clock_time)
         for(int x=0; x<x0; x++){ // output plane radial coordinate
             #pragma omp critical
             {
-                StatusDisplay(this, from, clock_time,
+                StatusDisplay(this, from, time,
                           "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
             double rho, R_min, R_max, R, delta_R;

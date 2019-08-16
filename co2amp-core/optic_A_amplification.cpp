@@ -1,40 +1,35 @@
 #include  "co2amp.h"
 
-
-void A::Amplification(int pulse, int k, double t, int am_section, double length)
+void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 {
-/*
-    if(length == 0.0)
+    if(p_CO2+p_N2+p_He <= 0 || length == 0)
         return;
 
-    int x;                                                           // coordinate step number
-    int count = 0;
-    std::string status;
-    double Dt = t_pulse_lim/(n0-1);                                  // time step, s
+    double Dt = (t_max-t_min)/(n0-1);    // pulse time step, s
+    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
+    double v_min = vc - Dv*(n0-1)/2;
+    double v_max = vc + Dv*(n0-1)/2;
+
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
-    //double DELTA = 0; //temp
 
-    // variables for gain spectrum calculation
-    int n1;                           // frequency step number
-    double Dv = (v_max-v_min)/(n0-1.0); // frequency time step, Hz
-    double gamma = 1.0/T2;   // Lorentzian HWHM
+    double gamma = 1.0/T2;   // Lorentzian HWHM (for gain spectrum calculation)
     // initialize/clear gain spectrum array
-    for(n1=0; n1<n0; n1++)
-        gainSpectrum[n1] = 0;
-
+    for(int n=0; n<n0; n++)
+        gainSpectrum[n] = 0;
 
     // ====================== AMPLIFICATIOIN ======================
+    int count = 0;
     #pragma omp parallel for// multithreaded
-    for(x=0; x<x0; x++){
-        count++;
-        //sprintf(status, "amplification: %d of % d", count, x0);
-        status = "amplification: " + std::to_string(count) + " of " + std::to_string(x0);
-        StatusDisplay(pulse, k, t, status);
-
-        int n;  // time step number
+    for(int x=0; x<x0; x++){
+        #pragma omp critical
+        {
+            StatusDisplay(pulse, plane, time,
+                      "amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
+        }
+        int n, n1;  // time step number
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
         int ba; // band                 0 - regular; 1 - hot-e; 2 - hot-f ; 3 - sequence
         int br; // branch               0 - 10P; 1 - 10R; 2 - 9P; 3 - 9R
@@ -43,10 +38,10 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
         double Nvib[6][4][3], Nvib0[6][4][3];  // Population densities of vibrational lelvels (actual and equilibrium)
         double Nrot[6][4][3][61];              // Population densities of rotational lelvels (actual and equilibrium)
         double Dn[6][4][4][61];                // Population inversions (rotational transitions)
-        std::complex<double> rho[6][4][4][61];       // polarizations
-        std::complex<double> E_tmp1, E_tmp2, rho_tmp;// temporary variables for field and polarization
-        double Temp2 = VibrationalTemperatures(am_section, x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
-        double Temp3 = VibrationalTemperatures(am_section, x, 3); // equilibrium vibrational temterature of nu3 mode
+        std::complex<double> rho[6][4][4][61];        // polarizations
+        std::complex<double> E_tmp1, E_tmp2, rho_tmp; // temporary variables for field and polarization
+        double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
+        double Temp3 = VibrationalTemperatures(x, 3); // equilibrium vibrational temterature of nu3 mode
         double delta;                          // change in population difference
 
         // Initial populations and polarizations
@@ -128,7 +123,8 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                                 if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                     continue;
                                 for(n1=0; n1<n0; n1++)
-                                    gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j] * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*n1-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
+                                    gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j]
+                                            * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*n1-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
                             }
                         }
                     }
@@ -136,9 +132,9 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
             }
 
             // equation 2 (polarization) AND equation 1 (field)
-            E_tmp1 = E[pulse][x][n]; // field before amplification
+            E_tmp1 = pulse->E[x][n]; // field before amplification
             for(i=0; i<6; i++){
-                if(N[i]==0.0)
+                if(N[i]==0)
                     continue;
                 for(ba=0; ba<4; ba++){
                     //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
@@ -152,7 +148,7 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                             rho[i][ba][br][j] *= exp(-Dt/T2);                               // polarization relaxation
                             rho[i][ba][br][j] *= exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt); // polarization phase
                             // temporary variables
-                            E_tmp2 = E[pulse][x][n];
+                            E_tmp2 = pulse->E[x][n];
                             rho_tmp = rho[i][ba][br][j];
                             // remaining of equation 2: 1st run (define polarization induced by input field)
                             //rho_tmp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp1/2.0 * (1-exp(-Dt/T2)) * cexp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2); // polarization excitation
@@ -163,7 +159,7 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                             // remaining of equation 2: 2nd run (define polarization induced by the field from previous step)
                             rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp2/2.0 * (1-exp(-Dt/T2)) * exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2.0); // polarization excitation
                             // equation 1: 2nd run (field after passing through entire amplification section)
-                            E[pulse][x][n] -= rho[i][ba][br][j]*length; // field in the output
+                            pulse->E[x][n] -= rho[i][ba][br][j]*length; // field in the output
                         }
                     }
                 }
@@ -185,9 +181,7 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
                             if(sigma[i][ba][br][j] == 0.0)
                                 continue;
                             //delta = 2.0 * (rho[i][ba][br][j]*conj(E[pulse][x][n]) + conj(rho[i][ba][br][j]*conj(E[pulse][x][n]))) * Dt ;
-                            delta = 4.0 * real(rho[i][ba][br][j]*conj(E[pulse][x][n])) * Dt;
-                            //if(x==0)
-                            //    DELTA += delta;
+                            delta = 4.0 * real(rho[i][ba][br][j]*conj(pulse->E[x][n])) * Dt;
                             // upper level
                             Nvib[i][ba][0] += delta;
                             if(br==0 || br==2) // P
@@ -216,11 +210,41 @@ void A::Amplification(int pulse, int k, double t, int am_section, double length)
             if(N[i]==0.0) continue;
             for(ba=0; ba<4; ba++){
                 double tmp = (Nvib0[i][ba][0] - Nvib[i][ba][0]) / Nco2; // multithread fails otherwise
-                e3[am_section][x] -= tmp;
-                e2[am_section][x] += tmp *  2.0*e2_tmp/(2*e1_tmp+e2_tmp); // 2.0*e2_tmp/(2*e1_tmp+e2_tmp): number of quanta added to nu2 per one laser transiton
+                e3[x] -= tmp;
+                e2[x] += tmp *  2.0*e2_tmp/(2*e1_tmp+e2_tmp); // 2.0*e2_tmp/(2*e1_tmp+e2_tmp): number of quanta added to nu2 per one laser transiton
             }
         }
-
     }
-*/
+
+    SaveGainSpectrum(pulse, plane);
+
+}
+
+
+void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
+    FILE *file;
+    double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
+    double v_min = vc - Dv*(n0-1)/2;
+
+    bool firstAmSection = true;
+    int pass = 0;
+    for(int i=0; i<plane->number; i++){
+        if(layout[i]->optic->type == "A" || pulse->number>0)
+            firstAmSection = false;
+        if(plane->optic->id == layout[i]->optic->id)
+            pass++;
+    }
+
+    if(firstAmSection){
+        file = fopen("data_band.dat", "w");
+        fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
+    }
+    else{
+        file = fopen("data_band.dat", "a");
+        fprintf(file, "\n\n"); // data set separator
+    }
+    fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse->number, plane->number, pass);
+    for(int n=0; n<n0; n++)
+        fprintf(file, "%e\t%e\n", v_min+Dv*n, gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+    fclose(file);
 }

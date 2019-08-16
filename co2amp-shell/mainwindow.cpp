@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     lineEdit_vc->setValidator(new QDoubleValidator(this));
     lineEdit_t_min->setValidator(new QDoubleValidator(this));
     lineEdit_t_max->setValidator(new QDoubleValidator(this));
-    lineEdit_clock_tick->setValidator(new QDoubleValidator(this));
+    lineEdit_time_tick->setValidator(new QDoubleValidator(this));
 
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
@@ -80,9 +80,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(lineEdit_t_max, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_clock_tick, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    connect(lineEdit_time_tick, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
     connect(pushButton_go, SIGNAL(clicked()), this, SLOT(Calculate()));
     connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
+    keyF8 = new QShortcut(QKeySequence("F8"), this);   // Initialize the object
+    connect(keyF8, SIGNAL(activated()), this, SLOT(Calculate()));
 
     /////////////////////////////// Process command line //////////////////////////////////////
     QStringList arg = qApp->arguments();
@@ -151,7 +153,7 @@ void MainWindow::Calculate()
     arguments << "-x0" << comboBox_precision_r->currentText();
     arguments << "-t_min" << QString::number(lineEdit_t_min->text().toDouble());
     arguments << "-t_max" << QString::number(lineEdit_t_max->text().toDouble());
-    arguments << "-clock_tick" << QString::number(lineEdit_clock_tick->text().toDouble());
+    arguments << "-time_tick" << QString::number(lineEdit_time_tick->text().toDouble());
 
     if(Memorized.noprop)
         arguments << "-noprop";
@@ -487,21 +489,21 @@ void MainWindow::LoadInputPulse()
 
     if( settings.value("co2amp/t_min", "x").toString() == "x"
             || settings.value("co2amp/t_max", "x").toString() == "x"
-            || settings.value("co2amp/clock_tick", "x").toString() == "x"
+            || settings.value("co2amp/time_tick", "x").toString() == "x"
             || settings.value("co2amp/vc", "x").toString() == "x"
             || !QFile::exists("field_in.bin") )
         flag_input_file_error = true;
     else{
         Saved.t_min = settings.value("co2amp/t_min", "").toString();
         Saved.t_max = settings.value("co2amp/t_max", "").toString();
-        Saved.clock_tick = settings.value("co2amp/clock_tick", "").toString();
+        Saved.time_tick = settings.value("co2amp/time_tick", "").toString();
         Saved.vc = settings.value("co2amp/vc", "").toString();
         Saved.precision_t = settings.value("co2amp/precision_t", 2).toInt();
         Saved.precision_r = settings.value("co2amp/precision_r", 2).toInt();
 
         Memorized.t_min = Saved.t_min;
         Memorized.t_max = Saved.t_max;
-        Memorized.clock_tick = Saved.clock_tick;
+        Memorized.time_tick = Saved.time_tick;
         Memorized.vc = Saved.vc;
         Memorized.precision_t = Saved.precision_t;
         Memorized.precision_r = Saved.precision_r;

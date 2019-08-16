@@ -102,8 +102,8 @@ F::F(std::string id)
             configuration_error = true;
             return;
         }
-        Debug(2, "Transmittance profile:");
-        if(debug_level >= 2)
+        Debug(2, "Transmittance profile [Radial coordinate(m) Transmittance(-)] (only displayed if debug level >= 3)");
+        if(debug_level >= 3)
             for(int i=0; i<pos.size(); i++)
                 std::cout << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
         for(int x=0; x<x0; x++)

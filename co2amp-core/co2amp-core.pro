@@ -11,7 +11,6 @@ SOURCES += \
     calc.cpp \
     input.cpp \
     main.cpp \
-    memory.cpp \
     misc.cpp \
     optic_A.cpp \
     optic_A_amplification.cpp \

@@ -15,6 +15,7 @@
 #include <QClipboard>
 #include <QElapsedTimer>
 #include <QSvgWidget>
+#include <QShortcut>
 #include <cmath>
 #include "ui_mainwindow.h"
 
@@ -24,7 +25,7 @@ class CoreVariables
     public:
         QStringList configFile_id, configFile_type, configFile_content;
         bool noprop;
-        QString vc, t_min, t_max, clock_tick;
+        QString vc, t_min, t_max, time_tick;
         int precision_t, precision_r;
         int optic, pulse;
 };
@@ -56,6 +57,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         //bool noam; // no amplifier optics
         QElapsedTimer timer;
         CoreVariables Saved, Memorized;
+        QShortcut *keyF8;
         void LoadProject();
         int FigureMenu();
 

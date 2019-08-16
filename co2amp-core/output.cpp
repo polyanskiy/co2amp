@@ -1,69 +1,6 @@
 #include  "co2amp.h"
 
 
-void UpdateDynamicsFiles(double t)
-{
-/*
-    int i;
-    FILE *file;
-
-    ////////////////////////// Discharge //////////////////////////
-    if(pumping == "discharge"){
-        if(t==0.0){
-            file = fopen("data_discharge.dat", "w");
-            fprintf(file, "# time[us] current[A] voltage[V]\n");
-        }
-        else
-            file = fopen("data_discharge.dat", "a");
-        fprintf(file, "%7f\t%.7f\t%.7f\n", t*1e6, Current(t), Voltage(t));
-        fclose(file);
-    }
-
-    ////////////////////////////// q //////////////////////////////
-    if(pumping == "discharge"){
-        if(t==0.0){
-            file = fopen("data_q.dat", "w");
-            fprintf(file, "# time[us] q2 q3 q4 qT\n");
-        }
-        else
-            file = fopen("data_q.dat", "a");
-        fprintf(file, "%7f\t%.7f\t%.7f\t%.7f\t%.7f\n", t*1e6, q2, q3, q4, qT);
-        fclose(file);
-    }
-
-    /////////////// e (average number of quanta in vibration modes) ////////////////
-    if(t==0.0){
-        file = fopen("data_e.dat", "w");
-        fprintf(file, "# time[us] e1(am1) e2(am1) e3(am1) e4(am1) e1(am2) e2(am2) e3(am2) ...\n");
-    }
-    else
-        file = fopen("data_e.dat", "a");
-    fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_AM; i++){
-        double Temp2 = 960/log(2/e2[i][0]+1);
-        double e1 = 1/(exp(1920/Temp2)-1);
-        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", e1, e2[i][0], e3[i][0], e4[i][0]);
-    }
-    fprintf(file, "\n");
-    fclose(file);
-
-    ///////////////////////// Temperatures /////////////////////////
-    if(t==0.0){
-        file = fopen("data_temperatures.dat", "w");
-        fprintf(file, "# time[us] T2(am1) T3(am1) T4(am1) T(am1) T2(am2) T3(am2) ...\n");
-    }
-    else
-        file = fopen("data_temperatures.dat", "a");
-    fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_AM; i++)
-        //fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", 960/log(2/e2[i][0]+1), 3380/log(1/e3[i][0]+1), 3350/log(1/e4[i][0]+1), T[i][0]);
-        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", VibrationalTemperatures(i,0,2), VibrationalTemperatures(i,0,3), 3350/log(1/e4[i][0]+1), T[i][0]);
-    fprintf(file, "\n");
-    fclose(file);
-*/
-}
-
-
 void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 {
     int pulse_n = pulse->number;
@@ -73,7 +10,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double *Power = new double[n0];
     double Energy;
     double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
-    double Dv = 1.0/(Dt*n0);          // frequency step, Hz
+    double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*(n0-1)/2;
     //double v_max = vc + Dv*(n0-1)/2;
     double Dr = plane->optic->Dr;
@@ -203,36 +140,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 }
 
 
-void SaveGainSpectrum(int pulse_n, int k){
-/*
-    int i, n;
-    FILE *file;
-    double Dv = (v_max-v_min)/(n0-1); // frequency time step, Hz
-    //K = layout_component[k]; // component number in the "components" list;
 
-    bool firstAmSection = true;
-    int pass = 0;
-    for(i=0; i<k; i++){
-        if(optics[layout_component[i]].type == "AM" || pulse>0)
-            firstAmSection = false;
-        if(optics[layout_component[i]].id==optics[layout_component[k]].id)
-            pass++;
-    }
-
-    if(firstAmSection){
-        file = fopen("data_band.dat", "w");
-        fprintf(file, "# frequency[THz] gain[au]\n");
-    }
-    else{
-        file = fopen("data_band.dat", "a");
-        fprintf(file, "\n\n"); // data set separator
-    }
-    fprintf(file, "#pulse %d component %d pass %d\n", pulse, layout_component[k], pass);
-    for(n=0; n<n0; n++)
-        fprintf(file, "%.7f\t%.7f\n", (v_min+Dv*n)*1e-12, gainSpectrum[n]); //frequency in THz, gain in m-1 (<=> %/cm)
-    fclose(file);
-*/
-}
 
 
 void SaveOutputField()

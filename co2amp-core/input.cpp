@@ -12,7 +12,7 @@ bool ReadCommandLine(int argc, char **argv)
     n0 = -1;
     t_min = -1;               // Pulse time calculation limit, s
     t_max = -1;               // Pulse shift from 0, s
-    clock_tick = -1;         // Time net step for pumping/relaxation calculations, s (fixed!)
+    time_tick = -1;           // Time step for main (slow) time, s
     // ---------- DEBUGGING ----------
     debug_level = 0;          // No debugging info output by default
 
@@ -49,8 +49,8 @@ bool ReadCommandLine(int argc, char **argv)
             t_max = atof(argv[i+1]);
             count = count | 16;
         }
-        if (!strcmp(argv[i], "-clock_tick")){
-            clock_tick = atof(argv[i+1]);
+        if (!strcmp(argv[i], "-time_tick")){
+            time_tick = atof(argv[i+1]);
             count = count | 32;
         }
         // --------- DEBUGGING ---------
@@ -253,7 +253,7 @@ bool ReadLayoutConfigFile(std::string path){
     // calculate layout plane's "time" (distance from first surface in seconds)
     double time = 0;
     for(plane_n=0; plane_n<layout.size(); plane_n++){
-        layout[plane_n]->time = time;
+        layout[plane_n]->time_from_first_plane = time;
         time += layout[plane_n]->space / c;
     }
 
