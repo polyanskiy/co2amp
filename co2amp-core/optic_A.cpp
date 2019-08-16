@@ -40,18 +40,18 @@ A::A(std::string id)
 
 
     // ------- PUMPING -------
-    // pumping (must be "discharge" or "optical")
+    // pumping type (must be "discharge" or "optical")
     if(!YamlGetValue(&value, yaml, "pumping")){
         configuration_error = true;
         return;
     }
+    pumping = value;
+    Debug(2, "pumping = " + pumping);
     if(pumping != "discharge" && pumping != "optical"){
         configuration_error = true;
         std::cout << "ERROR: Wrong \'pumping\' parameter (must be \"discharge\" or \"optical\")\n";
         return;
     }
-    pumping = value; // "discharge" or "optical"
-    Debug(2, "pumping = " + pumping);
 
     if(pumping == "discharge"){
         if(!YamlGetValue(&value, yaml, "Vd")){
