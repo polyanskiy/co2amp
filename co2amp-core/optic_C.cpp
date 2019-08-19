@@ -37,7 +37,7 @@ void C::InternalDynamics(double)
 
 void C::PulseInteraction(Pulse *pulse, Plane*, double)
 {
-    if(chirp==0.0)
+    if(chirp == 0)
         return;
     Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
 
@@ -46,8 +46,8 @@ void C::PulseInteraction(Pulse *pulse, Plane*, double)
 
     #pragma omp parallel for // mulithread
     for(int x=0; x<x0; x++){
-        std::complex<double> *spectrum;
         double delay;
+        std::complex<double> *spectrum;
         spectrum = new std::complex<double>[n0];
         FFT(pulse->E[x], spectrum);
         for(int n=0; n<n0; n++){
@@ -56,7 +56,7 @@ void C::PulseInteraction(Pulse *pulse, Plane*, double)
             spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*n-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
         }
         IFFT(spectrum, pulse->E[x]);
-        delete spectrum;
+        delete[] spectrum;
     }
 
 }

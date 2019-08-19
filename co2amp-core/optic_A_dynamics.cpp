@@ -3,7 +3,7 @@
 
 void A::InternalDynamics(double time)
 {
-    if(p_CO2+p_N2+p_He <=0)
+    if(p_CO2+p_N2+p_He <= 0)
         return;
 
     StatusDisplay(nullptr, nullptr, time, "pumping and relaxation... (" + id +")");
@@ -21,9 +21,9 @@ void A::InternalDynamics(double time)
     double y2 = p_N2/(p_CO2+p_N2+p_He);
     double y3 = p_He/(p_CO2+p_N2+p_He);
 
-    // re-solve Boltzmann equation from time to time; use linear interpolation otherwise
+    // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
     if(pumping == "discharge"){ // Discharge pumping
-        double step = 25.0e-9;
+        double step = 25e-9;
         if(time-time_tick/2<=time_b && time+time_tick/2>time_b){
             q2_a = q2_b;
             q3_a = q3_b;
@@ -215,62 +215,85 @@ double A::VibrationalTemperatures(int x, int mode){
 
 void A::UpdateDynamicsFiles(double time)
 {
-/*
-    int i;
+    // find out is this AM section is first or/and last AM in optics list
+    int is_first_A = -1;
+    int is_last_A = -1;
+    for(Optic *optic: optics){
+        if(optic->type == "A"){
+            if(is_last_A == 1)
+                is_last_A = 0;
+            if(optic->id == this->id){
+                if(is_first_A == -1)
+                    is_first_A = 1;
+                if (is_last_A == -1)
+                    is_last_A = 1;
+            }
+            if(is_first_A == -1)
+                is_first_A = 0;
+        }
+    }
+
     FILE *file;
 
-    ////////////////////////// Discharge //////////////////////////
     if(pumping == "discharge"){
-        if(t==0.0){
+        //////////////////////// Discharge ////////////////////////
+
+        if(time==0 && is_first_A==1){
             file = fopen("data_discharge.dat", "w");
-            fprintf(file, "# time[us] current[A] voltage[V]\n");
+            fprintf(file, "#Data format: time[s] current[A](A1) voltage[V](A1) current[A](A2) voltage[V](A2) ...\n");
         }
         else
             file = fopen("data_discharge.dat", "a");
-        fprintf(file, "%7f\t%.7f\t%.7f\n", t*1e6, Current(t), Voltage(t));
+        if(is_first_A==1)
+            fprintf(file, "%e", time);
+        fprintf(file, "\t%e\t%e", Current(time), Voltage(time));
+        if(is_last_A==1)
+            fprintf(file, "\n");
         fclose(file);
-    }
 
-    ////////////////////////////// q //////////////////////////////
-    if(pumping == "discharge"){
-        if(t==0.0){
+        //////////////////////////// q ////////////////////////////
+        if(time==0 && is_first_A==1){
             file = fopen("data_q.dat", "w");
-            fprintf(file, "# time[us] q2 q3 q4 qT\n");
+            fprintf(file, "#Data format: time[s] q2(A1) q3(A1) q4(A1) qT(A1) q2(A2) q3(A2) q4(A2) qT(A2) ...\n");
         }
         else
             file = fopen("data_q.dat", "a");
-        fprintf(file, "%7f\t%.7f\t%.7f\t%.7f\t%.7f\n", t*1e6, q2, q3, q4, qT);
+        if(is_first_A==1)
+            fprintf(file, "%e", time);
+        fprintf(file, "\t%e\t%e\t%e\t%e", q2, q3, q4, qT);
+        if(is_last_A==1)
+            fprintf(file, "\n");
         fclose(file);
     }
 
     /////////////// e (average number of quanta in vibration modes) ////////////////
-    if(t==0.0){
+    if(time==0 && is_first_A==1){
         file = fopen("data_e.dat", "w");
-        fprintf(file, "# time[us] e1(am1) e2(am1) e3(am1) e4(am1) e1(am2) e2(am2) e3(am2) ...\n");
+        fprintf(file, "#Data format: time[s] e1(A1) e2(A1) e3(A1) e4(A1) e1(A2) e2(A2) e3(A2) ...\n");
     }
     else
         file = fopen("data_e.dat", "a");
-    fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_AM; i++){
-        double Temp2 = 960/log(2/e2[i][0]+1);
-        double e1 = 1/(exp(1920/Temp2)-1);
-        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", e1, e2[i][0], e3[i][0], e4[i][0]);
-    }
-    fprintf(file, "\n");
+    if(is_first_A==1)
+        fprintf(file, "%e", time);
+    double Temp2 = 960/log(2/e2[0]+1);
+    double e1 = 1/(exp(1920/Temp2)-1);
+    fprintf(file, "\t%e\t%e\t%e\t%e", e1, e2[0], e3[0], e4[0]);
+    if(is_last_A==1)
+        fprintf(file, "\n");
     fclose(file);
 
     ///////////////////////// Temperatures /////////////////////////
-    if(t==0.0){
+    if(time==0 && is_first_A==1){
         file = fopen("data_temperatures.dat", "w");
-        fprintf(file, "# time[us] T2(am1) T3(am1) T4(am1) T(am1) T2(am2) T3(am2) ...\n");
+        fprintf(file, "#Data format: time[s] T2(A1) T3(A1) T4(A1) T(A1) T2(A2) T3(A2) ...\n");
     }
     else
         file = fopen("data_temperatures.dat", "a");
-    fprintf(file, "%7f", t*1e6);
-    for(i=0; i<n_AM; i++)
-        //fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", 960/log(2/e2[i][0]+1), 3380/log(1/e3[i][0]+1), 3350/log(1/e4[i][0]+1), T[i][0]);
-        fprintf(file, "\t%.7f\t%.7f\t%.7f\t%.7f", VibrationalTemperatures(i,0,2), VibrationalTemperatures(i,0,3), 3350/log(1/e4[i][0]+1), T[i][0]);
-    fprintf(file, "\n");
+    if(is_first_A==1)
+        fprintf(file, "%e", time);
+    fprintf(file, "\t%e\t%e\t%e\t%e", VibrationalTemperatures(0,2),
+            VibrationalTemperatures(0,3), 3350/log(1/e4[0]+1), T[0]);
+    if(is_last_A==1)
+        fprintf(file, "\n");
     fclose(file);
-*/
 }

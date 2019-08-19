@@ -60,7 +60,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         file = fopen("data_fluence.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
+    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
     for(int x=0; x<x0; x++)
         fprintf(file, "%e\t%e\n", Dr*x, Fluence[x]);
     fclose(file);
@@ -74,7 +74,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         file = fopen("data_power.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
+    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", (t_min + Dt*n), Power[n]);
     fclose(file);
@@ -82,7 +82,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     // Write energy file
     if(pulse_n==0 && plane_n==0){
         file = fopen("data_energy.dat", "w");
-        fprintf(file, "#Data format: time[s] energy[J] pulse_n optic_n pass_number\n");
+        fprintf(file, "#Data format: time[s] energy[J] pulse# optic# pass#\n");
     }
     else
         file = fopen("data_energy.dat", "a");
@@ -128,7 +128,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         file = fopen("data_spectra.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse_n, optic_n, pass_n);
+    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
     for(int n=0; n<=n0-1; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*n, average_spectrum[n]);
     fclose(file);

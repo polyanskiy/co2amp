@@ -88,7 +88,7 @@ void MainWindow::UpdateControls()
     //optic and pulse
     comboBox_optic->clear();
     comboBox_pulse->clear();
-    for(i=0; i<=Saved.configFile_id.count()-1; i++){
+    for(i=0; i<Saved.configFile_id.count(); i++){
         QString type = Saved.configFile_type[i];
         if(type != "PULSE" && type != "LAYOUT" && type != "COMMENT")
             comboBox_optic->addItem(Saved.configFile_id[i]);

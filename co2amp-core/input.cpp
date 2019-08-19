@@ -138,7 +138,7 @@ bool ReadConfigFiles(std::string path)
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
         pulses[pulse_n]->number = pulse_n;
-        pulses[pulse_n]->InitializeE();
+        pulses[pulse_n]->InitializeE();        
     }
 
     // add plane numbers to all layout planes

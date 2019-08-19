@@ -125,6 +125,6 @@ void S::PulseInteraction(Pulse *pulse, Plane*, double)
         for(int n=0; n<n0; n++)
             spectrum[n] *= sqrt(Transmittance[n]);
         IFFT(spectrum, pulse->E[x]);
-        delete spectrum;
+        delete[] spectrum;
     }
 }

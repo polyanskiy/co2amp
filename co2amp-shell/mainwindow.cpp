@@ -407,7 +407,7 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     if(!flag_results_modified && !flag_plot_modified && !flag_comments_modified) // nothing changed
         return true;
 
-    mb = QMessageBox::warning(this, tr("Project modified - co2amp"), tr("The project has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    mb = QMessageBox::warning(this, "Project modified - co2amp", "The project has been modified.\nDo you want to save changes?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     if (mb == QMessageBox::Save){
         if(project_file != QString()){

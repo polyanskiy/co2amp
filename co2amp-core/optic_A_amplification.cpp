@@ -236,11 +236,11 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     }
 
     if(firstAmSection){
-        file = fopen("data_band.dat", "w");
+        file = fopen("data_gain.dat", "w");
         fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
     }
     else{
-        file = fopen("data_band.dat", "a");
+        file = fopen("data_gain.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
     fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse->number, plane->number, pass);

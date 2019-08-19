@@ -44,9 +44,9 @@ public:
 
     std::string type;
     std::string id;
-    std::string yaml;   // path to configuration file
-    int number;         // number of the optic in the optics list
-    double Dr;          // m
+    std::string yaml;         // path to configuration file
+    int number;               // number of the optic in the optics list
+    double Dr;                // m
 };
 
 

@@ -48,22 +48,29 @@ int MainWindow::PassNumber(int i)
 }
 
 
-int MainWindow::AmNumber(int optic_number)
+int MainWindow::AmNumber(int optic_n)
 {
     QStringList list;
     list = Saved.configFile_type;
 
-    if(list.count()==0 || list[optic_number] != "A")
+    if(list.count()==0)// || list[optic_n] != "A")
         return -1;
 
+    int count_am = 0;
+    int count_other = 0;
     int i;
-    int count = 0;
-    for(i=0; i <= list.count()-1; i++){
-        if(list[i] == "AM")
-            count++;
-        if(i == optic_number)
+    for(i=0; i < list.count(); i++){
+        if(list[i] == "PULSE" || list[i] == "COMPONENT" || list[i] == "COMMENT")
+            count_other++;
+        if(list[i] == "A")
+            count_am++;
+        if(i-count_other == optic_n)
             break;
     }
 
-    return count-1;
+    //QMessageBox().warning(this, "co2amp", list[i]);
+
+    if(list[i]=="A")
+        return count_am-1;
+    return -1;
 }
