@@ -64,11 +64,11 @@ void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
 {
     int m = FigureMenu();
     if(m==1) //data
-        CopyMultipassData("data_band.dat");
+        CopyMultipassData("data_gain.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig3);
     if(m==3) // SVG
-        SaveSVG("fig_band.svg");
+        SaveSVG("fig_gain.svg");
 }
 
 
@@ -203,7 +203,8 @@ void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 
 void MainWindow::CopyMultipassData(QString filename)
 {
-    QString line, out;
+    QString line;
+    QString out = "";
     QStringList x, y[10];
     QRegExp separators("[ \t\n\r]");
     QFile file(filename);
@@ -241,12 +242,12 @@ void MainWindow::CopyMultipassData(QString filename)
     file.close();
 
     for(int j=0; j<x.count(); j++){
-	out += x[j];
-	for(int i=0; i<10; i++){
-	    if(y[i].count() > j) // extra check - to avoid program crash
-	    out += "\t" + y[i][j];
-	}
-	out += "\n";
+        out += x[j];
+        for(int i=0; i<10; i++){
+            if(y[i].count() > j) // extra check - to avoid program crash
+            out += "\t" + y[i][j];
+        }
+        out += "\n";
     }
 
     QApplication::clipboard()->setText(out);

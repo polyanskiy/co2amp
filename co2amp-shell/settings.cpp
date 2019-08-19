@@ -6,17 +6,17 @@ void MainWindow::SaveSettings(QString what_to_save)
     QSettings settings("project.ini", QSettings::IniFormat);
 
     if(what_to_save == "all"){
-        settings.setValue("general/version", "20190730" );
+        settings.setValue("general/version",     "2019.08" );
 
-        settings.setValue("co2amp/noprop", Memorized.noprop);  //move to debug!
+        settings.setValue("co2amp/noprop",       Memorized.noprop);  //move to debug!
 
-        settings.setValue("co2amp/vc", Memorized.vc);
-        settings.setValue("co2amp/precision_t", Memorized.precision_t);
-        settings.setValue("co2amp/precision_r", Memorized.precision_r);
-        settings.setValue("co2amp/t_min", Memorized.t_min);
-        settings.setValue("co2amp/t_max", Memorized.t_max);
-        settings.setValue("co2amp/time_tick", Memorized.time_tick);
-        settings.setValue("debug/debugLevel", spinBox_debugLevel->text());
+        settings.setValue("co2amp/vc",           Memorized.vc);
+        settings.setValue("co2amp/precision_t",  Memorized.precision_t);
+        settings.setValue("co2amp/precision_r",  Memorized.precision_r);
+        settings.setValue("co2amp/t_min",        Memorized.t_min);
+        settings.setValue("co2amp/t_max",        Memorized.t_max);
+        settings.setValue("co2amp/time_tick",    Memorized.time_tick);
+        settings.setValue("debug/debugLevel",    spinBox_debugLevel->text());
 
         // Write configuration files
         int i;
@@ -41,18 +41,25 @@ void MainWindow::SaveSettings(QString what_to_save)
             file.close();
         }
 
-
         Saved = Memorized;
     }
 
     if(what_to_save == "all" || what_to_save == "plot"){
-        settings.setValue("plot/optic", Memorized.optic);
-        settings.setValue("plot/pulse", Memorized.pulse);
-        settings.setValue("plot/energyPlot", comboBox_energyPlot->currentIndex());
-        settings.setValue("plot/passes", lineEdit_passes->text());
-        settings.setValue("plot/timeScale", comboBox_timeScale->currentIndex());
-        settings.setValue("plot/freqScale", comboBox_freqScale->currentIndex());
-        settings.setValue("plot/log", checkBox_log->isChecked());
+        settings.setValue("plot/optic",          Memorized.optic);
+        settings.setValue("plot/pulse",          Memorized.pulse);
+        settings.setValue("plot/energyPlot",     comboBox_energyPlot->currentIndex());
+        settings.setValue("plot/passes",         lineEdit_passes->text());
+        settings.setValue("plot/timeScale",      comboBox_timeScale->currentIndex());
+        settings.setValue("plot/freqScale",      comboBox_freqScale->currentIndex());
+        settings.setValue("plot/log",            checkBox_log->isChecked());
+        settings.setValue("plot/timeUnit",       comboBox_timeUnit->currentIndex());
+        settings.setValue("plot/energyUnit",     comboBox_energyUnit->currentIndex());
+        settings.setValue("plot/lengthUnit",     comboBox_lengthUnit->currentIndex());
+        settings.setValue("plot/fluenceUnit",    comboBox_fluenceUnit->currentIndex());
+        settings.setValue("plot/tUnit",          comboBox_tUnit->currentIndex());
+        settings.setValue("plot/powerUnit",      comboBox_powerUnit->currentIndex());
+        settings.setValue("plot/frequencyUnit",  comboBox_frequencyUnit->currentIndex());
+        settings.setValue("plot/dischargeUnits", comboBox_dischargeUnits->currentIndex());
     }
 }
 
@@ -94,28 +101,36 @@ void MainWindow::LoadSettings(QString path)
     PopulateConfigFileList();
 
     // Calculation net
-    Memorized.vc = settings.value("co2amp/vc", 30).toString();
-    Memorized.precision_t = settings.value("co2amp/precision_t", 6).toInt();
-    Memorized.precision_r = settings.value("co2amp/precision_r", 1).toInt();
-    Memorized.t_min = settings.value("co2amp/t_min", -100e-12).toString();
-    Memorized.t_max = settings.value("co2amp/t_max", 400e-12).toString();
-    Memorized.time_tick = settings.value("co2amp/time_tick", 2e-9).toString();
+    Memorized.vc            =                settings.value("co2amp/vc", 30).toString();
+    Memorized.precision_t   =                settings.value("co2amp/precision_t", 6).toInt();
+    Memorized.precision_r   =                settings.value("co2amp/precision_r", 1).toInt();
+    Memorized.t_min         =                settings.value("co2amp/t_min", -100e-12).toString();
+    Memorized.t_max         =                settings.value("co2amp/t_max", 400e-12).toString();
+    Memorized.time_tick     =                settings.value("co2amp/time_tick", 2e-9).toString();
 
     // Debugging
-    spinBox_debugLevel->setValue(settings.value("debug/debugLevel", 0).toInt());
-    Memorized.noprop = settings.value("co2amp/noprop", 0).toBool();
+    spinBox_debugLevel     -> setValue(      settings.value("debug/debugLevel", 0).toInt());
+    Memorized.noprop        =                settings.value("co2amp/noprop", 0).toBool();
 
     // Plot
-    Memorized.optic = settings.value("plot/optic", 0).toInt();
-    Memorized.pulse = settings.value("plot/pulse", 0).toInt();
-    lineEdit_passes->setText(settings.value("plot/passes", "1,2").toString());
-    /*if(Saved.n_pulses == 1) // single pulse
-        comboBox_energyPlot->setCurrentIndex(settings.value("plot/energyPlot", 1).toInt());
+    Memorized.optic         =                 settings.value("plot/optic", 0).toInt();
+    Memorized.pulse         =                 settings.value("plot/pulse", 0).toInt();
+    lineEdit_passes        -> setText        (settings.value("plot/passes", "1,2").toString());
+    if(comboBox_pulse->count() == 1) // single pulse
+        comboBox_energyPlot-> setCurrentIndex(settings.value("plot/energyPlot", 1).toInt());
     else
-        comboBox_energyPlot->setCurrentIndex(settings.value("plot/energyPlot", 3).toInt());*/
-    comboBox_timeScale->setCurrentIndex(settings.value("plot/timeScale", 2).toInt());
-    comboBox_freqScale->setCurrentIndex(settings.value("plot/freqScale", 2).toInt());
-    checkBox_log->setChecked(settings.value("plot/log", 0).toBool());
+        comboBox_energyPlot-> setCurrentIndex(settings.value("plot/energyPlot", 3).toInt());
+    comboBox_timeScale     -> setCurrentIndex(settings.value("plot/timeScale", 2).toInt());
+    comboBox_freqScale     -> setCurrentIndex(settings.value("plot/freqScale", 2).toInt());
+    checkBox_log           -> setChecked     (settings.value("plot/log", 0).toBool());
+    comboBox_timeUnit      -> setCurrentIndex(settings.value("plot/timeUnit", 2).toInt());      // def: us
+    comboBox_energyUnit    -> setCurrentIndex(settings.value("plot/energyUnit", 2).toInt());    // def: J
+    comboBox_lengthUnit    -> setCurrentIndex(settings.value("plot/lengthUnit", 2).toInt());    // def: mm
+    comboBox_fluenceUnit   -> setCurrentIndex(settings.value("plot/fluenceUnit", 4).toInt());   // def: J/cm2
+    comboBox_tUnit         -> setCurrentIndex(settings.value("plot/tUnit", 4).toInt());         // def: ps
+    comboBox_powerUnit     -> setCurrentIndex(settings.value("plot/powerUnit", 2).toInt());     // def: TW
+    comboBox_frequencyUnit -> setCurrentIndex(settings.value("plot/frequencyUnit", 0).toInt()); // def: THz
+    comboBox_dischargeUnits-> setCurrentIndex(settings.value("plot/dischargeUnits", 1).toInt());// def: kV, kA
 
     // //////////////////////// backwards compatibility start ////////////////////////////////////////////
     /*double w0 = settings.value("co2amp/w0", 0).toDouble();

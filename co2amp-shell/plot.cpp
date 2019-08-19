@@ -9,8 +9,8 @@ void MainWindow::Plot()
         return;
     }
 
-    if(flag_plot_postponed_modified)
-        flag_plot_modified = true;
+    //if(flag_plot_postponed_modified)
+    //    flag_plot_modified = true;
 
     if(flag_plot_modified)
         MemorizeSettings();
@@ -144,18 +144,25 @@ void MainWindow::Plot()
         v_min /= 1e12;
         v_max /= 1e12;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 1){ // um
+    if(comboBox_frequencyUnit->currentIndex() == 1){ // 1/cm
+        frequency_xlabel = "Wavenumber, 1/cm";
+        frequency_using = " using ($1/2.99792458e10):($2)";
+        v_min = v_min/c/100;
+        v_max = v_max/c/100;
+    }
+    if(comboBox_frequencyUnit->currentIndex() == 2){ // um
         frequency_xlabel = "Wavelength, µm";
         frequency_using = " using (2.99792458e14/$1):($2)";
         double tmp = v_min;
         v_min = c/v_max*1e6;
         v_max = c/tmp*1e6;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 2){ // 1/cm
-        frequency_xlabel = "Wavenumber, 1/cm";
-        frequency_using = " using ($1/2.99792458e10):($2)";
-        v_min = v_min/c/100;
-        v_max = v_max/c/100;
+    if(comboBox_frequencyUnit->currentIndex() == 3){ // nm
+        frequency_xlabel = "Wavelength, nm";
+        frequency_using = " using (2.99792458e17/$1):($2)";
+        double tmp = v_min;
+        v_min = c/v_max*1e9;
+        v_max = c/tmp*1e9;
     }
 
     QString common_file_head = "set terminal svg size "
@@ -300,8 +307,9 @@ void MainWindow::Plot()
         out << "set xlabel \"Time, " << time_unit << "\"\n";
         out << "set ylabel \"e (# of quanta / molecule)\"\n";
         out << "set yrange [0:*]\n";
-        out << "plot \"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+2 << ") with lines ls 4 ti \"Lower 10 µm (symm stretch): e1\",\\\n";
-        out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+3 << ") with lines ls 1 ti \"Lower 9 µm (bend): e2\",\\\n";
+        out << "plot \"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+2 << QString(") with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n");
+        out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+3 << QString(") with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n");
+        // (Qstring(...) used to solve a unicode problem - "μ" is not written to file correctly)
         out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+4 << ") with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n";
         out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ls 3 ti \"N2: e4\"\n";
         file.close();
@@ -402,7 +410,7 @@ void MainWindow::Plot()
     if(flag_plot_modified)
         SaveSettings("plot"); // save only plot settings
     flag_plot_postponed = false;
-    flag_plot_postponed_modified = false;
+    //flag_plot_postponed_modified = false;
     this->setCursor(Qt::ArrowCursor);
 }
 

@@ -51,11 +51,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_results_modified;
         bool flag_plot_modified;
         bool flag_plot_postponed;
-        bool flag_plot_postponed_modified;
-        bool flag_comments_modified;
         bool flag_input_file_error;
-        //bool noam; // no amplifier optics
-        QElapsedTimer timer;
         CoreVariables Saved, Memorized;
         QShortcut *keyF8;
         void LoadProject();
@@ -85,20 +81,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
         void on_tabWidget_main_currentChanged(int tab);
-        void on_comboBox_optic_activated(QString);
-        void on_comboBox_pulse_activated(QString);
-        void on_lineEdit_passes_textEdited(QString str);
-        void on_lineEdit_passes_returnPressed();
-        void on_comboBox_energyPlot_activated(QString);
-        void on_checkBox_log_clicked();
-        void on_comboBox_timeScale_activated(QString);
-        void on_comboBox_freqScale_activated(QString);
-        void on_spinBox_width_valueChanged(int);
-        void on_spinBox_width_editingFinished();
-        void on_spinBox_height_valueChanged(int);
-        void on_spinBox_height_editingFinished();
-        void on_doubleSpinBox_zoom_valueChanged(double);
-        void on_doubleSpinBox_zoom_editingFinished();
         void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
         void MemorizeSettings();
         void SaveProject();
@@ -109,8 +91,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void Calculate();
         void Abort();
         void Plot();
+        void FlagModifiedAndPlot();
+        void PostponePlot();
+        void FlagModifiedAndPostponePlot();
+        void PlotIfPostponed();
         void ClearPlot();
-        void Comments();
         void SelectEnergies();
         void CopyMultipassData(QString filename);
         void CopyPixmap(QSvgWidget *svg);
@@ -130,23 +115,5 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void BlockSignals(bool block);
 };
 
-
-/*class StringListModel : public QAbstractListModel
-{
-    Q_OBJECT
-
-    public:
-        StringListModel(const QStringList &strings, QObject *parent = nullptr): QAbstractListModel(parent), stringList(strings) {}
-        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex &index, int role) const override;
-        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-        Qt::ItemFlags flags(const QModelIndex &index) const override;
-        bool setData(const QModelIndex &index, const QVariant &value,int role = Qt::EditRole) override;
-        bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
-        bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
-
-    private:
-        QStringList stringList;
-};*/
 
 #endif

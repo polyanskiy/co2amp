@@ -9,12 +9,12 @@ MainWindow::MainWindow(QWidget *parent)
     flag_projectloaded = false;
     flag_calculating = false;
     flag_calculation_success = false;
-    flag_comments_modified = false;
+    //flag_comments_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
     flag_plot_modified = false;
     flag_plot_postponed = false;
-    flag_plot_postponed_modified = false;
+    //flag_plot_postponed_modified = false;
 
     /////////////////////////// External programs //////////////////////////
     path_to_core = "co2amp-core";
@@ -69,22 +69,55 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget_main->setCurrentIndex(0); // always set to input tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
-    connect(pushButton_save, SIGNAL(clicked()), this, SLOT(SaveProject()));
-    connect(comboBox_size, SIGNAL(activated(QString)), this, SLOT(Plot()));
-    connect(checkBox_grid, SIGNAL(clicked()), this, SLOT(Plot()));
-    connect(checkBox_labels, SIGNAL(clicked()), this, SLOT(Plot()));
-    connect(pushButton_update, SIGNAL(clicked()), this, SLOT(Plot()));
-    connect(lineEdit_vc, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(checkBox_noprop, SIGNAL(clicked()), this, SLOT(OnModified()));
-    connect(comboBox_precision_t, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
-    connect(comboBox_precision_r, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_t_min, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_t_max, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(lineEdit_time_tick, SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
-    connect(pushButton_go, SIGNAL(clicked()), this, SLOT(Calculate()));
-    connect(pushButton_abort, SIGNAL(clicked()), this, SLOT(Abort()));
-    keyF8 = new QShortcut(QKeySequence("F8"), this);   // Initialize the object
-    connect(keyF8, SIGNAL(activated()), this, SLOT(Calculate()));
+    // Calculate()
+    connect(pushButton_go,           SIGNAL(clicked()),           this, SLOT(Calculate()));
+    keyF8 = new QShortcut(QKeySequence("F8"), this);
+    connect(keyF8,                   SIGNAL(activated()),         this, SLOT(Calculate()));
+    // Abort()
+    connect(pushButton_abort,        SIGNAL(clicked()), this, SLOT(Abort()));
+    // SaveProject()
+    connect(pushButton_save,         SIGNAL(clicked()), this, SLOT(SaveProject()));
+    // Plot() "Graph view" settings are considered application preferences
+    // they are stored in registry, and not saved as part of project
+    // modifying them causes graphs to re-plot but doesn't rise the "modified" flag
+    connect(comboBox_size,           SIGNAL(activated(QString)),  this, SLOT(Plot()));
+    connect(checkBox_grid,           SIGNAL(clicked()),           this, SLOT(Plot()));
+    connect(checkBox_labels,         SIGNAL(clicked()),           this, SLOT(Plot()));
+    connect(pushButton_update,       SIGNAL(clicked()),           this, SLOT(Plot()));
+    // FlagModifiedAndPlot()
+    connect(comboBox_optic,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_pulse,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_energyPlot,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_timeScale,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_freqScale,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(checkBox_log,            SIGNAL(clicked()),           this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_timeUnit,       SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_energyUnit,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_lengthUnit,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_fluenceUnit,    SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_tUnit,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_powerUnit,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_frequencyUnit,  SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_dischargeUnits, SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    // PostponePlot() ...without rising the "modified" flag
+    connect(spinBox_width,           SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));
+    connect(spinBox_height,          SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));
+    connect(doubleSpinBox_zoom,      SIGNAL(valueChanged(double)),this, SLOT(PostponePlot()));
+    // FlagModifiedAndPostponePlot()
+    connect(lineEdit_passes,         SIGNAL(textEdited(QString)), this, SLOT(FlagModifiedAndPostponePlot()));
+    // PlotIfPostponed()
+    connect(lineEdit_passes,         SIGNAL(returnPressed()),     this, SLOT(PlotIfPostponed()));
+    connect(spinBox_width,           SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
+    connect(spinBox_height,          SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
+    connect(doubleSpinBox_zoom,      SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
+    // OnModified()
+    connect(lineEdit_vc,             SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    connect(checkBox_noprop,         SIGNAL(clicked()),           this, SLOT(OnModified()));
+    connect(comboBox_precision_t,    SIGNAL(activated(QString)),  this, SLOT(OnModified()));
+    connect(comboBox_precision_r,    SIGNAL(activated(QString)),  this, SLOT(OnModified()));
+    connect(lineEdit_t_min,          SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    connect(lineEdit_t_max,          SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
+    connect(lineEdit_time_tick,      SIGNAL(textEdited(QString)), this, SLOT(OnModified()));
 
     /////////////////////////////// Process command line //////////////////////////////////////
     QStringList arg = qApp->arguments();
@@ -181,12 +214,12 @@ void MainWindow::NewProject()
     flag_calculating = false;
     flag_calculation_success = false;
     flag_results_modified = false;
-    flag_comments_modified = false;
+    //flag_comments_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
     flag_plot_modified = false;
     flag_plot_postponed = false;
-    flag_plot_postponed_modified = false;
+    //flag_plot_postponed_modified = false;
     UpdateControls();
 }
 
@@ -264,18 +297,6 @@ void MainWindow::SaveProject()
         return;
     }
     QFile::remove("field_in.bin");
-    QFile::remove("gnuplot_script");
-    // compatibility: remove gnuplot scripts from older files - not saving scripts since 2019-06-05
-    QFile::remove("script_energy.txt");
-    QFile::remove("script_power.txt");
-    QFile::remove("script_fluence.txt");
-    QFile::remove("script_spectra.txt");
-    QFile::remove("script_band.txt");
-    QFile::remove("script_discharge.txt");
-    QFile::remove("script_q.txt");
-    QFile::remove("script_temperatures.txt");
-    QFile::remove("script_e.txt");
-    // end compatibility
     QProcess *proc;
     proc = new QProcess(this);
     if(fileinfo.suffix()=="co2x") // extended project file suitable for sequensing
@@ -286,7 +307,6 @@ void MainWindow::SaveProject()
     delete proc;
     flag_results_modified = false;
     flag_plot_modified = false;
-    flag_comments_modified = false;
     UpdateControls();
 }
 
@@ -312,8 +332,6 @@ void MainWindow::LoadProject()
         flag_results_modified = false;
         flag_plot_modified = false;
         flag_plot_postponed = false;
-        flag_plot_postponed_modified = false;
-        flag_comments_modified = false;
         LoadInputPulse();
         if(fileinfo.suffix()=="co2x" && !flag_input_file_error)
             flag_field_ready_to_save = true;
@@ -372,7 +390,6 @@ void MainWindow::BeforeProcessStarted()
     LoadInputPulse();
     UpdateControls();
     tabWidget_main->setCurrentIndex(1); // Process tab
-    timer.start();
 }
 
 
@@ -386,7 +403,8 @@ void MainWindow::AfterProcessFinished()
         save = checkBox_saveWhenFinished->isChecked();
         flag_plot_postponed = true;
         flag_results_modified = true;
-        //Plot();
+        if(tabWidget_main->currentIndex()==2) // Output tab (Plot will be called)
+            Plot();
         //tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
         if(save)
             SaveProject();
@@ -404,7 +422,7 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     }
     if(!flag_calculation_success) // cannot save if calculations not completed nothing to save
         return true;
-    if(!flag_results_modified && !flag_plot_modified && !flag_comments_modified) // nothing changed
+    if(!flag_results_modified && !flag_plot_modified) // nothing changed
         return true;
 
     mb = QMessageBox::warning(this, "Project modified - co2amp", "The project has been modified.\nDo you want to save changes?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -523,16 +541,6 @@ void MainWindow::ClearWorkDir()
 }
 
 
-void MainWindow::Comments()
-{
-    if(!flag_projectloaded)
-        return;
-    SaveSettings("comments");
-    flag_comments_modified = true;
-    UpdateControls();
-}
-
-
 void MainWindow::on_tabWidget_main_currentChanged(int tab)
 {
     if(tab != 2)
@@ -542,94 +550,28 @@ void MainWindow::on_tabWidget_main_currentChanged(int tab)
 }
 
 
-void MainWindow::on_comboBox_optic_activated(QString)
+void MainWindow::FlagModifiedAndPostponePlot()
 {
     flag_plot_modified = true;
-    Plot();
-}
-
-
-void MainWindow::on_comboBox_pulse_activated(QString)
-{
-    flag_plot_modified = true;
-    Plot();
-}
-
-
-void MainWindow::on_lineEdit_passes_textEdited(QString)
-{
-    flag_plot_postponed_modified = true;
-}
-
-
-void MainWindow::on_spinBox_width_valueChanged(int)
-{
     flag_plot_postponed = true;
 }
 
-void MainWindow::on_spinBox_height_valueChanged(int)
-{
-    flag_plot_postponed = true;
-}
 
-void MainWindow::on_doubleSpinBox_zoom_valueChanged(double)
+
+void MainWindow::PostponePlot()
 {
     flag_plot_postponed = true;
 }
 
 
-void MainWindow::on_lineEdit_passes_returnPressed()
+void MainWindow::PlotIfPostponed()
 {
-    if(!flag_plot_postponed_modified)
-        return;
-    flag_plot_modified = true;
-    Plot();
-}
-
-void MainWindow::on_spinBox_width_editingFinished()
-{
-    if(!flag_plot_postponed)
-        return;
-    Plot();
-}
-
-void MainWindow::on_spinBox_height_editingFinished()
-{
-    if(!flag_plot_postponed)
-        return;
-    Plot();
-}
-
-void MainWindow::on_doubleSpinBox_zoom_editingFinished()
-{
-    if(!flag_plot_postponed)
-        return;
-    Plot();
+    if(flag_plot_postponed)
+        Plot();
 }
 
 
-void MainWindow::on_comboBox_energyPlot_activated(QString)
-{
-    flag_plot_modified = true;
-    Plot();
-}
-
-
-void MainWindow::on_checkBox_log_clicked()
-{
-    flag_plot_modified = true;
-    Plot();
-}
-
-
-void MainWindow::on_comboBox_timeScale_activated(QString)
-{
-    flag_plot_modified = true;
-    Plot();
-}
-
-
-void MainWindow::on_comboBox_freqScale_activated(QString)
+void MainWindow::FlagModifiedAndPlot()
 {
     flag_plot_modified = true;
     Plot();
