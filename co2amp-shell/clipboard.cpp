@@ -4,12 +4,12 @@
 int MainWindow::FigureMenu()
 {
     QMenu menu("");
-    menu.addAction("Copy data");
+    menu.addAction("Copy raw data");
     menu.addAction("Copy pixmap");
     menu.addAction("Save SVG");
     QAction *action = menu.exec(QCursor::pos());
     if(action){
-        if(action->text()=="Copy data")
+        if(action->text()=="Copy raw data")
             return 1;
         if(action->text()=="Copy pixmap")
             return 2;

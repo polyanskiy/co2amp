@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     clipboard.cpp \
     settings.cpp \
     misc.cpp \
-    update.cpp
+    update.cpp \
+    yamlhighlighter.cpp
 HEADERS += mainwindow.h
 OTHER_FILES += icon.rc
 FORMS += mainwindow.ui

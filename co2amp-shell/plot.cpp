@@ -9,9 +9,6 @@ void MainWindow::Plot()
         return;
     }
 
-    //if(flag_plot_postponed_modified)
-    //    flag_plot_modified = true;
-
     if(flag_plot_modified)
         MemorizeSettings();
 

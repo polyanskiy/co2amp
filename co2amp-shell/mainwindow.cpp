@@ -9,12 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
     flag_projectloaded = false;
     flag_calculating = false;
     flag_calculation_success = false;
-    //flag_comments_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
     flag_plot_modified = false;
     flag_plot_postponed = false;
-    //flag_plot_postponed_modified = false;
 
     /////////////////////////// External programs //////////////////////////
     path_to_core = "co2amp-core";
@@ -131,6 +129,8 @@ MainWindow::MainWindow(QWidget *parent)
     /////////////////////////////// Create program window /////////////////////////////////////
     restoreGeometry(settings.value("window_geometry").toByteArray());
     show();
+
+    highlighter = new YamlHighlighter(plainTextEdit_configFile_content->document());
 }
 
 MainWindow::~MainWindow()
@@ -162,11 +162,7 @@ void MainWindow::Abort()
 {
     flag_calculation_success = false;
     flag_calculating = false;
-    //process->kill();
-    process->terminate(); // commented code crash the shell...
-    //process->close();
-    //process->deleteLater();
-    //delete process;
+    process->kill();
     UpdateControls();
 }
 
@@ -214,12 +210,10 @@ void MainWindow::NewProject()
     flag_calculating = false;
     flag_calculation_success = false;
     flag_results_modified = false;
-    //flag_comments_modified = false;
     flag_field_ready_to_save = false;
     flag_input_file_error = false;
     flag_plot_modified = false;
     flag_plot_postponed = false;
-    //flag_plot_postponed_modified = false;
     UpdateControls();
 }
 

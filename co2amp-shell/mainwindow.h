@@ -16,6 +16,7 @@
 #include <QElapsedTimer>
 #include <QSvgWidget>
 #include <QShortcut>
+#include <QSyntaxHighlighter>
 #include <cmath>
 #include "ui_mainwindow.h"
 
@@ -28,6 +29,35 @@ class CoreVariables
         QString vc, t_min, t_max, time_tick;
         int precision_t, precision_r;
         int optic, pulse;
+};
+
+
+class YamlHighlighter : public QSyntaxHighlighter
+{
+    Q_OBJECT
+
+    public:
+        YamlHighlighter(QTextDocument *parent = 0);
+
+    protected:
+        void highlightBlock(const QString &text) override;
+
+    private:
+        struct HighlightingRule
+        {
+            QRegularExpression pattern;
+            QTextCharFormat format;
+        };
+        QVector<HighlightingRule> highlightingRules;
+
+        QTextCharFormat keyFormat;
+        QTextCharFormat commentFormat;
+        QTextCharFormat numberFormat;
+        QTextCharFormat wordFormat;
+        QTextCharFormat tabulatedFormat;
+        QTextCharFormat wrongtabFormatFormat;
+        QTextCharFormat streamFormat;
+        QTextCharFormat quotationFormat;
 };
 
 
@@ -56,6 +86,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         QShortcut *keyF8;
         void LoadProject();
         int FigureMenu();
+
+    private:
+        YamlHighlighter *highlighter;
 
     private slots:
         void on_pushButton_new_clicked();
@@ -114,6 +147,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool SaveBeforeClose();
         void BlockSignals(bool block);
 };
+
+
 
 
 #endif
