@@ -49,15 +49,14 @@ void MainWindow::UpdateControls()
         plainTextEdit_configFile_content->setPlainText("");
         label_configFile_info->setText("");
     }
-    pushButton_configFile_load->setEnabled(bl);
-    pushButton_configFile_save->setEnabled(bl);
-    plainTextEdit_configFile_content->setEnabled(bl);
-    toolButton_configFile_remove->setEnabled(bl);
-    toolButton_configFile_rename->setEnabled(bl);
-    toolButton_configFile_up->setEnabled(current_config_file > 0);
-    toolButton_configFile_down->setEnabled(current_config_file >= 0 && current_config_file < config_file_count-1);
-
-    checkBox_noprop->setChecked(Memorized.noprop);
+    pushButton_configFile_load       -> setEnabled(bl);
+    pushButton_configFile_save       -> setEnabled(bl);
+    pushButton_fixFormat             -> setEnabled(bl);
+    plainTextEdit_configFile_content -> setEnabled(bl);
+    toolButton_configFile_remove     -> setEnabled(bl);
+    toolButton_configFile_rename     -> setEnabled(bl);
+    toolButton_configFile_up         -> setEnabled(current_config_file > 0);
+    toolButton_configFile_down       -> setEnabled(current_config_file >= 0 && current_config_file < config_file_count-1);
 
 
     /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
@@ -78,10 +77,8 @@ void MainWindow::UpdateControls()
     label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
     label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
 
-    /*comboBox_precision_t->setEnabled(!bl);
-    comboBox_precision_r->setEnabled(!bl);
-    lineEdit_t_min->setEnabled(!bl);
-    lineEdit_t_max->setEnabled(!bl);*/
+    /////////////////////////////////////// DEBUGGING //////////////////////////////////////////
+    checkBox_noprop->setChecked(Memorized.noprop);
 
 
     /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB //////////////////////////////

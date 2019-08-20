@@ -9,10 +9,10 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double *Fluence = new double[x0];
     double *Power = new double[n0];
     double Energy;
-    double Dt = (t_max-t_min)/(n0-1); // pulse time step, s
+    double Dt = (t_max-t_min)/n0;     // pulse time step, s
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
-    double v_min = vc - Dv*(n0-1)/2;
-    //double v_max = vc + Dv*(n0-1)/2;
+    double v_min = vc - Dv*n0/2;
+    //double v_max = vc + Dv*n0/2;
     double Dr = plane->optic->Dr;
     FILE *file;
 
@@ -29,19 +29,16 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     //#pragma omp parallel for reduction(+:Energy)
     for(int x=0; x<x0; x++){
         for(int n=0; n<n0; n++){
-            if(x+1<x0 && n+1<n0)
-            Energy += 2.0 * h * pulse->nu0 *
-                        (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2) +
-                        pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4 *
-                        2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
-            if(x+1<x0)
-                Power[n] += 2.0 * h * pulse->nu0 *
-                        (pow(abs(E[x][n]),2) + pow(abs(E[x+1][n]),2))/2 *
-                        2*M_PI*(Dr*x+Dr/2)*Dr; // W/m2
-            if(n+1<n0)
-                Fluence[x] += 2.0 * h * pulse->nu0 *
-                        (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2))/2 *
-                        Dt; // J/m2
+            Energy += 2.0 * h * pulse->nu0
+                    * pow(abs(E[x][n]),2)
+                    * M_PI*pow(Dr,2)*(2*x+1) //ring area; (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                    * Dt; // J
+
+            Power[n] += 2.0 * h * pulse->nu0
+                    * pow(abs(E[x][n]),2)
+                    * M_PI*pow(Dr,2)*(2*x+1);
+
+            Fluence[x] += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]),2) * Dt; // J/m2
         }
     }
 
@@ -62,7 +59,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }
     fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
     for(int x=0; x<x0; x++)
-        fprintf(file, "%e\t%e\n", Dr*x, Fluence[x]);
+        fprintf(file, "%e\t%e\n", Dr*(0.5+x), Fluence[x]);
     fclose(file);
 
     // Write power file
@@ -76,7 +73,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }
     fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", (t_min + Dt*n), Power[n]);
+        fprintf(file, "%e\t%e\n", (t_min + Dt*(0.5+n)), Power[n]);
     fclose(file);
 
     // Write energy file
@@ -129,8 +126,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         fprintf(file, "\n\n"); // data set separator
     }
     fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
-    for(int n=0; n<=n0-1; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*n, average_spectrum[n]);
+    for(int n=0; n<n0; n++)
+        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n]);
     fclose(file);
 
     delete[] Power;

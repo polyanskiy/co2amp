@@ -11,7 +11,7 @@ SOURCES += main.cpp \
     settings.cpp \
     misc.cpp \
     update.cpp \
-    yamlhighlighter.cpp
+    yaml.cpp
 HEADERS += mainwindow.h
 OTHER_FILES += icon.rc
 FORMS += mainwindow.ui

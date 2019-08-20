@@ -135,6 +135,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void SaveSVG(QString svg_path);
         void UpdateTerminal();
         void UpdateControls();
+        void YamlFixFormat();
         QString SuggestConfigFileName(QString type);
         bool ConfigFileNameExists(QString ID);
         void BeforeProcessStarted();

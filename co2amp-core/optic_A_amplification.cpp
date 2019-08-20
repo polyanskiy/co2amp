@@ -5,10 +5,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     if(p_CO2+p_N2+p_He <= 0 || length == 0)
         return;
 
-    double Dt = (t_max-t_min)/(n0-1);    // pulse time step, s
-    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
-    double v_min = vc - Dv*(n0-1)/2;
-    double v_max = vc + Dv*(n0-1)/2;
+    double Dt = (t_max-t_min)/n0;    // pulse time step, s
+    double Dv = 1.0/(t_max-t_min);   // frequency step, Hz
+    double v_min = vc - Dv*n0/2;
+    double v_max = vc + Dv*n0/2;
 
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
@@ -124,7 +124,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                                     continue;
                                 for(n1=0; n1<n0; n1++)
                                     gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j]
-                                            * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*n1-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
+                                            * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*(0.5+n1)-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
                             }
                         }
                     }
@@ -224,7 +224,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     FILE *file;
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
-    double v_min = vc - Dv*(n0-1)/2;
+    double v_min = vc - Dv*n0/2;
 
     bool firstAmSection = true;
     int pass = 0;
@@ -245,6 +245,6 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     }
     fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse->number, plane->number, pass);
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*n, gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
     fclose(file);
 }

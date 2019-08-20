@@ -60,26 +60,26 @@ void Pulse::InitializeE()
     //FILE *file;
 
     double Dr = layout[0]->optic->Dr; // use first optic in the layout
-    double Dt = (t_max-t_min)/(n0-1);
+    double Dt = (t_max-t_min)/n0;
 
     // Create 2D array
     for(x=0; x<x0; x++)
         for(n=0; n<n0; n++)
-            E[x][n] = field(Dr*x, t_min + Dt*n);
+            E[x][n] = field(Dr*(0.5+x), t_min + Dt*(0.5+n));
 
     // frequency shift between central frequency of the pulse (nu0) and central frequency of the calculation grig (vc)
     for(x=0; x<x0; x++)
         for(n=0; n<n0; n++)
-            E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*(Dt*n));
+            E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*(Dt*(0.5+n)));
 
     // Normalize intensity
     Energy = 0;
-    for(n=0; n<n0-1; n++)
-        for(x=0; x<x0-1; x++)
+    for(n=0; n<n0; n++)
+        for(x=0; x<x0; x++)
             Energy += 2.0 * h * nu0
-                    * (pow(abs(E[x][n]),2) + pow(abs(E[x][n+1]),2)
-                    + pow(abs(E[x+1][n]),2) + pow(abs(E[x+1][n+1]),2))/4
-                    * 2*M_PI*(Dr*x+Dr/2)*Dr * Dt; // J
+                    * pow(abs(E[x][n]),2)
+                    * M_PI*pow(Dr,2)*(2*x+1) //ring area; (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                    * Dt; // J
 
     af = sqrt(E0/Energy);
     for(n=0; n<n0; n++)

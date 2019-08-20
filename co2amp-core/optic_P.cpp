@@ -16,8 +16,9 @@ P::P(std::string id)
         configuration_error = true;
         return;
     }
-    Debug(2, "Rmax = " + toExpString(std::stod(value)) + " m");
-    Dr = std::stod(value)/(x0-1);
+    double Rmax = std::stod(value);
+    Debug(2, "Rmax = " + toExpString(Rmax) + " m");
+    Dr = Rmax/x0;
 }
 
 

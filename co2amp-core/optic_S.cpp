@@ -7,7 +7,7 @@ S::S(std::string id)
     type = "S";
     yaml = id + ".yml";
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
-    double v_min = vc - Dv*(n0-1)/2;
+    double v_min = vc - Dv*n0/2;
 
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
 
@@ -18,8 +18,9 @@ S::S(std::string id)
         configuration_error = true;
         return;
     }
-    Debug(2, "Rmax = " + toExpString(std::stod(value)) + " m");
-    Dr = std::stod(value)/(x0-1);
+    double Rmax = std::stod(value);
+    Debug(2, "Rmax = " + toExpString(Rmax) + " m");
+    Dr = Rmax/x0;
 
     // Kind
     if(!YamlGetValue(&value, yaml, "kind")){
@@ -39,7 +40,7 @@ S::S(std::string id)
         Debug(2, "cutoff = " + toExpString(cutoff) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*n) >= cutoff)
+            if((v_min+Dv*(0.5+n)) >= cutoff)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
@@ -55,7 +56,7 @@ S::S(std::string id)
         Debug(2, "cutoff = " + toExpString(cutoff) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*n) < cutoff)
+            if((v_min+Dv*(0.5+n)) < cutoff)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
@@ -78,7 +79,7 @@ S::S(std::string id)
         Debug(2, "cutoff_hi = " + toExpString(cutoff_hi) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*n)>=cutoff_lo && (v_min+Dv*n)<=cutoff_hi)
+            if((v_min+Dv*(0.5+n))>=cutoff_lo && (v_min+Dv*(0.5+n))<=cutoff_hi)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;

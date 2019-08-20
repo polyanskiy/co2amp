@@ -18,7 +18,7 @@ F::F(std::string id)
     }
     double Rmax = std::stod(value);
     Debug(2, "Rmax = " + toExpString(Rmax) + " m");
-    Dr = Rmax/(x0-1);
+    Dr = Rmax/x0;
 
     // Kind
     if(!YamlGetValue(&value, yaml, "kind")){
@@ -49,7 +49,7 @@ F::F(std::string id)
         double Rmin = std::stod(value);
         Debug(2, "Rmin = " + toExpString(Rmin) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*x <= Rmin)
+            if(Dr*(0.5+x) <= Rmin)
                 Transmittance[x] = 0;
             else
                 Transmittance[x] = 1;
@@ -65,10 +65,10 @@ F::F(std::string id)
         double Rmin = std::stod(value);
         Debug(2, "Rmin = " + toExpString(Rmin) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*x <= Rmin)
+            if(Dr*(0.5+x) <= Rmin)
                 Transmittance[x] = 1;
             else
-                Transmittance[x] = pow(sin(M_PI*(Rmax-Dr*x)/(2.0*(Rmax-Rmin))),2);
+                Transmittance[x] = pow(sin(M_PI*(Rmax-Dr*(0.5+x))/(2.0*(Rmax-Rmin))),2);
         }
         return;
     }
@@ -87,10 +87,10 @@ F::F(std::string id)
         double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*x <= Rmin)
+            if(Dr*(0.5+x) <= Rmin)
                 Transmittance[x] = 1;
             else
-                Transmittance[x] = exp(-2.0*pow((Dr*x-Rmin)/w,2));
+                Transmittance[x] = exp(-2.0*pow((Dr*(0.5+x)-Rmin)/w,2));
         }
         return;
     }
@@ -107,7 +107,7 @@ F::F(std::string id)
             for(int i=0; i<pos.size(); i++)
                 std::cout << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
         for(int x=0; x<x0; x++)
-                Transmittance[x] = Interpolate(&pos, &transm, Dr*x);
+                Transmittance[x] = Interpolate(&pos, &transm, Dr*(0.5+x));
         return;
     }
 

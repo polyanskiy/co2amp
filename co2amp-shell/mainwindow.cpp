@@ -67,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget_main->setCurrentIndex(0); // always set to input tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
+    // YamlAutoFormat()
+    connect(pushButton_fixFormat,    SIGNAL(clicked()),           this, SLOT(YamlFixFormat()));
     // Calculate()
     connect(pushButton_go,           SIGNAL(clicked()),           this, SLOT(Calculate()));
     keyF8 = new QShortcut(QKeySequence("F8"), this);
@@ -130,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
     restoreGeometry(settings.value("window_geometry").toByteArray());
     show();
 
+    // Initialize YAML highlighter
     highlighter = new YamlHighlighter(plainTextEdit_configFile_content->document());
 }
 
