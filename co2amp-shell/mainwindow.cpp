@@ -367,12 +367,12 @@ void MainWindow::UpdateTerminal()
     textBrowser_terminal->moveCursor(QTextCursor::End);
 
     // Update log file
-    QFile file;
+    /*QFile file;
     QTextStream out(&file);
     file.setFileName("co2amp.log");
     file.open(QFile::WriteOnly);
     out<<textBrowser_terminal->toPlainText();
-    file.close();
+    file.close();*/
 }
 
 

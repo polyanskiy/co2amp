@@ -78,7 +78,7 @@ void Pulse::InitializeE()
         for(x=0; x<x0; x++)
             Energy += 2.0 * h * nu0
                     * pow(abs(E[x][n]),2)
-                    * M_PI*pow(Dr,2)*(2*x+1) //ring area; (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                    * M_PI*pow(Dr,2)*(2*x+1) //ring area = (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
                     * Dt; // J
 
     af = sqrt(E0/Energy);
@@ -109,9 +109,10 @@ std::complex<double> Pulse::field(double r, double t)
 
 void Pulse::Propagate(Plane *from, Plane *to, double time)
 {
+    StatusDisplay(this, from, time, "propagation...");
     double z   = from->space;
     double Dr1 = from->optic->Dr;
-    double Dr2 = to->optic->Dr;
+    double Dr2 = to  ->optic->Dr;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
@@ -154,30 +155,28 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     else{ //Huygens-Fresnell diffraction
         double lambda = c/vc; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
-        int count=0;
+        //int count=0;
 
         #pragma omp parallel for
-        for(int x=0; x<x0; x++){ // output plane radial coordinate
-            #pragma omp critical
+        for(int x2=0; x2<x0; x2++){ // output plane
+            /*#pragma omp critical
             {
                 StatusDisplay(this, from, time,
                           "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
-            }
-            double rho, R_min, R_max, R, delta_R;
+            }*/
+            double R_min, R_max, R, delta_R;
             std::complex<double> tmp;
-            for(rho=0.5; rho<x0-0.5; rho++){ // x0-1 rings in the input plane
-                R_min = sqrt(pow(rho*Dr1-x*Dr2,2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
-                R_max = sqrt(pow(rho*Dr1+x*Dr2,2)+pow(z,2)); // maximum --''--
-                R = (R_min+R_max)/2; // average --''--
+            for(int x1=0; x1<x0; x1++){ // input plane
+                R_min = sqrt(pow(Dr1*(0.5+x1)-Dr2*(0.5+x2),2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
+                R_max = sqrt(pow(Dr1*(0.5+x1)+Dr2*(0.5+x2),2)+pow(z,2)); // maximum --''--
+                R = (R_min+R_max)/2;                                     // average --''--
                 delta_R = (R_max-R_min);
                 // Huygens-Fresnell integral (summation over concentric rings in the input plane)
-                tmp = M_PI*(pow((rho+0.5)*Dr1,2)-pow((rho-0.5)*Dr1,2)); // ring area ( = dS )
-                //tmp /= 2*I*lambda*R;
-                //tmp *= 2*cexp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
-                tmp /= I*lambda*R;
-                tmp *= exp(-I*k_wave*R) * j0(k_wave*delta_R/2); // integral of the exponential part over the ring
+                // (see manual for details)
+                tmp = M_PI*pow(Dr1,2)*(2*x1+1) //ring area dS = (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                        * exp(-I*k_wave*R) / (I*lambda*R) * j0(k_wave*delta_R/2);
                 for(int n=0; n<n0; n++)
-                    E[x][n] += (E1[(int)(rho-0.5)][n]+E1[(int)(rho+0.5)][n]) / 2.0 * tmp;
+                    E[x2][n] += E1[x1][n] * tmp;
             }
         }
     }

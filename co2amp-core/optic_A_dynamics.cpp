@@ -6,7 +6,7 @@ void A::InternalDynamics(double time)
     if(p_CO2+p_N2+p_He <= 0)
         return;
 
-    StatusDisplay(nullptr, nullptr, time, "pumping and relaxation... (" + id +")");
+    StatusDisplay(nullptr, nullptr, time, "pumping and relaxation (" + id +")...");
 
     double A, X, W;
     double K, K31, K32, K33, K21, K22, K23;

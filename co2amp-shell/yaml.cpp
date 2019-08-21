@@ -64,11 +64,11 @@ void MainWindow::YamlFixFormat()
 {
     QString yaml = plainTextEdit_configFile_content->toPlainText();
     yaml.replace(QRegularExpression("\\t"), " ");
-    yaml.replace(QRegularExpression(":[ ]*([A-Za-z0-9\\|])"), ": \\1");
+    yaml.replace(QRegularExpression(":[ ]*([A-Za-z0-9_\\|])"), ": \\1");
     yaml.replace(QRegularExpression("[ ]+\\n"), "\n");
     yaml.replace(QRegularExpression("[:]+\\n"), ": |\n");
     yaml.replace(QRegularExpression("[ ]*\\>\\>[ ]*"), " >> ");
-    yaml.replace(QRegularExpression("\\n[ ]+([A-Za-z0-9]+)[:]"), "\n\\1:");
+    yaml.replace(QRegularExpression("\\n[ ]+([A-Za-z0-9_]+)[:]"), "\n\\1:");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2 \\3 \\4");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2 \\3");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2");
