@@ -73,7 +73,5 @@ void MainWindow::YamlFixFormat()
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2 \\3");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)"), "\n    \\1");
-    plainTextEdit_configFile_content->blockSignals(true);
     plainTextEdit_configFile_content->setPlainText(yaml);
-    plainTextEdit_configFile_content->blockSignals(false);
 }

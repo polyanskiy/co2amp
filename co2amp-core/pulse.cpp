@@ -108,14 +108,15 @@ std::complex<double> Pulse::field(double r, double t)
 
 
 void Pulse::Propagate(Plane *from, Plane *to, double time)
-{
-    StatusDisplay(this, from, time, "propagation...");
+{ 
     double z   = from->space;
     double Dr1 = from->optic->Dr;
     double Dr2 = to  ->optic->Dr;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
+
+    StatusDisplay(this, from, time, "propagation...");
 
     // Create temporary field array
     std::complex<double> **E1;
@@ -155,15 +156,17 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     else{ //Huygens-Fresnell diffraction
         double lambda = c/vc; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
-        //int count=0;
+        int count=0;
 
         #pragma omp parallel for
         for(int x2=0; x2<x0; x2++){ // output plane
-            /*#pragma omp critical
-            {
-                StatusDisplay(this, from, time,
-                          "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
-            }*/
+            if(debug_level >= 0){
+                #pragma omp critical
+                {
+                    StatusDisplay(this, from, time,
+                              "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
+                }
+            }
             double R_min, R_max, R, delta_R;
             std::complex<double> tmp;
             for(int x1=0; x1<x0; x1++){ // input plane
@@ -187,4 +190,49 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
         delete[] E1[x];
     delete[] E1;
     Debug(2, "Propagation: temporary field array deleted");
+}
+
+
+void Pulse::SavePulse()
+{
+    double Dr = layout[layout.size()-1]->optic->Dr; // last optic in the layout
+    double Dt = (t_max-t_min)/n0;
+
+    FILE *file_re;
+    FILE *file_im;
+
+    StatusDisplay(nullptr, nullptr, -1, "saving output pulse " + this->id + "...");
+
+    file_re = fopen("re.dat", "wb");
+    file_im = fopen("im.dat", "wb");
+
+    // "0.00000E+000" for data alignment
+    fprintf(file_re, "%e", 0.0);
+    fprintf(file_im, "%e", 0.0);
+
+    // first string: time (s)
+    for(int n=0; n<n0; n++){
+        fprintf(file_re, " %+e", t_min+(0.5+n)*Dt);
+        fprintf(file_im, " %+e", t_min+(0.5+n)*Dt);
+    }
+    fprintf(file_re, "\n");
+    fprintf(file_im, "\n");
+
+    // each string represents the field E(t) at radial position defined by the first number
+    for(int x=0; x<x0; x++){
+        // radial coordinate
+        fprintf(file_re, "%e", (0.5+x)*Dr);
+        fprintf(file_im, "%e", (0.5+x)*Dr);
+        // pulse (field) data
+        for(int n=0; n<n0; n++){
+            fprintf(file_re, " %+e", real(E[x][n]));
+            fprintf(file_im, " %+e", imag(E[x][n]));
+        }
+        fprintf(file_re, "\n");
+        fprintf(file_im, "\n");
+    }
+
+    fclose(file_re);
+    fclose(file_im);
+
 }

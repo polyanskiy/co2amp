@@ -5,6 +5,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     if(p_CO2+p_N2+p_He <= 0 || length == 0)
         return;
 
+    StatusDisplay(pulse, plane, time, "amplification...");
+
     double Dt = (t_max-t_min)/n0;    // pulse time step, s
     double Dv = 1.0/(t_max-t_min);   // frequency step, Hz
     double v_min = vc - Dv*n0/2;
@@ -24,10 +26,12 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     int count = 0;
     #pragma omp parallel for// multithreaded
     for(int x=0; x<x0; x++){
-        #pragma omp critical
-        {
-            StatusDisplay(pulse, plane, time,
-                      "amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
+        if(debug_level >= 0){
+            #pragma omp critical
+            {
+                StatusDisplay(pulse, plane, time,
+                          "amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
+            }
         }
         int n, n1;  // time step number
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
@@ -217,7 +221,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     }
 
     SaveGainSpectrum(pulse, plane);
-
 }
 
 
@@ -243,7 +246,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
         file = fopen("data_gain.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse_n %d optic_n %d pass_n %d\n", pulse->number, plane->number, pass);
+    fprintf(file, "#pulse %d optic %d pass %d\n", pulse->number, plane->number, pass);
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
     fclose(file);

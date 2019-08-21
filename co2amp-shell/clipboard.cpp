@@ -266,7 +266,7 @@ void MainWindow::SaveSVG(QString svg_path)
 {
     QString start_dir, save_path;
     project_file != QString() ? start_dir = project_file : start_dir = def_dir;
-    save_path = QFileDialog::getSaveFileName(this, QString(), def_dir, tr("SVG (*.svg)"));
+    save_path = QFileDialog::getSaveFileName(this, QString(), def_dir, "SVG (*.svg)");
     if(save_path != QString()){
         QFile::remove(save_path);
         QFile::copy(svg_path, save_path);

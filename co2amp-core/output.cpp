@@ -12,7 +12,6 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double Dt = (t_max-t_min)/n0;     // pulse time step, s
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*n0/2;
-    //double v_max = vc + Dv*n0/2;
     double Dr = plane->optic->Dr;
     FILE *file;
 
@@ -31,7 +30,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         for(int n=0; n<n0; n++){
             Energy += 2.0 * h * pulse->nu0
                     * pow(abs(E[x][n]),2)
-                    * M_PI*pow(Dr,2)*(2*x+1) //ring area; (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                    * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
             Power[n] += 2.0 * h * pulse->nu0
@@ -105,8 +104,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     for(int x=0; x<x0; x++){
         FFT(E[x], spectrum);
         for(int n=0; n<n0; n++)
-            average_spectrum[n] += (0.5+x) * pow(abs(spectrum[n]), 2);
-    }
+            average_spectrum[n] += pow(abs(spectrum[n]), 2) * (2*x+1); //(2*x+1) is proportional to ring area:
+    }                                                                  //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
 
     // spectrum normalization
     double max_int=0;
@@ -134,36 +133,4 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     delete[] Fluence;
     delete[] average_spectrum;
     delete[] spectrum;
-}
-
-
-
-
-
-void SaveOutputField()
-{
-/*
-    int pulse, x;
-    FILE *file;
-
-    StatusDisplay(-1, -1, 0, "saving field data");
-
-    file = fopen("field.bin", "wb");
-    for(pulse=0; pulse<n_pulses; pulse++){
-        for(x=0; x<x0; x++)
-            fwrite(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
-    }
-    fclose(file);
-*/
-
-    // Gaussian beam diffraction in empty space: analytical solution for test purposes
-    /*double ld = 0.5*2*M_PI*vc*pow(r0,2);
-    double z=Lr;
-    double intens;
-    file = fopen("diffraction_test.dat", "w");
-    for(x=0; x<x0; x++){
-        intens = Fluence[0][0]*1000 *ld*ld/(ld*ld+z*z) * exp(-2*pow(r[x]/r0,2)*ld*ld/(ld*ld+z*z));
-        fprintf(file, "%.7f\t%.7f\n", r[x], intens);
-    }
-    fclose(file);*/
 }

@@ -22,10 +22,11 @@ public:
     Pulse(std::string yaml);
     void InitializeE(void);
     void Propagate(Plane *from, Plane *to, double time);
+    void SavePulse(void);
     std::string id;
     std::string yaml;
     int number;
-    //int from_file;
+    //std::string from_file;
     double nu0;
     double time_inj;
     std::complex<double> **E; // field array

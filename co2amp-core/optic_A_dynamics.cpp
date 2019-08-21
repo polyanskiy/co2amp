@@ -43,7 +43,7 @@ void A::InternalDynamics(double time)
         q4 = q4_a+(q4_b-q4_a)*(time-time_a)/(time_b-time_a);
         qT = qT_a+(qT_b-qT_a)*(time-time_a)/(time_b-time_a);
 
-        W = Current(time)*Voltage(time) / Vd; // W/m^3
+        W = Current(time)*Voltage(time) / Vd;     // W/m^3
         pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
         pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s

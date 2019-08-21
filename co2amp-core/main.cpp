@@ -32,13 +32,11 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-20" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-21" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
         std::cout << "number of CPU cores: " << omp_get_num_threads() << std::endl << std::endl << std::flush;
-
-    //co2amp = new CO2AMP();
 
     if (!ReadCommandLine(argc, argv)){
         std::cout << "Error in command line. Aborting.\n";
@@ -52,14 +50,10 @@ int main(int argc, char **argv)
     Debug(1, "Processing configuration files done");
 
     Calculations(); // Main program !!!
-    /*AllocateMemory();
-    Debug(1, "Allocate memory done!");
-    ArraysInit();
-    Debug(1, "Arrays init done!");
-    Calculations(); // Main program !!!
-    SaveOutputField();
-    StatusDisplay(-1, -1, -1, "done!");
-    FreeMemory();*/
+
+    // Save pulses at the output
+    for(int i=0; i<pulses.size(); i++)
+        pulses[i]->SavePulse();
 
     Debug(2,"Success!");
     StatusDisplay(nullptr, nullptr, -1, "All done!");
@@ -124,14 +118,14 @@ void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status)
     else{
         if(pulses.size()==1)
             std::cout << "\r" << toExpString(time) << " s; "
-                      << "Plane " << plane->optic->id
-                      << " (" << plane->number+1 << " of " << layout.size() << "): "
+                      << plane->optic->id
+                      << " (plane " << plane->number+1 << " of " << layout.size() << "): "
                       << status << "                                     ";
         else
             std::cout << "\r" << toExpString(time) << " s; "
-                      << "Pulse " << pulse->id << "; "
-                      << "Plane " << plane->optic->id
-                      << " (" << plane->number+1 << " of " << layout.size() << "): "
+                      << pulse->id << "; "
+                      << plane->optic->id
+                      << " (plane " << plane->number+1 << " of " << layout.size() << "): "
                       << status << "                                     ";
     }
     std::cout << std::flush;

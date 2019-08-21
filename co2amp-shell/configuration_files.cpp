@@ -165,7 +165,7 @@ void MainWindow::on_pushButton_configFile_load_clicked()
         yaml_dir = QDir::toNativeSeparators(fileinfo.dir().path() + "/library/optics/");
     }
 
-    QString path = QFileDialog::getOpenFileName(this, QString(), yaml_dir, tr("Optic specification file (*.yml)"));
+    QString path = QFileDialog::getOpenFileName(this, QString(), yaml_dir, "Optic specification file (*.yml)");
     if(path == QString())
         return;
 
@@ -193,7 +193,7 @@ void MainWindow::on_pushButton_configFile_save_clicked()
         yaml_dir = QDir::toNativeSeparators(fileinfo.dir().path() + "/library/optics/");
     }
 
-    QString path = QFileDialog::getSaveFileName(this, QString(), yaml_dir, tr("Optic specification file (*.yml)"));
+    QString path = QFileDialog::getSaveFileName(this, QString(), yaml_dir, "Optic specification file (*.yml)");
     if(path == QString())
         return;
 

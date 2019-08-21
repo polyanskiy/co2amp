@@ -53,7 +53,7 @@ int MainWindow::AmNumber(int optic_n)
     QStringList list;
     list = Saved.configFile_type;
 
-    if(list.count()==0)// || list[optic_n] != "A")
+    if(list.count()==0)
         return -1;
 
     int count_am = 0;
@@ -67,8 +67,6 @@ int MainWindow::AmNumber(int optic_n)
         if(i-count_other == optic_n)
             break;
     }
-
-    //QMessageBox().warning(this, "co2amp", list[i]);
 
     if(list[i]=="A")
         return count_am-1;

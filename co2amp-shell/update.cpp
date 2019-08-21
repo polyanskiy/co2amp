@@ -31,7 +31,6 @@ void MainWindow::UpdateControls()
     pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_results_modified) || project_file==QString());
     pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
     pushButton_go->setDisabled(flag_calculating);
-    //textBrowser_terminal->setEnabled(flag_calculating); //terminal
     pushButton_abort->setEnabled(flag_calculating);
     checkBox_saveWhenFinished->setEnabled(flag_calculating && project_file!=QString());
 
@@ -60,8 +59,6 @@ void MainWindow::UpdateControls()
 
 
     /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
-
-
     if(!lineEdit_vc->hasFocus())
         lineEdit_vc->setText(Memorized.vc);
     if(!lineEdit_t_min->hasFocus())
@@ -103,12 +100,12 @@ void MainWindow::UpdateControls()
 
     //energyPlot
     index = comboBox_energyPlot->currentIndex();
-    comboBox_energyPlot->clear();
-    comboBox_energyPlot->addItem("all");
-    comboBox_energyPlot->addItem("optic");
+    comboBox_energyPlot     -> clear();
+    comboBox_energyPlot     -> addItem("all");
+    comboBox_energyPlot     -> addItem("optic");
     if(comboBox_pulse->count() > 1){
-        comboBox_energyPlot->addItem("pulse");
-        comboBox_energyPlot->addItem("optic, pulse");
+        comboBox_energyPlot -> addItem("pulse");
+        comboBox_energyPlot -> addItem("optic, pulse");
     }
     if(index == -1 || index+1 > comboBox_energyPlot->count()){
         if(comboBox_pulse->count() == 1) // single pulse

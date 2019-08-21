@@ -208,7 +208,6 @@ void MainWindow::NewProject()
     LoadSettings(QString());
     SaveSettings("all"); // save all settings - input and plot
     MainWindow::setWindowTitle("untitled - co2amp");
-    //ClearPlot();
     flag_projectloaded = false;
     flag_calculating = false;
     flag_calculation_success = false;
@@ -233,9 +232,9 @@ void MainWindow::on_pushButton_open_clicked()
     if (SaveBeforeClose()){
         QString str;
         if(project_file == QString())
-            str = QFileDialog::getOpenFileName(this, QString(), def_dir, tr("CO2 projects (*.co2;*.co2x)"));
+            str = QFileDialog::getOpenFileName(this, QString(), def_dir, "CO2 projects (*.co2;*.co2x)");
         else
-            str = QFileDialog::getOpenFileName(this, QString(), project_file, tr("CO2 projects (*.co2;*.co2x)"));
+            str = QFileDialog::getOpenFileName(this, QString(), project_file, "CO2 projects (*.co2;*.co2x)");
         if(str != QString()){
             project_file = QDir::toNativeSeparators(str);
             LoadProject();
@@ -251,18 +250,18 @@ void MainWindow::on_pushButton_saveas_clicked()
 
     if(project_file == QString()){
         if(flag_field_ready_to_save)
-            str = QFileDialog::getSaveFileName(this, QString(), def_dir, tr("CO2 project (*.co2);;CO2 project with field (*.co2x)"));
+            str = QFileDialog::getSaveFileName(this, QString(), def_dir, "CO2 project (*.co2);;CO2 project with field (*.co2x)");
         else
-            str = QFileDialog::getSaveFileName(this, QString(), def_dir, tr("CO2 project (*.co2)"));
+            str = QFileDialog::getSaveFileName(this, QString(), def_dir, "CO2 project (*.co2)");
     }
     else{
         if(flag_field_ready_to_save){
             fileinfo.setFile(project_file);
-            selfilter = fileinfo.suffix()=="co2x" ? tr("CO2 project with field (*.co2x)") : nullptr;
-            str = QFileDialog::getSaveFileName(this, QString(), project_file, tr("CO2 project (*.co2);;CO2 project with field (*.co2x)"), &selfilter);
+            selfilter = fileinfo.suffix()=="co2x" ? "CO2 project with field (*.co2x)" : nullptr;
+            str = QFileDialog::getSaveFileName(this, QString(), project_file, "CO2 project (*.co2);;CO2 project with field (*.co2x)", &selfilter);
         }
         else
-            str = QFileDialog::getSaveFileName(this, QString(), project_file, tr("CO2 project (*.co2)"));
+            str = QFileDialog::getSaveFileName(this, QString(), project_file, "CO2 project (*.co2)");
     }
 
     if(str == QString())
@@ -293,7 +292,12 @@ void MainWindow::SaveProject()
         QMessageBox().warning(this, "co2amp", "Cannot save to the existing file (file may be open in another program)");
         return;
     }
+
+    // temporary stuff - delete later
     QFile::remove("field_in.bin");
+    QFile::remove("re.dat");
+    QFile::remove("im.dat");
+
     QProcess *proc;
     proc = new QProcess(this);
     if(fileinfo.suffix()=="co2x") // extended project file suitable for sequensing
@@ -351,10 +355,8 @@ void MainWindow::UpdateTerminal()
 
     str = process->readAllStandardOutput();
 
-    #ifdef Q_OS_WIN
-        strlist = str.split("\r\n");
-        str = strlist.join("\n");
-    #endif
+    str.replace(QRegularExpression("\\r\\n"), "\n"); // Windows "\r\n" endline -> "\n"
+
 
     strlist = str.split("\r");
 
@@ -362,7 +364,7 @@ void MainWindow::UpdateTerminal()
 
     for (int i=0; i<=number_of_returns; i++){
         textBrowser_terminal->insertPlainText(strlist[i]);
-        textBrowser_terminal->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+        textBrowser_terminal->moveCursor(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
     }
     textBrowser_terminal->moveCursor(QTextCursor::End);
 
@@ -372,6 +374,8 @@ void MainWindow::UpdateTerminal()
     file.setFileName("co2amp.log");
     file.open(QFile::WriteOnly);
     out<<textBrowser_terminal->toPlainText();
+    //file.open(QFile::WriteOnly | QIODevice::Append);
+    //out<<str;
     file.close();*/
 }
 
@@ -414,7 +418,9 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
 {
     QMessageBox::StandardButton mb;
     if(flag_calculating){ // co2amp-core running
-         mb = QMessageBox::warning(this, tr("Calculation in progress - co2amp"), tr("Cannot close: Calculation in progress.\nWait for calculation to complete or abort it."), QMessageBox::Ok);
+         mb = QMessageBox::warning(this, "Calculation in progress - co2amp",
+                                   "Cannot close: Calculation in progress.\nWait for calculation to complete or abort it.",
+                                   QMessageBox::Ok);
          return false;
     }
     if(!flag_calculation_success) // cannot save if calculations not completed nothing to save
@@ -422,7 +428,8 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     if(!flag_results_modified && !flag_plot_modified) // nothing changed
         return true;
 
-    mb = QMessageBox::warning(this, "Project modified - co2amp", "The project has been modified.\nDo you want to save changes?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    mb = QMessageBox::warning(this, "Project modified - co2amp", "The project has been modified.\nDo you want to save changes?",
+                              QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     if (mb == QMessageBox::Save){
         if(project_file != QString()){

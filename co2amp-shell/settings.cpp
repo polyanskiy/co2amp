@@ -6,17 +6,15 @@ void MainWindow::SaveSettings(QString what_to_save)
     QSettings settings("project.ini", QSettings::IniFormat);
 
     if(what_to_save == "all"){
-        settings.setValue("general/version",     "2019.08" );
-
-        settings.setValue("co2amp/noprop",       Memorized.noprop);  //move to debug!
-
-        settings.setValue("co2amp/vc",           Memorized.vc);
-        settings.setValue("co2amp/precision_t",  Memorized.precision_t);
-        settings.setValue("co2amp/precision_r",  Memorized.precision_r);
-        settings.setValue("co2amp/t_min",        Memorized.t_min);
-        settings.setValue("co2amp/t_max",        Memorized.t_max);
-        settings.setValue("co2amp/time_tick",    Memorized.time_tick);
+        settings.setValue("co2amp/version",     "2019.08" );
+        settings.setValue("grid/vc",             Memorized.vc);
+        settings.setValue("grid/precision_t",    Memorized.precision_t);
+        settings.setValue("grid/precision_r",    Memorized.precision_r);
+        settings.setValue("grid/t_min",          Memorized.t_min);
+        settings.setValue("grid/t_max",          Memorized.t_max);
+        settings.setValue("grid/time_tick",      Memorized.time_tick);
         settings.setValue("debug/debugLevel",    spinBox_debugLevel->text());
+        settings.setValue("debug/noprop",        Memorized.noprop);
 
         // Write configuration files
         int i;
@@ -101,16 +99,16 @@ void MainWindow::LoadSettings(QString path)
     PopulateConfigFileList();
 
     // Calculation net
-    Memorized.vc            =                settings.value("co2amp/vc", 30).toString();
-    Memorized.precision_t   =                settings.value("co2amp/precision_t", 6).toInt();
-    Memorized.precision_r   =                settings.value("co2amp/precision_r", 1).toInt();
-    Memorized.t_min         =                settings.value("co2amp/t_min", -100e-12).toString();
-    Memorized.t_max         =                settings.value("co2amp/t_max", 400e-12).toString();
-    Memorized.time_tick     =                settings.value("co2amp/time_tick", 2e-9).toString();
+    Memorized.vc            =                settings.value("grid/vc", 30).toString();
+    Memorized.precision_t   =                settings.value("grid/precision_t", 6).toInt();
+    Memorized.precision_r   =                settings.value("grid/precision_r", 1).toInt();
+    Memorized.t_min         =                settings.value("grid/t_min", -100e-12).toString();
+    Memorized.t_max         =                settings.value("grid/t_max", 400e-12).toString();
+    Memorized.time_tick     =                settings.value("grid/time_tick", 2e-9).toString();
 
     // Debugging
     spinBox_debugLevel     -> setValue(      settings.value("debug/debugLevel", 0).toInt());
-    Memorized.noprop        =                settings.value("co2amp/noprop", 0).toBool();
+    Memorized.noprop        =                settings.value("debug/noprop", 0).toBool();
 
     // Plot
     Memorized.optic         =                 settings.value("plot/optic", 0).toInt();
@@ -133,39 +131,8 @@ void MainWindow::LoadSettings(QString path)
     comboBox_dischargeUnits-> setCurrentIndex(settings.value("plot/dischargeUnits", 1).toInt());// def: kV, kA
 
     // //////////////////////// backwards compatibility start ////////////////////////////////////////////
-    /*double w0 = settings.value("co2amp/w0", 0).toDouble();
-    if(w0 >= 800)
-        Memorized.vc = QString::number(w0*2.99792458e-2); // 1/cm -> THz
-    if(settings.value("co2pump/D_interel", "not found").toString() != "not found") // missprint in old versions: "co2pump" instead of "co2amp"
-        Memorized.D_interel  = settings.value("co2pump/D_interel", 8.5).toString();
-    if(settings.value("co2amp/p_626","not found").toString() != "not found"){
-        Memorized.p_CO2.setNum(settings.value("co2amp/p_626",0).toDouble()+settings.value("co2amp/p_628",0).toDouble()+settings.value("co2amp/p_828",0).toDouble()+
-                 settings.value("co2amp/p_636",0).toDouble()+settings.value("co2amp/p_638",0).toDouble()+settings.value("co2amp/p_838",0).toDouble());
-        Memorized.percent_13C.setNum((settings.value("co2amp/p_636",0).toDouble()+settings.value("co2amp/p_638",0).toDouble()
-                        +settings.value("co2amp/p_838",0).toDouble())/Memorized.p_CO2.toDouble()*100);
-        Memorized.percent_18O.setNum((settings.value("co2amp/p_628",0).toDouble()+2*settings.value("co2amp/p_828",0).toDouble()
-                        +settings.value("co2amp/p_638",0).toDouble()+2*settings.value("co2amp/p_838",0).toDouble())
-                       /(2*Memorized.p_CO2.toDouble())*100);
-        if(settings.value("co2amp/C1i","not found").toString() != "not found"){
-            double C1i = settings.value("co2amp/C1i", 81000).toDouble();
-            double C2i = settings.value("co2amp/C2i", 0.12).toDouble();
-            double C3i = settings.value("co2amp/C3i", 1).toDouble();
-            double C4i = settings.value("co2amp/C4i", 0).toDouble();
-            double C5i = settings.value("co2amp/C5i", 0.12).toDouble();
-            double C6i = settings.value("co2amp/C6i", 1).toDouble();
-            double C1u = settings.value("co2amp/C1u", 600000).toDouble();
-            double C2u = settings.value("co2amp/C2u", 1).toDouble();
-            double C3u = settings.value("co2amp/C3u", 0).toDouble();
-            double C4u = settings.value("co2amp/C4u", 1).toDouble();
-            Memorized.discharge = "";
-            double t;
-            for(t=0; t<10.001; t+=0.01){
-                Memorized.discharge += QString::number(t) + "\t";
-                Memorized.discharge += QString::number(C1i*pow(t/C2i,C3i)*exp(-t/C2i)+C4i*pow(t/C5i,C6i)*exp(-t/C5i)) + "\t";
-                Memorized.discharge += QString::number(C1u*exp(-t/C2u)+C3u*exp(-t/C4u)) + "\n";
-            }
-        }
-    }*/
+    // Backward compatibolity broken in 2019 major prigram re-dezign.
+    // Intention is to support backwords campatibility fron now on (at least untill next big upgrade)
     // //////////////////////// backwards compatibility end /////////////////////////////////////////////
 
     Saved = Memorized;
@@ -177,15 +144,15 @@ void MainWindow::LoadSettings(QString path)
 void MainWindow::MemorizeSettings()
 {
     /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
-    Memorized.vc = lineEdit_vc->text();
-    Memorized.t_min = lineEdit_t_min->text();
-    Memorized.t_max = lineEdit_t_max->text();
-    Memorized.time_tick = lineEdit_time_tick->text();
+    Memorized.vc          = lineEdit_vc->text();
+    Memorized.t_min       = lineEdit_t_min->text();
+    Memorized.t_max       = lineEdit_t_max->text();
+    Memorized.time_tick   = lineEdit_time_tick->text();
     Memorized.precision_t = comboBox_precision_t->currentIndex();
     Memorized.precision_r = comboBox_precision_r->currentIndex();
     /////////////////////////////////// DEBUGGING //////////////////////////////////////
-    Memorized.noprop = checkBox_noprop->isChecked();
+    Memorized.noprop      = checkBox_noprop->isChecked();
     /////////////////////////////////// PLOT //////////////////////////////////////
-    Memorized.optic = comboBox_optic->currentIndex();
-    Memorized.pulse = comboBox_pulse->currentIndex();
+    Memorized.optic       = comboBox_optic->currentIndex();
+    Memorized.pulse       = comboBox_pulse->currentIndex();
 }
