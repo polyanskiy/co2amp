@@ -17,6 +17,7 @@
 #include <QSvgWidget>
 #include <QShortcut>
 #include <QSyntaxHighlighter>
+#include <QStandardPaths>
 #include <cmath>
 #include "ui_mainwindow.h"
 

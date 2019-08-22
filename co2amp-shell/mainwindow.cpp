@@ -17,14 +17,32 @@ MainWindow::MainWindow(QWidget *parent)
     /////////////////////////// External programs //////////////////////////
     path_to_core = "co2amp-core";
     path_to_gnuplot = "gnuplot";
-    path_to_7zip = "7za";
+    path_to_7zip = "7z";
     #ifdef Q_OS_WIN
         path_to_core = QCoreApplication::applicationDirPath() + "/co2amp-core.exe";
         path_to_core = "\"" + QDir::toNativeSeparators(path_to_core) + "\"";
-        path_to_gnuplot = QCoreApplication::applicationDirPath() + "/gnuplot/bin/gnuplot.exe";
+        path_to_7zip = QStandardPaths::findExecutable("7z");
+        if(path_to_7zip=="")
+            path_to_7zip = QStandardPaths::findExecutable("7z",{QString(getenv("PROGRAMFILES"))+"/7-Zip"});
+        //QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths",
+        //            QSettings::NativeFormat);
+
+        QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\7-Zip",
+                    QSettings::NativeFormat);
+
+        QMessageBox().information(this, "co2amp", path_to_7zip);
+        QMessageBox().information(this, "co2amp", m.value("Path").toString());
+
+        //if(QFile::exists("7z.exe"))
+        //QStringList loclist = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
+        //QString locs = loclist.join("+");
+        //QMessageBox().information(this, "co2amp", getenv("PROGRAMFILES"));
+        //path_to_7zip = "7za.exe";
+        //path_to_gnuplot = "gnuplot.exe";
+        /*path_to_gnuplot = QCoreApplication::applicationDirPath() + "/gnuplot/bin/gnuplot.exe";
         path_to_gnuplot = "\"" + QDir::toNativeSeparators(path_to_gnuplot) + "\"";
         path_to_7zip = QCoreApplication::applicationDirPath() + "/7-zip/x64/7za.exe";
-        path_to_7zip = "\"" + QDir::toNativeSeparators(path_to_7zip) + "\"";
+        path_to_7zip = "\"" + QDir::toNativeSeparators(path_to_7zip) + "\"";*/
     #endif
 
     /////////////////////////// Create temporary working directory //////////////////////////
@@ -356,7 +374,6 @@ void MainWindow::UpdateTerminal()
     str = process->readAllStandardOutput();
 
     str.replace(QRegularExpression("\\r\\n"), "\n"); // Windows "\r\n" endline -> "\n"
-
 
     strlist = str.split("\r");
 

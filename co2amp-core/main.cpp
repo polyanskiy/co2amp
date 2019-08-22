@@ -52,8 +52,8 @@ int main(int argc, char **argv)
     Calculations(); // Main program !!!
 
     // Save pulses at the output
-    for(int i=0; i<pulses.size(); i++)
-        pulses[i]->SavePulse();
+    //for(int i=0; i<pulses.size(); i++)
+    //    pulses[i]->SavePulse();
 
     Debug(2,"Success!");
     StatusDisplay(nullptr, nullptr, -1, "All done!");

@@ -78,7 +78,7 @@ void Pulse::InitializeE()
         for(x=0; x<x0; x++)
             Energy += 2.0 * h * nu0
                     * pow(abs(E[x][n]),2)
-                    * M_PI*pow(Dr,2)*(2*x+1) //ring area = (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                    * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
     af = sqrt(E0/Energy);
@@ -134,7 +134,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     }
     Debug(2, "propagation: temporary field array populated");
 
-    if(z==0){ //only change calculation grid step
+    if( z==0 || noprop==true ){ //only change calculation grid step
         #pragma omp parallel for
         for(int x=0; x<x0; x++){
             double x_exact = Dr2 / Dr1 * (double)x;
@@ -154,7 +154,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     }
 
     else{ //Huygens-Fresnell diffraction
-        double lambda = c/vc; // wavelength, m
+        double lambda = c/nu0; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
         int count=0;
 
@@ -176,7 +176,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                 delta_R = (R_max-R_min);
                 // Huygens-Fresnell integral (summation over concentric rings in the input plane)
                 // (see manual for details)
-                tmp = M_PI*pow(Dr1,2)*(2*x1+1) //ring area dS = (Dr*(x+1))^2 - (Dr*x)^2 = Dr^2*(2x+1)
+                tmp = M_PI*pow(Dr1,2)*(2*x1+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                         * exp(-I*k_wave*R) / (I*lambda*R) * j0(k_wave*delta_R/2);
                 for(int n=0; n<n0; n++)
                     E[x2][n] += E1[x1][n] * tmp;
