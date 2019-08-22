@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190619_setup.exe"
+OutFile "co2amp_v.20190822_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -51,10 +51,6 @@ Section "Section_01" Sec01
   RMDir /r "$INSTDIR"
 
   ;Write files to installation directory
-  SetOutPath "$INSTDIR\gnuplot"
-  File /r "gnuplot\*"
-  SetOutPath "$INSTDIR\7-zip"
-  File /r "7-zip\*"
   SetOutPath "$INSTDIR\src\co2amp-core"
   File "co2amp-core\*.c"
   File "co2amp-core\*.h"

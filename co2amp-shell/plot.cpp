@@ -183,7 +183,7 @@ void MainWindow::Plot()
     out << "plot \"data_energy_selected.dat\" using ($1*" << time_mult << "):($2*" << energy_mult << ") notitle\n";
     file.close();
     QProcess *proc1 = new QProcess(this);
-    proc1->start(path_to_gnuplot + " script_energy.gp");
+    proc1->start("\"" + path_to_gnuplot + "\" script_energy.gp");
     proc1->waitForFinished();;
 
     // GnuPlot script: Fluence
@@ -214,7 +214,7 @@ void MainWindow::Plot()
     out << "\n";
     file.close();
     QProcess *proc2 = new QProcess(this);
-    proc2->start(path_to_gnuplot + " script_fluence.gp");
+    proc2->start("\"" + path_to_gnuplot + "\" script_fluence.gp");
 
     // GnuPlot script: Power
     plot_n = 0;
@@ -245,7 +245,7 @@ void MainWindow::Plot()
     out << "\n";
     file.close();
     QProcess *proc3 = new QProcess(this);
-    proc3->start(path_to_gnuplot + " script_power.gp");
+    proc3->start("\"" + path_to_gnuplot + "\" script_power.gp");
 
     // GnuPlot script: Spectra
     plot_n = 0;
@@ -277,7 +277,7 @@ void MainWindow::Plot()
     out << "\n";
     file.close();
     QProcess *proc4 = new QProcess(this);
-    proc4->start(path_to_gnuplot + " script_spectra.gp");
+    proc4->start("\"" + path_to_gnuplot + "\" script_spectra.gp");
 
     if(am_n != -1){
         // GnuPlot script: Temperatures
@@ -294,7 +294,7 @@ void MainWindow::Plot()
         out << "\"data_temperatures.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ti \"Transl:  T\"\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
-        proc5->start(path_to_gnuplot + " script_temperatures.gp");
+        proc5->start("\"" + path_to_gnuplot + "\" script_temperatures.gp");
 
         // GnuPlot script: e
         file.setFileName("script_e.gp");
@@ -311,7 +311,7 @@ void MainWindow::Plot()
         out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ls 3 ti \"N2: e4\"\n";
         file.close();
         QProcess *proc6 = new QProcess(this);
-        proc6->start(path_to_gnuplot + " script_e.gp");
+        proc6->start("\"" + path_to_gnuplot + "\" script_e.gp");
 
         // GnuPlot script: Gain spectrum
         plot_n = 0;
@@ -342,7 +342,7 @@ void MainWindow::Plot()
         out << "\n";
         file.close();
         QProcess *proc7 = new QProcess(this);
-        proc7->start(path_to_gnuplot + " script_gain.gp");
+        proc7->start("\"" + path_to_gnuplot + "\" script_gain.gp");
 
         // GnuPlot script: Discharge
         file.setFileName("script_discharge.gp");
@@ -359,7 +359,7 @@ void MainWindow::Plot()
         out << "\"data_discharge.dat\" using ($1*"      << time_mult << "):($" << 2*am_n+3 << "*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
         file.close();
         QProcess *proc8 = new QProcess(this);
-        proc8->start(path_to_gnuplot + " script_discharge.gp");
+        proc8->start("\"" + path_to_gnuplot + "\" script_discharge.gp");
 
         // GnuPlot script: q
         file.setFileName("script_q.gp");
@@ -375,7 +375,7 @@ void MainWindow::Plot()
         out << "\"data_q.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ti \"Transl: qT\"\n";
         file.close();
         QProcess *proc9 = new QProcess(this);
-        proc9->start(path_to_gnuplot + " script_q.gp");
+        proc9->start("\"" + path_to_gnuplot + "\" script_q.gp");
 
         proc5->waitForFinished();
         proc6->waitForFinished();

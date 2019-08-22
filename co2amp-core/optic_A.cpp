@@ -211,6 +211,57 @@ A::A(std::string id)
         return;
     }
 
+    // ------- BANDS TO CONSIDER -------
+    band_reg = true;
+    band_seq = true;
+    band_hot = true;
+
+    if(!YamlGetValue(&value, yaml, "band_reg")){
+        configuration_error = true;
+        return;
+    }
+    if(value!="true" && value!="false"){
+        configuration_error = true;
+        std::cout << "ERROR: Wrong \'band_reg\' parameter (must be \"true\" or \"false\")\n";
+        return;
+    }
+    if(value=="false")
+        band_reg = false;
+
+    if(!YamlGetValue(&value, yaml, "band_seq")){
+        configuration_error = true;
+        return;
+    }
+    if(value!="true" && value!="false"){
+        configuration_error = true;
+        std::cout << "ERROR: Wrong \'band_seq\' parameter (must be \"true\" or \"false\")\n";
+        return;
+    }
+    if(value=="false")
+        band_seq = false;
+
+    if(!YamlGetValue(&value, yaml, "band_hot")){
+        configuration_error = true;
+        return;
+    }
+    if(value!="true" && value!="false"){
+        configuration_error = true;
+        std::cout << "ERROR: Wrong \'band_hot\' parameter (must be \"true\" or \"false\")\n";
+        return;
+    }
+    if(value=="false")
+        band_hot = false;
+
+    Debug(2, "Bands included in calculations:");
+    std::string truefalse;
+    truefalse = (band_reg ? +"true" : +"false");
+    Debug(2, "band_reg: " + truefalse);
+    truefalse = (band_seq ? +"true" : +"false");
+    Debug(2, "band_seq: " + truefalse);
+    truefalse = (band_hot ? +"true" : +"false");
+    Debug(2, "band_hot: " + truefalse);
+
+    // ------- MISC INITIALISATIONS -------
     // allocate memory
     e2 = new double [x0];
     e3 = new double [x0];
@@ -225,8 +276,6 @@ A::A(std::string id)
     InitializePopulations();
 
     // 3 Initial q's
-    //StatusDisplay(nullptr, nullptr, 0, "pumping and relaxation...");
-
     if(pumping == "discharge"){
         Debug(2, "Initializing q's");
         Boltzmann(0);

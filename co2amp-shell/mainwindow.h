@@ -55,6 +55,7 @@ class YamlHighlighter : public QSyntaxHighlighter
         QTextCharFormat commentFormat;
         QTextCharFormat numberFormat;
         QTextCharFormat wordFormat;
+        QTextCharFormat boolFormat;
         QTextCharFormat tabulatedFormat;
         QTextCharFormat wrongtabFormatFormat;
         QTextCharFormat streamFormat;
@@ -84,7 +85,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_plot_postponed;
         bool flag_input_file_error;
         CoreVariables Saved, Memorized;
-        QShortcut *keyF8;
+        QShortcut *F6;
         void LoadProject();
         int FigureMenu();
 

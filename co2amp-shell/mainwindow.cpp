@@ -5,6 +5,58 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setupUi(this);
 
+    /////////////////////////// External programs //////////////////////////
+    path_to_core    = QStandardPaths::findExecutable("co2amp-core");
+    path_to_7zip    = QStandardPaths::findExecutable("7z");
+    path_to_gnuplot = QStandardPaths::findExecutable("gnuplot");
+
+    #ifdef Q_OS_WIN
+        // co2amp-core
+        if(path_to_core==""){
+            QStringList searchpaths =
+            {
+                QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\co2amp.exe",
+                                                        QSettings::NativeFormat).value("Default").toString()).absoluteDir().absolutePath(),
+                QString(QCoreApplication::applicationDirPath()),
+                QString(getenv("PROGRAMFILES"))+"/co2amp"
+            };
+            path_to_core = QStandardPaths::findExecutable("co2amp-core", searchpaths);
+        }
+        // 7-Zip
+        if(path_to_7zip==""){
+            QStringList searchpaths =
+            {
+                QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\7zFM.exe",
+                                                        QSettings::NativeFormat).value("Default").toString()).absoluteDir().absolutePath(),
+                QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\7-Zip", QSettings::NativeFormat).value("Path").toString(),
+                QString(getenv("PROGRAMFILES"))+"/7-Zip",
+                QString(getenv("PROGRAMFILES"))+" (x86)/7-Zip"
+            };
+            path_to_7zip = QStandardPaths::findExecutable("7z", searchpaths);
+        }
+        // Gnuplot
+        if(path_to_gnuplot==""){
+            QStringList searchpaths =
+            {
+                QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\gnuplot.exe",
+                                                        QSettings::NativeFormat).value("Default").toString()).absoluteDir().absolutePath(),
+                QString(getenv("PROGRAMFILES"))+"/gnuplot\\bin",
+                QString(getenv("PROGRAMFILES"))+" (x86)/gnuplot/bin"
+            };
+            path_to_gnuplot = QStandardPaths::findExecutable("gnuplot", searchpaths);
+        }
+    #endif
+
+    if(path_to_core=="")
+        QMessageBox().critical(this, "co2amp", "\'co2amp-core\' executable not found. Try re-installing co2amp.");
+    if(path_to_7zip=="")
+        QMessageBox().critical(this, "co2amp", "7-Zip not found. Please (re)install -  it\'s free.");
+    if(path_to_gnuplot=="")
+        QMessageBox().critical(this, "co2amp", "Gnuplot not found. Please (re)install -  it\'s free.");
+
+    if(path_to_core=="" || path_to_7zip=="" || path_to_gnuplot=="")
+        return;
+
     /////////////////////////// Flags //////////////////////////
     flag_projectloaded = false;
     flag_calculating = false;
@@ -13,37 +65,6 @@ MainWindow::MainWindow(QWidget *parent)
     flag_input_file_error = false;
     flag_plot_modified = false;
     flag_plot_postponed = false;
-
-    /////////////////////////// External programs //////////////////////////
-    path_to_core = "co2amp-core";
-    path_to_gnuplot = "gnuplot";
-    path_to_7zip = "7z";
-    #ifdef Q_OS_WIN
-        path_to_core = QCoreApplication::applicationDirPath() + "/co2amp-core.exe";
-        path_to_core = "\"" + QDir::toNativeSeparators(path_to_core) + "\"";
-        path_to_7zip = QStandardPaths::findExecutable("7z");
-        if(path_to_7zip=="")
-            path_to_7zip = QStandardPaths::findExecutable("7z",{QString(getenv("PROGRAMFILES"))+"/7-Zip"});
-        //QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths",
-        //            QSettings::NativeFormat);
-
-        QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\7-Zip",
-                    QSettings::NativeFormat);
-
-        QMessageBox().information(this, "co2amp", path_to_7zip);
-        QMessageBox().information(this, "co2amp", m.value("Path").toString());
-
-        //if(QFile::exists("7z.exe"))
-        //QStringList loclist = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
-        //QString locs = loclist.join("+");
-        //QMessageBox().information(this, "co2amp", getenv("PROGRAMFILES"));
-        //path_to_7zip = "7za.exe";
-        //path_to_gnuplot = "gnuplot.exe";
-        /*path_to_gnuplot = QCoreApplication::applicationDirPath() + "/gnuplot/bin/gnuplot.exe";
-        path_to_gnuplot = "\"" + QDir::toNativeSeparators(path_to_gnuplot) + "\"";
-        path_to_7zip = QCoreApplication::applicationDirPath() + "/7-zip/x64/7za.exe";
-        path_to_7zip = "\"" + QDir::toNativeSeparators(path_to_7zip) + "\"";*/
-    #endif
 
     /////////////////////////// Create temporary working directory //////////////////////////
     int i = 0;
@@ -67,30 +88,30 @@ MainWindow::MainWindow(QWidget *parent)
     project_file = QString();
 
     //////////////////////////////////////// Validators ///////////////////////////////////////
-    lineEdit_vc->setValidator(new QDoubleValidator(this));
-    lineEdit_t_min->setValidator(new QDoubleValidator(this));
-    lineEdit_t_max->setValidator(new QDoubleValidator(this));
-    lineEdit_time_tick->setValidator(new QDoubleValidator(this));
+    lineEdit_vc        -> setValidator(new QDoubleValidator(this));
+    lineEdit_t_min     -> setValidator(new QDoubleValidator(this));
+    lineEdit_t_max     -> setValidator(new QDoubleValidator(this));
+    lineEdit_time_tick -> setValidator(new QDoubleValidator(this));
 
     //////////////////////////////////// Load session /////////////////////////////////////////
     QSettings settings("ATF", "co2amp");
-    def_dir = settings.value("def_dir", "").toString();
-    yaml_dir = settings.value("yaml_dir", "").toString();
-    comboBox_size->setCurrentIndex(settings.value("plot_size", "0").toInt());
-    spinBox_width->setValue(settings.value("plot_width", "1600").toInt());
-    spinBox_height->setValue(settings.value("plot_height", "1200").toInt());
-    doubleSpinBox_zoom->setValue(settings.value("plot_zoom", "1").toDouble());
-    checkBox_grid->setChecked(settings.value("plot_grid", 1).toBool());
-    checkBox_labels->setChecked(settings.value("plot_labels", 1).toBool());
-    tabWidget_main->setCurrentIndex(0); // always set to input tab
+    def_dir             = settings.value("def_dir", "").toString();
+    yaml_dir            = settings.value("yaml_dir", "").toString();
+    comboBox_size      -> setCurrentIndex(settings.value("plot_size", "0").toInt());
+    spinBox_width      -> setValue(settings.value("plot_width", "1600").toInt());
+    spinBox_height     -> setValue(settings.value("plot_height", "1200").toInt());
+    doubleSpinBox_zoom -> setValue(settings.value("plot_zoom", "1").toDouble());
+    checkBox_grid      -> setChecked(settings.value("plot_grid", 1).toBool());
+    checkBox_labels    -> setChecked(settings.value("plot_labels", 1).toBool());
+    tabWidget_main     -> setCurrentIndex(0); // always set to input tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
     // YamlAutoFormat()
     connect(pushButton_fixFormat,    SIGNAL(clicked()),           this, SLOT(YamlFixFormat()));
     // Calculate()
     connect(pushButton_go,           SIGNAL(clicked()),           this, SLOT(Calculate()));
-    keyF8 = new QShortcut(QKeySequence("F8"), this);
-    connect(keyF8,                   SIGNAL(activated()),         this, SLOT(Calculate()));
+    F6 = new QShortcut(QKeySequence("F6"), this);
+    connect(F6,                      SIGNAL(activated()),         this, SLOT(Calculate()));
     // Abort()
     connect(pushButton_abort,        SIGNAL(clicked()), this, SLOT(Abort()));
     // SaveProject()
@@ -195,14 +216,14 @@ void MainWindow::Calculate()
     // Composing arguments string
     QStringList arguments;
 
-    arguments << path_to_core;
+    arguments << "\"" + path_to_core + "\"";
 
-    arguments << "-vc" << lineEdit_vc->text();
+    arguments << "-vc"        << lineEdit_vc->text();
     // vc, n0, x0, t_min, and t_max may be different form memorized if loading input pulse from file
-    arguments << "-n0" << comboBox_precision_t->currentText();
-    arguments << "-x0" << comboBox_precision_r->currentText();
-    arguments << "-t_min" << QString::number(lineEdit_t_min->text().toDouble());
-    arguments << "-t_max" << QString::number(lineEdit_t_max->text().toDouble());
+    arguments << "-n0"        << comboBox_precision_t->currentText();
+    arguments << "-x0"        << comboBox_precision_r->currentText();
+    arguments << "-t_min"     << QString::number(lineEdit_t_min->text().toDouble());
+    arguments << "-t_max"     << QString::number(lineEdit_t_max->text().toDouble());
     arguments << "-time_tick" << QString::number(lineEdit_time_tick->text().toDouble());
 
     if(Memorized.noprop)
@@ -319,9 +340,9 @@ void MainWindow::SaveProject()
     QProcess *proc;
     proc = new QProcess(this);
     if(fileinfo.suffix()=="co2x") // extended project file suitable for sequensing
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml; *.bin");
+        proc->start("\"" + path_to_7zip + "\" a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml; *.bin");
     else // basic (small) project file (.co2)
-        proc->start(path_to_7zip + " a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml"); // don't include field (field.bin)
+        proc->start("\"" + path_to_7zip + "\" a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml"); // don't include field (field.bin)
     proc->waitForFinished();
     delete proc;
     flag_results_modified = false;
@@ -337,7 +358,7 @@ void MainWindow::LoadProject()
         ClearWorkDir();
         QProcess *proc;
         proc = new QProcess(this);
-        proc->start(path_to_7zip + " e -y \"" + project_file + "\"");
+        proc->start("\"" + path_to_7zip + "\" e -y \"" + project_file + "\"");
         proc->waitForFinished();
         delete proc;
         LoadSettings("project.ini");
@@ -512,9 +533,9 @@ void MainWindow::LoadInputPulse()
 
     QProcess *proc;
     proc = new QProcess(this);
-    proc->start(path_to_7zip + " e -y -otmp \"" + file_to_load + "\" project.ini");
+    proc->start("\"" + path_to_7zip + "\" e -y -otmp \"" + file_to_load + "\" project.ini");
     proc->waitForFinished();
-    proc->start(path_to_7zip + " e -y -otmp \"" + file_to_load + "\" field.bin");
+    proc->start("\"" + path_to_7zip + "\" e -y -otmp \"" + file_to_load + "\" field.bin");
     proc->waitForFinished();
     delete proc;
     QFile::copy(QDir::toNativeSeparators("tmp/project.ini"), "input.ini");

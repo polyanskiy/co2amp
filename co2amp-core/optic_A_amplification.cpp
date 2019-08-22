@@ -120,7 +120,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                         continue;
                     for(ba=0; ba<4; ba++){
                         //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
-                        if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
+                        if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                             continue;
                         for(br=0; br<4; br++){
                             for(j=0; j<61; j++){
@@ -142,24 +142,22 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     continue;
                 for(ba=0; ba<4; ba++){
                     //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
-                    if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
                     for(br=0; br<4; br++){
                         for(j=0; j<61; j++){
                             if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                 continue;
                             // equation 2: terms defining polarization relaxation and phase
-                            rho[i][ba][br][j] *= exp(-Dt/T2);                               // polarization relaxation
+                            rho[i][ba][br][j] *= exp(-Dt/T2);                              // polarization relaxation
                             rho[i][ba][br][j] *= exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt); // polarization phase
                             // temporary variables
-                            E_tmp2 = pulse->E[x][n];
+                            E_tmp2  = pulse->E[x][n];
                             rho_tmp = rho[i][ba][br][j];
                             // remaining of equation 2: 1st run (define polarization induced by input field)
-                            //rho_tmp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp1/2.0 * (1-exp(-Dt/T2)) * cexp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2); // polarization excitation
                             rho_tmp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp1/2.0 * (1-exp(-Dt/T2)) * exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2.0); // polarization excitation
-                                // last exponent: phase in the middle of the time step (important for calculation stability!)
-                            // equation 1: 1st run (0th approximation field in the middle of amplification section)
-                            E_tmp2 -= rho[i][ba][br][j]*length/2.0;
+                            // equation 1: 1st run (0th approximation - field in the middle of amplification section)
+                            E_tmp2 -= rho_tmp*length/2.0; // Thanx to Xiang Li for finding a bug! (rho[i][ba][br][j] was used here instead of tho_tmp)
                             // remaining of equation 2: 2nd run (define polarization induced by the field from previous step)
                             rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp2/2.0 * (1-exp(-Dt/T2)) * exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2.0); // polarization excitation
                             // equation 1: 2nd run (field after passing through entire amplification section)
@@ -174,7 +172,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 if(N[i]==0.0) continue;
                 for(ba=0; ba<4; ba++){
                     //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
-                    if( (ba==0 && band_reg) || (ba==1 && band_hot) || (ba==2 && band_hot) || (ba==3 && band_seq) )
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
                     for(j=0; j<61; j++){
                         // ROTATIONAL REFILL
