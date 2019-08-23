@@ -12,16 +12,6 @@ void MainWindow::UpdateControls()
     //////////////////////////// block signals ///////////////////////////
     BlockSignals(true);
 
-    /////////// check if there is any active madium section among the optics //////////
-    /*noam = true;
-    QStringList list1, list2;
-    list1 = Memorized.optics;//.split(QRegExp("[\n\r]"), QString::SkipEmptyParts);
-    for(i=0; i<=list1.count()-1; i++){
-        list2 = list1[i].split(QRegExp("[- \t\n]"), QString::SkipEmptyParts);
-        if(list2.count() >= 2 && list2[1]=="AM")
-            noam = false;
-    }*/
-
     ////////////////////////////////// GUI CONTROLS //////////////////////////////////
     if(!flag_calculating){
         checkBox_saveWhenFinished->setChecked(0);
@@ -34,9 +24,8 @@ void MainWindow::UpdateControls()
     pushButton_abort->setEnabled(flag_calculating);
     checkBox_saveWhenFinished->setEnabled(flag_calculating && project_file!=QString());
 
-
     /////////////////////////////// CONFIGURATION FILES /////////////////////////////////
-    int config_file_count = listWidget_configFile_list->count();
+    int config_file_count   = listWidget_configFile_list->count();
     int current_config_file = listWidget_configFile_list->currentRow();
     bl = config_file_count > 0;
     if(bl){

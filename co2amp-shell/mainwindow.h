@@ -143,7 +143,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void BeforeProcessStarted();
         void AfterProcessFinished();
         void OnModified();
-        void LoadInputPulse();
+        //void LoadInputPulse();
         int PassNumber(int);
         int DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename);
         int AmNumber(int);

@@ -372,7 +372,6 @@ void MainWindow::LoadProject()
         flag_results_modified = false;
         flag_plot_modified = false;
         flag_plot_postponed = false;
-        LoadInputPulse();
         if(fileinfo.suffix()=="co2x" && !flag_input_file_error)
             flag_field_ready_to_save = true;
         UpdateControls();
@@ -405,16 +404,6 @@ void MainWindow::UpdateTerminal()
         textBrowser_terminal->moveCursor(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
     }
     textBrowser_terminal->moveCursor(QTextCursor::End);
-
-    // Update log file
-    /*QFile file;
-    QTextStream out(&file);
-    file.setFileName("co2amp.log");
-    file.open(QFile::WriteOnly);
-    out<<textBrowser_terminal->toPlainText();
-    //file.open(QFile::WriteOnly | QIODevice::Append);
-    //out<<str;
-    file.close();*/
 }
 
 
@@ -426,7 +415,6 @@ void MainWindow::BeforeProcessStarted()
     flag_results_modified = false;
     ClearWorkDir();
     SaveSettings("all"); // save all settings - input and plot
-    LoadInputPulse();
     UpdateControls();
     tabWidget_main->setCurrentIndex(1); // Process tab
 }
@@ -504,71 +492,7 @@ void MainWindow::OnModified()
     //if(!flag_projectloaded)
         //return;
     MemorizeSettings();  // Load values from edit boxes to memory
-    LoadInputPulse();
     UpdateControls();
-}
-
-
-void MainWindow::LoadInputPulse()
-{
-    //if(!Memorized.from_file)
-    //    return;
-
-    flag_input_file_error = false;
-
-    QFile::remove("field_in.bin");
-
-    QString file_to_load;
-    /*QFileInfo fileinfo(Memorized.input_file);
-    if(fileinfo.fileName()==Memorized.input_file) //file name without directory - assume same directory as the project file
-        file_to_load = QDir::toNativeSeparators(def_dir+"/"+Memorized.input_file);
-    else
-        file_to_load = Memorized.input_file;
-
-    QFile file(file_to_load);
-    if(Memorized.input_file=="" || !file.exists()){
-        flag_input_file_error = true;
-        return;
-    }*/
-
-    QProcess *proc;
-    proc = new QProcess(this);
-    proc->start("\"" + path_to_7zip + "\" e -y -otmp \"" + file_to_load + "\" project.ini");
-    proc->waitForFinished();
-    proc->start("\"" + path_to_7zip + "\" e -y -otmp \"" + file_to_load + "\" field.bin");
-    proc->waitForFinished();
-    delete proc;
-    QFile::copy(QDir::toNativeSeparators("tmp/project.ini"), "input.ini");
-    QFile::copy(QDir::toNativeSeparators("tmp/field.bin"), "field_in.bin");
-    QFile::remove(QDir::toNativeSeparators("tmp/project.ini"));
-    QFile::remove(QDir::toNativeSeparators("tmp/field.bin"));
-    QDir dir;
-    dir.rmdir("tmp");
-
-    QSettings settings("input.ini", QSettings::IniFormat);
-
-    if( settings.value("co2amp/t_min", "x").toString() == "x"
-            || settings.value("co2amp/t_max", "x").toString() == "x"
-            || settings.value("co2amp/time_tick", "x").toString() == "x"
-            || settings.value("co2amp/vc", "x").toString() == "x"
-            || !QFile::exists("field_in.bin") )
-        flag_input_file_error = true;
-    else{
-        Saved.t_min = settings.value("co2amp/t_min", "").toString();
-        Saved.t_max = settings.value("co2amp/t_max", "").toString();
-        Saved.time_tick = settings.value("co2amp/time_tick", "").toString();
-        Saved.vc = settings.value("co2amp/vc", "").toString();
-        Saved.precision_t = settings.value("co2amp/precision_t", 2).toInt();
-        Saved.precision_r = settings.value("co2amp/precision_r", 2).toInt();
-
-        Memorized.t_min = Saved.t_min;
-        Memorized.t_max = Saved.t_max;
-        Memorized.time_tick = Saved.time_tick;
-        Memorized.vc = Saved.vc;
-        Memorized.precision_t = Saved.precision_t;
-        Memorized.precision_r = Saved.precision_r;
-    }
-    QFile::remove("input.ini");
 }
 
 
