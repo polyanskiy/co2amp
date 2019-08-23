@@ -5,15 +5,15 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 {
     QStringList selection_list = {"PULSE",
                                   "LAYOUT",
-                                  "COMMENT",
                                   "OPTIC - Amplifier section (A)",
                                   "OPTIC - Probe (P)",
                                   "OPTIC - Lens (L)",
                                   "OPTIC - Matter (M)",
                                   "OPTIC - Spatial filter (F)",
                                   "OPTIC - Spectral filter (S)",
-                                  "OPTIC - Chirper (C)"};
-    QStringList type_list = {"PULSE", "LAYOUT", "COMMENT", "A", "P", "L", "M", "F", "S", "C"};
+                                  "OPTIC - Chirper (C)",
+                                  "COMMENT"};
+    QStringList type_list = {"PULSE", "LAYOUT", "A", "P", "L", "M", "F", "S", "C", "COMMENT"};
 
     // allow only one layout
     for(int i=0; i<Memorized.configFile_id.size(); i++){
@@ -25,7 +25,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
     bool ok_pressed;
 
-    QString type = QInputDialog().getItem(this, "co2amp", "Type of configuration file",
+    QString type = QInputDialog().getItem(this, "co2amp", "Type",
                                           selection_list, 0, false, &ok_pressed);
     if(!ok_pressed)
         return;  
@@ -34,17 +34,17 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QString id="";
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", " ID (basename) of the file",
+        id = QInputDialog().getText(this, "co2amp", " ID",
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
         id.replace( " ", "" );
         if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide a unique name");
+            QMessageBox().warning(this, "co2amp", "Please provide a unique ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
-            QMessageBox().warning(this, "co2amp", "Name already exists");
+            QMessageBox().warning(this, "co2amp", "ID already exists");
             continue;
         }
         good_id_provided = true;
@@ -103,16 +103,16 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
     bool ok_pressed;
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2amp", "ID (basename):", QLineEdit::Normal, oldid, &ok_pressed);
+        id = QInputDialog().getText(this, "co2amp", "ID", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
         id.replace( " ", "" );
         if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide a unique name");
+            QMessageBox().warning(this, "co2amp", "Please provide a unique ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
-            QMessageBox().warning(this, "co2amp", "Name already exists");
+            QMessageBox().warning(this, "co2amp", "ID already exists");
             continue;
         }
         good_id_provided = true;

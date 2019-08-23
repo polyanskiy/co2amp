@@ -33,7 +33,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                           "amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
         }
-        int n, n1;  // time step number
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
         int ba; // band                 0 - regular; 1 - hot-e; 2 - hot-f ; 3 - sequence
         int br; // branch               0 - 10P; 1 - 10R; 2 - 9P; 3 - 9R
@@ -85,7 +84,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         }
 
         // Amplification
-        for(n=0; n<n0; n++){
+        for(int n=0; n<n0; n++){
             // population inversions
             for(i=0; i<6; i++){ // for each isotopologue
                 if(N[i]==0.0) continue;
@@ -119,14 +118,13 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     if(N[i]==0.0)
                         continue;
                     for(ba=0; ba<4; ba++){
-                        //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
                         if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                             continue;
                         for(br=0; br<4; br++){
                             for(j=0; j<61; j++){
                                 if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                     continue;
-                                for(n1=0; n1<n0; n1++)
+                                for(int n1=0; n1<n0; n1++)
                                     gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j]
                                             * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*(0.5+n1)-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
                             }
@@ -141,7 +139,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 if(N[i]==0)
                     continue;
                 for(ba=0; ba<4; ba++){
-                    //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
                     if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
                     for(br=0; br<4; br++){
@@ -244,7 +241,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
         file = fopen("data_gain.dat", "a");
         fprintf(file, "\n\n"); // data set separator
     }
-    fprintf(file, "#pulse %d optic %d pass %d\n", pulse->number, plane->number, pass);
+    fprintf(file, "#pulse %d optic %d pass %d\n", pulse->number, plane->optic->number, pass);
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
     fclose(file);

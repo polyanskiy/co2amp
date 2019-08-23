@@ -42,7 +42,7 @@ void MainWindow::UpdateControls()
     if(bl){
         plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_config_file]);
         label_configFile_info->setText(Memorized.configFile_id[current_config_file]
-                                       + ".yml   (type: " + Memorized.configFile_type[current_config_file] + ")");
+                                       + ".yml (type: " + Memorized.configFile_type[current_config_file] + ")");
     }
     else{
         plainTextEdit_configFile_content->setPlainText("");
@@ -69,7 +69,7 @@ void MainWindow::UpdateControls()
         lineEdit_time_tick->setText(Memorized.time_tick);
     comboBox_precision_t->setCurrentIndex(Memorized.precision_t);
     comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
-    double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/(comboBox_precision_t->currentText().toDouble()-1);
+    double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/comboBox_precision_t->currentText().toDouble();
     double delta_v = 1.0/(lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble());
     label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
     label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
