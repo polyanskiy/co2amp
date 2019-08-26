@@ -1,94 +1,90 @@
-#include "mainwindow.h"
+#include "co2amp.h"
 
 
-void MainWindow::UpdateControls()
+void MainWindow::Update()
 {
-    int i, index;
+    int index;
     bool bl;
     QString str;
 
-    //QCoreApplication::processEvents(QEventLoop::AllEvents,1000);
-
-    //////////////////////////// block signals ///////////////////////////
-    BlockSignals(true);
-
-    ////////////////////////////////// GUI CONTROLS //////////////////////////////////
+    //////////////////////////////////// GUI CONTROLS ///////////////////////////////////
     if(!flag_calculating){
         checkBox_saveWhenFinished->setChecked(0);
     }
-    pushButton_new->setDisabled(flag_calculating);
-    pushButton_open->setDisabled(flag_calculating);
-    pushButton_save->setDisabled(flag_calculating || !flag_calculation_success || !(flag_plot_modified || flag_results_modified) || project_file==QString());
-    pushButton_saveas->setDisabled(flag_calculating || !flag_calculation_success);
-    pushButton_go->setDisabled(flag_calculating);
-    pushButton_abort->setEnabled(flag_calculating);
-    checkBox_saveWhenFinished->setEnabled(flag_calculating && project_file!=QString());
+    pushButton_new            -> setDisabled(flag_calculating);
+    pushButton_open           -> setDisabled(flag_calculating);
+    pushButton_save           -> setDisabled(flag_calculating
+                                             || !flag_project_modified
+                                             || project_file==QString());
+    pushButton_saveas         -> setDisabled(flag_calculating);
+    pushButton_go             -> setDisabled(flag_calculating);
+    pushButton_abort          -> setEnabled (flag_calculating);
+    checkBox_saveWhenFinished -> setEnabled (flag_calculating && project_file!=QString());
 
     /////////////////////////////// CONFIGURATION FILES /////////////////////////////////
     int config_file_count   = listWidget_configFile_list->count();
     int current_config_file = listWidget_configFile_list->currentRow();
-    bl = config_file_count > 0;
+    bl = config_file_count > 0 ;
+
+    plainTextEdit_configFile_content->blockSignals(true);
     if(bl){
-        plainTextEdit_configFile_content->setPlainText(Memorized.configFile_content[current_config_file]);
-        label_configFile_info->setText(Memorized.configFile_id[current_config_file]
-                                       + ".yml (type: " + Memorized.configFile_type[current_config_file] + ")");
+        if(!plainTextEdit_configFile_content->hasFocus())
+            plainTextEdit_configFile_content->setPlainText(configFile_content[current_config_file]);
+        label_configFile_info->setText(configFile_id[current_config_file]
+                                       + ".yml (type: " + configFile_type[current_config_file] + ")");
     }
     else{
         plainTextEdit_configFile_content->setPlainText("");
         label_configFile_info->setText("");
     }
-    pushButton_configFile_load       -> setEnabled(bl);
+    plainTextEdit_configFile_content->blockSignals(false);
+
+    pushButton_configFile_load       -> setEnabled(bl && !flag_calculating);
     pushButton_configFile_save       -> setEnabled(bl);
-    pushButton_fixFormat             -> setEnabled(bl);
-    plainTextEdit_configFile_content -> setEnabled(bl);
-    toolButton_configFile_remove     -> setEnabled(bl);
-    toolButton_configFile_rename     -> setEnabled(bl);
-    toolButton_configFile_up         -> setEnabled(current_config_file > 0);
-    toolButton_configFile_down       -> setEnabled(current_config_file >= 0 && current_config_file < config_file_count-1);
+    pushButton_fixFormat             -> setEnabled(bl && !flag_calculating);
+    plainTextEdit_configFile_content -> setEnabled(bl && !flag_calculating);
+    toolButton_configFile_add        -> setEnabled(!flag_calculating);
+    toolButton_configFile_remove     -> setEnabled(bl && !flag_calculating);
+    toolButton_configFile_rename     -> setEnabled(bl && !flag_calculating);
+    toolButton_configFile_up         -> setEnabled(current_config_file > 0 && !flag_calculating);
+    toolButton_configFile_down       -> setEnabled(current_config_file >= 0 && !flag_calculating
+                                                   && current_config_file < config_file_count-1);
 
-
-    /////////////////////////////////// CALCULATION GRID //////////////////////////////////////
-    if(!lineEdit_vc->hasFocus())
-        lineEdit_vc->setText(Memorized.vc);
-    if(!lineEdit_t_min->hasFocus())
-        lineEdit_t_min->setText(Memorized.t_min);
-    if(!lineEdit_t_max->hasFocus())
-        lineEdit_t_max->setText(Memorized.t_max);
-    if(!lineEdit_time_tick->hasFocus())
-        lineEdit_time_tick->setText(Memorized.time_tick);
-    comboBox_precision_t->setCurrentIndex(Memorized.precision_t);
-    comboBox_precision_r->setCurrentIndex(Memorized.precision_r);
+    ///////////////////////////////// CALCULATION GRID //////////////////////////////////
     double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/comboBox_precision_t->currentText().toDouble();
     double delta_v = 1.0/(lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble());
     label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
     label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
+    tmp_precision_t = comboBox_precision_t->currentIndex();
+    tmp_precision_r = comboBox_precision_r->currentIndex();
+    groupBox_grid->setDisabled(flag_calculating);
 
-    /////////////////////////////////////// DEBUGGING //////////////////////////////////////////
-    checkBox_noprop->setChecked(Memorized.noprop);
+    ///////////////////////////////////// DEBUGGING /////////////////////////////////////
+    groupBox_debugging->setDisabled(flag_calculating);
 
-
-    /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB //////////////////////////////
+    /////////////////////// POPULATE COMBOBOXES IN THE OUTPUT TAB ///////////////////////
     //optic and pulse
+    int optic_n = comboBox_optic->currentIndex();
+    int pulse_n = comboBox_pulse->currentIndex();
+    comboBox_optic->blockSignals(true);
+    comboBox_pulse->blockSignals(true);
     comboBox_optic->clear();
     comboBox_pulse->clear();
-    for(i=0; i<Saved.configFile_id.count(); i++){
-        QString type = Saved.configFile_type[i];
+    for(int i=0; i<configFile_id.count(); i++){
+        QString type = configFile_type[i];
         if(type != "PULSE" && type != "LAYOUT" && type != "COMMENT")
-            comboBox_optic->addItem(Saved.configFile_id[i]);
+            comboBox_optic->addItem(configFile_id[i]);
         if(type == "PULSE")
-            comboBox_pulse->addItem(Saved.configFile_id[i]);
+            comboBox_pulse->addItem(configFile_id[i]);
     }
-    if(Memorized.optic == -1 || Memorized.optic+1 > comboBox_optic->count())
-        comboBox_optic->setCurrentIndex(0);
-    else
-        comboBox_optic->setCurrentIndex(Memorized.optic);   
-    if(Memorized.pulse == -1 || Memorized.pulse+1 > comboBox_pulse->count())
-        comboBox_pulse->setCurrentIndex(0);
-    else
-        comboBox_pulse->setCurrentIndex(Memorized.pulse);
+    comboBox_optic->setCurrentIndex(optic_n);
+    comboBox_pulse->setCurrentIndex(pulse_n);
+    comboBox_optic->blockSignals(false);
+    comboBox_pulse->blockSignals(false);
 
     //energyPlot
     index = comboBox_energyPlot->currentIndex();
+    comboBox_energyPlot     -> blockSignals(true);
     comboBox_energyPlot     -> clear();
     comboBox_energyPlot     -> addItem("all");
     comboBox_energyPlot     -> addItem("optic");
@@ -103,29 +99,14 @@ void MainWindow::UpdateControls()
             comboBox_energyPlot->setCurrentIndex(3);
     }
     else
-        comboBox_energyPlot->setCurrentIndex(index);
+        comboBox_energyPlot -> setCurrentIndex(index);
+    comboBox_energyPlot     -> blockSignals(false);
 
-    /////////////////////// ENABLE/DISABLE CONTROLS IN OUTPUT TAB //////////////////////////////
-    bl = (flag_projectloaded || flag_calculation_success);
-    //scrollArea_plotControls->setEnabled(bl);
-    pushButton_update->setEnabled(bl);
-    if(!bl)
-        ClearPlot();
+    /////////////////////// ENABLE/DISABLE CONTROLS IN OUTPUT TAB ///////////////////////
+    bl = (QFile::exists("data_energy.dat") || QFile::exists("data_discharge.dat"));
+    tab_output->setEnabled(bl);
 
     bl = (comboBox_size->currentText()=="Custom");
-    spinBox_width->setVisible(bl);
+    spinBox_width ->setVisible(bl);
     spinBox_height->setVisible(bl);
-
-    //////////////////////// unblock signals /////////////////////////////
-    BlockSignals(false);
-}
-
-
-void MainWindow::BlockSignals(bool block)
-{
-    checkBox_noprop->blockSignals(block);
-    listWidget_configFile_list->blockSignals(block);
-    plainTextEdit_configFile_content->blockSignals(block);
-    comboBox_precision_t->blockSignals(block);
-    comboBox_precision_r->blockSignals(block);
 }

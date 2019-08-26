@@ -22,17 +22,6 @@
 #include "ui_mainwindow.h"
 
 
-class CoreVariables
-{
-    public:
-        QStringList configFile_id, configFile_type, configFile_content;
-        bool noprop;
-        QString vc, t_min, t_max, time_tick;
-        int precision_t, precision_r;
-        int optic, pulse;
-};
-
-
 class YamlHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -69,33 +58,54 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
-        int version;
+        float version; //e.g. "2019.08"
         QString work_dir;
         QString project_file;
         QString def_dir;
         QString yaml_dir;
-        QString path_to_core, path_to_gnuplot, path_to_7zip;
+        QString path_to_core;
+        QString path_to_gnuplot;
+        QString path_to_7zip;
+        QStringList configFile_id;
+        QStringList configFile_type;
+        QStringList configFile_content;
         QProcess *process;
+        bool flag_project_modified;
         bool flag_calculating;
-        bool flag_calculation_success;
-        bool flag_field_ready_to_save; // can save .co2x file
-        bool flag_projectloaded;
-        bool flag_results_modified;
-        bool flag_plot_modified;
         bool flag_plot_postponed;
-        bool flag_input_file_error;
-        CoreVariables Saved, Memorized;
         QShortcut *F6;
-        void LoadProject();
-        int FigureMenu();
+        int tmp_precision_t, tmp_precision_r;
 
     private:
         YamlHighlighter *highlighter;
 
     private slots:
+        // project.cpp
+        void SaveProject();
+        void LoadProject();
+        void NewProject();
+        void ClearWorkDir();
+        bool SaveBeforeClose();
+        void InvalidateResults();
+        bool CalcResultsExist();
+        bool OkToInvalidate();
+        // environment.cpp
+        void FindExternalPrograms();
+        // config.cpp
+        void UpdateConfigurationFiles();
+        void ReadConfigurationFiles();
+        // calc.cpp
+        void Calculate();
+        void Abort();
+        void BeforeProcessStarted();
+        void AfterProcessFinished();
+        // mainwindow.cpp
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
+        void on_tabWidget_main_currentChanged(int tab);
+        void closeEvent(QCloseEvent*);
+        // tab0-conf.cpp
         void on_toolButton_configFile_add_clicked();
         void on_toolButton_configFile_up_clicked();
         void on_toolButton_configFile_down_clicked();
@@ -105,7 +115,29 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_plainTextEdit_configFile_content_textChanged();
         void on_pushButton_configFile_load_clicked();
         void on_pushButton_configFile_save_clicked();
-        void closeEvent(QCloseEvent*);
+        void PopulateConfigFileList();
+        QString SuggestConfigFileName(QString type);
+        bool ConfigFileNameExists(QString ID);
+        // tab1-proc.cpp
+        void WriteToTerminal();
+        void on_lineEdit_vc_textEdited(QString);
+        void on_lineEdit_t_min_textEdited(QString);
+        void on_lineEdit_t_max_textEdited(QString);
+        void on_lineEdit_time_tick_textEdited(QString);
+        void on_comboBox_precision_t_activated(int);
+        void on_comboBox_precision_r_activated(int);
+        void on_checkBox_noprop_clicked();
+        // tab2-plot.cpp
+        void Plot();
+        void ClearPlot();
+        void FlagModifiedAndPlot();
+        void PostponePlot();
+        void FlagModifiedAndPostponePlot();
+        void PlotIfPostponed();
+        // tab3-comm.cpp
+        void on_plainTextEdit_comments_textChanged();
+        // clipboard.cpp
+        int  FigureMenu();
         void on_svg_fig1_customContextMenuRequested();
         void on_svg_fig2_customContextMenuRequested();
         void on_svg_fig3_customContextMenuRequested();
@@ -115,43 +147,18 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig7_customContextMenuRequested();
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
-        void on_tabWidget_main_currentChanged(int tab);
-        void SaveSettings(QString what_to_save); //what_to_save: "all" - input and plot settings; "plot" - plot settings only
-        void MemorizeSettings();
-        void SaveProject();
-        void LoadSettings(QString);
-        void PopulateConfigFileList();
-        void NewProject();
-        void ClearWorkDir();
-        void Calculate();
-        void Abort();
-        void Plot();
-        void FlagModifiedAndPlot();
-        void PostponePlot();
-        void FlagModifiedAndPostponePlot();
-        void PlotIfPostponed();
-        void ClearPlot();
-        void SelectEnergies();
         void CopyMultipassData(QString filename);
         void CopyPixmap(QSvgWidget *svg);
         void SaveSVG(QString svg_path);
-        void UpdateTerminal();
-        void UpdateControls();
+        // update.cpp
+        void Update();
+        // yaml.cpp
         void YamlFixFormat();
-        QString SuggestConfigFileName(QString type);
-        bool ConfigFileNameExists(QString ID);
-        void BeforeProcessStarted();
-        void AfterProcessFinished();
-        void OnModified();
-        //void LoadInputPulse();
-        int PassNumber(int);
+        // data.cpp
         int DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename);
+        int PassNumber(int);
         int AmNumber(int);
-        bool SaveBeforeClose();
-        void BlockSignals(bool block);
+        void SelectEnergies();
 };
-
-
-
 
 #endif

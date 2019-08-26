@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "mainwindow.h"
+#include "co2amp.h"
 
 
 int main(int argc, char *argv[])

@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "co2amp.h"
 
 
 YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
@@ -23,7 +23,7 @@ YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(par
 
     keyFormat.setFontWeight(QFont::Bold);
     keyFormat.setForeground(Qt::darkMagenta);
-    rule.pattern = QRegularExpression("^[A-Za-z][A-Za-z0-9_]*:[ ][\\|]*");
+    rule.pattern = QRegularExpression("^(  |- |)[A-Za-z][A-Za-z0-9_]*:[ ]+[\\|]*");
     rule.format = keyFormat;
     highlightingRules.append(rule);
 
@@ -69,11 +69,13 @@ void MainWindow::YamlFixFormat()
 {
     QString yaml = plainTextEdit_configFile_content->toPlainText();
     yaml.replace(QRegularExpression("\\t"), " ");
-    yaml.replace(QRegularExpression(":[ ]*([A-Za-z0-9_\\|])"), ": \\1");
+    yaml.replace(QRegularExpression(":([A-Za-z0-9_\\|])"), ": \\1");
     yaml.replace(QRegularExpression("[ ]+\\n"), "\n");
-    yaml.replace(QRegularExpression("[:]+\\n"), ": |\n");
+    yaml.replace(QRegularExpression(":[ ]*\\n"), ": |\n");
     yaml.replace(QRegularExpression("[ ]*\\>\\>[ ]*"), " >> ");
-    yaml.replace(QRegularExpression("\\n[ ]+([A-Za-z0-9_]+)[:]"), "\n\\1:");
+    yaml.replace(QRegularExpression("\\n[ ]*([A-Za-z0-9_]+)[ ]*[:]"), "\n\\1:");
+    yaml.replace(QRegularExpression("\\n[ ]*times: "), "\n  times: ");
+    yaml.replace(QRegularExpression("\\n[ ]*[-]*[ ]*go: "), "\n- go: ");
     yaml.replace(QRegularExpression("\\n[ ]*([#][.]*)"), "\n\\1");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2 \\3 \\4");
     yaml.replace(QRegularExpression("\\n[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)"), "\n    \\1 \\2 \\3");

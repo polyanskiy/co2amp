@@ -182,13 +182,13 @@ bool ReadLayoutConfigFile(std::string path){
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
-        if(key == "go"){
+        if(key == "- go"){
             if(go != "" || times != -1) // missing 'times' or previous 'go'
                 break;
             go = value;
             go.erase(remove_if(go.begin(), go.end(), isspace), go.end()); // remove spaces
         }
-        if(key == "times"){
+        if(key == "  times"){
             if(times != -1) // missing 'go'
                 break;
             times = std::stoi(value);

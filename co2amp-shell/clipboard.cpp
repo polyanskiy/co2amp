@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "co2amp.h"
 
 
 int MainWindow::FigureMenu()
@@ -198,7 +198,6 @@ void MainWindow::on_svg_fig9_customContextMenuRequested() // q
     if(m==3) // SVG
         SaveSVG("fig_q.svg");
 }
-
 
 
 void MainWindow::CopyMultipassData(QString filename)

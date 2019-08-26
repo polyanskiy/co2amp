@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-22" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-25" << std::endl << std::flush;
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
@@ -40,12 +40,12 @@ int main(int argc, char **argv)
 
     if (!ReadCommandLine(argc, argv)){
         std::cout << "Error in command line. Aborting.\n";
-        return -1;
+        return EXIT_FAILURE;
     }
     Debug(1, "Command line read done");
     if (!ReadConfigFiles("config_files.yml")){
         std::cout << "Error in configuration file(s). Aborting.\n";
-        return -1;
+        return EXIT_FAILURE;
     }
     Debug(1, "Processing configuration files done");
 
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     std::cout << std:: endl << "Execution time: "  << (std::clock()-start_time)/CLOCKS_PER_SEC << " s";
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 

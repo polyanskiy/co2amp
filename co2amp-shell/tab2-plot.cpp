@@ -1,16 +1,42 @@
-#include "mainwindow.h"
+#include "co2amp.h"
 
+
+void MainWindow::FlagModifiedAndPostponePlot()
+{
+    flag_project_modified  = true;
+    flag_plot_postponed = true;
+}
+
+
+void MainWindow::PostponePlot()
+{
+    flag_plot_postponed = true;
+}
+
+
+void MainWindow::PlotIfPostponed()
+{
+    if(flag_plot_postponed)
+        Plot();
+}
+
+
+void MainWindow::FlagModifiedAndPlot()
+{
+    flag_project_modified  = true;
+    Plot();
+}
 
 
 void MainWindow::Plot()
 {
+    if( !(QFile::exists("data_energy.dat")||QFile::exists("data_discharge_dat")) )
+        return;
+
     if(tabWidget_main->currentIndex()!=2){
         flag_plot_postponed = true;
         return;
     }
-
-    if(flag_plot_modified)
-        MemorizeSettings();
 
     this->setCursor(Qt::WaitCursor);
 
@@ -26,15 +52,11 @@ void MainWindow::Plot()
 
     ClearPlot();
 
-    QFile::remove("fig_energy.svg");
-    QFile::remove("fig_fluence.svg");
-    QFile::remove("fig_power.svg");
-    QFile::remove("fig_spectra.svg");
-    QFile::remove("fig_temperatures.svg");
-    QFile::remove("fig_e.svg");
-    QFile::remove("fig_gain.svg");
-    QFile::remove("fig_discharge.svg");
-    QFile::remove("fig_q.svg");
+    // remove svg files
+    QStringList filelist = QDir(work_dir).entryList();
+    for(int i=0; i<filelist.size(); i++)
+        if(QFileInfo(filelist[i]).suffix()=="svg")
+            QFile::remove(filelist[i]);
 
     svg_fig1->setStyleSheet("background-color:white;");
     svg_fig2->setStyleSheet("background-color:white;");
@@ -111,25 +133,25 @@ void MainWindow::Plot()
     double power_mult      = pow(10, comboBox_powerUnit->currentIndex()*3 - 18);
     double discharge_mult  = pow(10, comboBox_dischargeUnits->currentIndex()*3 - 6);
     // units
-    QString time_unit      = comboBox_timeUnit->currentText();
-    QString energy_unit    = comboBox_energyUnit->currentText();
-    QString length_unit    = comboBox_lengthUnit->currentText();
-    QString fluence_unit   = comboBox_fluenceUnit->currentText();
-    QString t_unit         = comboBox_tUnit->currentText();
-    QString power_unit     = comboBox_powerUnit->currentText();
-    QString voltage_unit   = comboBox_dischargeUnits->currentText().split(", ")[0];
-    QString current_unit   = comboBox_dischargeUnits->currentText().split(", ")[1];
+    QString time_unit      = comboBox_timeUnit      -> currentText();
+    QString energy_unit    = comboBox_energyUnit    -> currentText();
+    QString length_unit    = comboBox_lengthUnit    -> currentText();
+    QString fluence_unit   = comboBox_fluenceUnit   -> currentText();
+    QString t_unit         = comboBox_tUnit         -> currentText();
+    QString power_unit     = comboBox_powerUnit     -> currentText();
+    QString voltage_unit   = comboBox_dischargeUnits-> currentText().split(", ")[0];
+    QString current_unit   = comboBox_dischargeUnits-> currentText().split(", ")[1];
 
     // pulse time limits
-    double t_min = Saved.t_min.toDouble()*t_mult/pow(2, comboBox_timeScale->currentIndex());
-    double t_max = Saved.t_max.toDouble()*t_mult/pow(2, comboBox_timeScale->currentIndex());
+    double t_min = lineEdit_t_min->text().toDouble()*t_mult/pow(2, comboBox_timeScale->currentIndex());
+    double t_max = lineEdit_t_max->text().toDouble()*t_mult/pow(2, comboBox_timeScale->currentIndex());
 
     // frequency limits
     double v_range = comboBox_precision_t->currentText().toDouble()
-            / (Saved.t_max.toDouble()-Saved.t_min.toDouble())
+            / (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())
             / pow(2, comboBox_freqScale->currentIndex()+1);
-    double v_min = Saved.vc.toDouble() - v_range/2;
-    double v_max = Saved.vc.toDouble() + v_range/2;
+    double v_min = lineEdit_vc->text().toDouble() - v_range/2;
+    double v_max = lineEdit_vc->text().toDouble() + v_range/2;
 
     // frequency / wavelength / wavenumber axis
     double c = 2.99792458e8;// m/s
@@ -388,7 +410,7 @@ void MainWindow::Plot()
     proc3->waitForFinished();
     proc4->waitForFinished();
 
-    /////////////////////////////////////////////////////////////// Display figures ///////////////////////////////////////////////////
+    /////////////////////////////////////// Display figures //////////////////////////////////////////
 
     svg_fig1->load(QString("fig_energy.svg"));
     svg_fig2->load(QString("fig_spectra.svg"));
@@ -402,12 +424,11 @@ void MainWindow::Plot()
         svg_fig9->load(QString("fig_q.svg"));
     }
 
-    ///////////////////////////////////////////////////// update flags and controls ////////////////////////////////////////////////
-    OnModified();
-    if(flag_plot_modified)
-        SaveSettings("plot"); // save only plot settings
+    ////////////////////////////////// Update flags and controls ///////////////////////////////////
+    Update();
+    if(flag_project_modified)
+        UpdateConfigurationFiles();
     flag_plot_postponed = false;
-    //flag_plot_postponed_modified = false;
     this->setCursor(Qt::ArrowCursor);
 }
 
@@ -443,47 +464,4 @@ void MainWindow::ClearPlot()
     svg_fig7->setHidden(true);
     svg_fig8->setHidden(true);
     svg_fig9->setHidden(true);
-}
-
-
-
-void MainWindow::SelectEnergies()
-{
-    QString line;
-    QRegExp separators("[\t\n]");
-    int pulse_n = comboBox_pulse->currentIndex();
-    int optic_n = comboBox_optic->currentIndex();
-
-    QFile file_all("data_energy.dat");
-    file_all.open(QFile::ReadOnly);
-    QFile file_sel("data_energy_selected.dat");
-    QTextStream out(&file_sel);
-    file_sel.open(QFile::WriteOnly);
-
-    line = file_all.readLine();
-    while(line != QString()){
-	if(line[0]!='#'){ // skip comments
-	    switch(comboBox_energyPlot->currentIndex()){
-	    case 0: // all energies
-		out << line.section(separators, 0, 1) << "\n";
-		break;
-        case 1: // optic
-        if(line.section(separators, 3, 3).toInt() == optic_n)
-		    out << line.section(separators, 0, 1) << "\n";
-		break;
-	    case 2: // pulse
-		if(line.section(separators, 2, 2).toInt() == pulse_n)
-		    out << line.section(separators, 0, 1) << "\n";
-		break;
-        case 3: // optic + pulse
-        if(line.section(separators, 2, 2).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == optic_n)
-		    out << line.section(separators, 0, 1) << "\n";
-		break;
-	    }
-	}
-	line = file_all.readLine();
-    }
-
-    file_sel.close();
-    file_all.close();
 }

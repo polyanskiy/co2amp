@@ -190,7 +190,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -198,9 +198,6 @@ p, li { white-space: pre-wrap; }
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
         <string>&amp;Input</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>Ctrl + I</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="0">
@@ -316,7 +313,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Courier</family>
+            <family>Courier New</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -378,7 +375,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QPlainTextEdit" name="plainTextEdit_configFile_content">
           <property name="font">
            <font>
-            <family>Courier</family>
+            <family>Courier New</family>
             <pointsize>10</pointsize>
            </font>
           </property>
@@ -959,7 +956,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Courier</family>
+            <family>Courier New</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
@@ -1306,10 +1303,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QWidget" name="tab_output">
        <attribute name="title">
-        <string>O&amp;utput</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>Ctrl + U</string>
+        <string>&amp;Output</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <property name="rightMargin">
@@ -2238,12 +2232,26 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_comments">
+       <attribute name="title">
+        <string>&amp;Comments</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="0" column="0">
+         <widget class="QPlainTextEdit" name="plainTextEdit_comments">
+          <property name="font">
+           <font>
+            <family>Courier New</family>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_about">
        <attribute name="title">
-        <string>A&amp;bout</string>
-       </attribute>
-       <attribute name="toolTip">
-        <string>Ctrl + B</string>
+        <string>&amp;About</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_8">
         <item row="1" column="0">
@@ -2279,7 +2287,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-08-22&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;2019-08-25&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Documentation: &lt;/span&gt;&lt;a href=&quot;https://github.com/polyanskiy/co2amp/blob/master/doc/tex/co2amp.pdf?raw=true&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Manual and program description (PDF)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/gpl.html&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;GPL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Authors:&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;a href=&quot;mailto:Mikhail Polyanskiy &amp;lt;polyanskiy@bnl.gov&amp;gt;&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;Mikhail N. &amp;quot;Misha&amp;quot; Polyanskiy&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, Brookhaven National Laboratory, USA&lt;br /&gt;Initially based on the Mathcad code by Viktor T. Platonenko, Moscow State University, Russia&lt;/span&gt;&lt;/p&gt;
