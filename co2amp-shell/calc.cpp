@@ -9,9 +9,7 @@ void MainWindow::Calculate()
     QStringList arguments;
 
     arguments << "\"" + path_to_core + "\"";
-
     arguments << "-vc"        << lineEdit_vc->text();
-    // vc, n0, x0, t_min, and t_max may be different form memorized if loading input pulse from file
     arguments << "-n0"        << comboBox_precision_t->currentText();
     arguments << "-x0"        << comboBox_precision_r->currentText();
     arguments << "-t_min"     << lineEdit_t_min->text();
@@ -21,7 +19,7 @@ void MainWindow::Calculate()
     if(checkBox_noprop->isChecked())
         arguments << "-noprop";
 
-    arguments << "-debug" << spinBox_debugLevel->text();
+    arguments << "-debug" << spinBox_debug_level->text();
 
     //////////////////// Starting The Process ////////////////////
     process = new QProcess(this);

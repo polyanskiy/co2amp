@@ -41,12 +41,13 @@ class YamlHighlighter : public QSyntaxHighlighter
         QVector<HighlightingRule> highlightingRules;
 
         QTextCharFormat keyFormat;
+        QTextCharFormat specialKeyFormat;
         QTextCharFormat commentFormat;
         QTextCharFormat numberFormat;
         QTextCharFormat wordFormat;
         QTextCharFormat boolFormat;
         QTextCharFormat tabulatedFormat;
-        QTextCharFormat wrongtabFormatFormat;
+        QTextCharFormat wrongTabFormatFormat;
         QTextCharFormat streamFormat;
         QTextCharFormat quotationFormat;
 };

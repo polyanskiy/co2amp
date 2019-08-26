@@ -44,14 +44,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     //////////////////////////// Load settings not stored in .co2 files ////////////////////////
     QSettings settings("ATF", "co2amp");
-    def_dir             = settings.value("def_dir", "").toString();
-    yaml_dir            = settings.value("yaml_dir", "").toString();
+    def_dir             =                 settings.value("def_dir", "").toString();
+    yaml_dir            =                 settings.value("yaml_dir", "").toString();
+    spinBox_debug_level-> setValue       (settings.value("debug_level", "0").toInt ());
     comboBox_size      -> setCurrentIndex(settings.value("plot_size", "0").toInt());
-    spinBox_width      -> setValue(settings.value("plot_width", "1600").toInt());
-    spinBox_height     -> setValue(settings.value("plot_height", "1200").toInt());
-    doubleSpinBox_zoom -> setValue(settings.value("plot_zoom", "1").toDouble());
-    checkBox_grid      -> setChecked(settings.value("plot_grid", 1).toBool());
-    checkBox_labels    -> setChecked(settings.value("plot_labels", 1).toBool());
+    spinBox_width      -> setValue       (settings.value("plot_width", "1600").toInt());
+    spinBox_height     -> setValue       (settings.value("plot_height", "1200").toInt());
+    doubleSpinBox_zoom -> setValue       (settings.value("plot_zoom", "1").toDouble());
+    checkBox_grid      -> setChecked     (settings.value("plot_grid", 1).toBool());
+    checkBox_labels    -> setChecked     (settings.value("plot_labels", 1).toBool());
     tabWidget_main     -> setCurrentIndex(0); // always set to input tab
 
     /////////////////////////////////// Signal-Slot Connections //////////////////////////////////
@@ -125,13 +126,14 @@ MainWindow::~MainWindow()
     QSettings settings("ATF", "co2amp");
     settings.setValue("def_dir",     def_dir);
     settings.setValue("yaml_dir",    yaml_dir);
-    settings.setValue("window_geometry", saveGeometry());
+    settings.setValue("debug_level", spinBox_debug_level->text());
     settings.setValue("plot_size",   comboBox_size      -> currentIndex());
     settings.setValue("plot_width",  spinBox_width      -> value());
     settings.setValue("plot_height", spinBox_height     -> value());
     settings.setValue("plot_zoom",   doubleSpinBox_zoom -> value());
     settings.setValue("plot_grid",   checkBox_grid      -> isChecked());
     settings.setValue("plot_labels", checkBox_labels    -> isChecked());
+    settings.setValue("window_geometry", saveGeometry());
 
     // Remove temporary working directory
     ClearWorkDir();

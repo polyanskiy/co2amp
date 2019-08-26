@@ -59,6 +59,9 @@ void MainWindow::Update()
     tmp_precision_r = comboBox_precision_r->currentIndex();
     groupBox_grid->setDisabled(flag_calculating);
 
+    ////////////////////////////// CALCULATION PARAMETERS ///////////////////////////////
+    groupBox_parameters->setDisabled(flag_calculating);
+
     ///////////////////////////////////// DEBUGGING /////////////////////////////////////
     groupBox_debugging->setDisabled(flag_calculating);
 

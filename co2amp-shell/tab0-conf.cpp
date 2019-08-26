@@ -3,13 +3,6 @@
 
 void MainWindow::on_toolButton_configFile_add_clicked()
 {
-    if(CalcResultsExist()){
-        if(OkToInvalidate())
-            InvalidateResults();
-        else
-            return;
-    }
-
     QStringList selection_list = {"PULSE",
                                   "LAYOUT",
                                   "OPTIC - Amplifier section (A)",
@@ -44,9 +37,8 @@ void MainWindow::on_toolButton_configFile_add_clicked()
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
-        id.replace( " ", "" );
-        if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide a unique ID");
+        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
+            QMessageBox().warning(this, "co2amp", "Please provide a valid ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
@@ -56,16 +48,26 @@ void MainWindow::on_toolButton_configFile_add_clicked()
         good_id_provided = true;
     }
 
+    if(CalcResultsExist()){
+        if(OkToInvalidate())
+            InvalidateResults();
+        else
+            return;
+    }
+
     int current_optic = listWidget_configFile_list->currentRow();
 
     configFile_id.insert(current_optic+1, id);
     configFile_type.insert(current_optic+1, type);
     configFile_content.insert(current_optic+1, "# Configuration YAML file, type " + type + "\n\n");
 
-    InvalidateResults();
-
+    listWidget_configFile_list->blockSignals(true);
     listWidget_configFile_list->insertItem(current_optic+1, id);
-    listWidget_configFile_list->setCurrentRow(current_optic+1); //this also triggers UpdateControls();
+    listWidget_configFile_list->setCurrentRow(current_optic+1);
+    listWidget_configFile_list->blockSignals(false);
+
+    flag_project_modified = true;
+    Update();
 }
 
 
@@ -87,8 +89,13 @@ void MainWindow::on_toolButton_configFile_up_clicked()
     configFile_content.swap(current_optic, current_optic-1);
 
     QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
+    listWidget_configFile_list->blockSignals(true);
     listWidget_configFile_list->insertItem(current_optic-1, item);
-    listWidget_configFile_list->setCurrentRow(current_optic-1); //this also triggers UpdateControls();
+    listWidget_configFile_list->setCurrentRow(current_optic-1);
+    listWidget_configFile_list->blockSignals(false);
+
+    flag_project_modified = true;
+    Update();
 }
 
 
@@ -110,8 +117,13 @@ void MainWindow::on_toolButton_configFile_down_clicked()
     configFile_content.swap(current_optic, current_optic+1);
 
     QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
+    listWidget_configFile_list->blockSignals(true);
     listWidget_configFile_list->insertItem(current_optic+1, item);
-    listWidget_configFile_list->setCurrentRow(current_optic+1); //this also triggers UpdateControls();
+    listWidget_configFile_list->setCurrentRow(current_optic+1);
+    listWidget_configFile_list->blockSignals(false);
+
+    flag_project_modified = true;
+    Update();
 }
 
 
@@ -128,9 +140,8 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
         id = QInputDialog().getText(this, "co2amp", "ID", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
-        id.replace( " ", "" );
-        if(id == QString()){
-            QMessageBox().warning(this, "co2amp", "Please provide a unique ID");
+        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
+            QMessageBox().warning(this, "co2amp", "Please provide a valid ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
@@ -138,11 +149,20 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
             continue;
         }
         good_id_provided = true;
+    }  
+
+    if(CalcResultsExist()){
+        if(OkToInvalidate())
+            InvalidateResults();
+        else
+            return;
     }
 
     configFile_id[current_optic] = id;
 
+    listWidget_configFile_list->blockSignals(true);
     listWidget_configFile_list->currentItem()->setText(id);
+    listWidget_configFile_list->blockSignals(false);
 
     flag_project_modified = true;
     Update();
@@ -195,6 +215,8 @@ void MainWindow::on_plainTextEdit_configFile_content_textChanged()
     }
     int current_optic = listWidget_configFile_list->currentRow();
     configFile_content[current_optic] = plainTextEdit_configFile_content->toPlainText();
+
+    flag_project_modified = true;
     Update();
 }
 
@@ -226,6 +248,8 @@ void MainWindow::on_pushButton_configFile_load_clicked()
         file.close();
         fileinfo.setFile(file);
         yaml_dir = fileinfo.dir().path();
+
+        flag_project_modified = true;
         Update();
     }
     else
