@@ -47,8 +47,7 @@ void MainWindow::Plot()
 
     QString optic_id = comboBox_optic->currentText();
     QString pulse_id = comboBox_pulse ->currentText();
-    int optic_n      = comboBox_optic->currentIndex();
-    int am_n = AmNumber(optic_n);
+    QString optic_type = Type(optic_id);
     int pass_n, plot_n;
 
     ClearPlot();
@@ -71,13 +70,13 @@ void MainWindow::Plot()
 
     svg_fig1->setHidden(false);
     svg_fig2->setHidden(false);
-    svg_fig3->setHidden(am_n == -1);
+    svg_fig3->setHidden(optic_type != "A" && optic_type != "S");
     svg_fig4->setHidden(false);
     svg_fig5->setHidden(false);
-    svg_fig6->setHidden(am_n == -1);
-    svg_fig7->setHidden(am_n == -1);
-    svg_fig8->setHidden(am_n == -1);
-    svg_fig9->setHidden(am_n == -1);
+    svg_fig6->setHidden(optic_type != "A" && optic_type != "F");
+    svg_fig7->setHidden(optic_type != "A");
+    svg_fig8->setHidden(optic_type != "A");
+    svg_fig9->setHidden(optic_type != "A");
 
     double zoom = doubleSpinBox_zoom->value();
 
@@ -160,26 +159,26 @@ void MainWindow::Plot()
     QString frequency_using;
     if(comboBox_frequencyUnit->currentIndex() == 0){ // THz
         frequency_xlabel = "Frequency, THz";
-        frequency_using = " using ($1/1e12):($2)";
+        frequency_using = " using ($1/1e12)";
         v_min /= 1e12;
         v_max /= 1e12;
     }
     if(comboBox_frequencyUnit->currentIndex() == 1){ // 1/cm
         frequency_xlabel = "Wavenumber, 1/cm";
-        frequency_using = " using ($1/2.99792458e10):($2)";
+        frequency_using = " using ($1/2.99792458e10)";
         v_min = v_min/c/100;
         v_max = v_max/c/100;
     }
     if(comboBox_frequencyUnit->currentIndex() == 2){ // um
         frequency_xlabel = "Wavelength, µm";
-        frequency_using = " using (2.99792458e14/$1):($2)";
+        frequency_using = " using (2.99792458e14/$1)";
         double tmp = v_min;
         v_min = c/v_max*1e6;
         v_max = c/tmp*1e6;
     }
     if(comboBox_frequencyUnit->currentIndex() == 3){ // nm
         frequency_xlabel = "Wavelength, nm";
-        frequency_using = " using (2.99792458e17/$1):($2)";
+        frequency_using = " using (2.99792458e17/$1)";
         double tmp = v_min;
         v_min = c/v_max*1e9;
         v_max = c/tmp*1e9;
@@ -232,8 +231,8 @@ void MainWindow::Plot()
             << " using ($1*" << length_mult << "):($2*" << fluence_mult << ")"
             << " with lines ti \"";
         if(plot_n==0)
-            out << "Passes: ";
-        out << pass_n+1 << "\"";
+            out << "Pass# ";
+        out << pass_n << "\"";
         plot_n ++;
     }
     out << "\n";
@@ -265,8 +264,8 @@ void MainWindow::Plot()
             << " using ($1*" << t_mult << "):($2*" << power_mult << ")"
             << " with lines ti \"";
         if(plot_n==0)
-            out << "Passes: ";
-        out << pass_n+1 << "\"";
+            out << "Pass# ";
+        out << pass_n << "\"";
         plot_n ++;
     }
     out << "\n";
@@ -297,10 +296,10 @@ void MainWindow::Plot()
             out << ",\\\n";
         out << "\"" << filename << "\"";
         out << frequency_using;
-        out << " with lines ti \"";
+        out << ":($2) with lines ti \"";
         if(plot_n==0)
-            out << "Passes: ";
-        out << pass_n+1 << "\"";
+            out << "Pass# ";
+        out << pass_n << "\"";
         plot_n ++;
     }
     out << "\n";
@@ -308,7 +307,7 @@ void MainWindow::Plot()
     QProcess *proc4 = new QProcess(this);
     proc4->start("\"" + path_to_gnuplot + "\" script_spectra.gp");
 
-    if(am_n != -1){
+    if(optic_type == "A"){
         // GnuPlot script: Temperatures
         file.setFileName("script_temperatures.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
@@ -364,10 +363,10 @@ void MainWindow::Plot()
                 out << ",\\\n";
             out << "\"" << filename << "\"";
             out << frequency_using;
-            out << " with lines ti \"";
+            out << ":($2) with lines ti \"";
             if(plot_n==0)
-                out << "Passes: ";
-            out << pass_n+1 << "\"";
+                out << "Pass# ";
+            out << pass_n << "\"";
             plot_n ++;
         }
         out << "\n";
@@ -414,6 +413,40 @@ void MainWindow::Plot()
         proc8->waitForFinished();
         proc9->waitForFinished();
     }
+
+    if(optic_type == "F"){
+        // GnuPlot script: Transmittance (spatial filter)
+        file.setFileName("script_transmittance.gp");
+        file.open(QFile::WriteOnly | QFile::Truncate);
+        out << common_file_head;
+        out << "set output \"fig_transmittance.svg\"\n";
+        out << "set xlabel \"r, " << length_unit << "\"\n";
+        out << "set ylabel \"Transmittance\"\n";
+        out << "set yrange [0:1]\n";
+        out << "plot \"" << optic_id << "_transmittance.dat\" using ($1*" << length_mult << "):($2) with lines notitle\n";
+        file.close();
+        QProcess *proc5 = new QProcess(this);
+        proc5->start("\"" + path_to_gnuplot + "\" script_transmittance.gp");
+        proc5->waitForFinished();
+    }
+
+    if(optic_type == "S"){
+        // GnuPlot script: Transmittance (spectral filter)
+        file.setFileName("script_transmittance.gp");
+        file.open(QFile::WriteOnly | QFile::Truncate);
+        out << common_file_head;
+        out << "set output \"fig_transmittance.svg\"\n";
+        out << "set xlabel \"" << frequency_xlabel << "\"\n";
+        out << "set xrange [" << v_min << ":" << v_max << "]\n";
+        out << "set ylabel \"Transmittance\"\n";
+        out << "set yrange [0:1]\n";
+        out << "plot \"" << optic_id << "_transmittance.dat\"" << frequency_using << ":($2) with lines notitle\n";
+        file.close();
+        QProcess *proc5 = new QProcess(this);
+        proc5->start("\"" + path_to_gnuplot + "\" script_transmittance.gp");
+        proc5->waitForFinished();
+    }
+
     proc1->waitForFinished();
     proc2->waitForFinished();
     proc3->waitForFinished();
@@ -425,13 +458,17 @@ void MainWindow::Plot()
     svg_fig2->load(QString("fig_spectra.svg"));
     svg_fig4->load(QString("fig_fluence.svg"));
     svg_fig5->load(QString("fig_power.svg"));
-    if(am_n != -1){ //active medium
+    if(optic_type == "A"){ //active medium
         svg_fig3->load(QString("fig_gain.svg"));
         svg_fig6->load(QString("fig_discharge.svg"));
         svg_fig7->load(QString("fig_temperatures.svg"));
         svg_fig8->load(QString("fig_e.svg"));
         svg_fig9->load(QString("fig_q.svg"));
-    }
+    } 
+    if(optic_type == "S") // spectral filter
+        svg_fig3->load(QString("fig_transmittance.svg"));
+    if(optic_type == "F") // spatial filter
+        svg_fig6->load(QString("fig_transmittance.svg"));
 
     ////////////////////////////////// Update flags and controls ///////////////////////////////////
     Update();

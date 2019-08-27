@@ -190,6 +190,7 @@ public:
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
     double *Transmittance; // transmittance array
+    void WriteTransmittanceFile();
 };
 
 
@@ -210,6 +211,7 @@ public:
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
     double *Transmittance; // transmittance array
+    void WriteTransmittanceFile();
 };
 
 

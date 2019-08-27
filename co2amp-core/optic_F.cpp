@@ -38,6 +38,7 @@ F::F(std::string id)
         Debug(2, "T = " + toExpString(T));
         for(int x=0; x<x0; x++)
             Transmittance[x] = T;
+        WriteTransmittanceFile();
         return;
     }
 
@@ -54,6 +55,7 @@ F::F(std::string id)
             else
                 Transmittance[x] = 1;
         }
+        WriteTransmittanceFile();
         return;
     }
 
@@ -70,6 +72,7 @@ F::F(std::string id)
             else
                 Transmittance[x] = pow(sin(M_PI*(Rmax-Dr*(0.5+x))/(2.0*(Rmax-Rmin))),2);
         }
+        WriteTransmittanceFile();
         return;
     }
 
@@ -92,6 +95,7 @@ F::F(std::string id)
             else
                 Transmittance[x] = exp(-2.0*pow((Dr*(0.5+x)-Rmin)/w,2));
         }
+        WriteTransmittanceFile();
         return;
     }
 
@@ -108,6 +112,7 @@ F::F(std::string id)
                 std::cout << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
         for(int x=0; x<x0; x++)
                 Transmittance[x] = Interpolate(&pos, &transm, Dr*(0.5+x));
+        WriteTransmittanceFile();
         return;
     }
 
@@ -130,5 +135,18 @@ void F::PulseInteraction(Pulse *pulse, Plane*, double)
         for(int n=0; n<n0; n++)
             pulse->E[x][n] *=  sqrt(Transmittance[x]);
     }
+}
+
+
+void F::WriteTransmittanceFile()
+{
+    FILE *file;
+
+    file = fopen((id+"_transmittance.dat").c_str(), "w");
+    fprintf(file, "#Data format: r[m] transmittance\n");
+    for(int x=0; x<x0; x++)
+        fprintf(file, "%e\t%e\n", Dr*(0.5+x), Transmittance[x]);
+
+    fclose(file);
 }
 

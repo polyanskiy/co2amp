@@ -12,7 +12,7 @@ void MainWindow::UpdateConfigurationFiles()
     settings.setValue("grid/t_min",          lineEdit_t_min->text());
     settings.setValue("grid/t_max",          lineEdit_t_max->text());
     settings.setValue("grid/time_tick",      lineEdit_time_tick->text());
-    settings.setValue("calc/noprop",        checkBox_noprop->isChecked());
+    settings.setValue("calc/noprop",         checkBox_noprop->isChecked());
     settings.setValue("plot/optic",          comboBox_optic->currentIndex());
     settings.setValue("plot/pulse",          comboBox_pulse->currentIndex());
     settings.setValue("plot/energyPlot",     comboBox_energyPlot->currentIndex());
@@ -108,13 +108,14 @@ void MainWindow::ReadConfigurationFiles()
     checkBox_noprop        -> setChecked     (settings.value("calc/noprop",         0).toBool());
     comboBox_optic         -> setCurrentIndex(settings.value("plot/optic",          0).toInt());
     comboBox_pulse         -> setCurrentIndex(settings.value("plot/pulse",          0).toInt());
-    lineEdit_passes        -> setText        (settings.value("plot/passes",     "1,2").toString());
+    lineEdit_passes        -> setText        (settings.value("plot/passes",
+                                                                "0,1,2,3,4,5,6,7,8,9").toString());
     if(comboBox_pulse->count() == 1) // single pulse
         comboBox_energyPlot-> setCurrentIndex(settings.value("plot/energyPlot",     1).toInt());
     else
         comboBox_energyPlot-> setCurrentIndex(settings.value("plot/energyPlot",     3).toInt());
-    comboBox_timeScale     -> setCurrentIndex(settings.value("plot/timeScale",      2).toInt());
-    comboBox_freqScale     -> setCurrentIndex(settings.value("plot/freqScale",      2).toInt());
+    comboBox_timeScale     -> setCurrentIndex(settings.value("plot/timeScale",      0).toInt());
+    comboBox_freqScale     -> setCurrentIndex(settings.value("plot/freqScale",      0).toInt());
     checkBox_log           -> setChecked     (settings.value("plot/log",            0).toBool());
     comboBox_timeUnit      -> setCurrentIndex(settings.value("plot/timeUnit",       2).toInt()); // def: us
     comboBox_energyUnit    -> setCurrentIndex(settings.value("plot/energyUnit",     2).toInt()); // def: J
@@ -133,7 +134,7 @@ void MainWindow::ReadConfigurationFiles()
         file.close();
     }
 
-    // //////////////////////// backwards compatibility start ////////////////////////////////////////////
+    // /////////////////////////////// backwards compatibility start /////////////////////////////////////
     if(!QFile::exists("co2amp.ini") && QFile::exists("project.ini")) //pre 2019-08
         version = 2015;
 
@@ -143,8 +144,6 @@ void MainWindow::ReadConfigurationFiles()
                                               "Try using co2amp v.2019-04-29");
         return;
     }
-
-    // //////////////////////// backwards compatibility end /////////////////////////////////////////////
-
+    // /////////////////////////////// backwards compatibility end ///////////////////////////////////////
     Update();
 }

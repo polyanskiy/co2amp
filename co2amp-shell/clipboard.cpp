@@ -26,21 +26,9 @@ int MainWindow::FigureMenu()
 void MainWindow::on_svg_fig1_customContextMenuRequested() // Energy
 {
     int m = FigureMenu();
-    if(m==1){ // data
-        QString line, out;
-        QRegExp separators("[\t\n]");
-        QFile file;
-        file.setFileName("data_energy_selected.dat");
-        file.open(QFile::ReadOnly);
 
-        line = file.readLine();
-        while(line != QString()){
-            out += line.section(separators, 0, 1) + "\n";
-            line = file.readLine();
-        }
-        QApplication::clipboard()->setText(out);
-        file.close();
-    }
+    if(m==1) // data
+        CopyDataFromFile("energy_selected.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig1);
     if(m==3) // SVG
@@ -51,8 +39,9 @@ void MainWindow::on_svg_fig1_customContextMenuRequested() // Energy
 void MainWindow::on_svg_fig2_customContextMenuRequested() // Spectra
 {
     int m = FigureMenu();
+
     if(m==1) //data
-        CopyMultipassData("data_spectra.dat");
+        CopyMultipassData("_spectrum.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig2);
     if(m==3) // SVG
@@ -62,21 +51,35 @@ void MainWindow::on_svg_fig2_customContextMenuRequested() // Spectra
 
 void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
 {
-    int m = FigureMenu();
-    if(m==1) //data
-        CopyMultipassData("data_gain.dat");
-    if(m==2) // pixmap
-        CopyPixmap(svg_fig3);
-    if(m==3) // SVG
-        SaveSVG("fig_gain.svg");
+    QString optic_id = comboBox_optic->currentText();
+    int m = FigureMenu();   
+
+    if(Type(optic_id)=="A"){
+        if(m==1) //data
+            CopyMultipassData("_gain.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig3);
+        if(m==3) // SVG
+            SaveSVG("fig_gain.svg");
+    }
+
+    if(Type(optic_id)=="S"){
+        if(m==1) //data
+            CopyDataFromFile(optic_id + "_transmittance.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig3);
+        if(m==3) // SVG
+            SaveSVG("fig_transmittance.svg");
+    }
 }
 
 
 void MainWindow::on_svg_fig4_customContextMenuRequested() // Fluence
 {
     int m = FigureMenu();
+
     if(m==1) //data
-        CopyMultipassData("data_fluence.dat");
+        CopyMultipassData("_fluence.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig4);
     if(m==3) // SVG
@@ -88,8 +91,9 @@ void MainWindow::on_svg_fig4_customContextMenuRequested() // Fluence
 void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 {
     int m = FigureMenu();
+
     if(m==1) //data
-        CopyMultipassData("data_power.dat");
+        CopyMultipassData("_power.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig5);
     if(m==3) // SVG
@@ -99,48 +103,36 @@ void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 
 void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge
 {
+    QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();
-    if(m==1){ //data
-        QString line, out;
-        QRegExp separators("[\t\n]");
-        QFile file("data_discharge.dat");
-        file.open(QFile::ReadOnly);
-        line = file.readLine();
-        while(line != QString()){
-            if(line[0]!='#') // skip comments
-                out += line.section(separators, 0, 2) + "\n";
-            line = file.readLine();
-        }
-        QApplication::clipboard()->setText(out);
-        file.close();
+
+    if(Type(optic_id)=="A"){
+        if(m==1) //data
+            CopyDataFromFile(optic_id + "_discharge.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig6);
+        if(m==3) // SVG
+            SaveSVG("fig_discharge.svg");
     }
-    if(m==2) // pixmap
-        CopyPixmap(svg_fig6);
-    if(m==3) // SVG
-        SaveSVG("fig_discharge.svg");
+
+    if(Type(optic_id)=="F"){
+        if(m==1) //data
+            CopyDataFromFile(optic_id + "_transmittance.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig6);
+        if(m==3) // SVG
+            SaveSVG("fig_transmittance.svg");
+    }
 }
 
 
 void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
 {
-    int m = FigureMenu();
-    if(m==1){ //data
-        QString line, out;
-        QRegExp separators("[\t\n]");
-        int comp_n = comboBox_optic->currentIndex();
-        int am_n = AmNumber(comp_n);
-        QFile file("data_temperatures.dat");
-        file.open(QFile::ReadOnly);
+    QString optic_id = comboBox_optic->currentText();
+    int m = FigureMenu(); 
 
-        line = file.readLine();
-        while(line != QString()){
-            if(line[0]!='#') // skip comments
-                out += line.section(separators, 0, 0) + "\t" + line.section(separators, 4*am_n+1, 4*am_n+4) + "\n";
-            line = file.readLine();
-        }
-        QApplication::clipboard()->setText(out);
-        file.close();
-    }
+    if(m==1) //data
+        CopyDataFromFile(optic_id + "_temperatures.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig7);
     if(m==3) // SVG
@@ -150,24 +142,11 @@ void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
 
 void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / molequle)
 {
+    QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();
-    if(m==1){ //data
-        QString line, out;
-        QRegExp separators("[\t\n]");
-        int comp_n = comboBox_optic->currentIndex();
-        int am_n = AmNumber(comp_n);
-        QFile file("data_e.dat");
-        file.open(QFile::ReadOnly);
 
-        line = file.readLine();
-        while(line != QString()){
-            if(line[0]!='#') // skip comments
-                out += line.section(separators, 0, 0) + "\t" + line.section(separators, 4*am_n+1, 4*am_n+4) + "\n";
-            line = file.readLine();
-        }
-        QApplication::clipboard()->setText(out);
-        file.close();
-    }
+    if(m==1) //data
+        CopyDataFromFile(optic_id + "_e.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig8);
     if(m==3) // SVG
@@ -177,22 +156,11 @@ void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / mo
 
 void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 {
+    QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();
-    if(m==1){ //data
-        QString line, out;
-        QRegExp separators("[\t\n]");
-        QFile file("data_q.dat");
-        file.open(QFile::ReadOnly);
 
-        line = file.readLine();
-        while(line != QString()){
-            if(line[0]!='#') // skip comments
-            out += line.section(separators, 0, 4) + "\n";
-            line = file.readLine();
-        }
-        QApplication::clipboard()->setText(out);
-        file.close();
-    }
+    if(m==1) //data
+        CopyDataFromFile(optic_id + "_q.dat");
     if(m==2) // pixmap
         CopyPixmap(svg_fig9);
     if(m==3) // SVG
@@ -200,56 +168,78 @@ void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 }
 
 
-void MainWindow::CopyMultipassData(QString filename)
+void MainWindow::CopyDataFromFile(QString filename)
 {
-    QString line;
     QString out = "";
-    QStringList x, y[10];
-    QRegExp separators("[ \t\n\r]");
+
     QFile file(filename);
     file.open(QFile::ReadOnly);
-    int pass_n;
-    int optic_n = comboBox_optic->currentIndex();
-    int pulse_n = comboBox_pulse->currentIndex();
-    bool flag_xfilled = false;
 
-    for(int i=0; i<10; i++){
-        pass_n = PassNumber(i);
-        if(pass_n==-1)
-            continue;
-        file.seek(0);
+    QString line = file.readLine();
+    while(line != QString()){
+        if(line[0]!='#') // skip comments
+            out += line;
         line = file.readLine();
-        while(!file.atEnd()){
-            if(line.section(separators, 0, 0) == "#pulse"
-               && line.section(separators, 1, 1).toInt() == pulse_n
-               && line.section(separators, 3, 3).toInt() == optic_n
-               && line.section(separators, 5, 5).toInt() == pass_n){
-                line = file.readLine();
-                while(line!=QString() && line[0]!='#' && line[0]!='\n'){
-                    if(!flag_xfilled)
-                        x << line.section(separators,0,0); // copy x data only once
-                    y[i] << line.section(separators,1,1);
-                    line = file.readLine();
-                }
-                flag_xfilled = true;
-            }
-            line = file.readLine();
-        }
-
     }
 
     file.close();
 
-    for(int j=0; j<x.count(); j++){
-        out += x[j];
-        for(int i=0; i<10; i++){
-            if(y[i].count() > j) // extra check - to avoid program crash
-            out += "\t" + y[i][j];
+    QApplication::clipboard()->setText(out);
+
+}
+
+
+void MainWindow::CopyMultipassData(QString longext)
+{
+    //QString line;
+    QStringList out;
+    QRegExp separators("[ \t\n\r]");
+
+    QString optic_id = comboBox_optic->currentText();
+    QString pulse_id = comboBox_pulse->currentText();
+
+    int plot_n = 0;
+
+    for(int i=0; i<10; i++){
+
+        int pass_n = PassNumber(i);
+        if(pass_n == -1)
+            continue;
+
+        QString filename = optic_id + "_" + pulse_id + "_pass" + QString::number(pass_n) + longext;
+        if(!QFile::exists(filename))
+            continue;
+
+        QFile file(filename);
+        file.open(QFile::ReadOnly);
+
+        QString line = file.readLine();
+
+        if(plot_n==0){ // first plot: write first column (argument) and second columns (value for first plot)
+            while(line != QString()){
+                if(line[0]!='#') // skip comments
+                    out.push_back(line.section(separators, 0, 1));
+                line = file.readLine();
+            }
         }
-        out += "\n";
+
+        else{ // write additional columns
+            int line_n = 0;
+            while(line != QString() && line_n<out.size()){
+                if(line[0]!='#'){ // skip comments
+                    out[line_n] += "\t" + line.section(separators, 1, 1);
+                    line_n++;
+                }
+                line = file.readLine();
+            }
+        }
+
+        file.close();
+
+        plot_n ++;
     }
 
-    QApplication::clipboard()->setText(out);
+    QApplication::clipboard()->setText(out.join("\n"));
 }
 
 

@@ -44,6 +44,7 @@ S::S(std::string id)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
+        WriteTransmittanceFile();
         return;
     }
 
@@ -60,6 +61,7 @@ S::S(std::string id)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
+        WriteTransmittanceFile();
         return;
     }
 
@@ -83,6 +85,7 @@ S::S(std::string id)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
+        WriteTransmittanceFile();
         return;
     }
 
@@ -100,6 +103,7 @@ S::S(std::string id)
 
         for(int n=0; n<n0; n++)
             Transmittance[n] = Interpolate(&nu, &transm, v_min+Dv*n);
+        WriteTransmittanceFile();
         return;
     }
 
@@ -128,4 +132,23 @@ void S::PulseInteraction(Pulse *pulse, Plane*, double)
         IFFT(spectrum, pulse->E[x]);
         delete[] spectrum;
     }
+}
+
+
+
+
+
+void S::WriteTransmittanceFile()
+{
+    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
+    double v_min = vc - Dv*n0/2;
+
+    FILE *file;
+
+    file = fopen((id+"_transmittance.dat").c_str(), "w");
+    fprintf(file, "#Data format: frequency[Hz] transmittance\n");
+    for(int n=0; n<n0; n++)
+        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), Transmittance[n]);
+
+    fclose(file);
 }

@@ -148,7 +148,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_svg_fig7_customContextMenuRequested();
         void on_svg_fig8_customContextMenuRequested();
         void on_svg_fig9_customContextMenuRequested();
-        void CopyMultipassData(QString filename);
+        void CopyMultipassData(QString longext);
+        void CopyDataFromFile(QString filename);
         void CopyPixmap(QSvgWidget *svg);
         void SaveSVG(QString svg_path);
         // update.cpp
@@ -156,8 +157,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         // yaml.cpp
         void YamlFixFormat();
         // data.cpp
+        QString Type(QString);
         int PassNumber(int);
-        int AmNumber(int);
+        //int AmNumber(int);
         void SelectEnergies();
 };
 
