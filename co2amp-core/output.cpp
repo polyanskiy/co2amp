@@ -47,41 +47,31 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         if(layout[i]->optic == layout[plane_n]->optic)
             pass_n++;
 
+    std::string basename = layout[plane_n]->optic->id
+            + "_" + pulses[pulse_n]->id
+            + "_pass" + std::to_string(pass_n);
+
     // Write fluence file
-    if(pulse_n==0 && plane_n==0){
-        file = fopen("data_fluence.dat", "w");
-        fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
-    }
-    else{
-        file = fopen("data_fluence.dat", "a");
-        fprintf(file, "\n\n"); // data set separator
-    }
-    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
+    file = fopen((basename+"_fluence.dat").c_str(), "w");
+    fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     for(int x=0; x<x0; x++)
         fprintf(file, "%e\t%e\n", Dr*(0.5+x), Fluence[x]);
     fclose(file);
 
     // Write power file
-    if(pulse_n==0 && plane_n==0){
-        file = fopen("data_power.dat", "w");
-        fprintf(file, "#Data format:  time[s] power[W]\n");
-    }
-    else{
-        file = fopen("data_power.dat", "a");
-        fprintf(file, "\n\n"); // data set separator
-    }
-    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
+    file = fopen((basename+"_power.dat").c_str(), "w");
+    fprintf(file, "#Data format:  time[s] power[W]\n");
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", (t_min + Dt*(0.5+n)), Power[n]);
     fclose(file);
 
     // Write energy file
     if(pulse_n==0 && plane_n==0){
-        file = fopen("data_energy.dat", "w");
+        file = fopen("energy.dat", "w");
         fprintf(file, "#Data format: time[s] energy[J] pulse# optic# pass#\n");
     }
     else
-        file = fopen("data_energy.dat", "a");
+        file = fopen("energy.dat", "a");
     fprintf(file, "%e\t%e\t%d\t%d\t%d\n", clock_time, Energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
@@ -115,16 +105,9 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     for(int n=0; n<n0 && max_int>0; n++)
             average_spectrum[n] /= max_int;
 
-    // Write spectra file
-    if(pulse_n==0 && plane_n==0){
-        file = fopen("data_spectra.dat", "w");
-        fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
-    }
-    else{
-        file = fopen("data_spectra.dat", "a");
-        fprintf(file, "\n\n"); // data set separator
-    }
-    fprintf(file, "#pulse %d optic %d pass %d\n", pulse_n, optic_n, pass_n);
+    // Write spectrum file
+    file = fopen((basename+"_spectrum.dat").c_str(), "w");
+    fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n]);
     fclose(file);

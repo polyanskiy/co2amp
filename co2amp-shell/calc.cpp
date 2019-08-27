@@ -42,7 +42,7 @@ void MainWindow::BeforeProcessStarted()
 {
     textBrowser_terminal->clear();
     flag_calculating         = true;
-    flag_project_modified    = false;
+    //flag_project_modified    = false;
     ClearWorkDir();
     UpdateConfigurationFiles();
     Update();
@@ -53,7 +53,7 @@ void MainWindow::BeforeProcessStarted()
 void MainWindow::AfterProcessFinished()
 {
     flag_calculating = false;
-    if(process->exitCode()==EXIT_SUCCESS){
+    //if(process->exitCode()==EXIT_SUCCESS){
         flag_project_modified = true;
         flag_plot_postponed = true;
         //tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
@@ -61,7 +61,7 @@ void MainWindow::AfterProcessFinished()
             Plot();
         if(checkBox_saveWhenFinished->isChecked())
             SaveProject();
-    }
+    //}
     delete process;
     Update();
 }

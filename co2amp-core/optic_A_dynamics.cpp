@@ -215,85 +215,50 @@ double A::VibrationalTemperatures(int x, int mode){
 
 void A::UpdateDynamicsFiles(double time)
 {
-    // find out is this AM section is first or/and last AM in optics list
-    int is_first_A = -1;
-    int is_last_A = -1;
-    for(Optic *optic: optics){
-        if(optic->type == "A"){
-            if(is_last_A == 1)
-                is_last_A = 0;
-            if(optic->id == this->id){
-                if(is_first_A == -1)
-                    is_first_A = 1;
-                if (is_last_A == -1)
-                    is_last_A = 1;
-            }
-            if(is_first_A == -1)
-                is_first_A = 0;
-        }
-    }
-
     FILE *file;
 
     if(pumping == "discharge"){
         //////////////////////// Discharge ////////////////////////
-
-        if(time==0 && is_first_A==1){
-            file = fopen("data_discharge.dat", "w");
-            fprintf(file, "#Data format: time[s] current[A](A1) voltage[V](A1) current[A](A2) voltage[V](A2) ...\n");
+        if(time==0){
+            file = fopen((id+"_discharge.dat").c_str(), "w");
+            fprintf(file, "#Data format: time[s] current[A] voltage[V]\n");
         }
         else
-            file = fopen("data_discharge.dat", "a");
-        if(is_first_A==1)
-            fprintf(file, "%e", time);
-        fprintf(file, "\t%e\t%e", Current(time), Voltage(time));
-        if(is_last_A==1)
-            fprintf(file, "\n");
+            file = fopen((id+"_discharge.dat").c_str(), "a");
+        fprintf(file, "%e\t%e\t%e\n", time, Current(time), Voltage(time));
         fclose(file);
 
         //////////////////////////// q ////////////////////////////
-        if(time==0 && is_first_A==1){
-            file = fopen("data_q.dat", "w");
-            fprintf(file, "#Data format: time[s] q2(A1) q3(A1) q4(A1) qT(A1) q2(A2) q3(A2) q4(A2) qT(A2) ...\n");
+        if(time==0){
+            file = fopen((id+"_q.dat").c_str(), "w");
+            fprintf(file, "#Data format: time[s] q2 q3 q4\n");
         }
         else
-            file = fopen("data_q.dat", "a");
-        if(is_first_A==1)
-            fprintf(file, "%e", time);
-        fprintf(file, "\t%e\t%e\t%e\t%e", q2, q3, q4, qT);
-        if(is_last_A==1)
-            fprintf(file, "\n");
+            file = fopen((id+"_q.dat").c_str(), "a");
+        fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, q2, q3, q4, qT);
         fclose(file);
     }
 
     /////////////// e (average number of quanta in vibration modes) ////////////////
-    if(time==0 && is_first_A==1){
-        file = fopen("data_e.dat", "w");
-        fprintf(file, "#Data format: time[s] e1(A1) e2(A1) e3(A1) e4(A1) e1(A2) e2(A2) e3(A2) ...\n");
+    if(time==0){
+        file = fopen((id+"_e.dat").c_str(), "w");
+        fprintf(file, "#Data format: time[s] e1 e2 e3 e4\n");
     }
     else
-        file = fopen("data_e.dat", "a");
-    if(is_first_A==1)
-        fprintf(file, "%e", time);
+        file = fopen((id+"_e.dat").c_str(), "a");
     double Temp2 = 960/log(2/e2[0]+1);
     double e1 = 1/(exp(1920/Temp2)-1);
-    fprintf(file, "\t%e\t%e\t%e\t%e", e1, e2[0], e3[0], e4[0]);
-    if(is_last_A==1)
-        fprintf(file, "\n");
+    fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, e1, e2[0], e3[0], e4[0]);
     fclose(file);
 
     ///////////////////////// Temperatures /////////////////////////
-    if(time==0 && is_first_A==1){
-        file = fopen("data_temperatures.dat", "w");
-        fprintf(file, "#Data format: time[s] T2(A1) T3(A1) T4(A1) T(A1) T2(A2) T3(A2) ...\n");
+    if(time==0){
+        file = fopen((id+"_temperatures.dat").c_str(), "w");
+        fprintf(file, "#Data format: time[s] T[K] T2[K] T3[K] T4[K]\n");
     }
     else
-        file = fopen("data_temperatures.dat", "a");
-    if(is_first_A==1)
-        fprintf(file, "%e", time);
-    fprintf(file, "\t%e\t%e\t%e\t%e", VibrationalTemperatures(0,2),
+        file = fopen((id+"_temperatures.dat").c_str(), "a");
+    fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, VibrationalTemperatures(0,2),
             VibrationalTemperatures(0,3), 3350/log(1/e4[0]+1), T[0]);
-    if(is_last_A==1)
-        fprintf(file, "\n");
     fclose(file);
 }

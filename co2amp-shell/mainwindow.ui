@@ -1293,7 +1293,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_parameters">
+         <widget class="QGroupBox" name="groupBox_calc">
           <property name="title">
            <string>CALCULATION PARAMETERS</string>
           </property>
@@ -1792,8 +1792,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>867</width>
-             <height>752</height>
+             <width>863</width>
+             <height>743</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">

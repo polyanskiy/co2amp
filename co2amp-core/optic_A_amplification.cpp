@@ -224,24 +224,17 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*n0/2;
 
-    bool firstAmSection = true;
     int pass = 0;
-    for(int i=0; i<plane->number; i++){
-        if(layout[i]->optic->type == "A" || pulse->number>0)
-            firstAmSection = false;
+    for(int i=0; i<plane->number; i++)
         if(plane->optic->id == layout[i]->optic->id)
             pass++;
-    }
 
-    if(firstAmSection){
-        file = fopen("data_gain.dat", "w");
-        fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
-    }
-    else{
-        file = fopen("data_gain.dat", "a");
-        fprintf(file, "\n\n"); // data set separator
-    }
-    fprintf(file, "#pulse %d optic %d pass %d\n", pulse->number, plane->optic->number, pass);
+    std::string basename = plane->optic->id
+            + "_" + pulse->id
+            + "_pass" + std::to_string(pass);
+
+    file = fopen((basename+"_gain.dat").c_str(), "w");
+    fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
     for(int n=0; n<n0; n++)
         fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
     fclose(file);

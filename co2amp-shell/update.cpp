@@ -60,7 +60,7 @@ void MainWindow::Update()
     groupBox_grid->setDisabled(flag_calculating);
 
     ////////////////////////////// CALCULATION PARAMETERS ///////////////////////////////
-    groupBox_parameters->setDisabled(flag_calculating);
+    groupBox_calc->setDisabled(flag_calculating);
 
     ///////////////////////////////////// DEBUGGING /////////////////////////////////////
     groupBox_debugging->setDisabled(flag_calculating);
@@ -106,7 +106,7 @@ void MainWindow::Update()
     comboBox_energyPlot     -> blockSignals(false);
 
     /////////////////////// ENABLE/DISABLE CONTROLS IN OUTPUT TAB ///////////////////////
-    bl = (QFile::exists("data_energy.dat") || QFile::exists("data_discharge.dat"));
+    bl = ( QFile::exists("energy.dat") || flag_calculating );
     tab_output->setEnabled(bl);
 
     bl = (comboBox_size->currentText()=="Custom");

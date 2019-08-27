@@ -1,42 +1,6 @@
 #include "co2amp.h"
 
 
-int MainWindow::DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename)
-{
-    if(pass_n < 0)
-        return -1;
-
-    int set_n = -1;
-    bool found = false;
-    QString line;
-    QRegExp separators("[ \t\n\r]");
-
-    QFile file(filename);
-    file.open(QFile::ReadOnly);
-
-    line = file.readLine();
-    while(!file.atEnd()){
-        line = file.readLine();
-        if(line == QString())
-            continue;
-        if(line[0] == '#'){
-            set_n ++;
-            if(line.section(separators, 1, 1).toInt() == pulse_n && line.section(separators, 3, 3).toInt() == optic_n && line.section(separators, 5, 5).toInt() == pass_n){
-                found = true;
-                break;
-            }
-        }
-    }
-
-    file.close();
-
-    if(found)
-        return set_n;
-    else
-        return -1;
-}
-
-
 int MainWindow::PassNumber(int i)
 {
     QStringList list = lineEdit_passes->text().split(",", QString::SkipEmptyParts);
@@ -57,7 +21,7 @@ int MainWindow::AmNumber(int optic_n)
     int count_other = 0;
     int i;
     for(i=0; i < configFile_type.count(); i++){
-        if(configFile_type[i] == "PULSE"|| configFile_type[i] == "COMPONENT" || configFile_type[i] == "COMMENT")
+        if(configFile_type[i] == "PULSE"|| configFile_type[i] == "COMPONENT")
             count_other++;
         if(configFile_type[i] == "A")
             count_am++;
@@ -78,9 +42,9 @@ void MainWindow::SelectEnergies()
     int pulse_n = comboBox_pulse->currentIndex();
     int optic_n = comboBox_optic->currentIndex();
 
-    QFile file_all("data_energy.dat");
+    QFile file_all("energy.dat");
     file_all.open(QFile::ReadOnly);
-    QFile file_sel("data_energy_selected.dat");
+    QFile file_sel("energy_selected.dat");
     QTextStream out(&file_sel);
     file_sel.open(QFile::WriteOnly);
 

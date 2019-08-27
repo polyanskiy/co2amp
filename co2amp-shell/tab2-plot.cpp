@@ -30,7 +30,7 @@ void MainWindow::FlagModifiedAndPlot()
 
 void MainWindow::Plot()
 {
-    if( !(QFile::exists("data_energy.dat")||QFile::exists("data_discharge_dat")) )
+    if(!QFile::exists("energy.dat") && !flag_calculating)
         return;
 
     if(tabWidget_main->currentIndex()!=2){
@@ -40,15 +40,16 @@ void MainWindow::Plot()
 
     this->setCursor(Qt::WaitCursor);
 
-    int i;
+    //int i;
     QFile file;
     QTextStream out(&file);
     out.setCodec("UTF-8");
 
-    int optic_n = comboBox_optic->currentIndex();
+    QString optic_id = comboBox_optic->currentText();
+    QString pulse_id = comboBox_pulse ->currentText();
+    int optic_n      = comboBox_optic->currentIndex();
     int am_n = AmNumber(optic_n);
-    int pulse_n = comboBox_pulse->currentIndex();
-    int pass_n, plot_n, set_n;
+    int pass_n, plot_n;
 
     ClearPlot();
 
@@ -202,7 +203,7 @@ void MainWindow::Plot()
     out << "set xlabel \"Time, " << time_unit << "\"\n";
     out << "set ylabel \"Pulse energy, " << energy_unit << "\"\n";
     checkBox_log->isChecked() ? out << "set logscale y\n" : out << "set yrange [0:*]\n";
-    out << "plot \"data_energy_selected.dat\" using ($1*" << time_mult << "):($2*" << energy_mult << ") notitle\n";
+    out << "plot \"energy_selected.dat\" using ($1*" << time_mult << "):($2*" << energy_mult << ") notitle\n";
     file.close();
     QProcess *proc1 = new QProcess(this);
     proc1->start("\"" + path_to_gnuplot + "\" script_energy.gp");
@@ -216,22 +217,24 @@ void MainWindow::Plot()
     out << "set output \"fig_fluence.svg\"\n";
     out << "set xlabel \"r, " << length_unit << "\"\n";
     out << "set ylabel \"Fluence, " << fluence_unit << "\"\n";
-    for(i=0; i<=9; i++){
+    for(int i=0; i<=9; i++){
         pass_n = PassNumber(i);
-        set_n = DatasetNumber(pulse_n, optic_n, pass_n, "data_fluence.dat");
-        if(set_n != -1){
-            if(plot_n==0)
-                out << "plot ";
-            else
-                out << ",\\\n";
-            out << "\"data_fluence.dat\" index " << set_n
-                << " using ($1*" << length_mult << "):($2*" << fluence_mult << ")"
-                << " with lines ti \"";
-            if(plot_n==0)
-                out << "Passes: ";
-            out << pass_n+1 << "\"";
-            plot_n ++;
-        }
+        if(pass_n == -1)
+            continue;
+        QString filename = optic_id + "_" + pulse_id + "_pass" + QString::number(pass_n) + "_fluence.dat";
+        if(!QFile::exists(filename))
+            continue;
+        if(plot_n==0)
+            out << "plot ";
+        else
+            out << ",\\\n";
+        out << "\"" << filename << "\""
+            << " using ($1*" << length_mult << "):($2*" << fluence_mult << ")"
+            << " with lines ti \"";
+        if(plot_n==0)
+            out << "Passes: ";
+        out << pass_n+1 << "\"";
+        plot_n ++;
     }
     out << "\n";
     file.close();
@@ -247,22 +250,24 @@ void MainWindow::Plot()
     out << "set xlabel \"Time, " << t_unit << "\"\n";
     out << "set xrange [" << t_min << ":" << t_max << "]\n";
     out << "set ylabel \"Power, " << power_unit << "\"\n";
-    for(i=0; i<=9; i++){
+    for(int i=0; i<=9; i++){
         pass_n = PassNumber(i);
-        set_n = DatasetNumber(pulse_n, optic_n, pass_n, "data_power.dat");
-        if(set_n != -1){
-            if(plot_n==0)
-                out << "plot ";
-            else
-                out << ",\\\n";
-            out << "\"data_power.dat\" index " << set_n
-                << " using ($1*" << t_mult << "):($2*" << power_mult << ")"
-                << " with lines ti \"";
-            if(plot_n==0)
-                out << "Passes: ";
-            out << pass_n+1 << "\"";
-            plot_n ++;
-        }
+        if(pass_n == -1)
+            continue;
+        QString filename = optic_id + "_" + pulse_id + "_pass" + QString::number(pass_n) + "_power.dat";
+        if(!QFile::exists(filename))
+            continue;
+        if(plot_n==0)
+            out << "plot ";
+        else
+            out << ",\\\n";
+        out << "\"" << filename << "\""
+            << " using ($1*" << t_mult << "):($2*" << power_mult << ")"
+            << " with lines ti \"";
+        if(plot_n==0)
+            out << "Passes: ";
+        out << pass_n+1 << "\"";
+        plot_n ++;
     }
     out << "\n";
     file.close();
@@ -279,22 +284,24 @@ void MainWindow::Plot()
     out << "set xrange [" << v_min << ":" << v_max << "]\n";
     out << "set ylabel \"Intensity, a.u.\"\n";
     out << "set yrange [0:*]\n";
-    for(i=0; i<=9; i++){
+    for(int i=0; i<=9; i++){
         pass_n = PassNumber(i);
-        set_n = DatasetNumber(pulse_n, optic_n, pass_n, "data_spectra.dat");
-        if(set_n != -1){
-            if(plot_n==0)
-                out << "plot ";
-            else
-                out << ",\\\n";
-            out << "\"data_spectra.dat\" index " << set_n;
-            out << frequency_using;
-            out << " with lines ti \"";
-            if(plot_n==0)
-                out << "Passes: ";
-            out << pass_n+1 << "\"";
-            plot_n ++;
-        }
+        if(pass_n == -1)
+            continue;
+        QString filename = optic_id + "_" + pulse_id + "_pass" + QString::number(pass_n) + "_spectrum.dat";
+        if(!QFile::exists(filename))
+            continue;
+        if(plot_n==0)
+            out << "plot ";
+        else
+            out << ",\\\n";
+        out << "\"" << filename << "\"";
+        out << frequency_using;
+        out << " with lines ti \"";
+        if(plot_n==0)
+            out << "Passes: ";
+        out << pass_n+1 << "\"";
+        plot_n ++;
     }
     out << "\n";
     file.close();
@@ -310,10 +317,10 @@ void MainWindow::Plot()
         out << "set xlabel \"Time, " << time_unit << "\"\n";
         out << "set ylabel \"Temperature, K\"\n";
         out << "set yrange [0:*]\n";
-        out << "plot \"data_temperatures.dat\" using ($1*" << time_mult << "):($" << 4*am_n+2 << ") with lines ti \"Lower: T2\",\\\n";
-        out << "\"data_temperatures.dat\" using ($1*" << time_mult << "):($" << 4*am_n+3 << ") with lines ti \"Upper: T3\",\\\n";
-        out << "\"data_temperatures.dat\" using ($1*" << time_mult << "):($" << 4*am_n+4 << ") with lines ti \"N2: T4\",\\\n";
-        out << "\"data_temperatures.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ti \"Transl:  T\"\n";
+        out << "plot \"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: T2\",\\\n";
+        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: T3\",\\\n";
+        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: T4\",\\\n";
+        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl:  T\"\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
         proc5->start("\"" + path_to_gnuplot + "\" script_temperatures.gp");
@@ -326,11 +333,11 @@ void MainWindow::Plot()
         out << "set xlabel \"Time, " << time_unit << "\"\n";
         out << "set ylabel \"e (# of quanta / molecule)\"\n";
         out << "set yrange [0:*]\n";
-        out << "plot \"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+2 << QString(") with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n");
-        out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+3 << QString(") with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n");
-        // (Qstring(...) used to solve a unicode problem - "μ" is not written to file correctly)
-        out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+4 << ") with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n";
-        out << "\"data_e.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ls 3 ti \"N2: e4\"\n";
+        // (Qstring(...) used below to solve a unicode problem - "μ" is not written to file correctly)
+        out << "plot \"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($2) with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n");
+        out <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($3) with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n");
+        out      << "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($4) with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n";
+        out <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($5) with lines ls 3 ti \"N2: e4\"\n";
         file.close();
         QProcess *proc6 = new QProcess(this);
         proc6->start("\"" + path_to_gnuplot + "\" script_e.gp");
@@ -344,22 +351,24 @@ void MainWindow::Plot()
         out << "set xlabel \"" << frequency_xlabel << "\"\n";
         out << "set xrange [" << v_min << ":" << v_max << "]\n";
         out << "set ylabel \"Gain, %/cm\"\n";
-        for(i=0; i<10; i++){
+        for(int i=0; i<10; i++){
             pass_n = PassNumber(i);
-            set_n = DatasetNumber(pulse_n, optic_n, pass_n, "data_gain.dat");
-            if(set_n != -1){
-                if(plot_n==0)
-                    out << "plot ";
-                else
-                    out << ",\\\n";
-                out << "\"data_gain.dat\" index " << set_n;
-                out << frequency_using;
-                out << " with lines ti \"";
-                if(plot_n==0)
-                    out << "Passes: ";
-                out << pass_n+1 << "\"";
-                plot_n ++;
-            }
+            if(pass_n == -1)
+                continue;
+            QString filename = optic_id + "_" + pulse_id + "_pass" + QString::number(pass_n) + "_gain.dat";
+            if(!QFile::exists(filename))
+                continue;
+            if(plot_n==0)
+                out << "plot ";
+            else
+                out << ",\\\n";
+            out << "\"" << filename << "\"";
+            out << frequency_using;
+            out << " with lines ti \"";
+            if(plot_n==0)
+                out << "Passes: ";
+            out << pass_n+1 << "\"";
+            plot_n ++;
         }
         out << "\n";
         file.close();
@@ -377,8 +386,8 @@ void MainWindow::Plot()
         out << "set xlabel \"Time, " << time_unit << "\"\n";
         out << "set ylabel \"Current, " << current_unit << "\"\n";
         out << "set y2label \"Voltage, " << voltage_unit << "\"\n";
-        out << "plot \"data_discharge.dat\" using ($1*" << time_mult << "):($" << 2*am_n+2 << "*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n";
-        out << "\"data_discharge.dat\" using ($1*"      << time_mult << "):($" << 2*am_n+3 << "*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
+        out << "plot \"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($2*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n";
+        out <<      "\"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($3*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
         file.close();
         QProcess *proc8 = new QProcess(this);
         proc8->start("\"" + path_to_gnuplot + "\" script_discharge.gp");
@@ -391,10 +400,10 @@ void MainWindow::Plot()
         out << "set yrange [0:1]\n";
         out << "set xlabel \"Time, " << time_unit << "\"\n";
         out << "set ylabel \"q\"\n";
-        out << "plot \"data_q.dat\" using ($1*" << time_mult << "):($" << 4*am_n+2 << ") with lines ti \"Lower: q2\",\\\n";
-        out << "\"data_q.dat\" using ($1*" << time_mult << "):($" << 4*am_n+3 << ") with lines ti \"Upper: q3\",\\\n";
-        out << "\"data_q.dat\" using ($1*" << time_mult << "):($" << 4*am_n+4 << ") with lines ti \"N2: q4\",\\\n";
-        out << "\"data_q.dat\" using ($1*" << time_mult << "):($" << 4*am_n+5 << ") with lines ti \"Transl: qT\"\n";
+        out << "plot \"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: q2\",\\\n";
+        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: q3\",\\\n";
+        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n";
+        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
         file.close();
         QProcess *proc9 = new QProcess(this);
         proc9->start("\"" + path_to_gnuplot + "\" script_q.gp");

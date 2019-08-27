@@ -12,7 +12,7 @@ void MainWindow::UpdateConfigurationFiles()
     settings.setValue("grid/t_min",          lineEdit_t_min->text());
     settings.setValue("grid/t_max",          lineEdit_t_max->text());
     settings.setValue("grid/time_tick",      lineEdit_time_tick->text());
-    settings.setValue("debug/noprop",        checkBox_noprop->isChecked());
+    settings.setValue("calc/noprop",        checkBox_noprop->isChecked());
     settings.setValue("plot/optic",          comboBox_optic->currentIndex());
     settings.setValue("plot/pulse",          comboBox_pulse->currentIndex());
     settings.setValue("plot/energyPlot",     comboBox_energyPlot->currentIndex());
@@ -104,8 +104,8 @@ void MainWindow::ReadConfigurationFiles()
     comboBox_precision_r   -> setCurrentIndex(settings.value("grid/precision_r",    5).toInt());
     lineEdit_t_min         -> setText        (settings.value("grid/t_min", "-250e-12").toString());
     lineEdit_t_max         -> setText        (settings.value("grid/t_max",  "250e-12").toString());
-    lineEdit_time_tick     -> setText        (settings.value("grid/time_tick",   2e-9).toString());
-    checkBox_noprop        -> setChecked     (settings.value("debug/noprop",        0).toBool());
+    lineEdit_time_tick     -> setText        (settings.value("grid/time_tick", "2e-9").toString());
+    checkBox_noprop        -> setChecked     (settings.value("calc/noprop",         0).toBool());
     comboBox_optic         -> setCurrentIndex(settings.value("plot/optic",          0).toInt());
     comboBox_pulse         -> setCurrentIndex(settings.value("plot/pulse",          0).toInt());
     lineEdit_passes        -> setText        (settings.value("plot/passes",     "1,2").toString());

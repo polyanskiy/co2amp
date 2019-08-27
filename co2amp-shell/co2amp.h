@@ -156,7 +156,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         // yaml.cpp
         void YamlFixFormat();
         // data.cpp
-        int DatasetNumber(int pulse_n, int optic_n, int pass_n, QString filename);
         int PassNumber(int);
         int AmNumber(int);
         void SelectEnergies();

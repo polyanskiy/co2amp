@@ -240,7 +240,6 @@ extern bool configuration_error;  // true if error in a configuration file is de
 
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
-//void Abort(std::string){}
 void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status);
 void Debug(int level, std::string str);
 

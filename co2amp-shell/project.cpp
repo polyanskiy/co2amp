@@ -3,6 +3,7 @@
 
 void MainWindow::NewProject()
 {
+    ClearPlot();
     ClearWorkDir();
     project_file = QString();
     ReadConfigurationFiles(); //loads default values
@@ -81,6 +82,7 @@ void MainWindow::LoadProject()
 
     this->setCursor(Qt::WaitCursor);
 
+    ClearPlot();
     ClearWorkDir();
     QProcess *proc;
     proc = new QProcess(this);
@@ -127,7 +129,7 @@ void MainWindow::InvalidateResults()
 
 bool MainWindow::CalcResultsExist()
 {
-    return QFile::exists("data_energy.dat");
+    return QFile::exists("energy.dat");
 }
 
 
