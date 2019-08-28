@@ -3,6 +3,8 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
+    co2ampVersion = "2019-08-29";
+
     setupUi(this);
 
     FindExternalPrograms();
@@ -102,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     /////////////////////////////// Create program window /////////////////////////////////////
     restoreGeometry(settings.value("window_geometry").toByteArray());
+    SetAboutText();
     show();
 
     // Initialize YAML highlighter

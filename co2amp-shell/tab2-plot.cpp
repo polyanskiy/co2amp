@@ -40,7 +40,6 @@ void MainWindow::Plot()
 
     this->setCursor(Qt::WaitCursor);
 
-    //int i;
     QFile file;
     QTextStream out(&file);
     out.setCodec("UTF-8");
@@ -149,7 +148,7 @@ void MainWindow::Plot()
     // frequency limits
     double v_range = comboBox_precision_t->currentText().toDouble()
             / (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())
-            / pow(2, comboBox_freqScale->currentIndex()+1);
+            / pow(2, comboBox_freqScale->currentIndex());
     double v_min = lineEdit_vc->text().toDouble() - v_range/2;
     double v_max = lineEdit_vc->text().toDouble() + v_range/2;
 

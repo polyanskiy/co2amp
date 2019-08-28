@@ -61,13 +61,10 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     configFile_type.insert(current_optic+1, type);
     configFile_content.insert(current_optic+1, "# Configuration YAML file, type " + type + "\n\n");
 
-    listWidget_configFile_list->blockSignals(true);
-    listWidget_configFile_list->insertItem(current_optic+1, id);
-    listWidget_configFile_list->setCurrentRow(current_optic+1);
-    listWidget_configFile_list->blockSignals(false);
-
     flag_project_modified = true;
-    Update();
+
+    listWidget_configFile_list->insertItem(current_optic+1, id);
+    listWidget_configFile_list->setCurrentRow(current_optic+1); // this triggers Update() via ...currentRowChanged()
 }
 
 
@@ -88,14 +85,12 @@ void MainWindow::on_toolButton_configFile_up_clicked()
     configFile_type.swap(current_optic, current_optic-1);
     configFile_content.swap(current_optic, current_optic-1);
 
-    QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
-    listWidget_configFile_list->blockSignals(true);
-    listWidget_configFile_list->insertItem(current_optic-1, item);
-    listWidget_configFile_list->setCurrentRow(current_optic-1);
-    listWidget_configFile_list->blockSignals(false);
-
     flag_project_modified = true;
-    Update();
+
+    QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
+
+    listWidget_configFile_list->insertItem(current_optic-1, item);
+    listWidget_configFile_list->setCurrentRow(current_optic-1); // this triggers Update() via ...currentRowChanged()
 }
 
 
@@ -116,14 +111,12 @@ void MainWindow::on_toolButton_configFile_down_clicked()
     configFile_type.swap(current_optic, current_optic+1);
     configFile_content.swap(current_optic, current_optic+1);
 
-    QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
-    listWidget_configFile_list->blockSignals(true);
-    listWidget_configFile_list->insertItem(current_optic+1, item);
-    listWidget_configFile_list->setCurrentRow(current_optic+1);
-    listWidget_configFile_list->blockSignals(false);
-
     flag_project_modified = true;
-    Update();
+
+    QListWidgetItem *item = listWidget_configFile_list->takeItem(current_optic);
+
+    listWidget_configFile_list->insertItem(current_optic+1, item);
+    listWidget_configFile_list->setCurrentRow(current_optic+1); // this triggers Update() via ...currentRowChanged()
 }
 
 
@@ -160,11 +153,10 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
 
     configFile_id[current_optic] = id;
 
-    listWidget_configFile_list->blockSignals(true);
-    listWidget_configFile_list->currentItem()->setText(id);
-    listWidget_configFile_list->blockSignals(false);
-
     flag_project_modified = true;
+
+    listWidget_configFile_list->currentItem()->setText(id); // this DOESN'T trigger Update()
+
     Update();
 }
 
@@ -184,12 +176,9 @@ void MainWindow::on_toolButton_configFile_remove_clicked()
         configFile_type.removeAt(current_optic);
         configFile_content.removeAt(current_optic);
 
-        listWidget_configFile_list->blockSignals(true);
-        delete listWidget_configFile_list->currentItem();
-        listWidget_configFile_list->blockSignals(false);
-
         flag_project_modified = true;
-        Update();
+
+        delete listWidget_configFile_list->currentItem(); // this triggers Update() via ...currentRowChanged()
     }
 
 }

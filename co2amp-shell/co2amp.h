@@ -59,7 +59,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
-        float version; //e.g. "2019.08"
+        QString co2ampVersion;
+        float formatVersion;
         QString work_dir;
         QString project_file;
         QString def_dir;
@@ -106,7 +107,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_saveas_clicked();
         void on_tabWidget_main_currentChanged(int tab);
         void closeEvent(QCloseEvent*);
-        // tab0-conf.cpp
+        // tab0-config.cpp
         void on_toolButton_configFile_add_clicked();
         void on_toolButton_configFile_up_clicked();
         void on_toolButton_configFile_down_clicked();
@@ -119,7 +120,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void PopulateConfigFileList();
         QString SuggestConfigFileName(QString type);
         bool ConfigFileNameExists(QString ID);
-        // tab1-proc.cpp
+        // tab1-process.cpp
         void WriteToTerminal();
         void on_lineEdit_vc_textEdited(QString);
         void on_lineEdit_t_min_textEdited(QString);
@@ -135,8 +136,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void PostponePlot();
         void FlagModifiedAndPostponePlot();
         void PlotIfPostponed();
-        // tab3-comm.cpp
+        // tab3-comments.cpp
         void on_plainTextEdit_comments_textChanged();
+        // tab4-about.cpp
+        void SetAboutText();
         // clipboard.cpp
         int  FigureMenu();
         void on_svg_fig1_customContextMenuRequested();

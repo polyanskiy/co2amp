@@ -11,10 +11,11 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     clipboard.cpp \
     project.cpp \
-    tab0-conf.cpp \
-    tab1-proc.cpp \
+    tab0-config.cpp \
+    tab1-process.cpp \
     tab2-plot.cpp \
-    tab3-comm.cpp \
+    tab3-comments.cpp \
+    tab4-about.cpp \
     update.cpp \
     yaml.cpp
 HEADERS += \
