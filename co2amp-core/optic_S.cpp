@@ -28,6 +28,7 @@ S::S(std::string id)
         return;
     }
     std::string kind = value;
+    Debug(2, "kind = " + kind);
 
     Transmittance = new double[n0];
 
@@ -97,7 +98,7 @@ S::S(std::string id)
             return;
         }
         Debug(2, "Transmittance profile [Frequency(Hz) Transmittance(-)] (only displayed if debug level >= 3)");
-        if(debug_level >= 2)
+        if(debug_level >= 3)
             for(int i=0; i<nu.size(); i++)
                 std::cout << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;
 

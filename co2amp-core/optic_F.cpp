@@ -26,6 +26,7 @@ F::F(std::string id)
         return;
     }
     std::string kind = value;
+    Debug(2, "kind = " + kind);
 
     Transmittance = new double[x0];
 

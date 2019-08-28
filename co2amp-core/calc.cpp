@@ -20,7 +20,6 @@ void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out:
     double Dt = (t_max-t_min)/(n0-1);
     for(i=0; i<n0; i++)
         out[i] *= Dt;
-
 }
 
 
