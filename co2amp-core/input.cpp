@@ -1,6 +1,6 @@
 #include  "co2amp.h"
 
-bool ReadCommandLine(int argc, char **argv)
+int ReadCommandLine(int argc, char **argv)
 {
     int i;
 
@@ -22,6 +22,10 @@ bool ReadCommandLine(int argc, char **argv)
     for (i=1; i<argc; i++){
         debug_str += argv[i];
         debug_str += " ";
+
+        // ------- VERSION -------
+        if (!strcmp(argv[i], "-version"))
+            return 1;
 
         // ------- LAYOUT -------
         if (!strcmp(argv[i], "-noprop"))
@@ -62,10 +66,10 @@ bool ReadCommandLine(int argc, char **argv)
 
     if(count != 63){ //1+2+4+6+8+16+32
         std::cout << "Input ERROR: Missing command line argument(s)\n";
-        return false;
+        return -1;
     }
 
-    return true;
+    return 0;
 }
 
 

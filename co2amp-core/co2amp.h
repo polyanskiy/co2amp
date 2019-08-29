@@ -254,7 +254,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 
 /////////////////////////// input.cpp ////////////////////////////
-bool ReadCommandLine(int, char**);
+int  ReadCommandLine(int, char**);
 bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 

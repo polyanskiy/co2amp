@@ -34,14 +34,17 @@ int main(int argc, char **argv)
 
     std::cout << "co2amp-core v.2019-08-27" << std::endl << std::flush;
 
-    #pragma omp parallel // counting processors (for parallel computing)
-    if(omp_get_thread_num() == 0)
-        std::cout << "number of CPU cores: " << omp_get_num_threads() << std::endl << std::endl << std::flush;
-
-    if (!ReadCommandLine(argc, argv)){
+    int command_code = ReadCommandLine(argc, argv); //  0: found all arguments needed for calculations
+                                                    //  1: version info requested ('-version' argument)
+                                                    // -1: not enough input parameters provided in command line
+    if (command_code == -1 ){
         std::cout << "Error in command line. Aborting.\n";
         return EXIT_FAILURE;
     }
+    if (command_code == 1 ) // version info written to stdout by  ReadCommandLine()
+        return EXIT_SUCCESS;
+
+    // command_code == 0
     Debug(1, "Command line read done");
     if (!ReadConfigFiles("config_files.yml")){
         std::cout << "Error in configuration file(s). Aborting.\n";
@@ -77,7 +80,11 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    std::cout << std::endl << "CALCULATION" << std::endl;
+    std::cout << std::endl << "CALCULATION\n";
+
+    #pragma omp parallel // counting processors (for parallel computing)
+    if(omp_get_thread_num() == 0)
+        std::cout << "(number of CPU cores: " << omp_get_num_threads() << ")\n\n" << std::flush;
 
     for(double time=0; time<=(layout[layout.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
 

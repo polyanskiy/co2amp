@@ -3,8 +3,6 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
-    co2ampVersion = "2019-08-29";
-
     setupUi(this);
 
     FindExternalPrograms();

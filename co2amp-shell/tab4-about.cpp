@@ -1,13 +1,24 @@
 #include "co2amp.h"
 
 void MainWindow::SetAboutText()
-{
+{  
+    QString shell_version = "co2amp-shell v.2019-08-29";
+
+    // get co2amp-core version string
+    process = new QProcess(this);
+    process->start("\"" + path_to_core + "\" -version");
+    process->waitForFinished();
+    QString core_version = process->readAllStandardOutput();
+    delete process;
+
     QString path_to_manual = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
 
     QString about =
-            "<b>Version:</b> " + co2ampVersion + "<br>"
+            "<b>Versions:</b><br>"
+            + core_version + "<br>"
+            + shell_version + "<br>"
             "<br>"
-            "<b>Documentation:</b> <a href=\"" + path_to_manual + "\">Manual</a><br>"
+            "<b>Documentation:</b> <a href=\"" + path_to_manual + "\">Manual (PDF)</a><br>"
             "<br>"
             "<b>License:</b> <a href=\"https://gnu.org/licenses/gpl.html\">GPL</a><br>"
             "<br>"

@@ -59,7 +59,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
-        QString co2ampVersion;
         float formatVersion;
         QString work_dir;
         QString project_file;
