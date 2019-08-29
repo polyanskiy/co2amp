@@ -84,7 +84,7 @@ void Calculations()
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
-        std::cout << "(number of CPU cores: " << omp_get_num_threads() << ")\n\n" << std::flush;
+        std::cout << "number of CPU cores: " << omp_get_num_threads() << "\n\n" << std::flush;
 
     for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
 
