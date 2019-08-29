@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>721</height>
+    <width>641</width>
+    <height>817</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1642,8 +1642,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>343</width>
-             <height>650</height>
+             <width>347</width>
+             <height>737</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">
@@ -2141,7 +2141,20 @@ p, li { white-space: pre-wrap; }
         <string>&amp;About</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="2">
+        <item row="0" column="0">
+         <spacer name="horizontalSpacer_12">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="3">
          <spacer name="horizontalSpacer_13">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -2154,7 +2167,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
-        <item row="0" column="1">
+        <item row="0" column="2">
          <widget class="QLabel" name="label_about">
           <property name="font">
            <font>
@@ -2171,19 +2184,6 @@ p, li { white-space: pre-wrap; }
            <bool>true</bool>
           </property>
          </widget>
-        </item>
-        <item row="0" column="0">
-         <spacer name="horizontalSpacer_12">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>

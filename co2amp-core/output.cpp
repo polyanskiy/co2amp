@@ -44,10 +44,10 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     // Count pass number through current element
     int pass_n = 0;
     for(int i=0; i<plane_n; i++)
-        if(layout[i]->optic == layout[plane_n]->optic)
+        if(planes[i]->optic == planes[plane_n]->optic)
             pass_n++;
 
-    std::string basename = layout[plane_n]->optic->id
+    std::string basename = planes[plane_n]->optic->id
             + "_" + pulses[pulse_n]->id
             + "_pass" + std::to_string(pass_n);
 

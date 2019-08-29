@@ -120,9 +120,11 @@ void S::InternalDynamics(double)
 }
 
 
-void S::PulseInteraction(Pulse *pulse, Plane*, double)
+void S::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 {
     Debug(2, "Interaction with spectral filter");
+    StatusDisplay(pulse, plane, time, "spectral filtering...");
+
     #pragma omp parallel for
     for(int x=0; x<x0; x++){
         std::complex<double> *spectrum;

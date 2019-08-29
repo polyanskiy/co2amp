@@ -2,12 +2,13 @@
 
 void MainWindow::SetAboutText()
 {
-    QString path_to_manual = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
+    QString path_to_manual =
+            QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
 
     QString about =
             "<b>Version:</b> " + co2ampVersion + "<br>"
             "<br>"
-            "<b>Documentation:</b> <a href=\"" + path_to_manual + "\">Manual</a><br>"
+            "<b>Documentation:</b> <a href=\"file:///" + path_to_manual + "\">Manual (PDF)</a><br>"
             "<br>"
             "<b>License:</b> <a href=\"https://gnu.org/licenses/gpl.html\">GPL</a><br>"
             "<br>"
