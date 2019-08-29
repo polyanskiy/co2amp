@@ -6,7 +6,7 @@
 // --- PULSES, OPTICS, GEOMETRY ----
 std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
-std::vector<Plane*> layout;
+std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
 double vc;                 // central frequency
 double t_min, t_max;       // pulse (fast) time limits
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-27" << std::endl << std::flush;
+    std::cout << "co2amp-core v.2019-08-28" << std::endl << std::flush;
 
     int command_code = ReadCommandLine(argc, argv); //  0: found all arguments needed for calculations
                                                     //  1: version info requested ('-version' argument)
@@ -86,24 +86,24 @@ void Calculations()
     if(omp_get_thread_num() == 0)
         std::cout << "(number of CPU cores: " << omp_get_num_threads() << ")\n\n" << std::flush;
 
-    for(double time=0; time<=(layout[layout.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
+    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
 
         for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 
-        for(int plane_n=0; plane_n<layout.size(); plane_n++){
+        for(int plane_n=0; plane_n<planes.size(); plane_n++){
             for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-                double time_of_arival = layout[plane_n]->time_from_first_plane + pulses[pulse_n]->time_inj;
+                double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_inj;
                 if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival){
                     // 1: Propagate beam to(!) this plane
                     if(plane_n != 0) // propagate to(!) this palne
-                        pulses[pulse_n]->Propagate(layout[plane_n-1], layout[plane_n], time);
+                        pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
                     // 2: Save pulse parameters at plane location (before interaction!!!)
-                    StatusDisplay(pulses[pulse_n], layout[plane_n], time, "saving...");
-                    UpdateOutputFiles(pulses[pulse_n], layout[plane_n], time);
+                    StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
+                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
                     // 3: Do Interaction (amplification etc.)
-                    if(plane_n != layout.size()-1){ // interact with this palne
-                        layout[plane_n]->optic->PulseInteraction(pulses[pulse_n], layout[plane_n], time);
+                    if(plane_n != planes.size()-1){ // interact with this palne
+                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time);
                     }
                 }
             }
@@ -126,13 +126,13 @@ void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status)
         if(pulses.size()==1)
             std::cout << "\r" << toExpString(time) << " s; "
                       << plane->optic->id
-                      << " (plane " << plane->number+1 << " of " << layout.size() << "): "
+                      << " (plane " << plane->number+1 << " of " << planes.size() << "): "
                       << status << "                                     ";
         else
             std::cout << "\r" << toExpString(time) << " s; "
                       << pulse->id << "; "
                       << plane->optic->id
-                      << " (plane " << plane->number+1 << " of " << layout.size() << "): "
+                      << " (plane " << plane->number+1 << " of " << planes.size() << "): "
                       << status << "                                     ";
     }
     std::cout << std::flush;

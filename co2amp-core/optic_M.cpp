@@ -81,8 +81,11 @@ void M::InternalDynamics(double)
 }
 
 
-void M::PulseInteraction(Pulse *pulse, Plane* plane, double clock_time)
+void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 {
+    Debug(2, "Interaction with a material");
+    StatusDisplay(pulse, plane, time, "material...");
+
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*n0/2;
 
@@ -103,10 +106,12 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double clock_time)
     int count = 0;
     #pragma omp parallel for
     for(int x=0; x<x0; x++){
-        #pragma omp critical
-        {
-            StatusDisplay(pulse, plane, clock_time,
-                      "material: " + std::to_string(++count) + " of " + std::to_string(x0));
+        if(debug_level >= 0){
+            #pragma omp critical
+            {
+                StatusDisplay(pulse, plane, time,
+                          "material: " + std::to_string(++count) + " of " + std::to_string(x0));
+            }
         }
 
         double intensity, delay;

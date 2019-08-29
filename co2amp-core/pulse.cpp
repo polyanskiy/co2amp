@@ -59,7 +59,7 @@ void Pulse::InitializeE()
     double Energy, af;
     //FILE *file;
 
-    double Dr = layout[0]->optic->Dr; // use first optic in the layout
+    double Dr = planes[0]->optic->Dr; // use first optic in the layout
     double Dt = (t_max-t_min)/n0;
 
     // Create 2D array
@@ -195,7 +195,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
 void Pulse::SavePulse()
 {
-    double Dr = layout[layout.size()-1]->optic->Dr; // last optic in the layout
+    double Dr = planes[planes.size()-1]->optic->Dr; // last optic in the layout
     double Dt = (t_max-t_min)/n0;
 
     FILE *file_re;

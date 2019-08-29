@@ -36,13 +36,15 @@ void C::InternalDynamics(double)
 }
 
 
-void C::PulseInteraction(Pulse *pulse, Plane*, double)
+void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 {
     if(chirp == 0)
         return;
-    Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
 
-    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
+    Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
+    StatusDisplay(pulse, plane, time, "chirping/de-chirping...");
+
+    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
     double v_min = vc - Dv*n0/2;
 
     #pragma omp parallel for // mulithread

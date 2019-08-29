@@ -1,23 +1,25 @@
 #ifndef MAINDIALOGIMPL_H
 #define MAINDIALOGIMPL_H
 
+#include <QClipboard>
+#include <QCloseEvent>
+#include <QDesktopServices>
+#include <QElapsedTimer>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QInputDialog>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
 #include <QProcess>
 #include <QSettings>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QTextStream>
-#include <QString>
-#include <QFileInfo>
-#include <QCloseEvent>
-#include <QMenu>
-#include <QClipboard>
-#include <QElapsedTimer>
-#include <QSvgWidget>
 #include <QShortcut>
-#include <QSyntaxHighlighter>
 #include <QStandardPaths>
+#include <QString>
+#include <QSvgWidget>
+#include <QSyntaxHighlighter>
+#include <QTextStream>
+
 #include <cmath>
 #include "ui_mainwindow.h"
 

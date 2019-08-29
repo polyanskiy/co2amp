@@ -57,7 +57,7 @@ void A::InternalDynamics(double time)
 
     // time of travel from input plane to first interaction with this AM section
     double time_from_first_plane = 0;
-    for(Plane* plane : layout)
+    for(Plane* plane : planes)
         if(plane->optic->id == id){
             time_from_first_plane = plane->time_from_first_plane;
             break;

@@ -11,14 +11,15 @@ void MainWindow::SetAboutText()
     QString core_version = process->readAllStandardOutput();
     delete process;
 
-    QString path_to_manual = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
+    QString path_to_manual =
+            QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
 
     QString about =
             "<b>Versions:</b><br>"
             + core_version + "<br>"
             + shell_version + "<br>"
             "<br>"
-            "<b>Documentation:</b> <a href=\"" + path_to_manual + "\">Manual (PDF)</a><br>"
+            "<b>Documentation:</b> <a href=\"file:///" + path_to_manual + "\">Manual (PDF)</a><br>"
             "<br>"
             "<b>License:</b> <a href=\"https://gnu.org/licenses/gpl.html\">GPL</a><br>"
             "<br>"

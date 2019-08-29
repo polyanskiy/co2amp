@@ -5,6 +5,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     if(p_CO2+p_N2+p_He <= 0 || length == 0)
         return;
 
+    Debug(2, "Amplification");
     StatusDisplay(pulse, plane, time, "amplification...");
 
     double Dt = (t_max-t_min)/n0;    // pulse time step, s
@@ -226,7 +227,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
 
     int pass = 0;
     for(int i=0; i<plane->number; i++)
-        if(plane->optic->id == layout[i]->optic->id)
+        if(plane->optic->id == planes[i]->optic->id)
             pass++;
 
     std::string basename = plane->optic->id

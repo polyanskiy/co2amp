@@ -62,7 +62,7 @@ int ReadCommandLine(int argc, char **argv)
             debug_level = atoi(argv[i+1]);
     }
     
-    Debug(2, debug_str);
+    Debug(1, debug_str);
 
     if(count != 63){ //1+2+4+6+8+16+32
         std::cout << "Input ERROR: Missing command line argument(s)\n";
@@ -150,8 +150,8 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add plane numbers to all layout planes
-    for(int plane_n=0; plane_n<layout.size(); plane_n++)
-        layout[plane_n]->number =plane_n;
+    for(int plane_n=0; plane_n<planes.size(); plane_n++)
+        planes[plane_n]->number =plane_n;
 
     return true;
 }
@@ -214,14 +214,14 @@ bool ReadLayoutConfigFile(std::string path){
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
-                        bool flag = layout[plane_n]->space == 0;
-                        layout[plane_n]->space += std::stod(value);
+                        bool flag = planes[plane_n]->space == 0;
+                        planes[plane_n]->space += std::stod(value);
                         if(flag)
                             Debug(2, "Space after plane #" + std::to_string(plane_n) +
-                                  " set at " + std::to_string(layout[plane_n]->space) + " m");
+                                  " set at " + std::to_string(planes[plane_n]->space) + " m");
                         else
                             Debug(2, "Added " + value + " m space after plane #" +
-                              std::to_string(plane_n) + " (now " + std::to_string(layout[plane_n]->space) + " m)");
+                              std::to_string(plane_n) + " (now " + std::to_string(planes[plane_n]->space) + " m)");
                     }
                     else{
                         plane_n++;
@@ -232,7 +232,7 @@ bool ReadLayoutConfigFile(std::string path){
                             return false;
                         }
                         Debug(2, "\"" + optic->id + "\" optic found. Adding as plane #" + std::to_string(plane_n));
-                        layout.push_back(new Plane(optic));
+                        planes.push_back(new Plane(optic));
                     }
                 }
             }
@@ -261,31 +261,31 @@ bool ReadLayoutConfigFile(std::string path){
     // Print full layout for debugging
     Debug(1, "LAYOUT:");
     if(debug_level>=1){
-        for(plane_n=0; plane_n<layout.size(); plane_n++){
-            std::cout << layout[plane_n]->optic->id;
-            if(plane_n != layout.size()-1)
+        for(plane_n=0; plane_n<planes.size(); plane_n++){
+            std::cout << planes[plane_n]->optic->id;
+            if(plane_n != planes.size()-1)
                 std::cout << ">>" ;
-            if(layout[plane_n]->space != 0)
-                std::cout << std::to_string(layout[plane_n]->space) << ">>";
+            if(planes[plane_n]->space != 0)
+                std::cout << std::to_string(planes[plane_n]->space) << ">>";
         }
         std::cout << "\n";
     }
 
-    if(layout[layout.size()-1]->optic->type != "P"){
+    if(planes[planes.size()-1]->optic->type != "P"){
         std::cout << "Layout error: last plane must be optic type \'P\' (probe)\n";
         return false;
     }
 
-    if(layout[layout.size()-1]->space != 0){
+    if(planes[planes.size()-1]->space != 0){
         std::cout << "Layout error: there should be no space after the last plane\n";
         return false;
     }
 
     // calculate layout plane's "time" (distance from first surface in seconds)
     double time = 0;
-    for(plane_n=0; plane_n<layout.size(); plane_n++){
-        layout[plane_n]->time_from_first_plane = time;
-        time += layout[plane_n]->space / c;
+    for(plane_n=0; plane_n<planes.size(); plane_n++){
+        planes[plane_n]->time_from_first_plane = time;
+        time += planes[plane_n]->space / c;
     }
 
     return true;

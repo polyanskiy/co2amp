@@ -223,7 +223,7 @@ private:
 // --- PULSES, OPTICS, GEOMETRY ----
 extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
-extern std::vector<Plane*> layout;
+extern std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
 extern double vc;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
