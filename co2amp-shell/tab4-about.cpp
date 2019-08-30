@@ -2,7 +2,7 @@
 
 void MainWindow::SetAboutText()
 {  
-    QString shell_version = "co2amp-shell v.2019-08-29";
+    QString shell_version = "2019-08-29";
 
     // get co2amp-core version string
     process = new QProcess(this);
@@ -16,8 +16,10 @@ void MainWindow::SetAboutText()
 
     QString about =
             "<b>Versions:</b><br>"
-            + core_version + "<br>"
-            + shell_version + "<br>"
+            "<code>"
+            "co2amp-core:  v." + shell_version + "<br>"
+            "co2amp(GUI): v." + core_version + "<br>"
+            "</code>"
             "<br>"
             "<b>Documentation:</b> <a href=\"file:///" + path_to_manual + "\">Manual (PDF)</a><br>"
             "<br>"

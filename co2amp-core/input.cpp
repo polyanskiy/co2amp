@@ -1,42 +1,33 @@
 #include  "co2amp.h"
 
-int ReadCommandLine(int argc, char **argv)
-{
-    int i;
-
-    // ------- OPTICS, GEOMETRY -------
-    noprop = false;           // Skip propagation calculations
-    // ------- CALCULATION NET -------
-    vc = -1;                  // Center frequency, Hz
-    x0 = -1;
-    n0 = -1;
-    t_min = -1;               // Pulse time calculation limit, s
-    t_max = -1;               // Pulse shift from 0, s
-    time_tick = -1;           // Time step for main (slow) time, s
-    // ---------- DEBUGGING ----------
-    debug_level = 0;          // No debugging info output by default
+std::string ReadCommandLine(int argc, char **argv)
+{       
+    // CALCULATION ARGUMeNTS
+    vc = -1;         // Center frequency, Hz
+    x0 = -1;         // # of bins in radial coordinate grid
+    n0 = -1;         // # of bins in time & frequency grids
+    t_min = -1;      // Pulse time calculation limit, s
+    t_max = -1;      // Pulse shift from 0, s
+    time_tick = -1;  // Time step for main (slow) time, s
+    noprop = false;  // Skip propagation calculations
+    debug_level = 0; // No debugging info output by default
 
     //Read command line
     int count = 0;
     std::string debug_str = "Command line: ";
-    for (i=1; i<argc; i++){
+    for (int i=1; i<argc; i++){
         debug_str += argv[i];
         debug_str += " ";
 
-        // ------- VERSION -------
-        if (!strcmp(argv[i], "-version"))
-            return 1;
+        // -------- VERSION --------
+        if (!strcmp(argv[i], "-version")) // version info requested
+            return "version";
 
-        // ------- LAYOUT -------
-        if (!strcmp(argv[i], "-noprop"))
-            noprop = true;
-
-        // ------- CALCULATION GRID -------
+        // - CALCULATION ARGUMENTS -
         if (!strcmp(argv[i], "-vc")){
             vc = atof(argv[i+1]);
             count = count | 1;
         }
-
         if (!strcmp(argv[i], "-x0")){
             x0 = atoi(argv[i+1]);
             count = count | 2;
@@ -57,19 +48,22 @@ int ReadCommandLine(int argc, char **argv)
             time_tick = atof(argv[i+1]);
             count = count | 32;
         }
-        // --------- DEBUGGING ---------
-        if (!strcmp(argv[i], "-debug"))
+        if (!strcmp(argv[i], "-noprop")){ // -optional-
+            noprop = true;
+        }
+        if (!strcmp(argv[i], "-debug")){  // -optional-
             debug_level = atoi(argv[i+1]);
+        }
+
     }
     
     Debug(1, debug_str);
 
-    if(count != 63){ //1+2+4+6+8+16+32
-        std::cout << "Input ERROR: Missing command line argument(s)\n";
-        return -1;
-    }
+    if(count == 63) //1+2+4+6+8+16+32 <=> all required calculation parameters provided
+        return "calc_arguments";
 
-    return 0;
+
+    return ""; // something is missing from the command line
 }
 
 
@@ -142,7 +136,7 @@ bool ReadConfigFiles(std::string path)
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
         pulses[pulse_n]->number = pulse_n;
-        pulses[pulse_n]->InitializeE();
+        pulses[pulse_n]->Initialize();
         if(pulse_n>0 && pulses[pulse_n]->time_inj < pulses[pulse_n-1]->time_inj){
             std::cout << "Arrange pulses in order of injection (smaller \'t_inj\' first)!\n";
             return false;

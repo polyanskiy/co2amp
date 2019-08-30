@@ -12,9 +12,11 @@ double vc;                 // central frequency
 double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
+// ---- CALCULATION PARAMETERS -----
+bool noprop;               // skip propagation calculations
 // ----------- DEBUGGING -----------
-int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
-bool noprop;
+int debug_level;           // debug output control
+                           // -1: less than nothing 0: nothing; 1: some; 2: a lot; 3: everything
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // --- MISC CONSTANTS AND FLAGS ----
 double c, h;               // spped of light [m/s]; Plank's [J s]
@@ -23,29 +25,36 @@ bool configuration_error = false;
 
 int main(int argc, char **argv)
 {
+    std::string version = "2019-08-29";
     std::clock_t start_time = std::clock();
 
-    // Constants
     c = 2.99792458e8; // m/s
     h = 6.626069e-34; // J*s
 
     debug_level = 1;
     flag_status_or_debug = true;
 
-    std::cout << "co2amp-core v.2019-08-28" << std::endl << std::flush;
+    std::string command = ReadCommandLine(argc, argv);
 
-    int command_code = ReadCommandLine(argc, argv); //  0: found all arguments needed for calculations
-                                                    //  1: version info requested ('-version' argument)
-                                                    // -1: not enough input parameters provided in command line
-    if (command_code == -1 ){
+    if (command == "" ){
+        std::cout << "Input ERROR: Missing command line argument(s)\n";
         std::cout << "Error in command line. Aborting.\n";
         return EXIT_FAILURE;
     }
-    if (command_code == 1 ) // version info written to stdout by  ReadCommandLine()
-        return EXIT_SUCCESS;
 
-    // command_code == 0
+    if(command == "version"){
+        std::cout << version;
+        return EXIT_SUCCESS;
+    }
+
+    std::cout << "co2amp-core v." << version << "\n";
+
+    #pragma omp parallel // counting processors (for parallel computing)
+    if(omp_get_thread_num() == 0)
+        std::cout << "Number of CPU cores: " << omp_get_num_threads() << "\n\n" << std::flush;
+
     Debug(1, "Command line read done");
+
     if (!ReadConfigFiles("config_files.yml")){
         std::cout << "Error in configuration file(s). Aborting.\n";
         return EXIT_FAILURE;
@@ -80,11 +89,7 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    std::cout << std::endl << "CALCULATION\n";
-
-    #pragma omp parallel // counting processors (for parallel computing)
-    if(omp_get_thread_num() == 0)
-        std::cout << "number of CPU cores: " << omp_get_num_threads() << "\n\n" << std::flush;
+    std::cout << "CALCULATION\n";
 
     for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
 

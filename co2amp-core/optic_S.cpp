@@ -103,7 +103,7 @@ S::S(std::string id)
                 std::cout << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;
 
         for(int n=0; n<n0; n++)
-            Transmittance[n] = Interpolate(&nu, &transm, v_min+Dv*n);
+            Transmittance[n] = Interpolate(&nu, &transm, v_min+Dv*(0.5+n));
         WriteTransmittanceFile();
         return;
     }

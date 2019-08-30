@@ -20,7 +20,7 @@ class Pulse
 {
 public:
     Pulse(std::string yaml);
-    void InitializeE(void);
+    void Initialize(void);
     void Propagate(Plane *from, Plane *to, double time);
     void SavePulse(void);
     std::string id;
@@ -32,7 +32,9 @@ public:
     std::complex<double> **E; // field array
 private:
     double E0, w0, tau0;
-    std::complex<double> field(double, double);
+    //std::complex<double> field(double, double);
+    double *BeamProfile;
+    double *PulseProfile;
 };
 
 
@@ -227,7 +229,7 @@ extern std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
 extern double vc;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
-extern double time_tick;          // main (slow) time step
+extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
 // ----------- DEBUGGING -----------
 extern int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
@@ -254,7 +256,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 
 /////////////////////////// input.cpp ////////////////////////////
-int  ReadCommandLine(int, char**);
+std::string ReadCommandLine(int, char**);
 bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 
