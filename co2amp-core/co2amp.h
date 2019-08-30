@@ -26,15 +26,11 @@ public:
     std::string id;
     std::string yaml;
     int number;
-    //std::string from_file;
     double nu0;
     double time_inj;
     std::complex<double> **E; // field array
 private:
-    double E0, w0, tau0;
-    //std::complex<double> field(double, double);
-    double *BeamProfile;
-    double *PulseProfile;
+    double E0;
 };
 
 

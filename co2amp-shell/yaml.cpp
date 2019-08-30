@@ -8,7 +8,7 @@ YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(par
     // Number
     numberFormat.setFontWeight(QFont::Bold);
     numberFormat.setForeground(Qt::blue);
-    rule.pattern = QRegularExpression("\\b[0-9][0-9.eE\\-\\+]*\\b");
+    rule.pattern = QRegularExpression("[-|+]?\\b[0-9][0-9.eE\\-\\+]*\\b");
     rule.format = numberFormat;
     highlightingRules.append(rule);
 
@@ -55,7 +55,7 @@ YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(par
     // tabulated data
     tabulatedFormat.setFontItalic(true);
     tabulatedFormat.setForeground(Qt::blue);
-    rule.pattern = QRegularExpression("^   ( [0-9][0-9.eE\\-\\+]*)*$");
+    rule.pattern = QRegularExpression("^   ( [-|+]?[0-9][0-9.eE\\-\\+]*)*$");
     rule.format = tabulatedFormat;
     highlightingRules.append(rule);
 
@@ -118,19 +118,19 @@ void MainWindow::YamlFixFormat()
     new_yaml.replace(QRegularExpression("^[ ]*([#][.]*)", QRegularExpression::MultilineOption), "\\1");
 
     //tabulated data - 4 columns
-    new_yaml.replace(QRegularExpression("^[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)",
+    new_yaml.replace(QRegularExpression("^[ ]*([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)",
                                         QRegularExpression::MultilineOption), "    \\1 \\2 \\3 \\4");
 
     //tabulated data - 3 columns
-    new_yaml.replace(QRegularExpression("^[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)",
+    new_yaml.replace(QRegularExpression("^[ ]*([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)",
                                         QRegularExpression::MultilineOption), "    \\1 \\2 \\3");
 
     //tabulated data - 2 columns
-    new_yaml.replace(QRegularExpression("^[ ]*([0-9][0-9.eE\\-\\+]*)[ ]+([0-9][0-9.eE\\-\\+]*)",
+    new_yaml.replace(QRegularExpression("^[ ]*([-|+]?[0-9][0-9.eE\\-\\+]*)[ ]+([-|+]?[0-9][0-9.eE\\-\\+]*)",
                                         QRegularExpression::MultilineOption), "    \\1 \\2");
 
     //tabulated data - 1 column
-    new_yaml.replace(QRegularExpression("^[ ]*([0-9][0-9.eE\\-\\+]*)",
+    new_yaml.replace(QRegularExpression("^[ ]*([-|+]?[0-9][0-9.eE\\-\\+]*)",
                                         QRegularExpression::MultilineOption), "    \\1");
 
     if(new_yaml != old_yaml){

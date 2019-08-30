@@ -25,7 +25,8 @@ bool configuration_error = false;
 
 int main(int argc, char **argv)
 {
-    std::string version = "2019-08-29";
+    std::string version = "2019-08-30";
+
     std::clock_t start_time = std::clock();
 
     c = 2.99792458e8; // m/s

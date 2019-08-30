@@ -4,6 +4,9 @@ Pulse::Pulse(std::string id)
 {
     this->id = id;
     yaml = id + ".yml";
+    // cannot initialize pulse here: need process optics and layout (planes) first:
+    // Dr of input plane (first optic in the layout) needed
+    // Use Initialize() instead.
 }
 
 
@@ -13,6 +16,7 @@ void Pulse::Initialize()
 
     std::string value="";
 
+    //---------------------------- Basic pulse parameters -------------------------------
     if(!YamlGetValue(&value, yaml, "E0")){
         configuration_error = true;
         return;
@@ -35,7 +39,7 @@ void Pulse::Initialize()
     Debug(2, "time_inj = " + toExpString(time_inj) + " s");
 
 
-    // Beam spatial profile
+    //----------------------------- Beam spatial profile --------------------------------
     if(!YamlGetValue(&value, yaml, "beam")){
         configuration_error = true;
         return;
@@ -43,14 +47,14 @@ void Pulse::Initialize()
     std::string beam = value;
     Debug(2, "beam = " + beam);
 
-    BeamProfile = new double[x0];
-    double Dr = planes[0]->optic->Dr; // use first optic in the layout
+    double *BeamProfile = new double[x0];
+    double Dr = planes[0]->optic->Dr; // input plane (first optic in the layout)
     if(beam == "GAUSS" || beam == "FLATTOP"){
         if(!YamlGetValue(&value, yaml, "w0")){
             configuration_error = true;
             return;
         }
-        w0 = std::stod(value);
+        double w0 = std::stod(value);
         Debug(2, "w0 = " + toExpString(w0) + " m");
         if(beam == "GAUSS")
             for(int x=0; x<x0; x++)
@@ -70,7 +74,6 @@ void Pulse::Initialize()
         if(debug_level >= 3)
             for(int i=0; i<r.size(); i++)
                 std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
-
         for(int x=0; x<x0; x++)
             BeamProfile[x] = sqrt(Interpolate(&r, &A, Dr*(0.5+x)));
     }
@@ -79,8 +82,7 @@ void Pulse::Initialize()
         configuration_error = true;
     }
 
-
-    // Pulse temporal profile
+    //---------------------------- Pulse temporal profile -------------------------------
     if(!YamlGetValue(&value, yaml, "pulse")){
         configuration_error = true;
         return;
@@ -88,14 +90,14 @@ void Pulse::Initialize()
     std::string pulse = value;
     Debug(2, "pulse = " + pulse);
 
-    PulseProfile = new double[n0];
+    double *PulseProfile = new double[n0];
     double Dt = (t_max-t_min)/n0;
     if(pulse == "GAUSS" || pulse == "FLATTOP"){
         if(!YamlGetValue(&value, yaml, "tau0")){
             configuration_error = true;
             return;
         }
-        tau0 = std::stod(value);
+        double tau0 = std::stod(value);
         Debug(2, "tau0 = " + toExpString(tau0) + " s");
         if(pulse == "GAUSS"){
             double xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
@@ -103,9 +105,8 @@ void Pulse::Initialize()
                 PulseProfile[n] = exp(-pow((t_min+Dt*(0.5+n))/xx, 2));
         }
         if(pulse == "FLATTOP")
-            for(int n=0; n<n0; n++){
+            for(int n=0; n<n0; n++)
                 std::abs(t_min+Dt*(0.5+n))<=tau0 ? PulseProfile[n]=1 : PulseProfile[n]=0;
-            }
     }
     else if(pulse == "FREEFORM"){
         std::vector<double> t;
@@ -118,7 +119,6 @@ void Pulse::Initialize()
         if(debug_level >= 3)
             for(int i=0; i<t.size(); i++)
                 std::cout << toExpString(t[i]) <<  " " << toExpString(A[i]) << std::endl;
-
         for(int n=0; n<n0; n++)
             PulseProfile[n] = sqrt(Interpolate(&t, &A, t_min+Dt*(0.5+n)));
     }
@@ -127,31 +127,12 @@ void Pulse::Initialize()
         configuration_error = true;
     }
 
-    // allocate memory
+    //--------------------------- Initialize field array E ------------------------------
     E = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
         E[x] = new std::complex<double>[n0];
 
-
-
-
-
-
-
-
-
-
-
-
-
     Debug(2, "Initializing field array for pulse \'" + this->id + "\'");
-
-    //int x, n;
-    double Energy, af;
-    //FILE *file;
-
-    //double Dr = planes[0]->optic->Dr; // use first optic in the layout
-    //double Dt = (t_max-t_min)/n0;
 
     // Create 2D array
     for(int x=0; x<x0; x++)
@@ -164,7 +145,7 @@ void Pulse::Initialize()
             E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*(Dt*(0.5+n)));
 
     // Normalize intensity
-    Energy = 0;
+    double Energy = 0;
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
             Energy += 2.0 * h * nu0
@@ -172,7 +153,7 @@ void Pulse::Initialize()
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
-    af = sqrt(E0/Energy);
+    double af = sqrt(E0/Energy);
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
             E[x][n] *= af;
@@ -187,15 +168,6 @@ void Pulse::Initialize()
         fclose(file);
     }*/
 }
-
-
-/*std::complex<double> Pulse::field(double r, double t)
-{
-    double xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
-    std::complex<double> pulse = exp(-pow(t/xx, 2));
-    std::complex<double> beam = exp(-pow(r/w0, 2));
-    return pulse*beam;
-}*/
 
 
 void Pulse::Propagate(Plane *from, Plane *to, double time)
