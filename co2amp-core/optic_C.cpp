@@ -11,14 +11,13 @@ C::C(std::string id)
 
     std::string value="";
 
-    // Rmax
-    if(!YamlGetValue(&value, yaml, "Rmax")){
+    // r_max
+    if(!YamlGetValue(&value, yaml, "r_max")){
         configuration_error = true;
         return;
     }
-    double Rmax = std::stod(value);
-    Debug(2, "Rmax = " + toExpString(Rmax) + " m");
-    Dr = Rmax/x0;
+    r_max = std::stod(value);
+    Debug(2, "r_max = " + toExpString(r_max) + " m");
 
     // Chirp
     if(!YamlGetValue(&value, yaml, "chirp")){

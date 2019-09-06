@@ -48,7 +48,13 @@ bool YamlGetValue(std::string *value, std::string path, std::string key)
         found = str.find(key + ": ");
         if(found == 0){ //key found at the beginnig of the string
             *value = str.substr(std::string(key + ": ").length());
-            value->erase(remove_if(value->begin(), value->end(), isspace), value->end()); // remove spaces
+
+            //std::regex rgx("\"([^\"]*)\"");
+            std::smatch match;
+            if(std::regex_search(*value, match, std::regex("\"(.*)\""))) // if value is a quoted string
+                *value = match[1];
+            else
+                value->erase(remove_if(value->begin(), value->end(), isspace), value->end()); // remove spaces
             Debug(3, key + ": " + *value);
             return true;
         }

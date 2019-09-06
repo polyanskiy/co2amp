@@ -7,6 +7,10 @@ Pulse::Pulse(std::string id)
     // cannot initialize pulse here: need process optics and layout (planes) first:
     // Dr of input plane (first optic in the layout) needed
     // Use Initialize() instead.
+
+    E = new std::complex<double>* [x0];
+    for(int x=0; x<x0; x++)
+        E[x] = new std::complex<double>[n0];
 }
 
 
@@ -14,7 +18,46 @@ void Pulse::Initialize()
 {
     Debug(2, "Creating pulse from file \'" + yaml + "\'");
 
+    double Dt = (t_max-t_min)/n0;
     std::string value="";
+
+    //---------------- Paarameters that must be present in any case ---------------------
+    if(!YamlGetValue(&value, yaml, "time_inj")){
+        configuration_error = true;
+        return;
+    }
+    time_inj = std::stod(value);
+    Debug(2, "time_inj = " + toExpString(time_inj) + " s");
+
+    if(!YamlGetValue(&value, yaml, "from_file")){
+        configuration_error = true;
+        return;
+    }
+
+    //================================== From file ======================================
+    if(value!="true" && value!="false"){
+        configuration_error = true;
+        std::cout << "ERROR: Wrong \'from_file\' parameter (must be \"true\" or \"false\")\n";
+        return;
+    }
+    if(value=="true"){
+        if(!YamlGetValue(&value, yaml, "file")){
+            configuration_error = true;
+            return;
+        }
+        if(!LoadPulse(value)){
+            configuration_error = true;
+            return;
+        }
+        // frequency shift between central frequency of the pulse (nu0)
+        // and central frequency of the calculation grig (vc)
+        for(int x=0; x<x0; x++)
+            for(int n=0; n<n0; n++)
+                E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
+        return;
+    }
+
+    //================================ Not from file ====================================
 
     //---------------------------- Basic pulse parameters -------------------------------
     if(!YamlGetValue(&value, yaml, "E0")){
@@ -31,14 +74,6 @@ void Pulse::Initialize()
     nu0 = std::stod(value);
     Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
 
-    time_inj = 0;
-    if(!YamlGetValue(&value, yaml, "time_inj"))
-        std::cout << "Using default injection time (0 s)\n";
-    else
-        time_inj = std::stod(value);
-    Debug(2, "time_inj = " + toExpString(time_inj) + " s");
-
-
     //----------------------------- Beam spatial profile --------------------------------
     if(!YamlGetValue(&value, yaml, "beam")){
         configuration_error = true;
@@ -48,7 +83,7 @@ void Pulse::Initialize()
     Debug(2, "beam = " + beam);
 
     double *BeamProfile = new double[x0];
-    double Dr = planes[0]->optic->Dr; // input plane (first optic in the layout)
+    double Dr = planes[0]->optic->r_max/x0; // input plane (first optic in the layout)
     if(beam == "GAUSS" || beam == "FLATTOP"){
         if(!YamlGetValue(&value, yaml, "w0")){
             configuration_error = true;
@@ -91,7 +126,6 @@ void Pulse::Initialize()
     Debug(2, "pulse = " + pulse);
 
     double *PulseProfile = new double[n0];
-    double Dt = (t_max-t_min)/n0;
     if(pulse == "GAUSS" || pulse == "FLATTOP"){
         if(!YamlGetValue(&value, yaml, "tau0")){
             configuration_error = true;
@@ -128,9 +162,6 @@ void Pulse::Initialize()
     }
 
     //--------------------------- Initialize field array E ------------------------------
-    E = new std::complex<double>* [x0];
-    for(int x=0; x<x0; x++)
-        E[x] = new std::complex<double>[n0];
 
     Debug(2, "Initializing field array for pulse \'" + this->id + "\'");
 
@@ -139,10 +170,11 @@ void Pulse::Initialize()
         for(int n=0; n<n0; n++)
             E[x][n] = BeamProfile[x]*PulseProfile[n];
 
-    // frequency shift between central frequency of the pulse (nu0) and central frequency of the calculation grig (vc)
+    // frequency shift between central frequency of the pulse (nu0)
+    // and central frequency of the calculation grig (vc)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*(Dt*(0.5+n)));
+            E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
 
     // Normalize intensity
     double Energy = 0;
@@ -157,24 +189,14 @@ void Pulse::Initialize()
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
             E[x][n] *= af;
-
-
-    /*else{
-        file = fopen("field_in.bin", "rb");
-        for(pulse=0; pulse<n_pulses; pulse++){
-            for(x=0; x<x0; x++)
-                fread(E[pulse][x], sizeof(std::complex<double>)*n0, 1, file);
-        }
-        fclose(file);
-    }*/
 }
 
 
 void Pulse::Propagate(Plane *from, Plane *to, double time)
 { 
     double z   = from->space;
-    double Dr1 = from->optic->Dr;
-    double Dr2 = to  ->optic->Dr;
+    double Dr1 = from->optic->r_max/x0;
+    double Dr2 = to  ->optic->r_max/x0;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
@@ -258,44 +280,191 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
 void Pulse::SavePulse()
 {
-    double Dr = planes[planes.size()-1]->optic->Dr; // last optic in the layout
-    double Dt = (t_max-t_min)/n0;
-
-    FILE *file_re;
-    FILE *file_im;
-
     StatusDisplay(nullptr, nullptr, -1, "saving output pulse " + this->id + "...");
 
-    file_re = fopen("re.dat", "wb");
-    file_im = fopen("im.dat", "wb");
+    double Dt = (t_max-t_min)/n0;
 
-    // "0.00000E+000" for data alignment
-    fprintf(file_re, "%e", 0.0);
-    fprintf(file_im, "%e", 0.0);
+    double **re = new double* [x0];
+    double **im = new double* [x0];
 
-    // first string: time (s)
-    for(int n=0; n<n0; n++){
-        fprintf(file_re, " %+e", t_min+(0.5+n)*Dt);
-        fprintf(file_im, " %+e", t_min+(0.5+n)*Dt);
+    re[0] = new double[x0*n0];
+    im[0] = new double[x0*n0];
+
+    for (int x=1; x<x0; x++){
+        re[x] = re[0]+x*n0;
+        im[x] = im[0]+x*n0;
     }
-    fprintf(file_re, "\n");
-    fprintf(file_im, "\n");
 
-    // each string represents the field E(t) at radial position defined by the first number
-    for(int x=0; x<x0; x++){
-        // radial coordinate
-        fprintf(file_re, "%e", (0.5+x)*Dr);
-        fprintf(file_im, "%e", (0.5+x)*Dr);
-        // pulse (field) data
+    std::complex<double> **E1;
+    E1 = new std::complex<double>* [x0];
+    for(int x=0; x<x0; x++)
+        E1[x] = new std::complex<double>[n0];
+    // reverse frequency shift between central frequency of the pulse (nu0)
+    // and central frequency of the calculation grig (vc)
+    for(int x=0; x<x0; x++)
+        for(int n=0; n<n0; n++)
+            E1[x][n] = E[x][n] * exp(-I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
+
+
+    for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++){
-            fprintf(file_re, " %+e", real(E[x][n]));
-            fprintf(file_im, " %+e", imag(E[x][n]));
+            re[x][n] = real(E1[x][n]);
+            im[x][n] = imag(E1[x][n]);
         }
-        fprintf(file_re, "\n");
-        fprintf(file_im, "\n");
+
+    hid_t file = H5Fcreate((id+".h5").c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    hsize_t dims[2];
+    dims[0] = x0;
+    dims[1] = n0;
+
+    H5Gcreate(file, "pulse", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+    H5LTmake_dataset (file, "pulse/re", 2, dims, H5T_NATIVE_DOUBLE, &re[0][0]);
+    H5LTmake_dataset (file, "pulse/im", 2, dims, H5T_NATIVE_DOUBLE, &im[0][0]);
+
+    double dbl[1];
+    dbl[0] = planes[planes.size()-1]->optic->r_max; // last optic in the layout
+    H5LTset_attribute_double(file, "pulse", "r_max", dbl, 1);
+    dbl[0] = t_min;
+    H5LTset_attribute_double(file, "pulse", "t_min", dbl, 1);
+    dbl[0] = t_max;
+    H5LTset_attribute_double(file, "pulse", "t_max", dbl, 1);
+    dbl[0] = nu0;
+    H5LTset_attribute_double(file, "pulse", "nu0", dbl, 1);
+
+    H5Fclose(file);
+
+    // ----------------------------- REMOVE TEMPORARY ARRAYS ----------------------------
+    delete[] re[0];
+    delete[] im[0];
+    delete[] re;
+    delete[] im;
+
+    for(int x=0; x<x0; x++)
+        delete[] E1[x];
+    delete[] E1;
+}
+
+
+bool Pulse::LoadPulse(std::string filename)
+{
+    Debug(2, "Reading pulse data from file \'" + filename + "\'");
+
+    hid_t file = H5Fopen(filename.c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(file < 0){ //H5Fopen reterns a negative value in case of error
+        std::cout << "ERROR: Cannot open HDF5 file \'" << filename << "\'\n";
+        return false;
     }
 
-    fclose(file_re);
-    fclose(file_im);
+    // ------------------------------ READ ATTRIBUTES -----------------------------------
+    double dbl[1];
+    hid_t status1 = H5LTget_attribute_double(file, "pulse", "r_max", dbl);
+    double r_max1 = dbl[0];
+    hid_t status2 = H5LTget_attribute_double(file, "pulse", "t_min", dbl);
+    double t_min1 = dbl[0];
+    hid_t status3 = H5LTget_attribute_double(file, "pulse", "t_max", dbl);
+    double t_max1 = dbl[0];
+    hid_t status4 = H5LTget_attribute_double(file, "pulse", "nu0", dbl);
+    nu0 = dbl[0];
+    if(status1<0 || status2<0 || status3<0 || status4<0){
+        std::cout << "ERROR: Cannot read pulse attributes from file \'" << filename << "\'\n";
+        return false;
+    }
+    Debug(2, "r_max = " + toExpString(r_max1) + "m");
+    Debug(2, "t_min = " + toExpString(t_min1) + "s");
+    Debug(2, "t_max = " + toExpString(t_max1) + "s");
+    Debug(2, "nu0 = " + toExpString(nu0) + "Hz");
 
+    // --------------------------- GET READY TO READ DATA -------------------------------
+    hid_t dataset_re = H5Dopen(file, "pulse/re", H5P_DEFAULT);
+    hid_t dataset_im = H5Dopen(file, "pulse/im", H5P_DEFAULT);
+
+    hsize_t dims[2];
+    H5Sget_simple_extent_dims(H5Dget_space(dataset_re), dims, NULL);
+    int x01 = dims[0];
+    int n01 = dims[1];
+    Debug(2, "Size of input arrays (time x coord): " + std::to_string(x01)
+          + " x " + std::to_string(n01));
+
+    // --------------------------- PREPARE OUTPUT ARRRAYS -------------------------------
+    double **re = new double* [x01];
+    double **im = new double* [x01];
+
+    re[0] = new double[x01*n01];
+    im[0] = new double[x01*n01];
+
+    for (int x=1; x<x01; x++){
+        re[x] = re[0]+x*n01;
+        im[x] = im[0]+x*n01;
+    }
+
+    // ------------------------------- READ PULSE DATA ----------------------------------
+    status1 = H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &re[0][0]);
+    status2 = H5Dread(dataset_im, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &im[0][0]);
+
+    if(status1<0 || status2<0){
+        std::cout << "ERROR: Cannot read field data from file \'" << filename << "\'\n";
+        return false;
+    }
+
+    std::complex<double> **E1;
+    E1 = new std::complex<double>* [x01];
+    for(int x=0; x<x01; x++)
+        E1[x] = new std::complex<double>[n01];
+
+    for(int x=0; x<x01; x++)
+        for(int n=0; n<n01; n++)
+            E1[x][n] = re[x][n] + I*im[x][n];
+
+    // --------------------- CLOSE RESOURCES, REMOVE OUTPUT ARRAYS ----------------------
+    H5Dclose(dataset_re);
+    H5Dclose(dataset_im);
+    H5Fclose(file);
+
+    delete[] re[0];
+    delete[] im[0];
+    delete[] re;
+    delete[] im;
+
+    // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
+    double Dr = optics[0]->r_max/x0;
+    double Dt = (t_max-t_min)/n0;
+    double Dr1 = r_max1/x01;
+    double Dt1 = (t_max1-t_min1)/n01;
+
+    #pragma omp parallel for
+    for(int x=0; x<x0; x++){
+        double r = Dr*(0.5+x);
+        for(int n=0; n<n0; n++){
+            double t = t_min + Dt*(0.5+n);
+            if(r>r_max1 || t<t_min1 || t>t_max1){
+                E[x][n] = 0;
+                break;
+            }
+            int x1 = (int)floor(r/Dr1 - 0.5);
+            int x2 = x1+1;
+            int n1 = (int)floor((t-t_min1)/Dt1 - 0.5);
+            int n2 = n1+1;
+
+            if(x1<0) x1=0;
+            if(n1<0) n1=0;
+            if(x2>=x01) x2=x01-1;
+            if(n2>=n01) n2=n01-1;
+            double a = r/Dr1 - (x1+0.5);
+            double b = (t-t_min1)/Dt1 - (n1+0.5);
+            E[x][n] = E1[x1][n1] * (1-a) * (1-b)
+                    + E1[x2][n1] * a     * (1-b)
+                    + E1[x1][n2] * (1-a) * b
+                    + E1[x2][n2] * a     * b;
+        }
+    }
+
+    // ----------------------------- REMOVE TEMPORARY ARRAY -----------------------------
+    for(int x=0; x<x01; x++)
+        delete[] E1[x];
+    delete[] E1;
+
+    // ------------------------------------ SUCCESS! ------------------------------------
+    Debug(2, "Pulse read from file done!");
+    return true;
 }

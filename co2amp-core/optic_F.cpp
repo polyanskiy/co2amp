@@ -11,14 +11,14 @@ F::F(std::string id)
 
     std::string value="";
 
-    // Rmax
-    if(!YamlGetValue(&value, yaml, "Rmax")){
+    // r_max
+    if(!YamlGetValue(&value, yaml, "r_max")){
         configuration_error = true;
         return;
     }
-    double Rmax = std::stod(value);
-    Debug(2, "Rmax = " + toExpString(Rmax) + " m");
-    Dr = Rmax/x0;
+    r_max = std::stod(value);
+    Debug(2, "r_max = " + toExpString(r_max) + " m");
+    double Dr = r_max/x0;
 
     // Kind
     if(!YamlGetValue(&value, yaml, "kind")){
@@ -44,14 +44,14 @@ F::F(std::string id)
     }
 
     if(kind == "MASK"){
-        if(!YamlGetValue(&value, yaml, "Rmin")){
+        if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
         }
-        double Rmin = std::stod(value);
-        Debug(2, "Rmin = " + toExpString(Rmin) + " m");
+        double r_min = std::stod(value);
+        Debug(2, "r_min = " + toExpString(r_min) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= Rmin)
+            if(Dr*(0.5+x) <= r_min)
                 Transmittance[x] = 0;
             else
                 Transmittance[x] = 1;
@@ -61,29 +61,29 @@ F::F(std::string id)
     }
 
     if(kind == "SIN"){
-        if(!YamlGetValue(&value, yaml, "Rmin")){
+        if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
         }
-        double Rmin = std::stod(value);
-        Debug(2, "Rmin = " + toExpString(Rmin) + " m");
+        double r_min = std::stod(value);
+        Debug(2, "r_min = " + toExpString(r_min) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= Rmin)
+            if(Dr*(0.5+x) <= r_min)
                 Transmittance[x] = 1;
             else
-                Transmittance[x] = pow(sin(M_PI*(Rmax-Dr*(0.5+x))/(2.0*(Rmax-Rmin))),2);
+                Transmittance[x] = pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
         }
         WriteTransmittanceFile();
         return;
     }
 
     if(kind == "GAUSS"){
-        if(!YamlGetValue(&value, yaml, "Rmin")){
+        if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
         }
-        double Rmin = std::stod(value);
-        Debug(2, "Rmin = " + toExpString(Rmin) + " m");
+        double r_min = std::stod(value);
+        Debug(2, "r_min = " + toExpString(r_min) + " m");
         if(!YamlGetValue(&value, yaml, "w")){
             configuration_error = true;
             return;
@@ -91,10 +91,10 @@ F::F(std::string id)
         double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
         for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= Rmin)
+            if(Dr*(0.5+x) <= r_min)
                 Transmittance[x] = 1;
             else
-                Transmittance[x] = exp(-2.0*pow((Dr*(0.5+x)-Rmin)/w,2));
+                Transmittance[x] = exp(-2.0*pow((Dr*(0.5+x)-r_min)/w,2));
         }
         WriteTransmittanceFile();
         return;
@@ -143,6 +143,8 @@ void F::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
 void F::WriteTransmittanceFile()
 {
+    double Dr = r_max/x0;
+
     FILE *file;
 
     file = fopen((id+"_transmittance.dat").c_str(), "w");

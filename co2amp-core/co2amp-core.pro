@@ -25,12 +25,13 @@ SOURCES += \
     optic_S.cpp \
     output.cpp \
     pulse.cpp
-HEADERS += \
-    co2amp.h
-#QMAKE_CFLAGS += -ffast-math -fopenmp
+HEADERS += co2amp.h
 QMAKE_CXXFLAGS += -ffast-math -fopenmp -Wno-sign-compare
 QMAKE_LFLAGS += -fopenmp
 
 
-#LIBS += -L$$PWD/../libyaml/ -lyaml
-#LIBS += -L$$PWD/../libyaml/ -llibyaml.dll
+win32 {
+INCLUDEPATH += "C:\\Program Files\\HDF_Group\\HDF5\\1.10.5\\include"
+LIBS += "C:\\Program Files\\HDF_Group\\HDF5\\1.10.5\\lib\\hdf5.lib"
+LIBS += "C:\\Program Files\\HDF_Group\\HDF5\\1.10.5\\lib\\hdf5_hl.lib"
+}

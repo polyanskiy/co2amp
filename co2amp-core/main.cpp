@@ -25,7 +25,7 @@ bool configuration_error = false;
 
 int main(int argc, char **argv)
 {
-    std::string version = "2019-08-30";
+    std::string version = "2019-09-06";
 
     std::clock_t start_time = std::clock();
 
@@ -65,8 +65,8 @@ int main(int argc, char **argv)
     Calculations(); // Main program !!!
 
     // Save pulses at the output
-    //for(int i=0; i<pulses.size(); i++)
-    //    pulses[i]->SavePulse();
+    for(int i=0; i<pulses.size(); i++)
+        pulses[i]->SavePulse();
 
     Debug(2,"Success!");
     StatusDisplay(nullptr, nullptr, -1, "All done!");

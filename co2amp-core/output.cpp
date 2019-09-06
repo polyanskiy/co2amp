@@ -12,7 +12,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double Dt = (t_max-t_min)/n0;     // pulse time step, s
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*n0/2;
-    double Dr = plane->optic->Dr;
+    double Dr = plane->optic->r_max/x0;
     FILE *file;
 
     std::complex<double> **E = pulse->E;

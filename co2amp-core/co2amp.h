@@ -1,7 +1,7 @@
 #ifndef CO2AMP_H
 #define CO2AMP_H
 
-# include <ctime>
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -9,6 +9,7 @@
 #include <cmath>
 #include <complex>
 #include <omp.h>
+#include "hdf5_hl.h"
 
 #define I std::complex<double>(0,1)
 
@@ -31,6 +32,7 @@ public:
     std::complex<double> **E; // field array
 private:
     double E0;
+    bool LoadPulse(std::string);
 };
 
 
@@ -45,7 +47,7 @@ public:
     std::string id;
     std::string yaml;         // path to configuration file
     int number;               // number of the optic in the optics list
-    double Dr;                // m
+    double r_max;             // m
 };
 
 

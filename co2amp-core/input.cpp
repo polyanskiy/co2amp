@@ -137,6 +137,8 @@ bool ReadConfigFiles(std::string path)
     for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
         pulses[pulse_n]->number = pulse_n;
         pulses[pulse_n]->Initialize();
+        if(configuration_error)
+            return false;
         if(pulse_n>0 && pulses[pulse_n]->time_inj < pulses[pulse_n-1]->time_inj){
             std::cout << "Arrange pulses in order of injection (smaller \'t_inj\' first)!\n";
             return false;

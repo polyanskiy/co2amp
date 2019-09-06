@@ -11,14 +11,13 @@ A::A(std::string id)
 
     std::string value="";
 
-    // Rmax
-    if(!YamlGetValue(&value, yaml, "Rmax")){
+    // r_max
+    if(!YamlGetValue(&value, yaml, "r_max")){
         configuration_error = true;
         return;
     }
-    double Rmax = std::stod(value);
-    Debug(2, "Rmax = " + toExpString(Rmax) + " m");
-    Dr = Rmax/x0;
+    r_max = std::stod(value);
+    Debug(2, "r_max = " + toExpString(r_max) + " m");
 
     // Length
     if(!YamlGetValue(&value, yaml, "length")){
@@ -212,9 +211,9 @@ A::A(std::string id)
     }
 
     // ------- BANDS TO CONSIDER -------
-    band_reg = true;
-    band_seq = true;
-    band_hot = true;
+    //band_reg = true;
+    //band_seq = true;
+    //band_hot = true;
 
     if(!YamlGetValue(&value, yaml, "band_reg")){
         configuration_error = true;
