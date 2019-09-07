@@ -284,6 +284,8 @@ void Pulse::SavePulse()
 
     double Dt = (t_max-t_min)/n0;
 
+    // see dynamic array example
+    // https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/h5_writedyn.c
     double **re = new double* [x0];
     double **im = new double* [x0];
 
@@ -352,8 +354,11 @@ bool Pulse::LoadPulse(std::string filename)
 
     hid_t file = H5Fopen(filename.c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
     if(file < 0){ //H5Fopen reterns a negative value in case of error
-        std::cout << "ERROR: Cannot open HDF5 file \'" << filename << "\'\n";
-        return false;
+        file = H5Fopen((search_dir+"\\"+filename).c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
+        if(file < 0){
+            std::cout << "ERROR: Cannot open HDF5 file \'" << filename << "\'\n";
+            return false;
+        }
     }
 
     // ------------------------------ READ ATTRIBUTES -----------------------------------
@@ -370,10 +375,10 @@ bool Pulse::LoadPulse(std::string filename)
         std::cout << "ERROR: Cannot read pulse attributes from file \'" << filename << "\'\n";
         return false;
     }
-    Debug(2, "r_max = " + toExpString(r_max1) + "m");
-    Debug(2, "t_min = " + toExpString(t_min1) + "s");
-    Debug(2, "t_max = " + toExpString(t_max1) + "s");
-    Debug(2, "nu0 = " + toExpString(nu0) + "Hz");
+    Debug(2, "r_max = " + toExpString(r_max1) + " m");
+    Debug(2, "t_min = " + toExpString(t_min1) + " s");
+    Debug(2, "t_max = " + toExpString(t_max1) + " s");
+    Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
 
     // --------------------------- GET READY TO READ DATA -------------------------------
     hid_t dataset_re = H5Dopen(file, "pulse/re", H5P_DEFAULT);
@@ -387,6 +392,8 @@ bool Pulse::LoadPulse(std::string filename)
           + " x " + std::to_string(n01));
 
     // --------------------------- PREPARE OUTPUT ARRRAYS -------------------------------
+    // see dynamic array example
+    // https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/h5_readdyn.c
     double **re = new double* [x01];
     double **im = new double* [x01];
 

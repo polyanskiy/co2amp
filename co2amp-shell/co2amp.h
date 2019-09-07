@@ -76,6 +76,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_project_modified;
         bool flag_calculating;
         bool flag_plot_postponed;
+        bool always_ok_to_invalidate;
         QShortcut *F6;
         int tmp_precision_t, tmp_precision_r;
 
@@ -106,6 +107,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_pushButton_new_clicked();
         void on_pushButton_open_clicked();
         void on_pushButton_saveas_clicked();
+        void on_pushButton_savePulse_clicked();
         void on_tabWidget_main_currentChanged(int tab);
         void closeEvent(QCloseEvent*);
         // tab0-config.cpp

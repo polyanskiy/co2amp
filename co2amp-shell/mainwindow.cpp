@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     flag_project_modified    = false;
     flag_calculating         = false;
     flag_plot_postponed      = false;
+    always_ok_to_invalidate  = false;
 
     /////////////////////////// Create temporary working directory //////////////////////////
     int i = 0;
@@ -191,6 +192,35 @@ void MainWindow::on_pushButton_saveas_clicked()
     SaveProject();
     fileinfo.setFile(project_file);
     MainWindow::setWindowTitle(fileinfo.fileName() + " - co2amp");
+}
+
+
+void MainWindow::on_pushButton_savePulse_clicked()
+{
+    QStringList pulse_list;
+    QString pulse;
+
+    for(int i=0; i<configFile_id.count(); i++){
+        if(configFile_type[i] == "PULSE")
+            pulse_list.append(configFile_id[i]);
+    }
+
+    if(pulse_list.count() > 1){
+        bool ok_pressed;
+        pulse = QInputDialog().getItem(this, "co2amp", "Chose pulse to save",
+                                              pulse_list, 0, false, &ok_pressed);
+        if(!ok_pressed)
+            return;
+    }
+    else
+        pulse = pulse_list[0];
+
+    QString save_path = QDir::toNativeSeparators(def_dir + "\\" + pulse + ".h5");
+    save_path = QFileDialog::getSaveFileName(this, QString(), save_path, "HDF5 (*.h5)");
+    if(save_path != QString()){
+        QFile::remove(save_path);
+        QFile::copy(pulse+".h5", save_path);
+    }
 }
 
 

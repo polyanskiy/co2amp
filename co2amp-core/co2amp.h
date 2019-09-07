@@ -236,6 +236,7 @@ extern bool flag_status_or_debug; // last message displayed: True if status Fals
 // --- MISC CONSTANTS AND FLAGS ----
 extern double c, h;               // spped of light [m/s]; Plank's [J s]
 extern bool configuration_error;  // true if error in a configuration file is detected
+extern std::string search_dir;    // additional directory for HDF5 pulse files
 
 
 // --------------------------------------- FUNCTIONS -------------------------------------------

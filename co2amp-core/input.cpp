@@ -11,6 +11,7 @@ std::string ReadCommandLine(int argc, char **argv)
     time_tick = -1;  // Time step for main (slow) time, s
     noprop = false;  // Skip propagation calculations
     debug_level = 0; // No debugging info output by default
+    search_dir = ""; // Additional directory for HDF5 pulse files
 
     //Read command line
     int count = 0;
@@ -48,13 +49,12 @@ std::string ReadCommandLine(int argc, char **argv)
             time_tick = atof(argv[i+1]);
             count = count | 32;
         }
-        if (!strcmp(argv[i], "-noprop")){ // -optional-
+        if (!strcmp(argv[i], "-noprop"))     // -optional-
             noprop = true;
-        }
-        if (!strcmp(argv[i], "-debug")){  // -optional-
+        if (!strcmp(argv[i], "-debug"))      // -optional-
             debug_level = atoi(argv[i+1]);
-        }
-
+        if (!strcmp(argv[i], "-search_dir")) // -optional-
+            search_dir = argv[i+1];
     }
     
     Debug(1, debug_str);

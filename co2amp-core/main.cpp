@@ -21,11 +21,12 @@ bool flag_status_or_debug; // last message displayed: True if status False if de
 // --- MISC CONSTANTS AND FLAGS ----
 double c, h;               // spped of light [m/s]; Plank's [J s]
 bool configuration_error = false;
+std::string search_dir;    // Additional directory for HDF5 pulse files
 
 
 int main(int argc, char **argv)
 {
-    std::string version = "2019-09-06";
+    std::string version = "2019-09-07";
 
     std::clock_t start_time = std::clock();
 

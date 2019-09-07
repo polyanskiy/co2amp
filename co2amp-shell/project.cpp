@@ -135,8 +135,31 @@ bool MainWindow::CalcResultsExist()
 
 bool MainWindow::OkToInvalidate()
 {
-    return QMessageBox::question(this, "co2amp", "This change will invalidate calculation results. "
-                             "You will have to re-run calculations.\n"
-                             "Proceed?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
-            == QMessageBox::Yes;
+    if(always_ok_to_invalidate)
+        return true;
+
+    QMessageBox messageBox(this);
+    messageBox.setWindowTitle("co2amp");
+    messageBox.setIcon(QMessageBox::Question);
+    messageBox.setText("This change will invalidate calculation results. "
+                       "You will have to re-run calculations.\n");
+    QPushButton *yes =
+            messageBox.addButton(QMessageBox::Yes);
+    QPushButton *no =
+            messageBox.addButton(QMessageBox::No);
+    QPushButton *dontAskAgain =
+            messageBox.addButton(("Yes. Don't ask again."), QMessageBox::ActionRole);
+    messageBox.setDefaultButton(no);
+
+    messageBox.exec();
+
+    if(messageBox.clickedButton() == yes)
+        return true;
+    if(messageBox.clickedButton() == no)
+        return false;
+    if(messageBox.clickedButton() == dontAskAgain) {
+        always_ok_to_invalidate = true;
+        return true;
+    }
+    return false;
 }
