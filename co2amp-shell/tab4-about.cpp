@@ -2,7 +2,7 @@
 
 void MainWindow::SetAboutText()
 {  
-    QString shell_version = "2019-09-07";
+    QString shell_version = "2019-09-09";
 
     // get co2amp-core version string
     process = new QProcess(this);

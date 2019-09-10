@@ -314,7 +314,7 @@ void Pulse::SavePulse()
             im[x][n] = imag(E1[x][n]);
         }
 
-    hid_t file = H5Fcreate((id+".h5").c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    hid_t file = H5Fcreate((id+".pulse").c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     hsize_t dims[2];
     dims[0] = x0;
     dims[1] = n0;

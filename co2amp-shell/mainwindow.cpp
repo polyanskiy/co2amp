@@ -215,11 +215,11 @@ void MainWindow::on_pushButton_savePulse_clicked()
     else
         pulse = pulse_list[0];
 
-    QString save_path = QDir::toNativeSeparators(def_dir + "\\" + pulse + ".h5");
-    save_path = QFileDialog::getSaveFileName(this, QString(), save_path, "HDF5 (*.h5)");
+    QString save_path = QDir::toNativeSeparators(def_dir + "\\" + pulse + ".pulse");
+    save_path = QFileDialog::getSaveFileName(this, QString(), save_path, "HDF5 (*.pulse)");
     if(save_path != QString()){
         QFile::remove(save_path);
-        QFile::copy(pulse+".h5", save_path);
+        QFile::copy(pulse+".pulse", save_path);
     }
 }
 

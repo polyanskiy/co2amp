@@ -5,9 +5,7 @@ int MainWindow::PassNumber(int i)
 {
     QStringList list = lineEdit_passes->text().split(",", QString::SkipEmptyParts);
     if(i < list.count()){
-        //if(list[i].toInt() >= 0)
-            return list[i].toInt();
-            //return list[i].toInt() - 1;
+        return list[i].toInt();
     }
     return -1;
 }
@@ -25,29 +23,6 @@ QString MainWindow::Type(QString id)
 
     return QString();
 }
-
-
-/*int MainWindow::AmNumber(int optic_n)
-{
-    if(configFile_type.count()==0)
-        return -1;
-
-    int count_am = 0;
-    int count_other = 0;
-    int i;
-    for(i=0; i < configFile_type.count(); i++){
-        if(configFile_type[i] == "PULSE"|| configFile_type[i] == "COMPONENT")
-            count_other++;
-        if(configFile_type[i] == "A")
-            count_am++;
-        if(i-count_other == optic_n)
-            break;
-    }
-
-    if(configFile_type[i]=="A")
-        return count_am-1;
-    return -1;
-}*/
 
 
 void MainWindow::SelectEnergies()

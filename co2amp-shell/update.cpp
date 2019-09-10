@@ -18,7 +18,7 @@ void MainWindow::Update()
                                              || project_file==QString());
     pushButton_saveas         -> setDisabled(flag_calculating);
     pushButton_savePulse      -> setEnabled(comboBox_pulse->count()>0 &&
-                                            QFile::exists(comboBox_pulse->currentText()+".h5"));
+                                            QFile::exists(comboBox_pulse->currentText()+".pulse"));
     pushButton_go             -> setDisabled(flag_calculating);
     pushButton_abort          -> setEnabled (flag_calculating);
     checkBox_saveWhenFinished -> setEnabled (flag_calculating && project_file!=QString());

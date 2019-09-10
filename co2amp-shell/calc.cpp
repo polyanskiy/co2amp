@@ -24,20 +24,6 @@ void MainWindow::Calculate()
 
     //////////////////// Starting The Process ////////////////////
     process = new QProcess(this); 
-    /*// Add def_dir to environment. This allows using a relative path
-    // as "file" variable of "from file" pulses (hdf5).
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    //QString str = env.value("PATH");
-    QMessageBox::information(this, "co2amp", env.value("PATH"));
-    env.insert("PATH", env.value("PATH") + ";" + def_dir);
-    QMessageBox::information(this, "co2amp", env.value("PATH"));
-    //str = env.value("PATHEXT");
-    QMessageBox::information(this, "co2amp", env.value("PATHEXT"));
-    //if(str[str.size()-1] != ";") str+= ";";
-    env.insert("PATHEXT", env.value("PATHEXT") + ";.H5;.h5;.*");
-    QMessageBox::information(this, "co2amp", env.value("PATHEXT"));
-    process->setProcessEnvironment(env);*/
-
     connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(WriteToTerminal()));
     connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(AfterProcessFinished()));
     process->setWorkingDirectory(work_dir);
