@@ -3,7 +3,7 @@
 # -------------------------------------------------
 QT -= core \
     gui
-TARGET = co2amp-core
+TARGET = co2amp
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app

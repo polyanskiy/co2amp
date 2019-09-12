@@ -1,14 +1,14 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 void MainWindow::SetAboutText()
 {  
-    QString shell_version = "2019-09-09";
+    QString co2i_version = "2019-09-11";
 
-    // get co2amp-core version string
+    // get co2amp version string
     process = new QProcess(this);
-    process->start("\"" + path_to_core + "\" -version");
+    process->start("\"" + path_to_co2amp + "\" -version");
     process->waitForFinished();
-    QString core_version = process->readAllStandardOutput();
+    QString co2amp_version = process->readAllStandardOutput();
     delete process;
 
     QString path_to_manual =
@@ -17,8 +17,8 @@ void MainWindow::SetAboutText()
     QString about =
             "<b>Versions:</b><br>"
             "<code>"
-            "co2amp-core:  v." + core_version + "<br>"
-            "co2amp(GUI): v." + shell_version + "<br>"
+            "co2i:   v." + co2i_version + "<br>"
+            "co2amp: v." + co2amp_version + "<br>"
             "</code>"
             "<br>"
             "<b>Documentation:</b> <a href=\"file:///" + path_to_manual + "\">Manual (PDF)</a><br>"

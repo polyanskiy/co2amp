@@ -1,4 +1,4 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 
 void MainWindow::FlagModifiedAndPostponePlot()

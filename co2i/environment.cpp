@@ -1,15 +1,15 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 
 void MainWindow::FindExternalPrograms()
 {
-    path_to_core    = QStandardPaths::findExecutable("co2amp-core");
+    path_to_co2amp    = QStandardPaths::findExecutable("co2amp");
     path_to_7zip    = QStandardPaths::findExecutable("7z");
     path_to_gnuplot = QStandardPaths::findExecutable("gnuplot");
 
     #ifdef Q_OS_WIN
-        // co2amp-core
-        if(path_to_core==""){
+        // co2amp
+        if(path_to_co2amp==""){
             QStringList searchpaths =
             {
                 QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\co2amp.exe",
@@ -17,7 +17,7 @@ void MainWindow::FindExternalPrograms()
                 QString(QCoreApplication::applicationDirPath()),
                 QString(getenv("PROGRAMFILES"))+"/co2amp"
             };
-            path_to_core = QStandardPaths::findExecutable("co2amp-core", searchpaths);
+            path_to_co2amp = QStandardPaths::findExecutable("co2amp", searchpaths);
         }
         // 7-Zip
         if(path_to_7zip==""){
@@ -44,10 +44,10 @@ void MainWindow::FindExternalPrograms()
         }
     #endif
 
-    if(path_to_core=="")
-        QMessageBox().critical(this, "co2amp", "\'co2amp-core\' executable not found. Try re-installing co2amp.");
+    if(path_to_co2amp=="")
+        QMessageBox().critical(this, "co2i", "\'co2amp\' executable not found. Try re-installing co2amp.");
     if(path_to_7zip=="")
-        QMessageBox().critical(this, "co2amp", "7-Zip not found. Please (re)install -  it\'s free.");
+        QMessageBox().critical(this, "co2i", "7-Zip not found. Please (re)install -  it\'s free.");
     if(path_to_gnuplot=="")
-        QMessageBox().critical(this, "co2amp", "Gnuplot not found. Please (re)install -  it\'s free.");
+        QMessageBox().critical(this, "co2i", "Gnuplot not found. Please (re)install -  it\'s free.");
 }

@@ -1,12 +1,12 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 
 void MainWindow::UpdateConfigurationFiles()
 {
-    // co2amp.ini
-    QSettings settings("co2amp.ini", QSettings::IniFormat);
+    // co2i.ini
+    QSettings settings("co2i.ini", QSettings::IniFormat);
 
-    settings.setValue("co2amp/formatVersion", "2019.08"); // only change when format is changed (not every release)
+    settings.setValue("co2i/formatVersion", "2019.08"); // only change when format is changed (not every release)
 
     settings.setValue("grid/vc",             lineEdit_vc->text());
     settings.setValue("grid/precision_t",    comboBox_precision_t->currentIndex());
@@ -98,9 +98,9 @@ void MainWindow::ReadConfigurationFiles()
     }
     PopulateConfigFileList();
 
-    // co2amp.ini
-    QSettings settings("co2amp.ini", QSettings::IniFormat);
-    formatVersion = settings.value("co2amp/formatVersion", "-1").toFloat();
+    // co2i.ini
+    QSettings settings("co2i.ini", QSettings::IniFormat);
+    formatVersion = settings.value("co2i/formatVersion", "-1").toFloat();
     lineEdit_vc            -> setText        (settings.value("grid/vc",       "30e12").toString());
     comboBox_precision_t   -> setCurrentIndex(settings.value("grid/precision_t",    5).toInt());
     comboBox_precision_r   -> setCurrentIndex(settings.value("grid/precision_r",    5).toInt());
@@ -137,12 +137,12 @@ void MainWindow::ReadConfigurationFiles()
     }
 
     // /////////////////////////////// backwards compatibility start /////////////////////////////////////
-    if(!QFile::exists("co2amp.ini") && QFile::exists("project.ini")) //pre 2019-08
+    if(!QFile::exists("co2i.ini") && QFile::exists("project.ini")) //pre 2019-08
         formatVersion = 2015;
 
     if(formatVersion>0 && formatVersion<2019.079){ // not a default, but less than given version
-        QMessageBox::critical(this, "co2amp", "It looks like this file was created by an older "
-                                              "version of co2amp and is not supported.\n"
+        QMessageBox::critical(this, "co2i", "It looks like this file was created by an older "
+                                              "version of co2i/co2amp and is not supported.\n"
                                               "Try using co2amp v.2019-04-29");
         return;
     }

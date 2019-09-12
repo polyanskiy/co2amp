@@ -1,4 +1,4 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 
 void MainWindow::Calculate()
@@ -8,7 +8,7 @@ void MainWindow::Calculate()
     // Composing arguments string
     QStringList arguments;
 
-    arguments << "\"" + path_to_core + "\"";
+    arguments << "\"" + path_to_co2amp + "\"";
     arguments << "-vc"        << lineEdit_vc->text();
     arguments << "-n0"        << comboBox_precision_t->currentText();
     arguments << "-x0"        << comboBox_precision_r->currentText();
@@ -55,7 +55,7 @@ void MainWindow::BeforeProcessStarted()
         QFile file(filelist[i]);
         QFileInfo fileinfo(file);
         if(fileinfo.suffix() == "h5"){
-            QMessageBox::information(this, "co2amp", work_dir  + fileinfo.fileName());
+            QMessageBox::information(this, "co2i", work_dir  + fileinfo.fileName());
             file.copy(work_dir + fileinfo.fileName());
         }
     }*/

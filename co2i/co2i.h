@@ -66,7 +66,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         QString project_file;
         QString def_dir;
         QString yaml_dir;
-        QString path_to_core;
+        QString path_to_co2amp;
         QString path_to_gnuplot;
         QString path_to_7zip;
         QStringList configFile_id;

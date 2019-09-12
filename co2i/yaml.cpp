@@ -1,4 +1,4 @@
-#include "co2amp.h"
+#include "co2i.h"
 
 
 YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)

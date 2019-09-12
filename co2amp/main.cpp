@@ -26,7 +26,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2019-09-09";
+    std::string version = "2019-09-11";
 
     std::clock_t start_time = std::clock();
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    std::cout << "co2amp-core v." << version << "\n";
+    std::cout << "co2amp v." << version << "\n";
 
     #pragma omp parallel // counting processors (for parallel computing)
     if(omp_get_thread_num() == 0)
