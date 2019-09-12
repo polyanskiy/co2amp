@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190822_setup.exe"
+OutFile "co2amp_v.20190911_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -19,7 +19,7 @@ InstallDirRegKey HKLM "Software\co2amp" "" ;if previous installation exists (ove
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "${NSISDIR}\Contrib\Graphics\Header\win.bmp"
 !define CO2AMP_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\co2amp"
-!define CO2AMP_ROOT_KEY "Applications\co2amp.exe"
+!define CO2AMP_ROOT_KEY "Applications\co2i.exe"
 
 ;Installer pages
 !insertmacro MUI_PAGE_WELCOME
@@ -51,19 +51,19 @@ Section "Section_01" Sec01
   RMDir /r "$INSTDIR"
 
   ;Write files to installation directory
-  SetOutPath "$INSTDIR\src\co2amp-core"
-  File "co2amp-core\*.c"
-  File "co2amp-core\*.h"
-  File "co2amp-core\*.pro"
-  SetOutPath "$INSTDIR\src\co2amp-shell"
-  File "co2amp-shell\*.cpp"
-  File "co2amp-shell\*.h"
-  File "co2amp-shell\*.ui"
-  File "co2amp-shell\*.rc"
-  File "co2amp-shell\*.qrc"
-  File "co2amp-shell\*.pro"
-  SetOutPath "$INSTDIR\src\co2amp-shell\images"
-  File "co2amp-shell\images\*"
+  SetOutPath "$INSTDIR\src\co2amp"
+  File "co2amp\*.c"
+  File "co2amp\*.h"
+  File "co2amp\*.pro"
+  SetOutPath "$INSTDIR\src\co2i"
+  File "co2i\*.cpp"
+  File "co2i\*.h"
+  File "co2i\*.ui"
+  File "co2i\*.rc"
+  File "co2i\*.qrc"
+  File "co2i\*.pro"
+  SetOutPath "$INSTDIR\src\co2i\images"
+  File "co2i\images\*"
   SetOutPath "$INSTDIR\src\images"
   File "images\*"
   SetOutPath "$INSTDIR\src"
@@ -74,8 +74,8 @@ Section "Section_01" Sec01
   File "doc\tex\*.tex"
   File "doc\tex\*.bib"
   SetOutPath "$INSTDIR"
-  File "co2amp-core\release\co2amp-core.exe"
-  File "co2amp-shell\release\co2amp.exe"
+  File "co2amp\release\co2amp.exe"
+  File "co2i\release\co2i.exe"
   File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libstdc++-6.dll"
@@ -91,35 +91,31 @@ Section "Section_01" Sec01
   ;Write Start menu entries
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\co2amp"
-  CreateShortCut "$SMPROGRAMS\co2amp\co2amp.lnk" "$INSTDIR\co2amp.exe"
+  CreateShortCut "$SMPROGRAMS\co2amp\co2i.lnk" "$INSTDIR\co2i.exe"
   ;SetOutPath "$SMPROGRAMS\co2amp"
   ;SetOverwrite on
   ;File "co2amp homepage.url"
   CreateShortCut "$SMPROGRAMS\co2amp\Uninstall co2amp.lnk" "$INSTDIR\uninstall.exe" "" ""
   
   ;Create desktope shortcut
-  CreateShortCut "$DESKTOP\co2amp.lnk" "$INSTDIR\co2amp.exe"
+  CreateShortCut "$DESKTOP\co2i.lnk" "$INSTDIR\co2i.exe"
 
   ;Registry
   WriteRegStr HKLM "SOFTWARE\co2amp" "" $INSTDIR
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2" ""
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2x" ""
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1$"'
+  ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2" ""
+  ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
+  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2i.exe" "%1$"'
   
   ;Register extensions
-  WriteRegStr HKCR ".co2\OpenWithProgIds" "co2amp.co2" ""
-  WriteRegStr HKCR "co2amp.co2\shell\open" "FriendlyAppName" "co2amp";
-  WriteRegStr HKCR "co2amp.co2\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1"'
-  WriteRegStr HKCR ".co2x\OpenWithProgIds" "co2amp.co2x" ""
-  WriteRegStr HKCR "co2amp.co2x\shell\open" "FriendlyAppName" "co2amp";
-  WriteRegStr HKCR "co2amp.co2x\shell\open\command" "" '"$INSTDIR\co2amp.exe" "%1"'
+  WriteRegStr HKCR ".co2\OpenWithProgIds" "co2i.co2" ""
+  ;WriteRegStr HKCR "co2i.co2\shell\open" "FriendlyAppName" "co2i";
+  WriteRegStr HKCR "co2i.co2\shell\open\command" "" '"$INSTDIR\co2i.exe" "%1"'
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   WriteRegStr HKLM "${CO2AMP_UNINST_KEY}" "UninstallString" "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${CO2AMP_UNINST_KEY}" "DisplayName" "co2amp"
-  WriteRegStr HKLM "${CO2AMP_UNINST_KEY}" "DisplayIcon" "$INSTDIR\co2amp.exe"
+  WriteRegStr HKLM "${CO2AMP_UNINST_KEY}" "DisplayIcon" "$INSTDIR\co2i.exe"
 
 SectionEnd
 
@@ -140,8 +136,6 @@ Section "Uninstall"
   DeleteRegKey HKLM "${CO2AMP_UNINST_KEY}"
   DeleteRegKey HKCR "${CO2AMP_ROOT_KEY}"
   DeleteRegValue HKCR ".co2\OpenWithProgIds" "co2amp.co2"
-  DeleteRegValue HKCR ".co2x\OpenWithProgIds" "co2amp.co2x"
   DeleteRegKey HKCR "co2amp.co2"
-  DeleteRegKey HKCR "co2amp.co2x"
 
 SectionEnd
