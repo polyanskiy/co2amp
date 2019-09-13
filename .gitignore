@@ -1,10 +1,10 @@
 *.o
 *.pro.user*
 Makefile*
-co2amp-shell/debug
-co2amp-shell/release
-co2amp-core/debug
-co2amp-core/release
+co2amp/debug
+co2amp/release
+co2amplus/debug
+co2amplus/release
 *.Debug
 *.Release
 moc_*.cpp

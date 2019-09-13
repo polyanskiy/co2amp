@@ -1,8 +1,8 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 void MainWindow::SetAboutText()
 {  
-    QString co2i_version = "2019-09-11";
+    QString co2amplus_version = "2019-09-13";
 
     // get co2amp version string
     process = new QProcess(this);
@@ -17,8 +17,8 @@ void MainWindow::SetAboutText()
     QString about =
             "<b>Versions:</b><br>"
             "<code>"
-            "co2i:   v." + co2i_version + "<br>"
             "co2amp: v." + co2amp_version + "<br>"
+            "co2am+: v." + co2amplus_version + "<br>"
             "</code>"
             "<br>"
             "<b>Documentation:</b> <a href=\"file:///" + path_to_manual + "\">Manual (PDF)</a><br>"

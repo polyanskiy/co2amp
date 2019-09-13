@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     lineEdit_time_tick -> setValidator(new QDoubleValidator(this));
 
     //////////////////////////// Load settings not stored in .co2 files ////////////////////////
-    QSettings settings("ATF", "co2i");
+    QSettings settings("ATF", "co2am+");
     def_dir             =                 settings.value("def_dir",       "").toString();
     yaml_dir            =                 settings.value("yaml_dir",      "").toString();
     spinBox_debug_level-> setValue       (settings.value("debug_level",    0).toInt ());
@@ -125,7 +125,7 @@ MainWindow::~MainWindow()
         process->kill();
 
     // Save session
-    QSettings settings("ATF", "co2i");
+    QSettings settings("ATF", "co2am+");
     settings.setValue("def_dir",     def_dir);
     settings.setValue("yaml_dir",    yaml_dir);
     settings.setValue("debug_level", spinBox_debug_level->text());
@@ -157,9 +157,9 @@ void MainWindow::on_pushButton_open_clicked()
     if (SaveBeforeClose()){
         QString str;
         if(project_file == QString())
-            str = QFileDialog::getOpenFileName(this, QString(), def_dir, "co2i project (*.co2)");
+            str = QFileDialog::getOpenFileName(this, QString(), def_dir, "co2am+ project (*.co2)");
         else
-            str = QFileDialog::getOpenFileName(this, QString(), project_file, "co2i project (*.co2)");
+            str = QFileDialog::getOpenFileName(this, QString(), project_file, "co2am+ project (*.co2)");
         if(str != QString()){
             project_file = QDir::toNativeSeparators(str);
             LoadProject();
@@ -174,9 +174,9 @@ void MainWindow::on_pushButton_saveas_clicked()
     QFileInfo fileinfo;
 
     if(project_file == QString())
-        str = QFileDialog::getSaveFileName(this, QString(), def_dir, "co2i project (*.co2)");
+        str = QFileDialog::getSaveFileName(this, QString(), def_dir, "co2am+ project (*.co2)");
     else
-        str = QFileDialog::getSaveFileName(this, QString(), project_file, "co2i project (*.co2)");
+        str = QFileDialog::getSaveFileName(this, QString(), project_file, "co2am+ project (*.co2)");
 
     if(str == QString())
         return;
@@ -184,14 +184,14 @@ void MainWindow::on_pushButton_saveas_clicked()
     fileinfo.setFile(str);
     QDir dir = fileinfo.dir();
     if(fileinfo.suffix()!="co2"){
-        QMessageBox().warning(this, "co2i", "Wrong or missing extension (must be \'.co2\')");
+        QMessageBox().warning(this, "co2am+", "Wrong or missing extension (must be \'.co2\')");
         return;
     }
     project_file = QDir::toNativeSeparators(dir.absolutePath() + "/" + fileinfo.fileName());
     def_dir = QDir::toNativeSeparators(dir.absolutePath());
     SaveProject();
     fileinfo.setFile(project_file);
-    MainWindow::setWindowTitle(fileinfo.fileName() + " - co2i");
+    MainWindow::setWindowTitle(fileinfo.fileName() + " - co2am+");
 }
 
 
@@ -207,7 +207,7 @@ void MainWindow::on_pushButton_savePulse_clicked()
 
     if(pulse_list.count() > 1){
         bool ok_pressed;
-        pulse = QInputDialog().getItem(this, "co2i", "Chose pulse to save",
+        pulse = QInputDialog().getItem(this, "co2am+", "Chose pulse to save",
                                               pulse_list, 0, false, &ok_pressed);
         if(!ok_pressed)
             return;

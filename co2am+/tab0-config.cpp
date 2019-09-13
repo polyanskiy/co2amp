@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 
 void MainWindow::on_toolButton_configFile_add_clicked()
@@ -24,7 +24,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
     bool ok_pressed;
 
-    QString type = QInputDialog().getItem(this, "co2i", "Type",
+    QString type = QInputDialog().getItem(this, "co2am+", "Type",
                                           selection_list, 0, false, &ok_pressed);
     if(!ok_pressed)
         return;  
@@ -33,16 +33,16 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QString id="";
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2i", " ID",
+        id = QInputDialog().getText(this, "co2am+", " ID",
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
         if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
-            QMessageBox().warning(this, "co2i", "Please provide a valid ID");
+            QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
-            QMessageBox().warning(this, "co2i", "ID already exists");
+            QMessageBox().warning(this, "co2am+", "ID already exists");
             continue;
         }
         good_id_provided = true;
@@ -130,15 +130,15 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
     bool ok_pressed;
     bool good_id_provided = false;
     while(!good_id_provided){
-        id = QInputDialog().getText(this, "co2i", "ID", QLineEdit::Normal, oldid, &ok_pressed);
+        id = QInputDialog().getText(this, "co2am+", "ID", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
         if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
-            QMessageBox().warning(this, "co2i", "Please provide a valid ID");
+            QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;
         }
         if(ConfigFileNameExists(id)){
-            QMessageBox().warning(this, "co2i", "ID already exists");
+            QMessageBox().warning(this, "co2am+", "ID already exists");
             continue;
         }
         good_id_provided = true;
@@ -163,7 +163,7 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
 
 void MainWindow::on_toolButton_configFile_remove_clicked()
 {
-    if(QMessageBox::question(this, "co2i", "Sure?") == QMessageBox::Yes){
+    if(QMessageBox::question(this, "co2am+", "Sure?") == QMessageBox::Yes){
         if(CalcResultsExist()){
             if(OkToInvalidate())
                 InvalidateResults();
@@ -242,7 +242,7 @@ void MainWindow::on_pushButton_configFile_load_clicked()
         Update();
     }
     else
-        QMessageBox().warning(this, "co2i", "File open error");
+        QMessageBox().warning(this, "co2am+", "File open error");
 
 }
 
@@ -269,7 +269,7 @@ void MainWindow::on_pushButton_configFile_save_clicked()
         yaml_dir = fileinfo.dir().path();
     }
     else
-        QMessageBox().warning(this, "co2i", "File save error");
+        QMessageBox().warning(this, "co2am+", "File save error");
 }
 
 

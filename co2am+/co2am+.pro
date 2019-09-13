@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2008-12-24T10:02:38
 # -------------------------------------------------
-TARGET = co2i
+TARGET = co2am+
 TEMPLATE = app
 SOURCES += main.cpp \
     calc.cpp \
@@ -19,7 +19,7 @@ SOURCES += main.cpp \
     update.cpp \
     yaml.cpp
 HEADERS += \
-    co2i.h
+    co2am+.h
 OTHER_FILES += icon.rc
 FORMS += mainwindow.ui
 RESOURCES += images.qrc

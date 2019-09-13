@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 
 void MainWindow::NewProject()
@@ -8,7 +8,7 @@ void MainWindow::NewProject()
     project_file = QString();
     ReadConfigurationFiles(); //loads default values
     UpdateConfigurationFiles();
-    MainWindow::setWindowTitle("untitled - co2i");
+    MainWindow::setWindowTitle("untitled - co2am+");
     flag_project_modified    = false;
     flag_calculating         = false;
     flag_plot_postponed      = false;
@@ -20,7 +20,7 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
 {
     QMessageBox::StandardButton mb;
     if(flag_calculating){ // co2amp running
-         mb = QMessageBox::warning(this, "Calculation in progress - co2i",
+         mb = QMessageBox::warning(this, "Calculation in progress - co2am+",
                                    "Cannot close: Calculation in progress.\nWait for calculation to complete or abort it.",
                                    QMessageBox::Ok);
          return false;
@@ -29,7 +29,7 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     if(!flag_project_modified) // nothing changed
         return true;
 
-    mb = QMessageBox::warning(this, "Project modified - co2i", "The project has been modified.\nDo you want to save changes?",
+    mb = QMessageBox::warning(this, "Project modified - co2am+", "The project has been modified.\nDo you want to save changes?",
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     if (mb == QMessageBox::Save){
@@ -57,7 +57,7 @@ void MainWindow::SaveProject()
 {
     QFileInfo fileinfo(project_file);
     if(QFile::exists(project_file) && !QFile::remove(project_file)){// cannot remove project file (e.g. it's open in another program)
-        QMessageBox().warning(this, "co2i", "Cannot save to the existing file (file may be open in another program)");
+        QMessageBox().warning(this, "co2am+", "Cannot save to the existing file (file may be open in another program)");
         return;
     }
 
@@ -75,7 +75,7 @@ void MainWindow::SaveProject()
 
 void MainWindow::LoadProject()
 {
-    MainWindow::setWindowTitle("co2i");
+    MainWindow::setWindowTitle("co2am+");
 
     if(project_file == QString())
         return;
@@ -93,7 +93,7 @@ void MainWindow::LoadProject()
     QFileInfo fileinfo(project_file);
     def_dir = QDir::toNativeSeparators(fileinfo.dir().absolutePath());
 
-    MainWindow::setWindowTitle(fileinfo.fileName() + " - co2i");
+    MainWindow::setWindowTitle(fileinfo.fileName() + " - co2am+");
     flag_project_modified    = false;
     flag_calculating         = false;
     flag_plot_postponed      = true;
@@ -139,7 +139,7 @@ bool MainWindow::OkToInvalidate()
         return true;
 
     QMessageBox messageBox(this);
-    messageBox.setWindowTitle("co2i");
+    messageBox.setWindowTitle("co2am+");
     messageBox.setIcon(QMessageBox::Question);
     messageBox.setText("This change will invalidate calculation results. "
                        "You will have to re-run calculations.\n");

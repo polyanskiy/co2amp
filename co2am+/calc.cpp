@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 
 void MainWindow::Calculate()
@@ -55,7 +55,7 @@ void MainWindow::BeforeProcessStarted()
         QFile file(filelist[i]);
         QFileInfo fileinfo(file);
         if(fileinfo.suffix() == "h5"){
-            QMessageBox::information(this, "co2i", work_dir  + fileinfo.fileName());
+            QMessageBox::information(this, "co2am+", work_dir  + fileinfo.fileName());
             file.copy(work_dir + fileinfo.fileName());
         }
     }*/

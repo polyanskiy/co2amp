@@ -2,7 +2,7 @@
 ; Author: Mikhail Polyanskiy (polyanskiy@bnl.gov)
 ; Brookhaven National Laboratory, USA
 
-!include "MUI.nsh"
+!include "MUI2.nsh"
 
 ;General
 Name "co2amp"
@@ -52,7 +52,7 @@ Section "Section_01" Sec01
 
   ;Write files to installation directory
   SetOutPath "$INSTDIR\src\co2amp"
-  File "co2amp\*.c"
+  File "co2amp\*.cpp"
   File "co2amp\*.h"
   File "co2amp\*.pro"
   SetOutPath "$INSTDIR\src\co2i"
@@ -84,7 +84,6 @@ Section "Section_01" Sec01
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Gui.dll"
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Widgets.dll"
   File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Svg.dll"
-  File "libyaml\libyaml-0-2.dll"
   SetOutPath "$INSTDIR\platforms"
   File "C:\Qt\5.12.3\mingw73_64\plugins\platforms\qwindows.dll"
   
@@ -103,9 +102,8 @@ Section "Section_01" Sec01
   ;Registry
   WriteRegStr HKLM "SOFTWARE\co2amp" "" $INSTDIR
   ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2" ""
-  ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
+  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
   WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2i.exe" "%1$"'
-  
   ;Register extensions
   WriteRegStr HKCR ".co2\OpenWithProgIds" "co2i.co2" ""
   ;WriteRegStr HKCR "co2i.co2\shell\open" "FriendlyAppName" "co2i";

@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 
 void MainWindow::FindExternalPrograms()
@@ -45,9 +45,9 @@ void MainWindow::FindExternalPrograms()
     #endif
 
     if(path_to_co2amp=="")
-        QMessageBox().critical(this, "co2i", "\'co2amp\' executable not found. Try re-installing co2amp.");
+        QMessageBox().critical(this, "co2am+", "\'co2amp\' executable not found. Try re-installing co2amp.");
     if(path_to_7zip=="")
-        QMessageBox().critical(this, "co2i", "7-Zip not found. Please (re)install -  it\'s free.");
+        QMessageBox().critical(this, "co2am+", "7-Zip not found. Please (re)install -  it\'s free.");
     if(path_to_gnuplot=="")
-        QMessageBox().critical(this, "co2i", "Gnuplot not found. Please (re)install -  it\'s free.");
+        QMessageBox().critical(this, "co2am+", "Gnuplot not found. Please (re)install -  it\'s free.");
 }

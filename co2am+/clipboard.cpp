@@ -1,4 +1,4 @@
-#include "co2i.h"
+#include "co2am+.h"
 
 
 int MainWindow::FigureMenu()
