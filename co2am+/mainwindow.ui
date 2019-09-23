@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
+    <width>651</width>
     <height>817</height>
    </rect>
   </property>
@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -1771,7 +1771,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>347</width>
+             <width>357</width>
              <height>737</height>
             </rect>
            </property>
@@ -1911,6 +1911,9 @@ p, li { white-space: pre-wrap; }
           <layout class="QGridLayout" name="gridLayout_9">
            <item row="0" column="1">
             <widget class="QComboBox" name="comboBox_energyUnit">
+             <property name="toolTip">
+              <string>Energy unit</string>
+             </property>
              <property name="currentIndex">
               <number>2</number>
              </property>
@@ -1953,6 +1956,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="1" column="0">
             <widget class="QComboBox" name="comboBox_lengthUnit">
+             <property name="toolTip">
+              <string>Length unit</string>
+             </property>
              <property name="currentIndex">
               <number>2</number>
              </property>
@@ -1985,6 +1991,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="2" column="0">
             <widget class="QComboBox" name="comboBox_tUnit">
+             <property name="toolTip">
+              <string>Pulse time unit</string>
+             </property>
              <property name="currentIndex">
               <number>4</number>
              </property>
@@ -2027,6 +2036,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="0" column="0">
             <widget class="QComboBox" name="comboBox_timeUnit">
+             <property name="toolTip">
+              <string>Lab time unit</string>
+             </property>
              <property name="currentIndex">
               <number>2</number>
              </property>
@@ -2069,6 +2081,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="1" column="1">
             <widget class="QComboBox" name="comboBox_fluenceUnit">
+             <property name="toolTip">
+              <string>Fluence unit</string>
+             </property>
              <property name="currentIndex">
               <number>4</number>
              </property>
@@ -2121,6 +2136,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="3" column="0">
             <widget class="QComboBox" name="comboBox_frequencyUnit">
+             <property name="toolTip">
+              <string>Frequency/wavelength unit</string>
+             </property>
              <item>
               <property name="text">
                <string>THz</string>
@@ -2145,6 +2163,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="comboBox_powerUnit">
+             <property name="toolTip">
+              <string>Power unit</string>
+             </property>
              <property name="currentIndex">
               <number>2</number>
              </property>
@@ -2192,6 +2213,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="3" column="1">
             <widget class="QComboBox" name="comboBox_dischargeUnits">
+             <property name="toolTip">
+              <string>Voltage and current units</string>
+             </property>
              <property name="currentIndex">
               <number>1</number>
              </property>

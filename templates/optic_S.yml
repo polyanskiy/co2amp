@@ -1,0 +1,30 @@
+# Configuration YAML file, type S
+# - Spectral filter -
+
+# size (maximum radial coordinate), m
+r_max: 0.025
+
+# filter type (HIGHPASS/LOWPASS/BANDPASS/FREEFORM)
+kind: FREEFORM
+
+# if kind == HIGHPASS or LOWPASS: cutoff frequency, Hz
+#cutoff: 32.5e12
+
+# if kind == BANDPASS: low and high cutoff frequencies, Hz
+#cutoff_lo: 32.0e12
+#cutoff_hi: 33.0e12
+
+# if kind == FREEFORM: tabulated transmittance profile
+# format: f T (frequency, Hz - transmittance)
+form: |
+    32.0e12 1.0
+    32.1e12 0.9
+    32.2e12 0.7
+    32.3e12 0.5
+    32.4e12 0.3
+    32.5e12 0.0
+    32.6e12 0.3
+    32.7e12 0.5
+    32.8e12 0.7
+    32.9e12 0.9
+    33.0e12 1.0

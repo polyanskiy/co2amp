@@ -1,0 +1,15 @@
+# Configuration YAML file, type M
+# - Matter -
+
+# size (maximum radial coordinate), m
+r_max: 0.025
+
+# material (CdTe/Ge/NaCl/Si/ZnSe/
+material:  NaCl
+# thickness, m
+thickness: 0.1
+# tilt (deviation from normal incidence), degrees
+tilt: 0
+# number of slices (important for calculation accuracy
+# in the case of nonlinear interaction)
+slices: 10

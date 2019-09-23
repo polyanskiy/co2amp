@@ -1,0 +1,44 @@
+# Configuration YAML file, type PULSE
+#--------------------------------------
+
+# injection moment, s
+time_inj: 0.7e-6
+
+# load from a .pulse file (true/false)
+from_file: false
+
+################### IF from_file == true ###################
+
+# path to the file
+# (absolute or relative to directory with current .co2 file)
+#file: "my_pulse.pulse"
+
+################## IF from_file == false ###################
+
+# pulse energy, J
+E0: 1e-3
+
+# central frequency, Hz
+nu0: 32.5e12
+
+# beam profile (GAUSS/FLATTOP/FREEFORM)
+beam: GAUSS
+# if beam == GAUSS or FLATTOP: beam radius @ 1/e^2, m
+w0: 5e-3
+# if beam == FREEFORM: tabulated beam profile
+# format: r I (radial coordinate, m and relative intensity)
+#beam_form: |
+#    00e-3 1.0
+#    05e-3 0.8
+#    10e-3 0.1
+
+# pulse profile (GAUSS/FLATTOP/FREEFORM)
+pulse: GAUSS
+# if pulse == GAUSS or FLATTOP: pulse duration (FWHM), s
+tau0: 2e-12
+# if pulse == FREEFORM: tabulated pulse profile
+# format: t I (time, s and relative intensity)
+#pulse_form: |
+#    -10e-12 0.0
+#    +00e-12 1.0
+#    +10e-12 0.0

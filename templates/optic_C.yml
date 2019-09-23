@@ -1,0 +1,9 @@
+# Configuration YAML file, type C
+# - Chirper -
+# (e.g. stretcher or compressor)
+
+# size (maximum radial coordinate), m
+r_max: 0.025
+
+# chirp, s/Hz (positive for red chirp)
+chirp: 100e-24

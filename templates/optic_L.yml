@@ -1,0 +1,8 @@
+# Configuration YAML file, type L
+# - Lens -
+
+# size (maximum radial coordinate), m
+r_max: 0.025
+
+# focal length, m
+F: 1.0

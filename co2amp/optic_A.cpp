@@ -211,9 +211,9 @@ A::A(std::string id)
     }
 
     // ------- BANDS TO CONSIDER -------
-    //band_reg = true;
-    //band_seq = true;
-    //band_hot = true;
+    band_reg = true;
+    band_seq = true;
+    band_hot = true;
 
     if(!YamlGetValue(&value, yaml, "band_reg")){
         configuration_error = true;

@@ -1,0 +1,4 @@
+# Configuration YAML file, type P
+# - Probe -
+
+r_max: 0.025

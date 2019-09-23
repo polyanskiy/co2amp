@@ -1,0 +1,15 @@
+# Configuration YAML file, type LAYOUT
+
+# arrangement of optical components and distances between them in meters
+# distance = 0 can be omitted
+# use times > 1 for multiple propagations throug a sub-system
+- go: L1 >> 0.5 >> P1 >> 0.5 >> L1 >> P2
+  times: 3
+
+# multiple "go-times" subsystems are allowed
+# propagation through sub-system is executed in order of
+# their appearance in this configuration file
+- go: 10 >> P3
+  times: 1
+
+# last optic in the layout must be a probe (type P)
