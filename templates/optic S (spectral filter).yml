@@ -5,16 +5,16 @@
 r_max: 0.025
 
 # filter type (HIGHPASS/LOWPASS/BANDPASS/FREEFORM)
-kind: FREEFORM
+filter: FREEFORM
 
-# if kind == HIGHPASS or LOWPASS: cutoff frequency, Hz
+# if filter == HIGHPASS or LOWPASS: cutoff frequency, Hz
 #cutoff: 32.5e12
 
-# if kind == BANDPASS: low and high cutoff frequencies, Hz
+# if filter == BANDPASS: low and high cutoff frequencies, Hz
 #cutoff_lo: 32.0e12
 #cutoff_hi: 33.0e12
 
-# if kind == FREEFORM: tabulated transmittance profile
+# if filter == FREEFORM: tabulated transmittance profile
 # format: f T (frequency, Hz - transmittance)
 form: |
     32.0e12 1.0

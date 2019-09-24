@@ -21,17 +21,17 @@ S::S(std::string id)
     r_max = std::stod(value);
     Debug(2, "r_max = " + toExpString(r_max) + " m");
 
-    // Kind
-    if(!YamlGetValue(&value, yaml, "kind")){
+    // filter type
+    if(!YamlGetValue(&value, yaml, "filter")){
         configuration_error = true;
         return;
     }
-    std::string kind = value;
-    Debug(2, "kind = " + kind);
+    std::string filter = value;
+    Debug(2, "filter = " + filter);
 
     Transmittance = new double[n0];
 
-    if(kind == "HIGHPASS"){
+    if(filter == "HIGHPASS"){
         if(!YamlGetValue(&value, yaml, "cutoff")){
             configuration_error = true;
             return;
@@ -48,7 +48,7 @@ S::S(std::string id)
         return;
     }
 
-    if(kind == "LOWPASS"){
+    if(filter == "LOWPASS"){
         if(!YamlGetValue(&value, yaml, "cutoff")){
             configuration_error = true;
             return;
@@ -65,7 +65,7 @@ S::S(std::string id)
         return;
     }
 
-    if(kind == "BANDPASS"){
+    if(filter == "BANDPASS"){
         if(!YamlGetValue(&value, yaml, "cutoff_lo")){
             configuration_error = true;
             return;
@@ -89,7 +89,7 @@ S::S(std::string id)
         return;
     }
 
-    if(kind == "FREEFORM"){
+    if(filter == "FREEFORM"){
         std::vector<double> nu;
         std::vector<double> transm;
         if(!YamlGetData(&nu, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1)){
@@ -107,8 +107,8 @@ S::S(std::string id)
         return;
     }
 
-    // not a supproted "kind"
-    std::cout << "ERROR: wrong \'kind\' in config file \'" << yaml << "\'" << std::endl;
+    // not a supproted "filter"
+    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml << "\'" << std::endl;
     configuration_error = true;
 }
 

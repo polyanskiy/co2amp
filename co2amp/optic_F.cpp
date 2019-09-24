@@ -20,17 +20,17 @@ F::F(std::string id)
     Debug(2, "r_max = " + toExpString(r_max) + " m");
     double Dr = r_max/x0;
 
-    // Kind
-    if(!YamlGetValue(&value, yaml, "kind")){
+    // filter type
+    if(!YamlGetValue(&value, yaml, "filter")){
         configuration_error = true;
         return;
     }
-    std::string kind = value;
-    Debug(2, "kind = " + kind);
+    std::string filter = value;
+    Debug(2, "filter = " + filter);
 
     Transmittance = new double[x0];
 
-    if(kind == "ND"){
+    if(filter == "ND"){
         if(!YamlGetValue(&value, yaml, "T")){
             configuration_error = true;
             return;
@@ -43,7 +43,7 @@ F::F(std::string id)
         return;
     }
 
-    if(kind == "MASK"){
+    if(filter == "MASK"){
         if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
@@ -60,7 +60,7 @@ F::F(std::string id)
         return;
     }
 
-    if(kind == "SIN"){
+    if(filter == "SIN"){
         if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
@@ -77,7 +77,7 @@ F::F(std::string id)
         return;
     }
 
-    if(kind == "GAUSS"){
+    if(filter == "GAUSS"){
         if(!YamlGetValue(&value, yaml, "r_min")){
             configuration_error = true;
             return;
@@ -100,7 +100,7 @@ F::F(std::string id)
         return;
     }
 
-    if(kind == "FREEFORM"){
+    if(filter == "FREEFORM"){
         std::vector<double> pos;
         std::vector<double> transm;
         if(!YamlGetData(&pos, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1)){
@@ -117,8 +117,8 @@ F::F(std::string id)
         return;
     }
 
-    // not a supproted "kind"
-    std::cout << "ERROR: wrong \'kind\' in config file \'" << yaml << "\'" << std::endl;
+    // not a supproted "filter"
+    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml << "\'" << std::endl;
     configuration_error = true;
 }
 

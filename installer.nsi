@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190915_setup.exe"
+OutFile "co2amp_v.20190924_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -51,6 +51,13 @@ Section "Section_01" Sec01
   RMDir /r "$INSTDIR"
 
   ;Write files to installation directory
+  SetOutPath "$INSTDIR\doc"
+  File "doc\tex\co2amp.pdf"
+  SetOutPath "$INSTDIR\doc\tex"
+  File "doc\tex\*.tex"
+  File "doc\tex\*.bib"
+  SetOutPath "$INSTDIR\examples"
+  File "examples\*.co2"
   SetOutPath "$INSTDIR\src\co2amp"
   File "co2amp\*.cpp"
   File "co2amp\*.h"
@@ -68,11 +75,8 @@ Section "Section_01" Sec01
   File "images\*"
   SetOutPath "$INSTDIR\src"
   File "installer.nsi"
-  SetOutPath "$INSTDIR\doc"
-  File "doc\tex\co2amp.pdf"
-  SetOutPath "$INSTDIR\doc\tex"
-  File "doc\tex\*.tex"
-  File "doc\tex\*.bib"
+  SetOutPath "$INSTDIR\templates"
+  File "templates\*.yml"
   SetOutPath "$INSTDIR"
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"
@@ -103,7 +107,7 @@ Section "Section_01" Sec01
   WriteRegStr HKLM "SOFTWARE\co2amp" "" $INSTDIR
   ;WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\SupportedTypes" ".co2" ""
   WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open" "FriendlyAppName" "co2amp"
-  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2am+.exe" "%1$"'
+  WriteRegStr HKCR "${CO2AMP_ROOT_KEY}\shell\open\command" "" '"$INSTDIR\co2am+.exe" "%1"'
   ;Register extensions
   WriteRegStr HKCR ".co2\OpenWithProgIds" "co2am+.co2" ""
   ;WriteRegStr HKCR "co2am+.co2\shell\open" "FriendlyAppName" "co2am+";
