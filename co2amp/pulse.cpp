@@ -21,7 +21,7 @@ void Pulse::Initialize()
     double Dt = (t_max-t_min)/n0;
     std::string value="";
 
-    //---------------- Paarameters that must be present in any case ---------------------
+    //---------------- Parameters that must be present in any case ---------------------
     if(!YamlGetValue(&value, yaml, "time_inj")){
         configuration_error = true;
         return;
@@ -434,7 +434,8 @@ bool Pulse::LoadPulse(std::string filename)
     delete[] im;
 
     // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
-    double Dr = optics[0]->r_max/x0;
+
+    double Dr = planes[0]->optic->r_max/x0;
     double Dt = (t_max-t_min)/n0;
     double Dr1 = r_max1/x01;
     double Dt1 = (t_max1-t_min1)/n01;
