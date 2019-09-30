@@ -3,8 +3,8 @@
 Makefile*
 co2amp/debug
 co2amp/release
-co2amplus/debug
-co2amplus/release
+co2am+/debug
+co2am+/release
 *.Debug
 *.Release
 moc_*.cpp
