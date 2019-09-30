@@ -54,6 +54,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
         else
             return;
     }
+    listWidget_configFile_list->setFocus();
 
     int current_optic = listWidget_configFile_list->currentRow();
 
@@ -76,6 +77,7 @@ void MainWindow::on_toolButton_configFile_up_clicked()
         else
             return;
     }
+    listWidget_configFile_list->setFocus();
 
     int current_optic = listWidget_configFile_list->currentRow();
     if(current_optic == 0)
@@ -102,6 +104,7 @@ void MainWindow::on_toolButton_configFile_down_clicked()
         else
             return;
     }
+    listWidget_configFile_list->setFocus();
 
     int current_optic = listWidget_configFile_list->currentRow();
     if(current_optic == listWidget_configFile_list->count()-1)
@@ -150,6 +153,7 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
         else
             return;
     }
+    listWidget_configFile_list->setFocus();
 
     configFile_id[current_optic] = id;
 
@@ -163,24 +167,28 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
 
 void MainWindow::on_toolButton_configFile_remove_clicked()
 {
-    if(QMessageBox::question(this, "co2am+", "Sure?") == QMessageBox::Yes){
-        if(CalcResultsExist()){
-            if(OkToInvalidate())
-                InvalidateResults();
-            else
-                return;
-        }
+    if(QMessageBox::question(this, "co2am+", "Sure?") != QMessageBox::Yes)
+        return;
 
-        int current_optic = listWidget_configFile_list->currentRow();
-        configFile_id.removeAt(current_optic);
-        configFile_type.removeAt(current_optic);
-        configFile_content.removeAt(current_optic);
-
-        flag_project_modified = true;
-
-        delete listWidget_configFile_list->currentItem(); // this triggers Update() via ...currentRowChanged()
+    if(CalcResultsExist()){
+        if(OkToInvalidate())
+            InvalidateResults();
+        else
+            return;
     }
+    listWidget_configFile_list->setFocus();
 
+    int current_optic = listWidget_configFile_list->currentRow();
+    configFile_id.removeAt(current_optic);
+    configFile_type.removeAt(current_optic);
+    configFile_content.removeAt(current_optic);
+
+    flag_project_modified = true;
+
+    listWidget_configFile_list->blockSignals(true);
+    delete listWidget_configFile_list->currentItem();
+    listWidget_configFile_list->blockSignals(false);
+    Update(); //don't count on currentRowChanged - it's emitted before item is deleted
 }
 
 
