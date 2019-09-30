@@ -8,9 +8,9 @@ void MainWindow::Update()
     QString str;
 
     //////////////////////////////////// GUI CONTROLS ///////////////////////////////////
-    if(!flag_calculating){
+    if(!flag_calculating)
         checkBox_saveWhenFinished->setChecked(0);
-    }
+
     pushButton_new            -> setDisabled(flag_calculating);
     pushButton_open           -> setDisabled(flag_calculating);
     pushButton_save           -> setDisabled(flag_calculating
@@ -82,6 +82,10 @@ void MainWindow::Update()
         if(type == "PULSE")
             comboBox_pulse->addItem(configFile_id[i]);
     }
+    if(comboBox_optic->count()>0 && optic_n==-1)
+        optic_n = 0;
+    if(comboBox_pulse->count()>0 && pulse_n==-1)
+        pulse_n = 0;
     comboBox_optic->setCurrentIndex(optic_n);
     comboBox_pulse->setCurrentIndex(pulse_n);
     comboBox_optic->blockSignals(false);

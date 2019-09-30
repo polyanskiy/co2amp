@@ -205,7 +205,7 @@ void MainWindow::Plot()
     file.close();
     QProcess *proc1 = new QProcess(this);
     proc1->start("\"" + path_to_gnuplot + "\" script_energy.gp");
-    proc1->waitForFinished();;
+    //proc1->waitForFinished();;
 
     // GnuPlot script: Fluence
     plot_n = 0;
