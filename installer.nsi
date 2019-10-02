@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20190930_setup.exe"
+OutFile "co2amp_v.20191002_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -75,8 +75,8 @@ Section "Section_01" Sec01
   File "images\*"
   SetOutPath "$INSTDIR\src"
   File "installer.nsi"
-  ;SetOutPath "$INSTDIR\templates"
-  ;File "templates\*.yml"
+  SetOutPath "$INSTDIR\templates"
+  File "templates\*.yml"
   SetOutPath "$INSTDIR"
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"

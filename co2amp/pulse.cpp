@@ -434,7 +434,6 @@ bool Pulse::LoadPulse(std::string filename)
     delete[] im;
 
     // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
-
     double Dr = planes[0]->optic->r_max/x0;
     double Dt = (t_max-t_min)/n0;
     double Dr1 = r_max1/x01;
