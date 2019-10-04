@@ -83,8 +83,10 @@ private:
     std::vector<double> discharge_time;
     std::vector<double> discharge_voltage;
     std::vector<double> discharge_current;
+    std::vector<double> pumping_pulse_time;
+    std::vector<double> pumping_pulse_intensity;
     double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
-    double pump_wl, pump_sigma, pump_fluence; // optical pumping parameters
+    double pump_wl, pump_sigma;//, pump_fluence; // optical pumping parameters
     double q2, q3, q4, qT;
     double q2_a, q3_a, q4_a, qT_a, time_a;
     double q2_b, q3_b, q4_b, qT_b, time_b;
@@ -123,6 +125,7 @@ private:
     /////////////////////////// optic_A_dynamics.cpp //////////////////////////
     double Current(double);
     double Voltage(double);
+    double PumpingPulseIntensity(double);
     double e2e(double);
     void InitializePopulations(void);
     double VibrationalTemperatures(int x, int mode);

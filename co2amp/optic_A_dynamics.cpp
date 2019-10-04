@@ -49,10 +49,18 @@ void A::InternalDynamics(double time)
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
     }
     else{ // Optical pumping
-        W = 0;
+        double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
         pump4 = 0;
         pump3 = 0;
         pump2 = 0;
+        W = 0;
+        if(pump_wl>3.8e-6 && pump_wl<4.8e-6){ // direct excitation of (001) level
+            pump3 = photon_flux * pump_sigma;
+        }
+        if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
+            pump3 = photon_flux * pump_sigma;
+            pump2 = 2 * pump3;
+        }
     }
 
     // time of travel from input plane to first interaction with this AM section
@@ -127,6 +135,12 @@ double A::Voltage(double time)
 }
 
 
+double A::PumpingPulseIntensity(double time)
+{
+    return Interpolate(&pumping_pulse_time, &pumping_pulse_intensity, time);
+}
+
+
 /*double Cv(double T) //T -temperature in K
 {
   // Heat capacity calculations (using data from NIST Chemistry WebBook http://webbook.nist.gov/chemistry/)
@@ -154,7 +168,7 @@ void A::InitializePopulations()
         e4[x] = 1.0/(exp(3350.0/T0)-1.0);
         e2[x] = 2.0/(exp(960.0/T0)-1.0);
         e3[x] = 1.0/(exp(3380.0/T0)-1.0);
-        if(pumping == "optical"){
+        /*if(pumping == "optical"){
             double Temp2, e1, fluence;
             fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
             // number of quanta added to upper state:
@@ -171,7 +185,7 @@ void A::InitializePopulations()
                 }
                 e2[x] += delta_e2;
             }
-        }
+        }*/
     }
 }
 

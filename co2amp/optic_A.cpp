@@ -88,11 +88,24 @@ A::A(std::string id)
         pump_sigma = std::stod(value); // m^2
         Debug(2, "pump_sigma (abs. cross-section) = " + toExpString(pump_wl) + " m^2");
 
-        if(!YamlGetValue(&value, yaml, "pump_fluence")){
+        /*if(!YamlGetValue(&value, yaml, "pump_fluence")){
             configuration_error = true;
             return;
         }
-        pump_fluence = std::stod(value); // J/m^2
+        pump_fluence = std::stod(value); // J/m^2*/
+
+        // Pumping pulse profile: time(s) Intensity(W/m^2)
+        if(!YamlGetData(&pumping_pulse_time, yaml, "pumping_pulse", 0)
+                || !YamlGetData(&pumping_pulse_intensity, yaml, "pumping_pulse", 1)){
+            configuration_error = true;
+            return;
+        }
+        Debug(2, "Pumping pulse profile [Time(s) Intensity(W/m^2))] (only displayed if debug level >= 3)");
+        if(debug_level >= 3)
+            for(int i=0; i<pumping_pulse_time.size(); i++)
+                std::cout << toExpString(pumping_pulse_time[i]) <<  " "
+                << toExpString(pumping_pulse_intensity[i])
+                << std::endl;
     }
 
     // ------- GAS MIXTURE -------
