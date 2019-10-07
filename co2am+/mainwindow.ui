@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -1321,23 +1321,41 @@ p, li { white-space: pre-wrap; }
        <attribute name="title">
         <string>&amp;Output</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0,0,0,0,0" rowminimumheight="0,0,0,0,0,0,0,0,0">
+       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0,0,0">
         <property name="rightMargin">
          <number>9</number>
         </property>
-        <item row="2" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBox_passes">
+        <item row="0" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_pulse">
           <property name="title">
-           <string>Passes</string>
+           <string>Pulse, optic, passes</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_2">
+          <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="0">
+            <widget class="QComboBox" name="comboBox_pulse">
+             <item>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="comboBox_optic">
+             <item>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QLineEdit" name="lineEdit_passes"/>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="6" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QGroupBox" name="groupBox_view">
           <property name="title">
            <string>Graph view</string>
@@ -1563,17 +1581,545 @@ p, li { white-space: pre-wrap; }
           </layout>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBox_optic">
-          <property name="title">
-           <string>Optic</string>
+        <item row="6" column="0">
+         <widget class="QPushButton" name="pushButton_update">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
           </property>
-          <layout class="QGridLayout" name="gridLayout_14">
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Update</string>
+          </property>
+          <property name="shortcut">
+           <string>F5</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_energyPlot">
+          <property name="title">
+           <string>Energy plot</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_21">
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="checkBox_log">
+             <property name="text">
+              <string>LOG scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="comboBox_energyPlot"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2" rowspan="7">
+         <widget class="QScrollArea" name="scrollArea_figures">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>357</width>
+             <height>737</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_15">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_plot">
+              <item row="1" column="0">
+               <widget class="QSvgWidget" name="svg_fig2" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QSvgWidget" name="svg_fig7" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSvgWidget" name="svg_fig5" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QSvgWidget" name="svg_fig1" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="locale">
+                 <locale language="English" country="UnitedStates"/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QSvgWidget" name="svg_fig9" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSvgWidget" name="svg_fig4" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QSvgWidget" name="svg_fig8" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSvgWidget" name="svg_fig6" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QSvgWidget" name="svg_fig3" native="true">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupBox_units">
+          <property name="title">
+           <string>Units</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_9">
            <item row="0" column="0">
-            <widget class="QComboBox" name="comboBox_optic">
+            <widget class="QComboBox" name="comboBox_timeUnit">
+             <property name="toolTip">
+              <string>Lab time unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
              <item>
               <property name="text">
-               <string>1</string>
+               <string>s</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ms</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>μs</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ns</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ps</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>fs</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>as</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="comboBox_tUnit">
+             <property name="toolTip">
+              <string>Pulse time unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>4</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>s</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ms</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>μs</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ns</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ps</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>fs</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>as</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBox_lengthUnit">
+             <property name="toolTip">
+              <string>Length unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>km</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>m</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mm</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>μm</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>nm</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBox_frequencyUnit">
+             <property name="toolTip">
+              <string>Frequency/wavelength unit</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>THz</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1/cm</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>μm</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>nm</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QComboBox" name="comboBox_powerUnit">
+             <property name="toolTip">
+              <string>Power unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>EW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>PW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>TW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>GW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>MW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kW</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>W</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mW</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="comboBox_fluenceUnit">
+             <property name="toolTip">
+              <string>Fluence unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>4</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>kJ/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kJ/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kJ/mm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>J/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>J/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>J/mm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mJ/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mJ/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mJ/mm²</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QComboBox" name="comboBox_energyUnit">
+             <property name="toolTip">
+              <string>Energy unit</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>MJ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kJ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>J</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mJ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>μJ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>nJ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>pJ</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QComboBox" name="comboBox_dischargeUnits">
+             <property name="toolTip">
+              <string>Voltage and current units</string>
+             </property>
+             <property name="currentIndex">
+              <number>1</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>MV, MA</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kV, kA</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>V, A</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="comboBox_intensityUnit">
+             <property name="toolTip">
+              <string>Intensity unit</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>kW/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kW/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>kW/mm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>W/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>W/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>W/mm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mW/m²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mW/cm²</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>mW/mm²</string>
               </property>
              </item>
             </widget>
@@ -1581,7 +2127,7 @@ p, li { white-space: pre-wrap; }
           </layout>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="2" column="0" colspan="2">
          <widget class="QGroupBox" name="groupBox_scale">
           <property name="title">
            <string>Scale</string>
@@ -1758,518 +2304,6 @@ p, li { white-space: pre-wrap; }
           </layout>
          </widget>
         </item>
-        <item row="0" column="2" rowspan="9">
-         <widget class="QScrollArea" name="scrollArea_figures">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>357</width>
-             <height>737</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_15">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_plot">
-              <item row="1" column="0">
-               <widget class="QSvgWidget" name="svg_fig2" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QSvgWidget" name="svg_fig7" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QSvgWidget" name="svg_fig5" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QSvgWidget" name="svg_fig1" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-                <property name="locale">
-                 <locale language="English" country="UnitedStates"/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QSvgWidget" name="svg_fig9" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QSvgWidget" name="svg_fig4" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QSvgWidget" name="svg_fig8" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSvgWidget" name="svg_fig6" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QSvgWidget" name="svg_fig3" native="true">
-                <property name="contextMenuPolicy">
-                 <enum>Qt::CustomContextMenu</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item row="8" column="0">
-         <widget class="QPushButton" name="pushButton_update">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>120</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Update</string>
-          </property>
-          <property name="shortcut">
-           <string>F5</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBox_energyPlot">
-          <property name="title">
-           <string>Energy plot</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_21">
-           <item row="2" column="0">
-            <widget class="QCheckBox" name="checkBox_log">
-             <property name="text">
-              <string>LOG scale</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QComboBox" name="comboBox_energyPlot"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBox_units">
-          <property name="title">
-           <string>Units</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox_energyUnit">
-             <property name="toolTip">
-              <string>Energy unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>2</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>MJ</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>kJ</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>J</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mJ</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>μJ</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>nJ</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>pJ</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QComboBox" name="comboBox_lengthUnit">
-             <property name="toolTip">
-              <string>Length unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>2</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>km</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>m</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mm</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>μm</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>nm</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QComboBox" name="comboBox_tUnit">
-             <property name="toolTip">
-              <string>Pulse time unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>4</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>s</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ms</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>μs</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ns</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ps</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>fs</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>as</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QComboBox" name="comboBox_timeUnit">
-             <property name="toolTip">
-              <string>Lab time unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>2</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>s</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ms</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>μs</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ns</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>ps</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>fs</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>as</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="comboBox_fluenceUnit">
-             <property name="toolTip">
-              <string>Fluence unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>4</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>kJ/m²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>kJ/cm²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>kJ/mm²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>J/m²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>J/cm²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>J/mm²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mJ/m²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mJ/cm²</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mJ/mm²</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QComboBox" name="comboBox_frequencyUnit">
-             <property name="toolTip">
-              <string>Frequency/wavelength unit</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>THz</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1/cm</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>μm</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>nm</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="comboBox_powerUnit">
-             <property name="toolTip">
-              <string>Power unit</string>
-             </property>
-             <property name="currentIndex">
-              <number>2</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>EW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>PW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>TW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>GW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>MW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>kW</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>W</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>mW</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="comboBox_dischargeUnits">
-             <property name="toolTip">
-              <string>Voltage and current units</string>
-             </property>
-             <property name="currentIndex">
-              <number>1</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>MV, MA</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>kV, kA</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>V, A</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QGroupBox" name="groupBox_pulse">
-          <property name="title">
-           <string>Pulse</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QComboBox" name="comboBox_pulse">
-             <item>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_comments">
@@ -2374,6 +2408,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>pushButton_open</tabstop>
   <tabstop>pushButton_save</tabstop>
   <tabstop>pushButton_saveas</tabstop>
+  <tabstop>pushButton_savePulse</tabstop>
   <tabstop>tabWidget_main</tabstop>
   <tabstop>toolButton_configFile_add</tabstop>
   <tabstop>toolButton_configFile_up</tabstop>
@@ -2391,6 +2426,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>lineEdit_t_min</tabstop>
   <tabstop>lineEdit_t_max</tabstop>
   <tabstop>lineEdit_time_tick</tabstop>
+  <tabstop>checkBox_noprop</tabstop>
   <tabstop>spinBox_debug_level</tabstop>
   <tabstop>pushButton_go</tabstop>
   <tabstop>textBrowser_terminal</tabstop>
@@ -2404,12 +2440,13 @@ p, li { white-space: pre-wrap; }
   <tabstop>comboBox_timeScale</tabstop>
   <tabstop>comboBox_freqScale</tabstop>
   <tabstop>comboBox_timeUnit</tabstop>
-  <tabstop>comboBox_energyUnit</tabstop>
   <tabstop>comboBox_lengthUnit</tabstop>
-  <tabstop>comboBox_fluenceUnit</tabstop>
   <tabstop>comboBox_tUnit</tabstop>
-  <tabstop>comboBox_powerUnit</tabstop>
   <tabstop>comboBox_frequencyUnit</tabstop>
+  <tabstop>comboBox_energyUnit</tabstop>
+  <tabstop>comboBox_fluenceUnit</tabstop>
+  <tabstop>comboBox_powerUnit</tabstop>
+  <tabstop>comboBox_intensityUnit</tabstop>
   <tabstop>comboBox_dischargeUnits</tabstop>
   <tabstop>comboBox_size</tabstop>
   <tabstop>spinBox_width</tabstop>
@@ -2417,7 +2454,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>doubleSpinBox_zoom</tabstop>
   <tabstop>checkBox_grid</tabstop>
   <tabstop>checkBox_labels</tabstop>
+  <tabstop>pushButton_update</tabstop>
   <tabstop>scrollArea_figures</tabstop>
+  <tabstop>plainTextEdit_comments</tabstop>
  </tabstops>
  <resources>
   <include location="images.qrc"/>

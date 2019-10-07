@@ -21,8 +21,14 @@ void A::InternalDynamics(double time)
     double y2 = p_N2/(p_CO2+p_N2+p_He);
     double y3 = p_He/(p_CO2+p_N2+p_He);
 
-    // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
-    if(pumping == "discharge"){ // Discharge pumping
+
+    W = 0;
+    pump2 = 0;
+    pump3 = 0;
+    pump4 = 0;
+
+    if(pumping == "discharge"){
+        // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
         double step = 25e-9;
         if(time-time_tick/2<=time_b && time+time_tick/2>time_b){
             q2_a = q2_b;
@@ -48,12 +54,8 @@ void A::InternalDynamics(double time)
         pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
     }
-    else{ // Optical pumping
+    if(pumping == "optical"){
         double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
-        pump4 = 0;
-        pump3 = 0;
-        pump2 = 0;
-        W = 0;
         if(pump_wl>3.8e-6 && pump_wl<4.8e-6){ // direct excitation of (001) level
             pump3 = photon_flux * pump_sigma;
         }
@@ -250,6 +252,18 @@ void A::UpdateDynamicsFiles(double time)
         else
             file = fopen((id+"_q.dat").c_str(), "a");
         fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, q2, q3, q4, qT);
+        fclose(file);
+    }
+
+    if(pumping == "optical"){
+        //////////////////////// Discharge ////////////////////////
+        if(time==0){
+            file = fopen((id+"_pumping_pulse.dat").c_str(), "w");
+            fprintf(file, "#Data format: time[s] intensity[W/m^2]\n");
+        }
+        else
+            file = fopen((id+"_pumping_pulse.dat").c_str(), "a");
+        fprintf(file, "%e\t%e\n", time, PumpingPulseIntensity(time));
         fclose(file);
     }
 

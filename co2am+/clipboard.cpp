@@ -101,14 +101,18 @@ void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 }
 
 
-void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge
+void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumping pulse
 {
     QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();
 
     if(Type(optic_id)=="A"){
-        if(m==1) //data
-            CopyDataFromFile(optic_id + "_discharge.dat");
+        if(m==1){ //data
+            if(QFile::exists(optic_id + "_discharge.dat"))
+                CopyDataFromFile(optic_id + "_discharge.dat");
+            if(QFile::exists(optic_id + "_pumping_pulse.dat"))
+                CopyDataFromFile(optic_id + "_pumping_pulse.dat");
+        }
         if(m==2) // pixmap
             CopyPixmap(svg_fig6);
         if(m==3) // SVG
@@ -157,6 +161,10 @@ void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / mo
 void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 {
     QString optic_id = comboBox_optic->currentText();
+
+    if(!QFile::exists(optic_id + "_q.dat"))
+        return;
+
     int m = FigureMenu();
 
     if(m==1) //data

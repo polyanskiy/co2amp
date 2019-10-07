@@ -128,6 +128,11 @@ void MainWindow::Plot()
         fluence_mult *= pow(10,-4);
     if(comboBox_fluenceUnit->currentIndex()%3 == 2)
         fluence_mult *= pow(10,-6);
+    double intensity_mult  = pow(10, floor(comboBox_intensityUnit->currentIndex()/3)*3 - 3);
+    if(comboBox_intensityUnit->currentIndex()%3 == 1)
+        intensity_mult *= pow(10,-4);
+    if(comboBox_intensityUnit->currentIndex()%3 == 2)
+        intensity_mult *= pow(10,-6);
     double t_mult          = pow(10, comboBox_tUnit->currentIndex()*3);
     double power_mult      = pow(10, comboBox_powerUnit->currentIndex()*3 - 18);
     double discharge_mult  = pow(10, comboBox_dischargeUnits->currentIndex()*3 - 6);
@@ -137,7 +142,8 @@ void MainWindow::Plot()
     QString length_unit    = comboBox_lengthUnit    -> currentText();
     QString fluence_unit   = comboBox_fluenceUnit   -> currentText();
     QString t_unit         = comboBox_tUnit         -> currentText();
-    QString power_unit     = comboBox_powerUnit     -> currentText();
+    QString power_unit     = comboBox_powerUnit     -> currentText();   
+    QString intensity_unit = comboBox_intensityUnit -> currentText();
     QString voltage_unit   = comboBox_dischargeUnits-> currentText().split(", ")[0];
     QString current_unit   = comboBox_dischargeUnits-> currentText().split(", ")[1];
 
@@ -168,7 +174,7 @@ void MainWindow::Plot()
         v_min = v_min/c/100;
         v_max = v_max/c/100;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 2){ // um
+    if(comboBox_frequencyUnit->currentIndex() == 2){ // µm
         frequency_xlabel = "Wavelength, µm";
         frequency_using = " using (2.99792458e14/$1)";
         double tmp = v_min;
@@ -374,43 +380,65 @@ void MainWindow::Plot()
         proc7->start("\"" + path_to_gnuplot + "\" script_gain.gp");
 
         // GnuPlot script: Discharge
-        file.setFileName("script_discharge.gp");
-        file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_discharge.svg\"\n";
-        out << "set y2range [0:*]\n";
-        out << "set ytics nomirror\n";
-        out << "set y2tics nomirror\n";
-        out << "set xlabel \"Time, " << time_unit << "\"\n";
-        out << "set ylabel \"Current, " << current_unit << "\"\n";
-        out << "set y2label \"Voltage, " << voltage_unit << "\"\n";
-        out << "plot \"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($2*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n";
-        out <<      "\"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($3*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
-        file.close();
         QProcess *proc8 = new QProcess(this);
-        proc8->start("\"" + path_to_gnuplot + "\" script_discharge.gp");
+        if(QFile::exists(optic_id + "_discharge.dat")){
+            file.setFileName("script_discharge.gp");
+            file.open(QFile::WriteOnly | QFile::Truncate);
+            out << common_file_head;
+            out << "set output \"fig_discharge.svg\"\n";
+            out << "set y2range [0:*]\n";
+            out << "set ytics nomirror\n";
+            out << "set y2tics nomirror\n";
+            out << "set xlabel \"Time, " << time_unit << "\"\n";
+            out << "set ylabel \"Current, " << current_unit << "\"\n";
+            out << "set y2label \"Voltage, " << voltage_unit << "\"\n";
+            out << "plot \"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($2*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n";
+            out <<      "\"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($3*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
+            file.close();
+            proc8->start("\"" + path_to_gnuplot + "\" script_discharge.gp");
+        }
 
         // GnuPlot script: q
-        file.setFileName("script_q.gp");
-        file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_q.svg\"\n";
-        out << "set yrange [0:1]\n";
-        out << "set xlabel \"Time, " << time_unit << "\"\n";
-        out << "set ylabel \"q\"\n";
-        out << "plot \"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: q2\",\\\n";
-        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: q3\",\\\n";
-        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n";
-        out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
-        file.close();
         QProcess *proc9 = new QProcess(this);
-        proc9->start("\"" + path_to_gnuplot + "\" script_q.gp");
+        if(QFile::exists(optic_id + "_q.dat")){
+            file.setFileName("script_q.gp");
+            file.open(QFile::WriteOnly | QFile::Truncate);
+            out << common_file_head;
+            out << "set output \"fig_q.svg\"\n";
+            out << "set yrange [0:1]\n";
+            out << "set xlabel \"Time, " << time_unit << "\"\n";
+            out << "set ylabel \"q\"\n";
+            out << "plot \"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: q2\",\\\n";
+            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: q3\",\\\n";
+            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n";
+            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
+            file.close();
+            proc9->start("\"" + path_to_gnuplot + "\" script_q.gp");
+        }
+
+        // GnuPlot script: pumping pulse
+        QProcess *proc10 = new QProcess(this);
+        if(QFile::exists(optic_id + "_pumping_pulse.dat")){
+            file.setFileName("script_pumping_pulse.gp");
+            file.open(QFile::WriteOnly | QFile::Truncate);
+            out << common_file_head;
+            out << "set output \"fig_pumping_pulse.svg\"\n";
+            //out << "set yrange [0:1]\n";
+            out << "set xlabel \"Time, " << time_unit << "\"\n";
+            out << "set ylabel \"Intensity, " << intensity_unit << "\"\n";;
+            out << "plot \"" << optic_id << "_pumping_pulse.dat\" "
+                << "using ($1*" << time_mult << "):($2*" << intensity_mult << ")"
+                << "with lines ti \"Pumping pulse\"\n";
+            file.close();
+            proc10->start("\"" + path_to_gnuplot + "\" script_pumping_pulse.gp");
+        }
 
         proc5->waitForFinished();
         proc6->waitForFinished();
         proc7->waitForFinished();
         proc8->waitForFinished();
         proc9->waitForFinished();
+        proc10->waitForFinished();
     }
 
     if(optic_type == "F"){
@@ -459,10 +487,14 @@ void MainWindow::Plot()
     svg_fig5->load(QString("fig_power.svg"));
     if(optic_type == "A"){ //active medium
         svg_fig3->load(QString("fig_gain.svg"));
-        svg_fig6->load(QString("fig_discharge.svg"));
+        if(QFile::exists("fig_discharge.svg"))
+            svg_fig6->load(QString("fig_discharge.svg"));
+        if(QFile::exists("fig_pumping_pulse.svg"))
+            svg_fig6->load(QString("fig_pumping_pulse.svg"));
         svg_fig7->load(QString("fig_temperatures.svg"));
         svg_fig8->load(QString("fig_e.svg"));
-        svg_fig9->load(QString("fig_q.svg"));
+        if(QFile::exists("fig_q.svg"))
+            svg_fig9->load(QString("fig_q.svg"));
     } 
     if(optic_type == "S") // spectral filter
         svg_fig3->load(QString("fig_transmittance.svg"));
