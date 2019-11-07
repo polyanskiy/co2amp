@@ -1,6 +1,6 @@
 # Configuration YAML file, type C
-# - Chirper -
-# (e.g. stretcher or compressor)
+# - Chirper - (e.g. stretcher or compressor)
+# template v.2019-11-07
 
 # size (maximum radial coordinate), m
 r_max: 0.025

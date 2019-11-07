@@ -1,5 +1,6 @@
 # Configuration YAML file, type F
 # - Spatial filter -
+# template v.2019-11-07
 
 # size (maximum radial coordinate), m
 r_max: 0.025

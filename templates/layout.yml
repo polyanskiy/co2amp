@@ -1,4 +1,5 @@
 # Configuration YAML file, type LAYOUT
+# template v.2019-11-07
 
 # arrangement of optical components and distances between them in meters
 # distance = 0 can be omitted

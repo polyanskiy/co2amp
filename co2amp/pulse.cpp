@@ -60,19 +60,19 @@ void Pulse::Initialize()
     //================================ Not from file ====================================
 
     //---------------------------- Basic pulse parameters -------------------------------
-    if(!YamlGetValue(&value, yaml, "E0")){
+    if(!YamlGetValue(&value, yaml, "E")){
         configuration_error = true;
         return;
     }
     E0 = std::stod(value);
-    Debug(2, "E0 = " + toExpString(E0) + " J");
+    Debug(2, "E = " + toExpString(E0) + " J");
 
-    if(!YamlGetValue(&value, yaml, "nu0")){
+    if(!YamlGetValue(&value, yaml, "nu")){
         configuration_error = true;
         return;
     }
     nu0 = std::stod(value);
-    Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
+    Debug(2, "nu = " + toExpString(nu0) + " Hz");
 
     //----------------------------- Beam spatial profile --------------------------------
     if(!YamlGetValue(&value, yaml, "beam")){
@@ -84,16 +84,28 @@ void Pulse::Initialize()
 
     double *BeamProfile = new double[x0];
     double Dr = planes[0]->optic->r_max/x0; // input plane (first optic in the layout)
-    if(beam == "GAUSS" || beam == "FLATTOP"){
-        if(!YamlGetValue(&value, yaml, "w0")){
+    if(beam == "GAUSS" || beam == "SUPERGAUSS4" || beam == "SUPERGAUSS6" || beam == "SUPERGAUSS8" || beam == "SUPERGAUSS10" || beam == "FLATTOP"){
+        if(!YamlGetValue(&value, yaml, "w")){
             configuration_error = true;
             return;
         }
         double w0 = std::stod(value);
-        Debug(2, "w0 = " + toExpString(w0) + " m");
+        Debug(2, "w = " + toExpString(w0) + " m");
         if(beam == "GAUSS")
             for(int x=0; x<x0; x++)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 2));
+        if(beam == "SUPERGAUSS4")
+            for(int x=0; x<x0; x++)
+                BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 4));
+        if(beam == "SUPERGAUSS6")
+            for(int x=0; x<x0; x++)
+                BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 6));
+        if(beam == "SUPERGAUSS8")
+            for(int x=0; x<x0; x++)
+                BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 8));
+        if(beam == "SUPERGAUSS10")
+            for(int x=0; x<x0; x++)
+                BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 10));
         if(beam == "FLATTOP")
             for(int x=0; x<x0; x++)
                 Dr*(0.5+x)<=w0 ? BeamProfile[x]=1 : BeamProfile[x]=0;
@@ -127,12 +139,12 @@ void Pulse::Initialize()
 
     double *PulseProfile = new double[n0];
     if(pulse == "GAUSS" || pulse == "FLATTOP"){
-        if(!YamlGetValue(&value, yaml, "tau0")){
+        if(!YamlGetValue(&value, yaml, "tau")){
             configuration_error = true;
             return;
         }
         double tau0 = std::stod(value);
-        Debug(2, "tau0 = " + toExpString(tau0) + " s");
+        Debug(2, "tau = " + toExpString(tau0) + " s");
         if(pulse == "GAUSS"){
             double xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
             for(int n=0; n<n0; n++)

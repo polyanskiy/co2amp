@@ -15,8 +15,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
+
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
+    double exp_T2 = exp(-Dt/T2);
 
     double gamma = 1.0/T2;   // Lorentzian HWHM (for gain spectrum calculation)
     // initialize/clear gain spectrum array
@@ -43,7 +45,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         double Nrot[6][4][3][61];              // Population densities of rotational lelvels (actual and equilibrium)
         double Dn[6][4][4][61];                // Population inversions (rotational transitions)
         std::complex<double> rho[6][4][4][61];        // polarizations
-        std::complex<double> E_tmp1, E_tmp2, rho_tmp; // temporary variables for field and polarization
+        //std::complex<double> E_tmp1, E_tmp2, rho_tmp, Rho; // temporary variables for field and polarization
+        std::complex<double> E_mp, rho_mp, Rho; // temporary variables for field and polarization (midpoint)
         double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
         double Temp3 = VibrationalTemperatures(x, 3); // equilibrium vibrational temterature of nu3 mode
         double delta;                          // change in population difference
@@ -134,8 +137,74 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
             }
 
-            // equation 2 (polarization) AND equation 1 (field)
+
+            // Eq.2, terms defining polarization relaxation and phase
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] *= exp_T2;                                   // polarization relaxation: exp(-Dt/T2)
+                            rho[i][ba][br][j] *= exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt); // polarization phase
+                        }
+                    }
+                }
+            }
+
+            // remaining of Eq.2 (field-induced polarization) + Eq.1: Midpoint method, step 1 (MIDPOINT)
+            Rho = 0;
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho_mp = rho[i][ba][br][j];
+                            rho_mp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*pulse->E[x][n]/(2.0*T2) * Dt; // polarization excitation
+                            Rho += rho_mp; // Eq.1 - right part, midpoint
+                        }
+                    }
+                }
+            }
+            E_mp = pulse->E[x][n] - Rho * length/2.0; // Eq.1 - midpoint
+
+            // remaining of Eq.2 (field-induced polarization) + Eq.1: Midpoint method, step 2
+            Rho = 0;
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/(2.0*T2) * Dt; // polarization excitation
+                            Rho += rho[i][ba][br][j]; // Eq.1 - right part
+                        }
+                    }
+                }
+            }
+            pulse->E[x][n] -= Rho*length; // Eq.1
+
+
+
+
+
+            /*
+            // Eq. 2 (polarization) AND equation 1 (field)
             E_tmp1 = pulse->E[x][n]; // field before amplification
+            Rho = 0;
             for(i=0; i<6; i++){
                 if(N[i]==0)
                     continue;
@@ -147,41 +216,45 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                             if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                 continue;
                             // equation 2: terms defining polarization relaxation and phase
-                            rho[i][ba][br][j] *= exp(-Dt/T2);                              // polarization relaxation
+                            rho[i][ba][br][j] *= exp_T2;                                   // polarization relaxation //exp_T2 = exp(-Dt/T2)
                             rho[i][ba][br][j] *= exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt); // polarization phase
                             // temporary variables
                             E_tmp2  = pulse->E[x][n];
                             rho_tmp = rho[i][ba][br][j];
                             // remaining of equation 2: 1st run (define polarization induced by input field)
-                            rho_tmp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp1/2.0 * (1-exp(-Dt/T2)) * exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2.0); // polarization excitation
+                            rho_tmp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp1/2.0 * (1-exp_T2); // polarization excitation //exp_T2 = exp(-Dt/T2)
                             // equation 1: 1st run (0th approximation - field in the middle of amplification section)
                             E_tmp2 -= rho_tmp*length/2.0; // Thanx to Xiang Li for finding a bug! (rho[i][ba][br][j] was used here instead of tho_tmp)
                             // remaining of equation 2: 2nd run (define polarization induced by the field from previous step)
-                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp2/2.0 * (1-exp(-Dt/T2)) * exp(-I*2.0*M_PI*(vc-v[i][ba][br][j])*Dt/2.0); // polarization excitation
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_tmp2/2.0 * (1-exp_T2); // polarization excitation //exp_T2 = exp(-Dt/T2)
                             // equation 1: 2nd run (field after passing through entire amplification section)
-                            pulse->E[x][n] -= rho[i][ba][br][j]*length; // field in the output
+                            Rho += rho[i][ba][br][j];
                         }
                     }
                 }
             }
+            pulse->E[x][n] -= Rho*length;
+            */
+
+
+
+
 
             // equation 3 (populations)
             for(i=0; i<6; i++){
                 if(N[i]==0.0) continue;
                 for(ba=0; ba<4; ba++){
-                    //if( (ba==0 && !(bands&1)) || (ba==1 && !(bands&2)) || (ba==2 && !(bands&2)) || (ba==3 && !(bands&4)) )
                     if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
                     for(j=0; j<61; j++){
                         // ROTATIONAL REFILL
                         for(vl=0; vl<3; vl++)
-                            Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j]) * (1-exp(-Dt/tauR));
+                            Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j])/tauR * Dt;
                         // STIMULATED TRANSITIONS
                         for(br=0; br<4; br++){
                             if(sigma[i][ba][br][j] == 0.0)
                                 continue;
-                            //delta = 2.0 * (rho[i][ba][br][j]*conj(E[pulse][x][n]) + conj(rho[i][ba][br][j]*conj(E[pulse][x][n]))) * Dt ;
-                            delta = 4.0 * real(rho[i][ba][br][j]*conj(pulse->E[x][n])) * Dt;
+                            delta = 4.0 * real(rho[i][ba][br][j]*conj(E_mp)) * Dt; // use midpoint field
                             // upper level
                             Nvib[i][ba][0] += delta;
                             if(br==0 || br==2) // P
