@@ -192,7 +192,7 @@ A::A(std::string id)
 
     Debug(2, "p_626 = " + std::to_string(p_626) + " bar");
     Debug(2, "p_628 = " + std::to_string(p_628) + " bar");
-    Debug(2, "p_626 = " + std::to_string(p_828) + " bar");
+    Debug(2, "p_828 = " + std::to_string(p_828) + " bar");
     Debug(2, "p_636 = " + std::to_string(p_636) + " bar");
     Debug(2, "p_638 = " + std::to_string(p_638) + " bar");
     Debug(2, "p_636 = " + std::to_string(p_838) + " bar");

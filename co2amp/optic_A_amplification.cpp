@@ -19,6 +19,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
     double exp_T2 = exp(-Dt/T2);
+    double exp_tauR = exp(-Dt/tauR);
 
     double gamma = 1.0/T2;   // Lorentzian HWHM (for gain spectrum calculation)
     // initialize/clear gain spectrum array
@@ -169,7 +170,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                             if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                 continue;
                             rho_mp = rho[i][ba][br][j];
-                            rho_mp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*pulse->E[x][n]/(2.0*T2) * Dt; // polarization excitation
+                            rho_mp -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*pulse->E[x][n]/2.0 * (1-exp_T2);//(2.0*T2) * Dt; // polarization excitation
                             Rho += rho_mp; // Eq.1 - right part, midpoint
                         }
                     }
@@ -189,7 +190,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                         for(j=0; j<61; j++){
                             if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
                                 continue;
-                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/(2.0*T2) * Dt; // polarization excitation
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/2.0 * (1-exp_T2);//(2.0*T2) * Dt; // polarization excitation
                             Rho += rho[i][ba][br][j]; // Eq.1 - right part
                         }
                     }
@@ -249,7 +250,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     for(j=0; j<61; j++){
                         // ROTATIONAL REFILL
                         for(vl=0; vl<3; vl++)
-                            Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j])/tauR * Dt;
+                            Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j]) * (1-exp_tauR);// tauR * Dt;
                         // STIMULATED TRANSITIONS
                         for(br=0; br<4; br++){
                             if(sigma[i][ba][br][j] == 0.0)

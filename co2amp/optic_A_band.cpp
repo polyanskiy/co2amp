@@ -300,6 +300,11 @@ void A::AmplificationBand(void)
         }
     }
 
-    Debug(2, "sigma(626, 10P20) = %fe-19 cm^2" + toExpString(sigma[0][0][0][20]*1e23));
+    Debug(2, "sigma(626, 10P20) = " + toExpString(sigma[0][0][0][20]*1e4) + " cm^2");
+    Debug(2, "sigma(628, 10P20) = " + toExpString(sigma[1][0][0][20]*1e4) + " cm^2");
+    Debug(2, "sigma(828, 10P20) = " + toExpString(sigma[2][0][0][20]*1e4) + " cm^2");
+    Debug(2, "sigma(626, 9R20) = " + toExpString(sigma[0][0][3][20]*1e4) + " cm^2");
+    Debug(2, "sigma(628, 9R20) = " + toExpString(sigma[1][0][3][20]*1e4) + " cm^2");
+    Debug(2, "sigma(828, 9R20) = " + toExpString(sigma[2][0][3][20]*1e4) + " cm^2");
 }
 
