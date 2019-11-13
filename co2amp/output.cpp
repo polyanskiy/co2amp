@@ -85,9 +85,9 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         average_spectrum[n] = 0;
 
     // FAST: single point spectrum (comment SLOW or FAST)
-    //FFT(E[pulse][50], spectrum);
-    //for(i=0; i<n0; i++)
-    //    average_spectrum[i] = pow(cabs(spectrum[i]), 2);
+    //FFT(E[0], spectrum);
+    //for(int n=0; n<n0; n++)
+    //    average_spectrum[n] = pow(cabs(spectrum[n]), 2);
 
     // SLOW: averaged across the beam (comment SLOW or FAST)
     //#pragma omp parallel for shared(average_spectrum)// multithreaded
@@ -112,8 +112,32 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n]);
     fclose(file);
 
+
+    ////////////////////////////////////// Phase //////////////////////////////////////////////
+    double *phase;
+    phase = new double[n0];
+
+    // Phase in the center of the beam!
+    for(int n=0; n<n0; n++){
+        if(abs(E[0][n])<1000) // remove noise
+            phase[n] = 0;
+        else
+            phase[n] = arg(E[0][n]);
+    }
+
+    // Write sphase file
+    file = fopen((basename+"_phase.dat").c_str(), "w");
+    fprintf(file, "#Data format: Time[s] Phase[rad]\n");
+    for(int n=0; n<n0; n++)
+        fprintf(file, "%e\t%e\n", t_min+Dt*(0.5+n), phase[n]);
+    fclose(file);
+
+
+    ////////////////////////////////////// Free memory //////////////////////////////////////////////
+
     delete[] Power;
     delete[] Fluence;
     delete[] average_spectrum;
     delete[] spectrum;
+    delete[] phase;
 }

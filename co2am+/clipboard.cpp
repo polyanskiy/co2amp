@@ -127,6 +127,15 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
         if(m==3) // SVG
             SaveSVG("fig_transmittance.svg");
     }
+
+    if(Type(optic_id)=="P"){
+        if(m==1) //data
+            CopyMultipassData("_phase.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig6);
+        if(m==3) // SVG
+            SaveSVG("fig_phase.svg");
+    }
 }
 
 
