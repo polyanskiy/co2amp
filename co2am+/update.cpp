@@ -77,8 +77,9 @@ void MainWindow::Update()
     comboBox_pulse->clear();
     for(int i=0; i<configFile_id.count(); i++){
         QString type = configFile_type[i];
-        if(type != "PULSE" && type != "LAYOUT" && type != "COMMENT")
-            comboBox_optic->addItem(configFile_id[i]);
+        QIcon icon(QCoreApplication::applicationDirPath() + QDir::separator() + "icons" + QDir::separator() + type+".svg");
+        if(type != "PULSE" && type != "LAYOUT")
+            comboBox_optic->addItem(icon, configFile_id[i]);
         if(type == "PULSE")
             comboBox_pulse->addItem(configFile_id[i]);
     }

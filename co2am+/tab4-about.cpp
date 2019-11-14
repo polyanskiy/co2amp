@@ -2,7 +2,7 @@
 
 void MainWindow::SetAboutText()
 {  
-    QString co2amplus_version = "2019-11-13";
+    QString co2amplus_version = "2019-11-14";
 
     // get co2amp version string
     process = new QProcess(this);
