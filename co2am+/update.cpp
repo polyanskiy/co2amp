@@ -77,11 +77,10 @@ void MainWindow::Update()
     comboBox_pulse->clear();
     for(int i=0; i<configFile_id.count(); i++){
         QString type = configFile_type[i];
-        QIcon icon(QCoreApplication::applicationDirPath() + QDir::separator() + "icons" + QDir::separator() + type+".svg");
         if(type != "PULSE" && type != "LAYOUT")
-            comboBox_optic->addItem(icon, configFile_id[i]);
+            comboBox_optic->addItem(QIcon(":/images/"+type+".svg"), configFile_id[i]);
         if(type == "PULSE")
-            comboBox_pulse->addItem(configFile_id[i]);
+            comboBox_pulse->addItem(QIcon(":/images/PULSE.svg"), configFile_id[i]);
     }
     if(comboBox_optic->count()>0 && optic_n==-1)
         optic_n = 0;

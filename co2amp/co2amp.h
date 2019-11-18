@@ -27,8 +27,8 @@ public:
     std::string id;
     std::string yaml;
     int number;
-    double nu0;
-    double time_inj;
+    double v0;
+    double time_in;
     std::complex<double> **E; // field array
 private:
     double E0;

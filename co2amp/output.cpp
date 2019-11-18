@@ -28,16 +28,16 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     //#pragma omp parallel for reduction(+:Energy)
     for(int x=0; x<x0; x++){
         for(int n=0; n<n0; n++){
-            Energy += 2.0 * h * pulse->nu0
+            Energy += 2.0 * h * pulse->v0
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
-            Power[n] += 2.0 * h * pulse->nu0
+            Power[n] += 2.0 * h * pulse->v0
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1);
 
-            Fluence[x] += 2.0 * h * pulse->nu0 * pow(abs(E[x][n]),2) * Dt; // J/m2
+            Fluence[x] += 2.0 * h * pulse->v0 * pow(abs(E[x][n]),2) * Dt; // J/m2
         }
     }
 

@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/">
         <file>images/co2amp048.png</file>
+        <file>images/A.svg</file>
+        <file>images/F.svg</file>
+        <file>images/L.svg</file>
+        <file>images/M.svg</file>
+        <file>images/P.svg</file>
+        <file>images/S.svg</file>
+        <file>images/C.svg</file>
+        <file>images/LAYOUT.svg</file>
+        <file>images/PULSE.svg</file>
     </qresource>
 </RCC>

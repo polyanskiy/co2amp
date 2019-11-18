@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20191113_setup.exe"
+OutFile "co2amp_v.20191117_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -53,43 +53,29 @@ Section "Section_01" Sec01
   ;Write files to installation directory
   SetOutPath "$INSTDIR\doc"
   File "doc\tex\co2amp.pdf"
-  ;SetOutPath "$INSTDIR\doc\tex"
-  ;File "doc\tex\*.tex"
-  ;File "doc\tex\*.bib"
-  ;SetOutPath "$INSTDIR\examples"
-  ;File "examples\*.co2"
-  ;SetOutPath "$INSTDIR\src\co2amp"
-  ;File "co2amp\*.cpp"
-  ;File "co2amp\*.h"
-  ;File "co2amp\*.pro"
-  ;SetOutPath "$INSTDIR\src\co2am+"
-  ;File "co2am+\*.cpp"
-  ;File "co2am+\*.h"
-  ;File "co2am+\*.ui"
-  ;File "co2am+\*.rc"
-  ;File "co2am+\*.qrc"
-  ;File "co2am+\*.pro"
-  ;SetOutPath "$INSTDIR\src\co2am+\images"
-  ;File "co2am+\images\*"
-  ;SetOutPath "$INSTDIR\src\images"
-  ;File "images\*"
-  ;SetOutPath "$INSTDIR\src"
-  ;File "installer.nsi"
   SetOutPath "$INSTDIR\templates"
   File "templates\*.yml"
   SetOutPath "$INSTDIR"
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"
+  ;QT
   File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libstdc++-6.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libwinpthread-1.dll"
-  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Core.dll"
-  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Gui.dll"
-  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Widgets.dll"
-  File "C:\Qt\5.12.3\mingw73_64\bin\Qt5Svg.dll"
+  ;MinGW
+  File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Core.dll"
+  File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Gui.dll"
+  File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Widgets.dll"
+  File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Svg.dll"
+  ;HDF5
+  File "C:\Program Files\HDF_Group\HDF5\1.10.5\bin\hdf5.dll"
+  File "C:\Program Files\HDF_Group\HDF5\1.10.5\bin\hdf5_hl.dll"
+  ;Platforms
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\5.12.3\mingw73_64\plugins\platforms\qwindows.dll"
+  File "C:\Qt\5.13.2\mingw73_64\plugins\platforms\qwindows.dll"
+  SetOutPath "$INSTDIR\imageformats"
+  File "C:\Qt\5.13.2\mingw73_64\plugins\imageformats\qsvg.dll"
   
   ;Write Start menu entries
   SetShellVarContext all

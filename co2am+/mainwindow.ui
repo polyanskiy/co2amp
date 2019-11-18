@@ -1342,12 +1342,6 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="1" column="0">
             <widget class="QComboBox" name="comboBox_optic">
-             <property name="iconSize">
-              <size>
-               <width>16</width>
-               <height>12</height>
-              </size>
-             </property>
              <item>
               <property name="text">
                <string>1</string>
@@ -1654,8 +1648,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>361</width>
-             <height>746</height>
+             <width>357</width>
+             <height>737</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">

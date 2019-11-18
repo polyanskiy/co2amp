@@ -76,8 +76,8 @@ void A::InternalDynamics(double time)
     // time of arraival of first pulse to this AM section
     double time_of_first_pulse_arrival = 1e12;
     for(Pulse* pulse : pulses)
-        if(pulse->time_inj + time_from_first_plane < time_of_first_pulse_arrival)
-            time_of_first_pulse_arrival = pulse->time_inj + time_from_first_plane;
+        if(pulse->time_in + time_from_first_plane < time_of_first_pulse_arrival)
+            time_of_first_pulse_arrival = pulse->time_in + time_from_first_plane;
 
 
     for(int x=0; x<x0; x++){

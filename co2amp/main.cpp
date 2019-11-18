@@ -26,7 +26,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2019-11-13";
+    std::string version = "2019-11-16";
 
     std::clock_t start_time = std::clock();
 
@@ -93,14 +93,14 @@ void Calculations()
 
     std::cout << "CALCULATION\n";
 
-    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_inj + time_tick); time+=time_tick){
+    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick){
 
         for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 
         for(int plane_n=0; plane_n<planes.size(); plane_n++){
             for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
-                double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_inj;
+                double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_in;
                 if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival){
                     // 1: Propagate beam to(!) this plane
                     if(plane_n != 0) // propagate to(!) this palne

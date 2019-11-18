@@ -1,5 +1,5 @@
 # Configuration YAML file, type PULSE
-# template v.2019-11-07
+# template v.2019-11-16
 
 # injection moment, s
 time_inj: 0.7e-6
@@ -19,7 +19,7 @@ from_file: false
 E: 1e-3
 
 # central frequency, Hz
-nu: 32.5e12
+freq: 32.5e12
 
 # beam profile (GAUSS/SUPERGAUSS4/SUPERGAUSS6/SUPERGAUSS8/SUPERGAUSS10/FLATTOP/FREEFORM)
 beam: GAUSS
@@ -35,7 +35,7 @@ w: 5e-3
 # pulse profile (GAUSS/FLATTOP/FREEFORM)
 pulse: GAUSS
 # if pulse == GAUSS or FLATTOP: pulse duration (FWHM), s
-tau: 2e-12
+fwhm: 2e-12
 # if pulse == FREEFORM: tabulated pulse profile
 # format: t I (time, s and relative intensity)
 #pulse_form: |

@@ -22,12 +22,12 @@ void Pulse::Initialize()
     std::string value="";
 
     //---------------- Parameters that must be present in any case ---------------------
-    if(!YamlGetValue(&value, yaml, "time_inj")){
+    if(!YamlGetValue(&value, yaml, "time_in")){
         configuration_error = true;
         return;
     }
-    time_inj = std::stod(value);
-    Debug(2, "time_inj = " + toExpString(time_inj) + " s");
+    time_in = std::stod(value);
+    Debug(2, "time_in = " + toExpString(time_in) + " s");
 
     if(!YamlGetValue(&value, yaml, "from_file")){
         configuration_error = true;
@@ -49,11 +49,11 @@ void Pulse::Initialize()
             configuration_error = true;
             return;
         }
-        // frequency shift between central frequency of the pulse (nu0)
+        // frequency shift between central frequency of the pulse (v0)
         // and central frequency of the calculation grig (vc)
         for(int x=0; x<x0; x++)
             for(int n=0; n<n0; n++)
-                E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
+                E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
         return;
     }
 
@@ -67,12 +67,12 @@ void Pulse::Initialize()
     E0 = std::stod(value);
     Debug(2, "E = " + toExpString(E0) + " J");
 
-    if(!YamlGetValue(&value, yaml, "nu")){
+    if(!YamlGetValue(&value, yaml, "freq")){
         configuration_error = true;
         return;
     }
-    nu0 = std::stod(value);
-    Debug(2, "nu = " + toExpString(nu0) + " Hz");
+    v0 = std::stod(value);
+    Debug(2, "freq = " + toExpString(v0) + " Hz");
 
     //----------------------------- Beam spatial profile --------------------------------
     if(!YamlGetValue(&value, yaml, "beam")){
@@ -139,20 +139,20 @@ void Pulse::Initialize()
 
     double *PulseProfile = new double[n0];
     if(pulse == "GAUSS" || pulse == "FLATTOP"){
-        if(!YamlGetValue(&value, yaml, "tau")){
+        if(!YamlGetValue(&value, yaml, "fwhm")){
             configuration_error = true;
             return;
         }
-        double tau0 = std::stod(value);
-        Debug(2, "tau = " + toExpString(tau0) + " s");
+        double fwhm = std::stod(value);
+        Debug(2, "tau = " + toExpString(fwhm) + " s");
         if(pulse == "GAUSS"){
-            double xx = tau0/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
+            double tau = fwhm/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
             for(int n=0; n<n0; n++)
-                PulseProfile[n] = exp(-pow((t_min+Dt*(0.5+n))/xx, 2));
+                PulseProfile[n] = exp(-pow((t_min+Dt*(0.5+n))/tau, 2));
         }
         if(pulse == "FLATTOP")
             for(int n=0; n<n0; n++)
-                std::abs(t_min+Dt*(0.5+n))<=tau0 ? PulseProfile[n]=1 : PulseProfile[n]=0;
+                std::abs(t_min+Dt*(0.5+n))<=fwhm ? PulseProfile[n]=1 : PulseProfile[n]=0;
     }
     else if(pulse == "FREEFORM"){
         std::vector<double> t;
@@ -182,17 +182,17 @@ void Pulse::Initialize()
         for(int n=0; n<n0; n++)
             E[x][n] = BeamProfile[x]*PulseProfile[n];
 
-    // frequency shift between central frequency of the pulse (nu0)
+    // frequency shift between central frequency of the pulse (v0)
     // and central frequency of the calculation grig (vc)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E[x][n] *= exp(I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
+            E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     // Normalize intensity
     double Energy = 0;
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
-            Energy += 2.0 * h * nu0
+            Energy += 2.0 * h * v0
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
@@ -251,7 +251,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     }
 
     else{ //Huygens-Fresnell diffraction
-        double lambda = c/nu0; // wavelength, m
+        double lambda = c/v0; // wavelength, m
         double k_wave = 2.0*M_PI/lambda; // wave-number
         int count=0;
 
@@ -313,11 +313,11 @@ void Pulse::SavePulse()
     E1 = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
         E1[x] = new std::complex<double>[n0];
-    // reverse frequency shift between central frequency of the pulse (nu0)
+    // reverse frequency shift between central frequency of the pulse (v0)
     // and central frequency of the calculation grig (vc)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E1[x][n] = E[x][n] * exp(-I*2.0*M_PI*(nu0-vc)*Dt*(0.5+n));
+            E1[x][n] = E[x][n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
 
     for(int x=0; x<x0; x++)
@@ -343,8 +343,8 @@ void Pulse::SavePulse()
     H5LTset_attribute_double(file, "pulse", "t_min", dbl, 1);
     dbl[0] = t_max;
     H5LTset_attribute_double(file, "pulse", "t_max", dbl, 1);
-    dbl[0] = nu0;
-    H5LTset_attribute_double(file, "pulse", "nu0", dbl, 1);
+    dbl[0] = v0;
+    H5LTset_attribute_double(file, "pulse", "freq", dbl, 1);
 
     H5Fclose(file);
 
@@ -381,8 +381,8 @@ bool Pulse::LoadPulse(std::string filename)
     double t_min1 = dbl[0];
     hid_t status3 = H5LTget_attribute_double(file, "pulse", "t_max", dbl);
     double t_max1 = dbl[0];
-    hid_t status4 = H5LTget_attribute_double(file, "pulse", "nu0", dbl);
-    nu0 = dbl[0];
+    hid_t status4 = H5LTget_attribute_double(file, "pulse", "freq", dbl);
+    v0 = dbl[0];
     if(status1<0 || status2<0 || status3<0 || status4<0){
         std::cout << "ERROR: Cannot read pulse attributes from file \'" << filename << "\'\n";
         return false;
@@ -390,7 +390,7 @@ bool Pulse::LoadPulse(std::string filename)
     Debug(2, "r_max = " + toExpString(r_max1) + " m");
     Debug(2, "t_min = " + toExpString(t_min1) + " s");
     Debug(2, "t_max = " + toExpString(t_max1) + " s");
-    Debug(2, "nu0 = " + toExpString(nu0) + " Hz");
+    Debug(2, "v0 = " + toExpString(v0) + " Hz");
 
     // --------------------------- GET READY TO READ DATA -------------------------------
     hid_t dataset_re = H5Dopen(file, "pulse/re", H5P_DEFAULT);

@@ -66,6 +66,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
     listWidget_configFile_list->insertItem(current_optic+1, id);
     listWidget_configFile_list->setCurrentRow(current_optic+1); // this triggers Update() via ...currentRowChanged()
+    listWidget_configFile_list->currentItem()->setIcon(QIcon(":/images/"+type+".svg"));
 }
 
 
@@ -83,9 +84,9 @@ void MainWindow::on_toolButton_configFile_up_clicked()
     if(current_optic == 0)
         return;
 
-    configFile_id.swap(current_optic, current_optic-1);
-    configFile_type.swap(current_optic, current_optic-1);
-    configFile_content.swap(current_optic, current_optic-1);
+    configFile_id.swapItemsAt(current_optic, current_optic-1);
+    configFile_type.swapItemsAt(current_optic, current_optic-1);
+    configFile_content.swapItemsAt(current_optic, current_optic-1);
 
     flag_project_modified = true;
 
@@ -110,9 +111,9 @@ void MainWindow::on_toolButton_configFile_down_clicked()
     if(current_optic == listWidget_configFile_list->count()-1)
         return;
 
-    configFile_id.swap(current_optic, current_optic+1);
-    configFile_type.swap(current_optic, current_optic+1);
-    configFile_content.swap(current_optic, current_optic+1);
+    configFile_id.swapItemsAt(current_optic, current_optic+1);
+    configFile_type.swapItemsAt(current_optic, current_optic+1);
+    configFile_content.swapItemsAt(current_optic, current_optic+1);
 
     flag_project_modified = true;
 
@@ -308,8 +309,11 @@ void MainWindow::PopulateConfigFileList()
     listWidget_configFile_list->blockSignals(true);
 
     listWidget_configFile_list->clear();
-    for(int i=0; i<configFile_id.size(); i++)
+    for(int i=0; i<configFile_id.size(); i++){
         listWidget_configFile_list->addItem(configFile_id[i]);
+        listWidget_configFile_list->setCurrentRow(i);
+        listWidget_configFile_list->currentItem()->setIcon(QIcon(":/images/"+configFile_type[i]+".svg"));
+    }
     listWidget_configFile_list->setCurrentRow(0);
 
     listWidget_configFile_list->blockSignals(false);

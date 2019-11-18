@@ -142,7 +142,7 @@ void MainWindow::ReadConfigurationFiles()
     if(!QFile::exists("co2am+.ini") && QFile::exists("project.ini")) //pre 2019-08
         formatVersion = 2015;
 
-    if(formatVersion>0 && formatVersion<2019.079){ // not a default, but less than given version
+    if(formatVersion>0 && formatVersion<2019){ // not a default, but less than given version
         QMessageBox::critical(this, "co2am+", "It looks like this file was created by an older "
                                               "version of co2amp/co2am+ and is not supported.\n"
                                               "Try using co2amp v.2019-04-29");

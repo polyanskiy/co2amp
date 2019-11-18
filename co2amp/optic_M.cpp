@@ -91,7 +91,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     // account for tilt (longer path and lower intensity)
     // tilt = angle of incidence  (radians) - "Theta1"
     // refr = angle of refraction (radians) - "Theta2"
-    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->nu0)));
+    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->v0)));
     double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
