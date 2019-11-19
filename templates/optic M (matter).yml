@@ -1,9 +1,9 @@
 # Configuration YAML file, type M
 # - Matter -
-# template v.2019-11-07
+# template v.2019-11-18
 
-# size (maximum radial coordinate), m
-r_max: 0.025
+# radius of the optic (limiting aperture), m
+R: 0.025
 
 # material (CdTe/Ge/NaCl/Si/ZnSe/
 material:  NaCl
