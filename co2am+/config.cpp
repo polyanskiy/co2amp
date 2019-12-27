@@ -6,7 +6,7 @@ void MainWindow::UpdateConfigurationFiles()
     // co2am+.ini
     QSettings settings("co2am+.ini", QSettings::IniFormat);
 
-    settings.setValue("co2am+/formatVersion", "2019"); // only change when format is changed (not every release)
+    settings.setValue("co2am+/formatVersion", formatVersion);
 
     settings.setValue("grid/vc",             lineEdit_vc->text());
     settings.setValue("grid/precision_t",    comboBox_precision_t->currentIndex());
@@ -101,7 +101,7 @@ void MainWindow::ReadConfigurationFiles()
 
     // co2am+.ini
     QSettings settings("co2am+.ini", QSettings::IniFormat);
-    formatVersion = settings.value("co2am+/formatVersion", "-1").toFloat();
+    formatVersion = settings.value("co2am+/formatVersion", "2019").toFloat(); // only change when format is changed (not every release)
     lineEdit_vc            -> setText        (settings.value("grid/vc",       "30e12").toString());
     comboBox_precision_t   -> setCurrentIndex(settings.value("grid/precision_t",    5).toInt());
     comboBox_precision_r   -> setCurrentIndex(settings.value("grid/precision_r",    5).toInt());
