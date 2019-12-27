@@ -11,21 +11,21 @@ A::A(std::string id)
 
     std::string value="";
 
-    // r_max
-    if(!YamlGetValue(&value, yaml, "r_max")){
+    // r_max (R)
+    if(!YamlGetValue(&value, yaml, "R")){
         configuration_error = true;
         return;
     }
     r_max = std::stod(value);
-    Debug(2, "r_max = " + toExpString(r_max) + " m");
+    Debug(2, "R = " + toExpString(r_max) + " m");
 
-    // Length
-    if(!YamlGetValue(&value, yaml, "length")){
+    // Length (L)
+    if(!YamlGetValue(&value, yaml, "L")){
         configuration_error = true;
         return;
     }
     length = std::stod(value);
-    Debug(2, "length = " + toExpString(std::stod(value)) + " m");
+    Debug(2, "L = " + toExpString(std::stod(value)) + " m");
 
 
     // ------- PUMPING -------

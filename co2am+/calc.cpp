@@ -46,36 +46,20 @@ void MainWindow::BeforeProcessStarted()
     ClearWorkDir();
     UpdateConfigurationFiles();
     Update();
-
-    /*QDir dir;
-    dir.setPath(def_dir);
-    QStringList filelist = dir.entryList();
-    int i;
-    for(i=0; i<filelist.size(); i++){
-        QFile file(filelist[i]);
-        QFileInfo fileinfo(file);
-        if(fileinfo.suffix() == "h5"){
-            QMessageBox::information(this, "co2am+", work_dir  + fileinfo.fileName());
-            file.copy(work_dir + fileinfo.fileName());
-        }
-    }*/
-
     tabWidget_main->setCurrentIndex(1); // Process tab
 }
 
 
 void MainWindow::AfterProcessFinished()
 {
-    flag_calculating = false;
-    //if(process->exitCode()==EXIT_SUCCESS){
-        flag_project_modified = true;
-        flag_plot_postponed = true;
-        //tabWidget_main->setCurrentIndex(2); // Output tab (Plot will be called)
-        if(tabWidget_main->currentIndex()==2)
-            Plot();
-        if(checkBox_saveWhenFinished->isChecked())
-            SaveProject();
-    //}
     delete process;
-    Update();
+    flag_calculating = false;
+    flag_project_modified = true;
+    flag_plot_postponed = true;
+    if(checkBox_saveWhenFinished->isChecked())
+        SaveProject(); // must save before Update()
+    if(tabWidget_main->currentIndex() == 2)
+        Plot(); // this calls Update()
+    else
+        Update();
 }

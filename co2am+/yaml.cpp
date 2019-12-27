@@ -18,9 +18,9 @@ YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(par
     rule.format = wordFormat;
     highlightingRules.append(rule);
 
-    // "true" or "false"
+    // "true", "false" or "null"
     boolFormat.setForeground(Qt::darkGreen);
-    rule.pattern = QRegularExpression("\\b(true)|(false)\\b");
+    rule.pattern = QRegularExpression("\\b(true)|(false)|(null)\\b");
     rule.format = boolFormat;
     highlightingRules.append(rule);
 

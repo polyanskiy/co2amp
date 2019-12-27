@@ -14,13 +14,13 @@ L::L(std::string id)
 
     std::string value="";
 
-    // r_max
-    if(!YamlGetValue(&value, yaml, "r_max")){
+    // r_max (R)
+    if(!YamlGetValue(&value, yaml, "R")){
         configuration_error = true;
         return;
     }
     r_max = std::stod(value);
-    Debug(2, "r_max = " + toExpString(r_max) + " m");
+    Debug(2, "R = " + toExpString(r_max) + " m");
 
     // F
     if(!YamlGetValue(&value, yaml, "F")){

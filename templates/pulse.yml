@@ -1,19 +1,15 @@
 # Configuration YAML file, type PULSE
-# template v.2019-11-16
+# template v.2019-11-18
 
 # injection moment, s
-time_inj: 0.7e-6
+t_in: 0.7e-6
 
-# load from a .pulse file (true/false)
-from_file: false
-
-################### IF from_file == true ###################
-
-# path to the file
-# (absolute or relative to directory with current .co2 file)
+######################## OPTION 1: LOAD A .PULSE FILE ########################
+# path to the file (absolute or relative to directory with current .co2 file)
 #file: "my_pulse.pulse"
 
-################## IF from_file == false ###################
+################## OPTION 2: PROVIDE INPUT PUSLE PARAMETERS ##################
+file: null
 
 # pulse energy, J
 E: 1e-3

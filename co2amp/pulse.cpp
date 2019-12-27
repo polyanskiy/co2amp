@@ -22,29 +22,20 @@ void Pulse::Initialize()
     std::string value="";
 
     //---------------- Parameters that must be present in any case ---------------------
-    if(!YamlGetValue(&value, yaml, "time_in")){
+    if(!YamlGetValue(&value, yaml, "t_in")){
         configuration_error = true;
         return;
     }
     time_in = std::stod(value);
-    Debug(2, "time_in = " + toExpString(time_in) + " s");
+    Debug(2, "t_in = " + toExpString(time_in) + " s");
 
-    if(!YamlGetValue(&value, yaml, "from_file")){
+    if(!YamlGetValue(&value, yaml, "file")){
         configuration_error = true;
         return;
     }
 
     //================================== From file ======================================
-    if(value!="true" && value!="false"){
-        configuration_error = true;
-        std::cout << "ERROR: Wrong \'from_file\' parameter (must be \"true\" or \"false\")\n";
-        return;
-    }
-    if(value=="true"){
-        if(!YamlGetValue(&value, yaml, "file")){
-            configuration_error = true;
-            return;
-        }
+    if(value!="null"){
         if(!LoadPulse(value)){
             configuration_error = true;
             return;
