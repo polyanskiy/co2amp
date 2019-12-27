@@ -6,7 +6,7 @@ void MainWindow::UpdateConfigurationFiles()
     // co2am+.ini
     QSettings settings("co2am+.ini", QSettings::IniFormat);
 
-    settings.setValue("co2am+/formatVersion", "2019.08"); // only change when format is changed (not every release)
+    settings.setValue("co2am+/formatVersion", "2019"); // only change when format is changed (not every release)
 
     settings.setValue("grid/vc",             lineEdit_vc->text());
     settings.setValue("grid/precision_t",    comboBox_precision_t->currentIndex());
@@ -139,10 +139,10 @@ void MainWindow::ReadConfigurationFiles()
     }
 
     // /////////////////////////////// backwards compatibility start /////////////////////////////////////
-    if(!QFile::exists("co2am+.ini") && QFile::exists("project.ini")) //pre 2019-08
+    if(!QFile::exists("co2am+.ini") && QFile::exists("project.ini")) //pre-2019
         formatVersion = 2015;
 
-    if(formatVersion>0 && formatVersion<2019){ // not a default, but less than given version
+    if(formatVersion<2019){ // not a default, but less than given version
         QMessageBox::critical(this, "co2am+", "It looks like this file was created by an older "
                                               "version of co2amp/co2am+ and is not supported.\n"
                                               "Try using co2amp v.2019-04-29");
