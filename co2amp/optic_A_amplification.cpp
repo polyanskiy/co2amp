@@ -21,6 +21,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
     // Pre-calculation of exponents for accelerating calculations
     double exp_T2 = exp(-Dt/T2);
+    double exp2_T2 = exp(-Dt/T2/2.0);
     double exp_tauR = exp(-Dt/tauR);
     std::complex<double> exp_phase[6][4][4][61];
     for(int i=0; i<6; i++){
@@ -150,6 +151,90 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
 
+
+            /*
+            // Eq 2
+            E_mp = pulse->E[x][n];
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] *= exp_T2; // polarization relaxation
+                                // = exp(-Dt/T2)
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j] * exp_phase[i][ba][br][j]; // phase
+                                // = exp(- I * 2.0*M_PI*(vc-v[i][ba][br][j]) * Dt)
+
+                            E_mp -= rho[i][ba][br][j] * length/2.0; //midpoint
+
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/2.0 * (1.0-exp_T2) * exp_phase[i][ba][br][j]; // polarization excitation
+                                // last exponent: phase in the middle of the time step (important for calculation stability!)
+
+                            pulse->E[x][n] -= rho[i][ba][br][j] * length;
+                        }
+                    }
+                }
+            }*/
+
+
+
+
+            // Eq 2, Run 1: define field in the midpoint
+            E_mp = pulse->E[x][n];
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] *= exp_T2; // polarization relaxation
+                                // = exp(-Dt/T2)
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j]; // phase (midpoint)
+                                // = exp(- I * 2.0*M_PI*(vc-v[i][ba][br][j]) * Dt / 2)
+
+                            E_mp -= rho[i][ba][br][j] * length/2.0; //midpoint
+                        }
+                    }
+                }
+            }
+
+            // Eq 2, Run2: define final polarization and field
+            Rho = 0;
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/2.0 * (1.0-exp_T2); // polarization excitation
+
+                            pulse->E[x][n] -= rho[i][ba][br][j] * length;
+
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j];
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+
+            /*
             // Eq.2, terms defining polarization relaxation and phase
             for(i=0; i<6; i++){
                 if(N[i]==0)
@@ -212,6 +297,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
             }
             pulse->E[x][n] -= Rho*length; // Eq.1
+            */
+
 
 
 
