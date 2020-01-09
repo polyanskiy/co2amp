@@ -20,15 +20,14 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
 
     // Pre-calculation of exponents for accelerating calculations
-    double exp_T2 = exp(-Dt/T2);
-    double exp2_T2 = exp(-Dt/T2/2.0);
+    double exp2_T2 = exp(-Dt/T2/2.0); //half-step
     double exp_tauR = exp(-Dt/tauR);
     std::complex<double> exp_phase[6][4][4][61];
     for(int i=0; i<6; i++){
        for(int ba=0; ba<4; ba++){
             for(int br=0; br<4; br++){
                 for(int j=0; j<61; j++){
-                    exp_phase[i][ba][br][j] = exp(-I*M_PI*(vc-v[i][ba][br][j])*Dt);
+                    exp_phase[i][ba][br][j] = exp(-I*M_PI*(vc-v[i][ba][br][j])*Dt); //half-step (factor 2.0 in front of "PI" removed)
                         // = exp(- I * 2.0*M_PI*(vc-v[i][ba][br][j]) * Dt/2.0);
                 }
             }
@@ -181,9 +180,50 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
             }*/
 
+            // Eq 1
+            E_mp = pulse->E[x][n];
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            E_mp -= rho[i][ba][br][j] * length/2.0; //half-way through amplifier
+                            pulse->E[x][n] -= rho[i][ba][br][j] * length; // full-way
+                        }
+                    }
+                }
+            }
+
+            // Eq 2
+            Rho = 0;
+            for(i=0; i<6; i++){
+                if(N[i]==0)
+                    continue;
+                for(ba=0; ba<4; ba++){
+                    if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
+                        continue;
+                    for(br=0; br<4; br++){
+                        for(j=0; j<61; j++){
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                                continue;
+                            rho[i][ba][br][j] *= exp2_T2; //relaxation
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j];//exp_phase[i][ba][br][j]; // phase relaxation
+                            rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_mp/(2.0*T2)*Dt; // polarization excitation
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j];
+                            rho[i][ba][br][j] *= exp2_T2;
+                        }
+                    }
+                }
+            }
 
 
 
+            /*
             // Eq 2, Run 1: define field in the midpoint
             E_mp = pulse->E[x][n];
             for(i=0; i<6; i++){
@@ -208,7 +248,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // Eq 2, Run2: define final polarization and field
-            Rho = 0;
             for(i=0; i<6; i++){
                 if(N[i]==0)
                     continue;
@@ -228,6 +267,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     }
                 }
             }
+            */
 
 
 
