@@ -65,7 +65,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         // Initial populations and polarizations
         for(i=0; i<6; i++){
             // Vibrational level population densities in thermal equilibrium - see Witteman p. 71 and Nevdakh 2007
-            double Q = 1 / ( (1.0-exp(-1920.0/Temp2))*pow(1.0-exp(-960.0/Temp2),2.0)*(1.0-exp(-3380.0/Temp3)) ); // partition function
+            double Q = 1.0 / ( (1.0-exp(-1920.0/Temp2))*pow(1.0-exp(-960.0/Temp2),2.0)*(1.0-exp(-3380.0/Temp3)) ); // partition function
             // reg
             Nvib0[i][0][0] = N[i]*exp(-3380.0/Temp3)/Q;                      // upper
             Nvib0[i][0][1] = N[i]*exp(-1920.0/Temp2)/Q;                      // lower I (10 um)
@@ -91,6 +91,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
                 for(br=0; br<4; br++){
                     for(j=0; j<61; j++){
+                        rho[i][ba][br][j] = 0;
                         Dn[i][ba][br][j] = 0;
                     }
                 }

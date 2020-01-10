@@ -5,6 +5,7 @@ void MainWindow::NewProject()
 {
     ClearPlot();
     ClearWorkDir();
+    textBrowser_terminal->clear();
     project_file = QString();
     ReadConfigurationFiles(); //loads default values
     UpdateConfigurationFiles();
@@ -66,7 +67,7 @@ void MainWindow::SaveProject()
     QProcess *proc;
     proc = new QProcess(this);
     proc->start("\"" + path_to_7zip + "\" a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml");
-    proc->waitForFinished();
+    proc->waitForFinished(-1); // no time-out
     delete proc;
     flag_project_modified = false;
     Update();
@@ -84,10 +85,11 @@ void MainWindow::LoadProject()
 
     ClearPlot();
     ClearWorkDir();
+    textBrowser_terminal->clear();
     QProcess *proc;
     proc = new QProcess(this);
     proc->start("\"" + path_to_7zip + "\" e -y \"" + project_file + "\"");
-    proc->waitForFinished();
+    proc->waitForFinished(-1); // no time out
     delete proc;
     ReadConfigurationFiles();
     QFileInfo fileinfo(project_file);
@@ -120,6 +122,7 @@ void MainWindow::InvalidateResults()
 {
     ClearPlot();
     ClearWorkDir();
+    textBrowser_terminal->clear();
 
     flag_project_modified = true;
 
