@@ -128,7 +128,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // gain spectrum
-            if(x==0 && n==n0-1){ // in the beam center(!) before amplification
+            if(x==0 && n==0){ // in the beam center(!) before amplification
                 for(i=0; i<6; i++){
                     if(N[i]==0.0)
                         continue;
