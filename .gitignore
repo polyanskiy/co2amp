@@ -1,4 +1,7 @@
 *.o
+*.stash
+*.exe
+*.autosave
 *.pro.user*
 Makefile*
 co2amp/debug
@@ -7,11 +10,11 @@ co2am+/debug
 co2am+/release
 *.Debug
 *.Release
-moc_*.cpp
-qrc_*.cpp
-ui_*.h
-*.stash
-*setup.exe
+moc_*
+qrc_*
+ui_*
+object_script*
+*appdata*
 
 # Windows image file caches
 Thumbs.db

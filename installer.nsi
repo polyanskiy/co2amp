@@ -56,18 +56,19 @@ Section "Section_01" Sec01
   SetOutPath "$INSTDIR\templates"
   File "templates\*.yml"
   SetOutPath "$INSTDIR"
+  ;co2amp
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"
   ;QT
-  File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
-  File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
-  File "C:\Qt\Tools\mingw730_64\bin\libstdc++-6.dll"
-  File "C:\Qt\Tools\mingw730_64\bin\libwinpthread-1.dll"
-  ;MinGW
   File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Core.dll"
   File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Gui.dll"
   File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Widgets.dll"
   File "C:\Qt\5.13.2\mingw73_64\bin\Qt5Svg.dll"
+  ;MinGW
+  File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libstdc++-6.dll"
+  File "C:\Qt\Tools\mingw730_64\bin\libwinpthread-1.dll"
   ;HDF5
   File "C:\Program Files\HDF_Group\HDF5\1.10.5\bin\hdf5.dll"
   File "C:\Program Files\HDF_Group\HDF5\1.10.5\bin\hdf5_hl.dll"
