@@ -255,7 +255,7 @@ double M::NonlinearIndex(std::string material)
     if(material =="Si")   //Bristow-2007
         return 1e-17;                      // m^2/W @ 2.2 um
     if(material =="air")  //Geints-2014
-        return 3e-23;                      // m^2/W
+        return 3.5e-23;                      // m^2/W
     return 0;
 }
 

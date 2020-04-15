@@ -15,10 +15,8 @@ void MainWindow::Calculate()
     arguments << "-t_min"     << lineEdit_t_min->text();
     arguments << "-t_max"     << lineEdit_t_max->text();
     arguments << "-time_tick" << lineEdit_time_tick->text();
+    arguments << "-method"    << QString::number(comboBox_method->currentIndex());
     arguments << "-search_dir"<< "\"" + def_dir + "\"";
-
-    if(checkBox_noprop->isChecked())
-        arguments << "-noprop";
 
     arguments << "-debug" << spinBox_debug_level->text();
 

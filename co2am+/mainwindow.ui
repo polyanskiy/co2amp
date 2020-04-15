@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -1019,6 +1019,16 @@ p, li { white-space: pre-wrap; }
                <string>4096</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>8192</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>16384</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="2" column="0">
@@ -1306,10 +1316,37 @@ p, li { white-space: pre-wrap; }
           </property>
           <layout class="QGridLayout" name="gridLayout_11">
            <item row="0" column="0">
-            <widget class="QCheckBox" name="checkBox_noprop">
+            <widget class="QLabel" name="label_method">
              <property name="text">
-              <string>No propagation</string>
+              <string>Propagation method</string>
              </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="comboBox_method">
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>No propagation</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Fresnel approximation</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>co2amp approximation</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Kirchoff (most accurate, slow)</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -2426,7 +2463,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>lineEdit_t_min</tabstop>
   <tabstop>lineEdit_t_max</tabstop>
   <tabstop>lineEdit_time_tick</tabstop>
-  <tabstop>checkBox_noprop</tabstop>
   <tabstop>spinBox_debug_level</tabstop>
   <tabstop>pushButton_go</tabstop>
   <tabstop>textBrowser_terminal</tabstop>

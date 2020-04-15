@@ -234,12 +234,16 @@ extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
 // ----------- DEBUGGING -----------
 extern int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
-extern bool noprop;
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // --- MISC CONSTANTS AND FLAGS ----
 extern double c, h;               // spped of light [m/s]; Plank's [J s]
 extern bool configuration_error;  // true if error in a configuration file is detected
 extern std::string search_dir;    // additional directory for HDF5 pulse files
+extern int method;                // propagation method
+                                  // -1: no beam variation due to proparation (old "-noprop" parameter)
+                                  // 0: co2amp approximation (default)
+                                  // 1: exact solution of Kirchoff integral
+                                  // 2: Fresnel approximaiton
 
 
 // --------------------------------------- FUNCTIONS -------------------------------------------

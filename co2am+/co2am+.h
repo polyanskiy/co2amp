@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_plot_postponed;
         bool always_ok_to_invalidate;
         QShortcut *F6;
-        int tmp_precision_t, tmp_precision_r;
+        int tmp_precision_t, tmp_precision_r, tmp_method;
 
     private:
         YamlHighlighter *highlighter;
@@ -131,7 +131,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_lineEdit_time_tick_textEdited(QString);
         void on_comboBox_precision_t_activated(int);
         void on_comboBox_precision_r_activated(int);
-        void on_checkBox_noprop_clicked();
+        void on_comboBox_method_activated(int);
+        //void on_checkBox_noprop_clicked();
         // tab2-plot.cpp
         void Plot();
         void ClearPlot();

@@ -128,7 +128,27 @@ void MainWindow::on_comboBox_precision_r_activated(int i)
 }
 
 
-void MainWindow::on_checkBox_noprop_clicked()
+void MainWindow::on_comboBox_method_activated(int i)
+{
+    if(i == tmp_method)
+        return;
+
+    if(CalcResultsExist()){
+        if(OkToInvalidate())
+            InvalidateResults();
+        else{
+            comboBox_method->blockSignals(true);
+            comboBox_method->setCurrentIndex(tmp_method);
+            comboBox_method->blockSignals(false);
+            return;
+        }
+    }
+
+    flag_project_modified = true;
+    Update();
+}
+
+/*void MainWindow::on_checkBox_noprop_clicked()
 {
 
     if(CalcResultsExist()){
@@ -144,4 +164,4 @@ void MainWindow::on_checkBox_noprop_clicked()
 
     flag_project_modified = true;
     Update();
-}
+}*/

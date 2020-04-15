@@ -13,8 +13,8 @@ double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
 // ---- CALCULATION PARAMETERS -----
-bool noprop;               // skip propagation calculations
-// ----------- DEBUGGING -----------
+int method;                // propagation method: co2am approximation, Kirchoff (exact) or Fresnel approximation
+// ----------- DEBUGGING ----------
 int debug_level;           // debug output control
                            // -1: less than nothing 0: nothing; 1: some; 2: a lot; 3: everything
 bool flag_status_or_debug; // last message displayed: True if status False if debug
@@ -26,7 +26,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2020-01-21";
+    std::string version = "2020-04-15";
 
     std::clock_t start_time = std::clock();
 
