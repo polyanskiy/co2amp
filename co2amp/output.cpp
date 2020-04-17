@@ -12,6 +12,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double Dt = (t_max-t_min)/n0;     // pulse time step, s
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*n0/2;
+    // v=v_min+Dv*(1.0+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
     double Dr = plane->optic->r_max/x0;
     FILE *file;
 
@@ -109,7 +110,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     file = fopen((basename+"_spectrum.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n]);
+        fprintf(file, "%e\t%e\n", v_min+Dv*(1.0+n), average_spectrum[n]);
     fclose(file);
 
 

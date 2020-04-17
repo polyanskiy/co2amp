@@ -3,6 +3,9 @@
 
 void MainWindow::Calculate()
 {
+    if(flag_calculating) // avoid starting second process when F6 pressed
+        return;
+
     BeforeProcessStarted(); //prepare everything
 
     // Composing arguments string

@@ -1329,7 +1329,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <item>
               <property name="text">
-               <string>No propagation</string>
+               <string>Kirchoff (most accurate, very slow)</string>
               </property>
              </item>
              <item>
@@ -1339,12 +1339,12 @@ p, li { white-space: pre-wrap; }
              </item>
              <item>
               <property name="text">
-               <string>co2amp approximation</string>
+               <string>co2amp approximation (default)</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Kirchoff (most accurate, slow)</string>
+               <string>None (ignore beam evolution)</string>
               </property>
              </item>
             </widget>

@@ -2,52 +2,53 @@
 
 void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out: spectrum
 {
-    int i;
-
+    // Do FFT
     FFTCore(in, out, false);
 
-    std::complex<double> tmp;
-
-    for(i=0; i<n0/4; i++){
-        tmp = out[i];
-        out[i] = out[n0/2-i-1];
-        out[n0/2-i-1] = tmp;
-        tmp = out[n0/2+i];
-        out[n0/2+i] = out[n0-i-1];
-        out[n0-i-1] = tmp;
+    // Re-arrange data points in output array
+    std::complex<double> *tmp;
+    tmp = new std::complex<double>[n0];
+    for(int n=0; n<n0; n++)
+        tmp[n] = out[n];
+    for(int n=0; n<n0/4; n++){
+        out[n] = tmp[n0/2-n-1];
+        out[n0/2-n-1] = tmp[n];
+        out[n0/2+n] = tmp[n0-n-1];
+        out[n0-n-1] = tmp[n0/2+n];
     }
+    delete tmp;
 
-    double Dt = (t_max-t_min)/(n0-1);
-    for(i=0; i<n0; i++)
-        out[i] *= Dt;
+    // Normalize output
+    double Dt = (t_max-t_min)/n0;
+    for(int n=0; n<n0; n++)
+        out[n] *= Dt;
 }
 
 
 void IFFT(std::complex<double> *in, std::complex<double> *out) // in: spectrum, out: field
 {
-    int i;
-    std::complex<double> tmp, *qq;
-    qq = new std::complex<double>[n0];
-
-    for(i=0; i<n0; i++)
-        qq[i] = in[i];
-
-    for(i=0; i<n0/4; i++){
-        tmp = qq[i];
-        qq[i] = qq[n0/2-i-1];
-        qq[n0/2-i-1] = tmp;
-        tmp = qq[n0/2+i];
-        qq[n0/2+i] = qq[n0-i-1];
-        qq[n0-i-1] = tmp;
+    // Re-arrange data points in input array
+    std::complex<double> *tmp, *in1;
+    tmp = new std::complex<double>[n0];
+    in1 = new std::complex<double>[n0];
+    for(int n=0; n<n0; n++)
+        tmp[n] = in[n];
+    for(int n=0; n<n0/4; n++){
+        in1[n] = tmp[n0/2-n-1];
+        in1[n0/2-n-1] = tmp[n];
+        in1[n0/2+n] = tmp[n0-n-1];
+        in1[n0-n-1] = tmp[n0/2+n];
     }
+    delete tmp;
 
-    FFTCore(qq, out, true);
+    // Do FFT
+    FFTCore(in1, out, true);
+    delete in1;
 
-    delete qq;
-
-    double Dt = (t_max-t_min)/(n0-1);
-    for(i=0; i<n0; i++)
-        out[i] /= (Dt*n0);
+    // Normalize output
+    double Dv = 1.0/(t_max-t_min);
+    for(int n=0; n<n0; n++)
+        out[n] *= Dv;
 }
 
 

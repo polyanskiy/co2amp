@@ -8,6 +8,7 @@ S::S(std::string id)
     yaml = id + ".yml";
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*n0/2;
+    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
 
@@ -40,7 +41,7 @@ S::S(std::string id)
         Debug(2, "cutoff = " + toExpString(cutoff) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*(0.5+n)) >= cutoff)
+            if((v_min+Dv*(1.0+n)) >= cutoff)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
@@ -57,7 +58,7 @@ S::S(std::string id)
         Debug(2, "cutoff = " + toExpString(cutoff) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*(0.5+n)) < cutoff)
+            if((v_min+Dv*(1.0+n)) < cutoff)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
@@ -81,7 +82,7 @@ S::S(std::string id)
         Debug(2, "cutoff_hi = " + toExpString(cutoff_hi) + " Hz");
 
         for(int n=0; n<n0; n++)
-            if((v_min+Dv*(0.5+n))>=cutoff_lo && (v_min+Dv*(0.5+n))<=cutoff_hi)
+            if((v_min+Dv*(1.0+n))>=cutoff_lo && (v_min+Dv*(1.0+n))<=cutoff_hi)
                 Transmittance[n] = 1;
             else
                 Transmittance[n] = 0;
@@ -102,7 +103,7 @@ S::S(std::string id)
                 std::cout << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;
 
         for(int n=0; n<n0; n++)
-            Transmittance[n] = Interpolate(&nu, &transm, v_min+Dv*(0.5+n));
+            Transmittance[n] = Interpolate(&nu, &transm, v_min+Dv*(1.0+n));
         WriteTransmittanceFile();
         return;
     }
@@ -144,13 +145,14 @@ void S::WriteTransmittanceFile()
 {
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*n0/2;
+    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     FILE *file;
 
     file = fopen((id+"_transmittance.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] transmittance\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), Transmittance[n]);
+        fprintf(file, "%e\t%e\n", v_min+Dv*(1.0+n), Transmittance[n]);
 
     fclose(file);
 }

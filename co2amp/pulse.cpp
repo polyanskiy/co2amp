@@ -206,23 +206,24 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
     StatusDisplay(this, from, time, "propagation...");
 
-    // Create temporary field array
+    // Create temporary field arrays
     std::complex<double> **E1;
     E1 = new std::complex<double>*[x0];
-    for(int x=0; x<x0; x++)
-        E1[x] = new std::complex<double>[n0];
-    Debug(2, "propagation: temporary field array created");
-
-    // Copy field to temporary array, zero main field array
     for(int x=0; x<x0; x++){
-        for(int n=0; n<n0; n++){
-            E1[x][n] = E[x][n];
-            E[x][n] = 0;
-        }
+        E1[x] = new std::complex<double>[n0];
     }
-    Debug(2, "propagation: temporary field array populated");
+    Debug(2, "propagation: temporary field arrays created");
 
-    if( z==0 || method == 0 ){ //only change calculation grid step
+
+    if( z==0 || method == 3 ) // no propagation - only change calculation grid step
+    {
+        for(int x=0; x<x0; x++){
+            for(int n=0; n<n0; n++){
+                E1[x][n] = E[x][n];
+                E[x][n] = 0;
+            }
+        }
+
         #pragma omp parallel for
         for(int x=0; x<x0; x++){
             double x_exact = Dr2 / Dr1 * (double)x;
@@ -243,13 +244,23 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
     else // diffraction propagation
     {
-        double lambda = c/v0; // wavelength, m
-        double k_wave = 2.0*M_PI/lambda; // wave-number
+        double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
+        double v_min = vc - Dv*n0/2;
+        // !!! v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
         int count=0;
 
+        for(int x=0; x<x0; x++){
+            FFT(E[x], E1[x]);
+            for(int n=0; n<n0; n++)
+               E[x][n] = 0;
+        }
+
+
         #pragma omp parallel for
-        for(int x2=0; x2<x0; x2++){ // output plane
-            if(debug_level >= 0){
+        for(int x2=0; x2<x0; x2++) // output plane
+        {
+            if(debug_level >= 0)
+            {
                 #pragma omp critical
                 {
                     StatusDisplay(this, from, time,
@@ -259,12 +270,103 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
             double r1;
             double r2 = Dr2*(0.5+x2);
+            double lambda, k_wave;
             std::complex<double> tmp;
 
+            // Kirkhoff integral with cylindrical symmetry
+            // No approximations!!!
+            if(method == 0)
+            {
+                double R, phi, Dphi;
+                for(int x1=0; x1<x0; x1++) // input plane
+                {
+                    r1 = Dr1*(0.5+x1);
+                    Dphi = M_PI/ceil(M_PI*r1/Dr1);
+                    for(int n=0; n<n0; n++)
+                    {
+                        lambda = c/(v_min+Dv*(1.0+n));
+                        k_wave = 2.0*M_PI/lambda;
+                        tmp = 0;
+                        for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
+                            R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
+                            tmp += exp(-I*k_wave*(R-z)) / R * (1+z/R);
+                        }
+                        tmp *= Dphi*r1*Dr1 / (I*lambda);
+                        E[x2][n] +=  E1[x1][n] * tmp;
+                    }
+                }
+            }
+
+            //Fresnell diffraction with cylindrical symmetry
+            //see https://www.physlab.org/wp-content/uploads/2016/04/Diffraction-Ch10.pdf
             if(method == 1)
             {
-                //Fresnell diffraction with cylindrical symmetry
-                //see https://www.physlab.org/wp-content/uploads/2016/04/Diffraction-Ch10.pdf
+                for(int x1=0; x1<x0; x1++) // input plane
+                {
+                    r1 = Dr1*(0.5+x1);
+                    for(int n=0; n<n0; n++)
+                    {
+                        lambda = c/(v_min+Dv*(1.0+n));
+                        k_wave = 2.0*M_PI/lambda;
+                        E[x2][n] += E1[x1][n]
+                                * 2.0*M_PI*r1*Dr1 //ring area
+                                //* exp(-I*k_wave*z)
+                                * exp(-I*k_wave*pow(r1,2)/2.0/z)
+                                * exp(-I*k_wave*pow(r2,2)/2.0/z)
+                                / (I*lambda*z)
+                                * j0(k_wave*r1*r2/z);
+                    }
+                }
+            }
+
+            // co2amp approximation (default propagation method)
+            // Huygens-Fresnel integral with cylindrical symmetry
+            // Fast approximate solution (see manual for details)
+            // Probably more reliable than Fresnel approximation
+            if(method == 2)
+            {
+                double R_min, R_max, R, delta_R;
+                for(int x1=0; x1<x0; x1++) // input plane
+                {
+                    r1 = Dr1*(0.5+x1);
+                    R_min = sqrt(pow(r1-r2,2)+pow(z,2)); // minimum distance from the ring to the current poin in the output plane (x)
+                    R_max = sqrt(pow(r1+r2,2)+pow(z,2)); // maximum --''--
+                    R = (R_min+R_max)/2;                 // average --''--
+                    delta_R = (R_max-R_min);
+                    for(int n=0; n<n0; n++)
+                    {
+                        lambda = c/(v_min+Dv*(1.0+n));
+                        k_wave = 2.0*M_PI/lambda;
+                        E[x2][n] += E1[x1][n]
+                                * 2.0*M_PI*r1*Dr1 //ring area
+                                * exp(-I*k_wave*(R-z))
+                                / (I*lambda*R)
+                                * j0(k_wave*delta_R/2);
+                    }
+                }
+            }
+
+            // Old stuff: time domain
+            /*
+            if(method == 0)
+            {
+                double R, phi, Dphi;
+                for(int x1=0; x1<x0; x1++) // input plane
+                {
+                    r1 = Dr1*(0.5+x1);
+                    Dphi = M_PI/ceil(M_PI*r1/Dr1);
+                    tmp = 0;
+                    for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
+                        R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
+                        tmp += exp(I*k_wave*R) / R * (1+z/R);
+                    }
+                    tmp *= Dphi*r1*Dr1 / (I*lambda);
+                    for(int n=0; n<n0; n++)
+                        E[x2][n] +=  E1[x1][n] * tmp;
+                }
+            }
+            if(method == 1)
+            {
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
@@ -275,13 +377,8 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                         E[x2][n] += E1[x1][n] * tmp;
                 }
             }
-
             if(method == 2)
             {
-                // co2amp approximation (default propagation method)
-                // Huygens-Fresnel integral with cylindrical symmetry
-                // Fast approximate solution (see manual for details)
-                // Apparently more reliable than Fresnel approximation
                 double R_min, R_max, R, delta_R;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
@@ -296,28 +393,16 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                         E[x2][n] += E1[x1][n] * tmp;
                 }
             }
-
-            if(method == 3)
-            {
-                // Kirkhoff integral with cylindrical symmetry
-                // No approximations!!!
-                double R, phi, Dphi;
-                for(int x1=0; x1<x0; x1++) // input plane
-                {
-                    r1 = Dr1*(0.5+x1);
-                    Dphi = M_PI/ceil(M_PI*r1/Dr1);
-                    tmp = 0;
-                    for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
-                        R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
-                        tmp += exp(I*k_wave*R) / R * (1+z/R);
-                    }
-                    tmp *= Dphi*r1*Dr1 / (I*lambda);
-                    for(int n=0; n<n0; n++)
-                        E[x2][n] +=  E1[x1][n] * tmp ;
-                }
-            }
+            */
 
         }
+
+        for(int x=0; x<x0; x++){
+            IFFT(E[x], E1[x]);
+            for(int n=0; n<n0; n++)
+                E[x][n] = E1[x][n];
+        }
+
     }
     Debug(2, "Propagation: integration done");
 

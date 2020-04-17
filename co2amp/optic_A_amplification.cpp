@@ -233,6 +233,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     FILE *file;
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
     double v_min = vc - Dv*n0/2;
+    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     int pass = 0;
     for(int i=0; i<plane->number; i++)
@@ -246,6 +247,6 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     file = fopen((basename+"_gain.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+        fprintf(file, "%e\t%e\n", v_min+Dv*(1.0+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
     fclose(file);
 }

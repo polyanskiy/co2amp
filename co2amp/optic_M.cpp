@@ -87,6 +87,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
     double v_min = vc - Dv*n0/2;
+    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     // account for tilt (longer path and lower intensity)
     // tilt = angle of incidence  (radians) - "Theta1"
@@ -130,11 +131,11 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             FFT(pulse->E[x], spectrum);
             for(int n=0; n<n0; n++){
                 // linear dispersion
-                delay = th/c * (RefractiveIndex(material, v_min+Dv*(0.5+n)) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
-                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(0.5+n))*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+                delay = th/c * (RefractiveIndex(material, v_min+Dv*(1.0+n)) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
+                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(1.0+n))*(-delay)); // no "-" in the exponent in frequency domain E(omega)
                 // eliminate time-frame shift introduced by the difference between phase and group velocity
                 delay = -th/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
-                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(0.5+n))*delay);
+                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(1.0+n))*delay);
             }
             IFFT(spectrum, pulse->E[x]);
             delete[] spectrum;
