@@ -1325,26 +1325,41 @@ p, li { white-space: pre-wrap; }
            <item row="1" column="0">
             <widget class="QComboBox" name="comboBox_method">
              <property name="currentIndex">
-              <number>2</number>
+              <number>6</number>
              </property>
              <item>
               <property name="text">
-               <string>Kirchoff (most accurate, very slow)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Fresnel approximation</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>co2amp approximation (default)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>None (ignore beam evolution)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Kirchoff</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Kirchoff monochrome</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Fresnel</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Fresnel monochrome</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Polyanskiy</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Polyanskiy monochrome (def)</string>
               </property>
              </item>
             </widget>

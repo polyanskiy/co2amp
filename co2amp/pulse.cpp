@@ -200,6 +200,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     double z   = from->space;
     double Dr1 = from->optic->r_max/x0;
     double Dr2 = to  ->optic->r_max/x0;
+    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
+    double v_min = vc - Dv*n0/2;
+    // !!! v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
+    int count=0;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
         return;
@@ -209,32 +213,42 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     // Create temporary field arrays
     std::complex<double> **E1;
     E1 = new std::complex<double>*[x0];
-    for(int x=0; x<x0; x++){
+    for(int x=0; x<x0; x++)
         E1[x] = new std::complex<double>[n0];
-    }
+
     Debug(2, "propagation: temporary field arrays created");
 
-
-    if( z==0 || method == 3 ) // no propagation - only change calculation grid step
-    {
-        for(int x=0; x<x0; x++){
-            for(int n=0; n<n0; n++){
+    if( z==0 || method==0 || method==2 || method==4 || method==6) // monochrome or no propagation
+        for(int x=0; x<x0; x++)
+            for(int n=0; n<n0; n++)
                 E1[x][n] = E[x][n];
-                E[x][n] = 0;
-            }
-        }
 
+    else // frequency-domain propagation
+        for(int x=0; x<x0; x++)
+            FFT(E[x], E1[x]); // time -> frequency domain
+
+    for(int x=0; x<x0; x++)
+        for(int n=0; n<n0; n++)
+            E[x][n] = 0;
+
+    Debug(2, "propagation: arrays initialized");
+
+
+    if( z==0 || method==0 ) // no propagation - only change calculation grid step
+    {
         #pragma omp parallel for
         for(int x=0; x<x0; x++){
             double x_exact = Dr2 / Dr1 * (double)x;
             int x_lo = (int)floor(x_exact);
             int x_hi = (int)ceil(x_exact);
             if( (x_lo < x0) && (x_hi < x0) ){
-                if(x_lo == x_hi){
+                if(x_lo == x_hi)
+                {
                     for(int n=0; n<n0; n++)
                         E[x][n] = E1[x_lo][n];
                 }
-                else{
+                else
+                {
                     for(int n=0; n<n0; n++)
                         E[x][n] = E1[x_lo][n]*((double)x_hi-x_exact) + E1[x_hi][n]*(x_exact-(double)x_lo);
                 }
@@ -244,18 +258,6 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
     else // diffraction propagation
     {
-        double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
-        double v_min = vc - Dv*n0/2;
-        // !!! v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
-        int count=0;
-
-        for(int x=0; x<x0; x++){
-            FFT(E[x], E1[x]);
-            for(int n=0; n<n0; n++)
-               E[x][n] = 0;
-        }
-
-
         #pragma omp parallel for
         for(int x2=0; x2<x0; x2++) // output plane
         {
@@ -273,9 +275,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             double lambda, k_wave;
             std::complex<double> tmp;
 
+            // ------------------------------ frequency-domain propagation ------------------------------
+
             // Kirkhoff integral with cylindrical symmetry
-            // No approximations!!!
-            if(method == 0)
+            if(method == 1)
             {
                 double R, phi, Dphi;
                 for(int x1=0; x1<x0; x1++) // input plane
@@ -299,7 +302,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
             //Fresnell diffraction with cylindrical symmetry
             //see https://www.physlab.org/wp-content/uploads/2016/04/Diffraction-Ch10.pdf
-            if(method == 1)
+            if(method == 3)
             {
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
@@ -310,20 +313,18 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                         k_wave = 2.0*M_PI/lambda;
                         E[x2][n] += E1[x1][n]
                                 * 2.0*M_PI*r1*Dr1 //ring area
-                                //* exp(-I*k_wave*z)
-                                * exp(-I*k_wave*pow(r1,2)/2.0/z)
-                                * exp(-I*k_wave*pow(r2,2)/2.0/z)
+                                * exp(-I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
                                 / (I*lambda*z)
                                 * j0(k_wave*r1*r2/z);
                     }
                 }
             }
 
-            // co2amp approximation (default propagation method)
+            // Polyanskiy approximation
             // Huygens-Fresnel integral with cylindrical symmetry
             // Fast approximate solution (see manual for details)
             // Probably more reliable than Fresnel approximation
-            if(method == 2)
+            if(method == 5)
             {
                 double R_min, R_max, R, delta_R;
                 for(int x1=0; x1<x0; x1++) // input plane
@@ -346,40 +347,53 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                 }
             }
 
-            // Old stuff: time domain
-            /*
-            if(method == 0)
+            // ------------------------------ time-domain propagation ------------------------------
+
+            // Kirchoff monchrome
+            if(method == 2)
             {
                 double R, phi, Dphi;
+                lambda = c/v0;
+                k_wave = 2.0*M_PI/lambda;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     Dphi = M_PI/ceil(M_PI*r1/Dr1);
                     tmp = 0;
-                    for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
+                    for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi)
+                    {
                         R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
-                        tmp += exp(I*k_wave*R) / R * (1+z/R);
+                        tmp += exp(-I*k_wave*(R-z)) / R * (1+z/R);
                     }
                     tmp *= Dphi*r1*Dr1 / (I*lambda);
                     for(int n=0; n<n0; n++)
                         E[x2][n] +=  E1[x1][n] * tmp;
                 }
             }
-            if(method == 1)
+
+            // Fresnel monchrome
+            if(method == 4)
             {
+                lambda = c/v0;
+                k_wave = 2.0*M_PI/lambda;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     tmp = 2*M_PI*r1*Dr1 //ring area
-                            * exp(I*k_wave*z) *  exp(I*k_wave*pow(r1,2)/2.0/z)
-                            * exp(I*k_wave*pow(r2,2)/2.0/z) / (I*lambda*z)  * j0(k_wave*r1*r2/z);
+                            * exp(-I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
+                            / (I*lambda*z)
+                            * j0(k_wave*r1*r2/z);
                     for(int n=0; n<n0; n++)
                         E[x2][n] += E1[x1][n] * tmp;
                 }
             }
-            if(method == 2)
+
+            // Polyanskiy monchrome
+            if(method == 6)
             {
                 double R_min, R_max, R, delta_R;
+                lambda = c/v0;
+                k_wave = 2.0*M_PI/lambda;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
@@ -388,29 +402,38 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     R = (R_min+R_max)/2;                 // average --''--
                     delta_R = (R_max-R_min);
                     tmp = 2*M_PI*r1*Dr1 //ring area
-                            * exp(-I*k_wave*R) / (I*lambda*R) * j0(k_wave*delta_R/2);
+                            * exp(-I*k_wave*(R-z))
+                            / (I*lambda*R)
+                            * j0(k_wave*delta_R/2);
                     for(int n=0; n<n0; n++)
                         E[x2][n] += E1[x1][n] * tmp;
                 }
             }
-            */
 
-        }
-
-        for(int x=0; x<x0; x++){
-            IFFT(E[x], E1[x]);
-            for(int n=0; n<n0; n++)
-                E[x][n] = E1[x][n];
         }
 
     }
-    Debug(2, "Propagation: integration done");
+
+    Debug(2, "propagation: integration done");
+
+    if(method==1 || method==3 || method==5) // frequency-domain propagation
+    {
+        for(int x=0; x<x0; x++)
+        {
+            IFFT(E[x], E1[x]); // frequency -> time domain
+            for(int n=0; n<n0; n++)
+                E[x][n] = E1[x][n];
+        }
+    }
+
+    Debug(2, "propagation: all done");
 
     // delete temporary array
     for(int x=0; x<x0; x++)
         delete[] E1[x];
     delete[] E1;
-    Debug(2, "Propagation: temporary field array deleted");
+
+    Debug(2, "propagation: temporary field array deleted");
 }
 
 

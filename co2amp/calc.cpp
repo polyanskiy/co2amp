@@ -18,10 +18,25 @@ void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out:
     }
     delete tmp;
 
-    // Normalize output
+        // Normalize output
     double Dt = (t_max-t_min)/n0;
     for(int n=0; n<n0; n++)
         out[n] *= Dt;
+
+    // test - regular Fourier transform
+    /*double Dt = (t_max-t_min)/n0;
+    double Dv = 1.0/(t_max-t_min);
+    double v_min = -Dv*(n0/2);
+    for(int n=0; n<n0; n++)
+        out[n] = 0;
+    for(int n=0; n<n0; n++)
+    {
+        for(int n1=0; n1<n0; n1++)
+            //out[n] += in[n1]*exp(-2.0*M_PI*I * (double)n1 * (double)n / (double)n0);
+            out[n] += in[n1]*exp(-2.0*M_PI*I
+                                 * (t_min+Dt*(0.5+n1))
+                                 * (v_min+Dv*(0.5+n))) * Dt;
+    }*/
 }
 
 
@@ -49,6 +64,21 @@ void IFFT(std::complex<double> *in, std::complex<double> *out) // in: spectrum, 
     double Dv = 1.0/(t_max-t_min);
     for(int n=0; n<n0; n++)
         out[n] *= Dv;
+
+    // test - regular Fourier transform
+    /*double Dt = (t_max-t_min)/n0;
+    double Dv = 1.0/(t_max-t_min);
+    double v_min = -Dv*n0/2;
+    for(int n=0; n<n0; n++)
+        out[n] = 0;
+    for(int n=0; n<n0; n++)
+    {
+        for(int n1=0; n1<n0; n1++)
+            //out[n] += in[n1]*exp(-2.0*M_PI*I * (double)n1 * (double)n / (double)n0);
+            out[n] += in[n1]*exp(2.0*M_PI*I
+                                 * (t_min+Dt*(0.5+n))
+                                 * (v_min+Dv*(0.5+n1))) * Dv;
+    }*/
 }
 
 

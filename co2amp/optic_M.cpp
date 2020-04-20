@@ -56,6 +56,14 @@ M::M(std::string id)
         tilt *= M_PI/180; // degrees to radians
     }
 
+    // n2
+    n2 = -1;
+    if(YamlGetValue(&value, yaml, "n2")){
+        std::cout << "Using custom n2\n";
+        n2 = std::stod(value);
+        Debug(2, "n2 = " + std::to_string(n2) + " m^2/W");
+    }
+
     // number of slices
     slices = 1;
     if(!YamlGetValue(&value, yaml, "slices"))
@@ -240,6 +248,9 @@ double M::RefractiveIndex(std::string material, double nu, double humidity)
 
 double M::NonlinearIndex(std::string material)
 {
+    if(n2>=0) // custom nonlinear index from YAML configuration file
+        return n2;
+
     if(material =="KCl")  //Sheik-Bahae-1991
         return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um
     if(material =="NaCl") //Sheik-Bahae-1991

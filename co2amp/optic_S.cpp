@@ -138,9 +138,6 @@ void S::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 }
 
 
-
-
-
 void S::WriteTransmittanceFile()
 {
     double Dv = 1.0/(t_max-t_min);       // frequency step, Hz

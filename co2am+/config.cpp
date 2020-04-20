@@ -108,7 +108,7 @@ void MainWindow::ReadConfigurationFiles()
     lineEdit_t_min         -> setText        (settings.value("grid/t_min", "-250e-12").toString());
     lineEdit_t_max         -> setText        (settings.value("grid/t_max",  "250e-12").toString());
     lineEdit_time_tick     -> setText        (settings.value("grid/time_tick", "2e-9").toString());
-    comboBox_method        -> setCurrentIndex(settings.value("calc/method",         2).toInt());
+    comboBox_method        -> setCurrentIndex(settings.value("calc/method",         6).toInt());
     comboBox_optic         -> setCurrentIndex(settings.value("plot/optic",          0).toInt());
     comboBox_pulse         -> setCurrentIndex(settings.value("plot/pulse",          0).toInt());
     lineEdit_passes        -> setText        (settings.value("plot/passes",
