@@ -38,8 +38,8 @@ M::M(std::string id)
     // humidity (only relevant for air)
     humidity = 50;
     if(material == "air"){
-        if(!YamlGetValue(&value, yaml, "humidity"))
-            std::cout << "Using default humidity (50%)\n";
+        if(!YamlGetValue(&value, yaml, "humidity", false))
+            std::cout << id << ": Using default humidity (50%)\n";
         else
             humidity = std::stod(value);
         Debug(2, "humidity = " + std::to_string(humidity) + " %");
@@ -48,7 +48,7 @@ M::M(std::string id)
     // tilt (not relevant for air)
     tilt = 0;
     if(material != "air"){
-        if(!YamlGetValue(&value, yaml, "tilt"))
+        if(!YamlGetValue(&value, yaml, "tilt", false))
             std::cout << "Using default tilt (no tilt)\n";
         else
             tilt = std::stod(value);
@@ -58,16 +58,22 @@ M::M(std::string id)
 
     // n2
     n2 = -1;
-    if(YamlGetValue(&value, yaml, "n2")){
-        std::cout << "Using custom n2\n";
+    if(YamlGetValue(&value, yaml, "n2", false)){
         n2 = std::stod(value);
-        Debug(2, "n2 = " + std::to_string(n2) + " m^2/W");
+        std::cout << id << ": Custom n2 = " << value << " m^2/W\n";
+        //Debug(2, "n2 = " + std::to_string(n2) + " m^2/W");
+    }
+
+    n4 = 0;
+    if(YamlGetValue(&value, yaml, "n4", false)){
+        n4 = std::stod(value);
+        std::cout << id << ": n4 = " << value << " m^4/W^2\n";
     }
 
     // number of slices
     slices = 1;
-    if(!YamlGetValue(&value, yaml, "slices"))
-        std::cout << "Using default # of slices\n";
+    if(!YamlGetValue(&value, yaml, "slices", false))
+        std::cout << "Using default # of slices (1)\n";
     else
         slices = std::stod(value);
     Debug(2, "# of slices = " + std::to_string(slices));
@@ -124,13 +130,14 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
         double intensity, delay;
         std::complex<double> *spectrum;
+        n2 = NonlinearIndex(material);
 
         for(int i=0; i<slices; i++){
             // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
             for(int n=0; n<n0; n++){
                 intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
-                delay = th/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
+                delay = th/2.0/c * (n2*intensity + n4*pow(intensity,2)); // phase delay (== group delay)
                 pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
 
@@ -152,7 +159,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             for(int n=0; n<n0; n++){
                 intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
-                delay = th/2.0/c * NonlinearIndex(material)*intensity; // phase delay (== group delay)
+                delay = th/2.0/c * (n2*intensity + n4*pow(intensity,2)); // phase delay (== group delay)
                 pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
             }
         }
@@ -266,8 +273,8 @@ double M::NonlinearIndex(std::string material)
         return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um
     if(material =="Si")   //Bristow-2007
         return 1e-17;                      // m^2/W @ 2.2 um
-    if(material =="air")  //Geints-2014
-        return 3.5e-23;                      // m^2/W
+    if(material =="air")  //Geints Quantum Electron 2014
+        return 3e-23;                      // m^2/W
     return 0;
 }
 

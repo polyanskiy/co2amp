@@ -25,7 +25,7 @@ std::string toExpString(double num)
 }
 
 
-bool YamlGetValue(std::string *value, std::string path, std::string key)
+bool YamlGetValue(std::string *value, std::string path, std::string key, bool required)
 {
     std::string str, file_content_str;
     std::ifstream in;
@@ -60,7 +60,9 @@ bool YamlGetValue(std::string *value, std::string path, std::string key)
         }
     }
 
-    std::cout << "Key \"" + key + "\" not found in YAML file \'" + path + "\'\n";
+    if(required)
+        std::cout << "Key \"" + key + "\" not found in YAML file \'" + path + "\'\n";
+
     return false;
 }
 

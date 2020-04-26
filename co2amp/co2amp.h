@@ -179,7 +179,8 @@ private:
     double thickness; // m
     double tilt;      // radians, default=0
     double humidity;  // %, only for air, default=50
-    double n2;        // optional - nonlinear index m2/W - use NonlinearIndex() function if not set
+    double n2;        // optional - nonlinear index m^2/W - use NonlinearIndex() function if not set
+    double n4;        // optional - neext-order nonlinearity index m^4/W^2 (0 if not set)
     int slices;       // number of slices (more slices - better accuracy)
     double RefractiveIndex(std::string material, double nu, double humidity=0);
     double NonlinearIndex(std::string material);
@@ -257,7 +258,7 @@ void Debug(int level, std::string str);
 /////////////////////////// misc.cpp /////////////////////////////
 Optic* FindOpticByID(std::string str);
 bool is_number(std::string);
-bool YamlGetValue(std::string *value, std::string path, std::string key);
+bool YamlGetValue(std::string *value, std::string path, std::string key, bool required=true);
 bool YamlGetData(std::vector<double> *data, std::string path, std::string key, int column_n);
 double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
