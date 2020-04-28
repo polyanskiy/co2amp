@@ -27,7 +27,7 @@ public:
     std::string id;
     std::string yaml;
     int number;
-    double v0;
+    double vc;
     double time_in;
     std::complex<double> **E; // field array
 private:
@@ -230,7 +230,7 @@ extern std::vector<Pulse*> pulses;
 extern std::vector<Optic*> optics;
 extern std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
-extern double vc;                 // central frequency
+extern double v0;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
 extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
@@ -276,7 +276,9 @@ void SaveOutputField(void);
 void FFT(std::complex<double> *in, std::complex<double> *out);
 void IFFT(std::complex<double> *in, std::complex<double> *out);
 void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
+//void FFTCore(std::complex<double> *out, bool Invert);
 int BitReversal(int x);
+//void Rearrange(std::complex<double> *in, std::complex<double> *out);
 
 
 #endif // CO2AMP_H

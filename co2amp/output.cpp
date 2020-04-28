@@ -11,8 +11,6 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     double Energy;
     double Dt = (t_max-t_min)/n0;     // pulse time step, s
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    // v=v_min+Dv*(1.0+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
     double Dr = plane->optic->r_max/x0;
     FILE *file;
 
@@ -27,18 +25,20 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         Power[n]=0;
 
     //#pragma omp parallel for reduction(+:Energy)
-    for(int x=0; x<x0; x++){
-        for(int n=0; n<n0; n++){
-            Energy += 2.0 * h * pulse->v0
+    for(int x=0; x<x0; x++)
+    {
+        for(int n=0; n<n0; n++)
+        {
+            Energy += 2.0 * h * pulse->vc
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
-            Power[n] += 2.0 * h * pulse->v0
+            Power[n] += 2.0 * h * pulse->vc
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1);
 
-            Fluence[x] += 2.0 * h * pulse->v0 * pow(abs(E[x][n]),2) * Dt; // J/m2
+            Fluence[x] += 2.0 * h * pulse->vc * pow(abs(E[x][n]),2) * Dt; // J/m2
         }
     }
 
@@ -67,7 +67,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     fclose(file);
 
     // Write energy file
-    if(pulse_n==0 && plane_n==0){
+    if(pulse_n==0 && plane_n==0)
+    {
         file = fopen("energy.dat", "w");
         fprintf(file, "#Data format: time[s] energy[J] pulse# optic# pass#\n");
     }
@@ -92,7 +93,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 
     // SLOW: averaged across the beam (comment SLOW or FAST)
     //#pragma omp parallel for shared(average_spectrum)// multithreaded
-    for(int x=0; x<x0; x++){
+    for(int x=0; x<x0; x++)
+    {
         FFT(E[x], spectrum);
         for(int n=0; n<n0; n++)
             average_spectrum[n] += pow(abs(spectrum[n]), 2) * (2*x+1); //(2*x+1) is proportional to ring area:
@@ -110,7 +112,10 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     file = fopen((basename+"_spectrum.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*(1.0+n), average_spectrum[n]);
+    {
+        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+        fprintf(file, "%e\t%e\n", v0+Dv*(n-n0/2), average_spectrum[n1]);
+    }
     fclose(file);
 
 

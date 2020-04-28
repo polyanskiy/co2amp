@@ -8,7 +8,8 @@ int MainWindow::FigureMenu()
     menu.addAction("Copy pixmap");
     menu.addAction("Save SVG");
     QAction *action = menu.exec(QCursor::pos());
-    if(action){
+    if(action)
+    {
         if(action->text()=="Copy raw data")
             return 1;
         if(action->text()=="Copy pixmap")
@@ -54,7 +55,8 @@ void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
     QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();   
 
-    if(Type(optic_id)=="A"){
+    if(Type(optic_id)=="A")
+    {
         if(m==1) //data
             CopyMultipassData("_gain.dat");
         if(m==2) // pixmap
@@ -63,7 +65,8 @@ void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
             SaveSVG("fig_gain.svg");
     }
 
-    if(Type(optic_id)=="S"){
+    if(Type(optic_id)=="S")
+    {
         if(m==1) //data
             CopyDataFromFile(optic_id + "_transmittance.dat");
         if(m==2) // pixmap
@@ -106,8 +109,10 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
     QString optic_id = comboBox_optic->currentText();
     int m = FigureMenu();
 
-    if(Type(optic_id)=="A"){
-        if(m==1){ //data
+    if(Type(optic_id)=="A")
+    {
+        if(m==1) //data
+        {
             if(QFile::exists(optic_id + "_discharge.dat"))
                 CopyDataFromFile(optic_id + "_discharge.dat");
             if(QFile::exists(optic_id + "_pumping_pulse.dat"))
@@ -119,7 +124,8 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
             SaveSVG("fig_discharge.svg");
     }
 
-    if(Type(optic_id)=="F"){
+    if(Type(optic_id)=="F")
+    {
         if(m==1) //data
             CopyDataFromFile(optic_id + "_transmittance.dat");
         if(m==2) // pixmap
@@ -128,7 +134,8 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
             SaveSVG("fig_transmittance.svg");
     }
 
-    if(Type(optic_id)=="P"){
+    if(Type(optic_id)=="P")
+    {
         if(m==1) //data
             CopyMultipassData("_phase.dat");
         if(m==2) // pixmap
@@ -193,7 +200,8 @@ void MainWindow::CopyDataFromFile(QString filename)
     file.open(QFile::ReadOnly);
 
     QString line = file.readLine();
-    while(line != QString()){
+    while(line != QString())
+    {
         if(line[0]!='#') // skip comments
             out += line;
         line = file.readLine();
@@ -217,8 +225,8 @@ void MainWindow::CopyMultipassData(QString longext)
 
     int plot_n = 0;
 
-    for(int i=0; i<10; i++){
-
+    for(int i=0; i<10; i++)
+    {
         int pass_n = PassNumber(i);
         if(pass_n == -1)
             continue;
@@ -232,18 +240,23 @@ void MainWindow::CopyMultipassData(QString longext)
 
         QString line = file.readLine();
 
-        if(plot_n==0){ // first plot: write first column (argument) and second columns (value for first plot)
-            while(line != QString()){
+        if(plot_n==0) // first plot: write first column (argument) and second columns (value for first plot)
+        {
+            while(line != QString())
+            {
                 if(line[0]!='#') // skip comments
                     out.push_back(line.section(separators, 0, 1));
                 line = file.readLine();
             }
         }
 
-        else{ // write additional columns
+        else // write additional columns
+        {
             int line_n = 0;
-            while(line != QString() && line_n<out.size()){
-                if(line[0]!='#'){ // skip comments
+            while(line != QString() && line_n<out.size())
+            {
+                if(line[0]!='#') // skip comments
+                {
                     out[line_n] += "\t" + line.section(separators, 1, 1);
                     line_n++;
                 }
@@ -273,7 +286,8 @@ void MainWindow::SaveSVG(QString svg_path)
     QString start_dir, save_path;
     project_file != QString() ? start_dir = project_file : start_dir = def_dir;
     save_path = QFileDialog::getSaveFileName(this, QString(), def_dir, "SVG (*.svg)");
-    if(save_path != QString()){
+    if(save_path != QString())
+    {
         QFile::remove(save_path);
         QFile::copy(svg_path, save_path);
     }

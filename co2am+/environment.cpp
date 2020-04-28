@@ -9,7 +9,8 @@ void MainWindow::FindExternalPrograms()
 
     #ifdef Q_OS_WIN
         // co2amp
-        if(path_to_co2amp==""){
+        if(path_to_co2amp=="")
+        {
             QStringList searchpaths =
             {
                 QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\co2amp.exe",
@@ -20,7 +21,8 @@ void MainWindow::FindExternalPrograms()
             path_to_co2amp = QStandardPaths::findExecutable("co2amp", searchpaths);
         }
         // 7-Zip
-        if(path_to_7zip==""){
+        if(path_to_7zip=="")
+        {
             QStringList searchpaths =
             {
                 QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\7zFM.exe",
@@ -32,7 +34,8 @@ void MainWindow::FindExternalPrograms()
             path_to_7zip = QStandardPaths::findExecutable("7z", searchpaths);
         }
         // Gnuplot
-        if(path_to_gnuplot==""){
+        if(path_to_gnuplot=="")
+        {
             QStringList searchpaths =
             {
                 QFileInfo(QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\gnuplot.exe",

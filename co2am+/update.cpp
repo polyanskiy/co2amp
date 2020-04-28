@@ -29,13 +29,15 @@ void MainWindow::Update()
     bl = config_file_count > 0 ;
 
     plainTextEdit_configFile_content->blockSignals(true);
-    if(bl){
+    if(bl)
+    {
         if(!plainTextEdit_configFile_content->hasFocus())
             plainTextEdit_configFile_content->setPlainText(configFile_content[current_config_file]);
         label_configFile_info->setText(configFile_id[current_config_file]
                                        + ".yml (type: " + configFile_type[current_config_file] + ")");
     }
-    else{
+    else
+    {
         plainTextEdit_configFile_content->setPlainText("");
         label_configFile_info->setText("");
     }
@@ -56,7 +58,7 @@ void MainWindow::Update()
     double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/comboBox_precision_t->currentText().toDouble();
     double delta_v = 1.0/(lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble());
     label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
-    label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_vc->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
+    label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_v0->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
     tmp_precision_t = comboBox_precision_t->currentIndex();
     tmp_precision_r = comboBox_precision_r->currentIndex();
     groupBox_grid->setDisabled(flag_calculating);
@@ -75,7 +77,8 @@ void MainWindow::Update()
     comboBox_pulse->blockSignals(true);
     comboBox_optic->clear();
     comboBox_pulse->clear();
-    for(int i=0; i<configFile_id.count(); i++){
+    for(int i=0; i<configFile_id.count(); i++)
+    {
         QString type = configFile_type[i];
         if(type != "PULSE" && type != "LAYOUT")
             comboBox_optic->addItem(QIcon(":/images/"+type+".svg"), configFile_id[i]);
@@ -97,11 +100,13 @@ void MainWindow::Update()
     comboBox_energyPlot     -> clear();
     comboBox_energyPlot     -> addItem("all");
     comboBox_energyPlot     -> addItem("optic");
-    if(comboBox_pulse->count() > 1){
+    if(comboBox_pulse->count() > 1)
+    {
         comboBox_energyPlot -> addItem("pulse");
         comboBox_energyPlot -> addItem("optic, pulse");
     }
-    if(index == -1 || index+1 > comboBox_energyPlot->count()){
+    if(index == -1 || index+1 > comboBox_energyPlot->count())
+    {
         if(comboBox_pulse->count() == 1) // single pulse
             comboBox_energyPlot->setCurrentIndex(1);
         else

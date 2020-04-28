@@ -12,7 +12,8 @@ F::F(std::string id)
     std::string value="";
 
     // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R")){
+    if(!YamlGetValue(&value, yaml, "R"))
+    {
         configuration_error = true;
         return;
     }
@@ -21,7 +22,8 @@ F::F(std::string id)
     double Dr = r_max/x0;
 
     // filter type
-    if(!YamlGetValue(&value, yaml, "filter")){
+    if(!YamlGetValue(&value, yaml, "filter"))
+    {
         configuration_error = true;
         return;
     }
@@ -30,8 +32,10 @@ F::F(std::string id)
 
     Transmittance = new double[x0];
 
-    if(filter == "ND"){
-        if(!YamlGetValue(&value, yaml, "T")){
+    if(filter == "ND")
+    {
+        if(!YamlGetValue(&value, yaml, "T"))
+        {
             configuration_error = true;
             return;
         }
@@ -43,67 +47,64 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "MASK"){
-        if(!YamlGetValue(&value, yaml, "r_min")){
+    if(filter == "MASK")
+    {
+        if(!YamlGetValue(&value, yaml, "r_min"))
+        {
             configuration_error = true;
             return;
         }
         double r_min = std::stod(value);
         Debug(2, "r_min = " + toExpString(r_min) + " m");
-        for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= r_min)
-                Transmittance[x] = 0;
-            else
-                Transmittance[x] = 1;
-        }
+        for(int x=0; x<x0; x++)
+            Transmittance[x] = Dr*(0.5+x)<=r_min ? 0 : 1;
         WriteTransmittanceFile();
         return;
     }
 
-    if(filter == "SIN"){
-        if(!YamlGetValue(&value, yaml, "r_min")){
+    if(filter == "SIN")
+    {
+        if(!YamlGetValue(&value, yaml, "r_min"))
+        {
             configuration_error = true;
             return;
         }
         double r_min = std::stod(value);
         Debug(2, "r_min = " + toExpString(r_min) + " m");
-        for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= r_min)
-                Transmittance[x] = 1;
-            else
-                Transmittance[x] = pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
-        }
+        for(int x=0; x<x0; x++)
+            Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
         WriteTransmittanceFile();
         return;
     }
 
-    if(filter == "GAUSS"){
-        if(!YamlGetValue(&value, yaml, "r_min")){
+    if(filter == "GAUSS")
+    {
+        if(!YamlGetValue(&value, yaml, "r_min"))
+        {
             configuration_error = true;
             return;
         }
         double r_min = std::stod(value);
         Debug(2, "r_min = " + toExpString(r_min) + " m");
-        if(!YamlGetValue(&value, yaml, "w")){
+        if(!YamlGetValue(&value, yaml, "w"))
+        {
             configuration_error = true;
             return;
         }
         double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
-        for(int x=0; x<x0; x++){
-            if(Dr*(0.5+x) <= r_min)
-                Transmittance[x] = 1;
-            else
-                Transmittance[x] = exp(-2.0*pow((Dr*(0.5+x)-r_min)/w,2));
-        }
+        for(int x=0; x<x0; x++)
+            Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : exp(-2.0*pow((Dr*(0.5+x)-r_min)/w,2));
         WriteTransmittanceFile();
         return;
     }
 
-    if(filter == "FREEFORM"){
+    if(filter == "FREEFORM")
+    {
         std::vector<double> pos;
         std::vector<double> transm;
-        if(!YamlGetData(&pos, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1)){
+        if(!YamlGetData(&pos, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1))
+        {
             configuration_error = true;
             return;
         }
@@ -134,10 +135,9 @@ void F::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     Debug(2, "Interaction with spatial filter");
     StatusDisplay(pulse, plane, time, "spatial filtering...");
 
-    for(int x=0; x<x0; x++){
+    for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
             pulse->E[x][n] *=  sqrt(Transmittance[x]);
-    }
 }
 
 

@@ -12,7 +12,8 @@ M::M(std::string id)
     std::string value="";
 
     // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R")){
+    if(!YamlGetValue(&value, yaml, "R"))
+    {
         configuration_error = true;
         return;
     }
@@ -20,7 +21,8 @@ M::M(std::string id)
     Debug(2, "R = " + toExpString(r_max) + " m");
 
     // material
-    if(!YamlGetValue(&value, yaml, "material")){
+    if(!YamlGetValue(&value, yaml, "material"))
+    {
         configuration_error = true;
         return;
     }
@@ -28,7 +30,8 @@ M::M(std::string id)
     Debug(2, "material = " + material);
 
     // thickness
-    if(!YamlGetValue(&value, yaml, "thickness")){
+    if(!YamlGetValue(&value, yaml, "thickness"))
+    {
         configuration_error = true;
         return;
     }
@@ -37,7 +40,8 @@ M::M(std::string id)
 
     // humidity (only relevant for air)
     humidity = 50;
-    if(material == "air"){
+    if(material == "air")
+    {
         if(!YamlGetValue(&value, yaml, "humidity", false))
             std::cout << id << ": Using default humidity (50%)\n";
         else
@@ -47,7 +51,8 @@ M::M(std::string id)
 
     // tilt (not relevant for air)
     tilt = 0;
-    if(material != "air"){
+    if(material != "air")
+    {
         if(!YamlGetValue(&value, yaml, "tilt", false))
             std::cout << "Using default tilt (no tilt)\n";
         else
@@ -58,14 +63,16 @@ M::M(std::string id)
 
     // n2
     n2 = -1;
-    if(YamlGetValue(&value, yaml, "n2", false)){
+    if(YamlGetValue(&value, yaml, "n2", false))
+    {
         n2 = std::stod(value);
         std::cout << id << ": Custom n2 = " << value << " m^2/W\n";
         //Debug(2, "n2 = " + std::to_string(n2) + " m^2/W");
     }
 
     n4 = 0;
-    if(YamlGetValue(&value, yaml, "n4", false)){
+    if(YamlGetValue(&value, yaml, "n4", false))
+    {
         n4 = std::stod(value);
         std::cout << id << ": n4 = " << value << " m^4/W^2\n";
     }
@@ -83,7 +90,8 @@ M::M(std::string id)
 void M::InternalDynamics(double)
 {
     // temporary - nonlinear absorption in Ge
-    /*if(!strcmp(material,"Ge") || !strcmp(material,"Ge-Brewster")){
+    /*if(!strcmp(material,"Ge") || !strcmp(material,"Ge-Brewster"))
+    {
         for(n=0; n<n0; n++){
             intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
             intensity *= tilt_factor; // reduced intensity in tilted windows
@@ -99,18 +107,17 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     Debug(2, "Interaction with a material");
     StatusDisplay(pulse, plane, time, "material...");
 
-    double Dv = 1.0/(t_max-t_min);       // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
+    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
 
     // account for tilt (longer path and lower intensity)
     // tilt = angle of incidence  (radians) - "Theta1"
     // refr = angle of refraction (radians) - "Theta2"
-    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->v0)));
+    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->vc)));
     double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
-    if(tilt !=0 ){
+    if(tilt !=0 )
+    {
         Debug(2, "tilt = " + std::to_string(tilt*180/M_PI) + " degrees (incidence angle)");
         Debug(2, "refr = " + std::to_string(refr*180/M_PI) + " degrees (refraction angle)");
         Debug(2, "tilt_factor = " + std::to_string(tilt_factor) + " (intensity reduction due to tilt)");
@@ -119,8 +126,10 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
     int count = 0;
     #pragma omp parallel for
-    for(int x=0; x<x0; x++){
-        if(debug_level >= 0){
+    for(int x=0; x<x0; x++)
+    {
+        if(debug_level >= 0)
+        {
             #pragma omp critical
             {
                 StatusDisplay(pulse, plane, time,
@@ -128,39 +137,44 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, delay;
-        std::complex<double> *spectrum;
+        double intensity, chirp, shift, v;
+        std::complex<double> *E1; //field in frequency domaine
         n2 = NonlinearIndex(material);
 
-        for(int i=0; i<slices; i++){
+        // Use split-step method for each slice
+        for(int i=0; i<slices; i++)
+        {
             // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
-            for(int n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
+            for(int n=0; n<n0; n++)
+            {
+                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
-                delay = th/2.0/c * (n2*intensity + n4*pow(intensity,2)); // phase delay (== group delay)
-                pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
+                pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
             }
 
             // linear dispersion (full thickness of the slice)
-            spectrum = new std::complex<double>[n0];
-            FFT(pulse->E[x], spectrum);
-            for(int n=0; n<n0; n++){
-                // linear dispersion
-                delay = th/c * (RefractiveIndex(material, v_min+Dv*(1.0+n)) - RefractiveIndex(material, vc)); // phase delay (!= group delay)
-                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(1.0+n))*(-delay)); // no "-" in the exponent in frequency domain E(omega)
-                // eliminate time-frame shift introduced by the difference between phase and group velocity
-                delay = -th/c * (c/vc) * (RefractiveIndex(material,vc+1e7)-RefractiveIndex(material,vc-1e7))/(c/(vc+1e7)-c/(vc-1e7)); // relative group delay
-                spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(1.0+n))*delay);
+            E1 = new std::complex<double>[n0];
+            FFT(pulse->E[x], E1);
+            shift = 0;
+            for(int n=0; n<n0; n++)
+            {
+                v = v0 + Dv*(n-n0/2);
+                chirp = -th/c *(RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " / Dv " omitted - see next line
+                shift += (v-v0) * chirp; // " * Dv " omitted
+                int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                E1[n1] *= exp(I*2.0*M_PI*shift);
             }
-            IFFT(spectrum, pulse->E[x]);
-            delete[] spectrum;
+            IFFT(E1, pulse->E[x]);
+            delete[] E1;
 
             // nonlinear index (n2) and nonlinear absorption Step 2 (half-thickness of the slice)
-            for(int n=0; n<n0; n++){
-                intensity = 2.0 * h * vc * pow(abs(pulse->E[x][n]), 2); // W/m2
+            for(int n=0; n<n0; n++)
+            {
+                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
-                delay = th/2.0/c * (n2*intensity + n4*pow(intensity,2)); // phase delay (== group delay)
-                pulse->E[x][n] *= exp(-I*2.0*M_PI*vc*delay); //effect of nonlinear index
+                shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
+                pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
             }
         }
     }
@@ -172,42 +186,50 @@ double M::RefractiveIndex(std::string material, double nu, double humidity)
     // wavelength
     double x = c / nu * 1e6; // s^-1 -> um
 
-    if(material == "KCl"){ //Li-1976
+    if(material == "KCl") //Li-1976
+    {
         x= x<0.18 ? 0.18 : x;
         x= x>35 ? 35 : x;
         return sqrt( 1.26486 + 0.30523*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.41620*pow(x,2)/(pow(x,2)-pow(0.131,2)) + 0.18870*pow(x,2)/(pow(x,2)-pow(0.162,2)) + 2.6200*pow(x,2)/(pow(x,2)-pow(70.42,2)) );
     }
-    if(material == "NaCl"){ //Li-1976
+    if(material == "NaCl") //Li-1976
+    {
         x= x<0.2 ? 0.2 : x;
         x= x>30 ? 30 : x;
         return sqrt( 1.00055 + 0.19800*pow(x,2)/(pow(x,2)-pow(0.050,2)) + 0.48398*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.38696*pow(x,2)/(pow(x,2)-pow(0.128,2)) + 0.25998*pow(x,2)/(pow(x,2)-pow(0.158,2)) + 0.08796*pow(x,2)/(pow(x,2)-pow(40.50,2)) + 3.17064*pow(x,2)/(pow(x,2)-pow(60.98,2)) + 0.30038*pow(x,2)/(pow(x,2)-pow(120.34,2)) );
     }
-    if(material == "ZnSe"){ //Tatian-1984
+    if(material == "ZnSe") //Tatian-1984
+    {
         x= x<0.54 ? 0.54 : x;
         x= x>18.2 ? 18.2 : x;
         return sqrt(1.0+4.45813734/(1-pow(0.200859853/x,2))+0.467216334/(1-pow(0.391371166/x,2))+2.89566290/(1-pow(47.1362108/x,2)));
     }
-    if(material == "Ge"){ //Barnes-1979
+    if(material == "Ge") //Barnes-1979
+    {
         x= x<2.5 ? 2.5 : x;
         x= x>12 ? 12 : x;
         return sqrt( 9.28156 + 6.72880*pow(x,2)/(pow(x,2)-0.44105) + 0.21307*pow(x,2)/(pow(x,2)-3870.1) );
     }
-    if(material == "GaAs"){ //Skauli-2003
+    if(material == "GaAs") //Skauli-2003
+    {
         x= x<0.97 ? 0.97 : x;
         x= x>17 ? 17 : x;
         return sqrt(1+4.372514+5.466742/(1-pow(0.4431307/x,2))+0.02429960/(1-pow(0.8746453/x,2))+1.957522/(1-pow(36.9166/x,2)));
     }
-    if(material == "CdTe"){ //DeBell-1979
+    if(material == "CdTe") //DeBell-1979
+    {
         x= x<6 ? 6 : x;
         x= x>22 ? 22 :x;
         return sqrt( 1.0 + 6.1977889*pow(x,2)/(pow(x,2)-pow(0.317069,2)) + 3.2243821*pow(x,2)/(pow(x,2)-pow(72.0663,2)) );
     }
-    if(material == "Si"){ //Edwards-1980
+    if(material == "Si") //Edwards-1980
+    {
         x= x<2.4373 ? 2.4373 : x;
         x= x>25 ? 25 :x;
         return 3.41983+0.159906/(pow(x,2)-0.028)-0.123109/pow((pow(x,2)-0.028),2)+1.26878E-6*pow(x,2)-1.95104E-9*pow(x,4);
     }
-    if(material == "air"){ //Mathar-2007
+    if(material == "air") //Mathar-2007
+    {
         x= x<7.5 ? 7.5 : x;
         x= x>14.1 ? 14.1 :x;
 
@@ -238,7 +260,8 @@ double M::RefractiveIndex(std::string material, double nu, double humidity)
         double Href = 10;            // %
 
         double n = 1;
-        for(j=0; j<6; j++){
+        for(j=0; j<6; j++)
+        {
             n += ( cref[j] + cT[j]*(1.0/T-1.0/Tref) + cTT[j]*pow(1.0/T-1.0/Tref,2.0)
                    + cH[j]*(H-Href) + cHH[j]*pow(H-Href,2.0)
                    + cp[j]*(p-pref) + cpp[j]*pow(p-pref,2.0)

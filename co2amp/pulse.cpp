@@ -29,19 +29,22 @@ void Pulse::Initialize()
     time_in = std::stod(value);
     Debug(2, "t_in = " + toExpString(time_in) + " s");
 
-    if(!YamlGetValue(&value, yaml, "file")){
+    if(!YamlGetValue(&value, yaml, "file"))
+    {
         configuration_error = true;
         return;
     }
 
     //================================== From file ======================================
-    if(value!="null"){
-        if(!LoadPulse(value)){
+    if(value!="null")
+    {
+        if(!LoadPulse(value))
+        {
             configuration_error = true;
             return;
         }
-        // frequency shift between central frequency of the pulse (v0)
-        // and central frequency of the calculation grig (vc)
+        // frequency shift between central frequency of the pulse (vc)
+        // and central frequency of the calculation grig (v0)
         for(int x=0; x<x0; x++)
             for(int n=0; n<n0; n++)
                 E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
@@ -51,22 +54,25 @@ void Pulse::Initialize()
     //================================ Not from file ====================================
 
     //---------------------------- Basic pulse parameters -------------------------------
-    if(!YamlGetValue(&value, yaml, "E")){
+    if(!YamlGetValue(&value, yaml, "E"))
+    {
         configuration_error = true;
         return;
     }
     E0 = std::stod(value);
     Debug(2, "E = " + toExpString(E0) + " J");
 
-    if(!YamlGetValue(&value, yaml, "freq")){
+    if(!YamlGetValue(&value, yaml, "freq"))
+    {
         configuration_error = true;
         return;
     }
-    v0 = std::stod(value);
-    Debug(2, "freq = " + toExpString(v0) + " Hz");
+    vc = std::stod(value);
+    Debug(2, "freq = " + toExpString(vc) + " Hz");
 
     //----------------------------- Beam spatial profile --------------------------------
-    if(!YamlGetValue(&value, yaml, "beam")){
+    if(!YamlGetValue(&value, yaml, "beam"))
+    {
         configuration_error = true;
         return;
     }
@@ -75,8 +81,10 @@ void Pulse::Initialize()
 
     double *BeamProfile = new double[x0];
     double Dr = planes[0]->optic->r_max/x0; // input plane (first optic in the layout)
-    if(beam == "GAUSS" || beam == "SUPERGAUSS4" || beam == "SUPERGAUSS6" || beam == "SUPERGAUSS8" || beam == "SUPERGAUSS10" || beam == "FLATTOP"){
-        if(!YamlGetValue(&value, yaml, "w")){
+    if(beam == "GAUSS" || beam == "SUPERGAUSS4" || beam == "SUPERGAUSS6" || beam == "SUPERGAUSS8" || beam == "SUPERGAUSS10" || beam == "FLATTOP")
+    {
+        if(!YamlGetValue(&value, yaml, "w"))
+        {
             configuration_error = true;
             return;
         }
@@ -101,10 +109,12 @@ void Pulse::Initialize()
             for(int x=0; x<x0; x++)
                 Dr*(0.5+x)<=w0 ? BeamProfile[x]=1 : BeamProfile[x]=0;
     }
-    else if(beam == "FREEFORM"){
+    else if(beam == "FREEFORM")
+    {
         std::vector<double> r;
         std::vector<double> A;
-        if(!YamlGetData(&r, yaml, "beam_form", 0) || !YamlGetData(&A, yaml, "beam_form", 1)){
+        if(!YamlGetData(&r, yaml, "beam_form", 0) || !YamlGetData(&A, yaml, "beam_form", 1))
+        {
             configuration_error = true;
             return;
         }
@@ -115,13 +125,15 @@ void Pulse::Initialize()
         for(int x=0; x<x0; x++)
             BeamProfile[x] = sqrt(Interpolate(&r, &A, Dr*(0.5+x)));
     }
-    else{
+    else
+    {
         std::cout << "ERROR: wrong \'beam\' in config file \'" << yaml << "\'" << std::endl;
         configuration_error = true;
     }
 
     //---------------------------- Pulse temporal profile -------------------------------
-    if(!YamlGetValue(&value, yaml, "pulse")){
+    if(!YamlGetValue(&value, yaml, "pulse"))
+    {
         configuration_error = true;
         return;
     }
@@ -129,14 +141,17 @@ void Pulse::Initialize()
     Debug(2, "pulse = " + pulse);
 
     double *PulseProfile = new double[n0];
-    if(pulse == "GAUSS" || pulse == "FLATTOP"){
-        if(!YamlGetValue(&value, yaml, "fwhm")){
+    if(pulse == "GAUSS" || pulse == "FLATTOP")
+    {
+        if(!YamlGetValue(&value, yaml, "fwhm"))
+        {
             configuration_error = true;
             return;
         }
         double fwhm = std::stod(value);
         Debug(2, "tau = " + toExpString(fwhm) + " s");
-        if(pulse == "GAUSS"){
+        if(pulse == "GAUSS")
+        {
             double tau = fwhm/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
             for(int n=0; n<n0; n++)
                 PulseProfile[n] = exp(-pow((t_min+Dt*(0.5+n))/tau, 2));
@@ -145,10 +160,12 @@ void Pulse::Initialize()
             for(int n=0; n<n0; n++)
                 std::abs(t_min+Dt*(0.5+n))<=fwhm ? PulseProfile[n]=1 : PulseProfile[n]=0;
     }
-    else if(pulse == "FREEFORM"){
+    else if(pulse == "FREEFORM")
+    {
         std::vector<double> t;
         std::vector<double> A;
-        if(!YamlGetData(&t, yaml, "pulse_form", 0) || !YamlGetData(&A, yaml, "pulse_form", 1)){
+        if(!YamlGetData(&t, yaml, "pulse_form", 0) || !YamlGetData(&A, yaml, "pulse_form", 1))
+        {
             configuration_error = true;
             return;
         }
@@ -159,7 +176,8 @@ void Pulse::Initialize()
         for(int n=0; n<n0; n++)
             PulseProfile[n] = sqrt(Interpolate(&t, &A, t_min+Dt*(0.5+n)));
     }
-    else{
+    else
+    {
         std::cout << "ERROR: wrong \'pulse\' in config file \'" << yaml << "\'" << std::endl;
         configuration_error = true;
     }
@@ -173,8 +191,8 @@ void Pulse::Initialize()
         for(int n=0; n<n0; n++)
             E[x][n] = BeamProfile[x]*PulseProfile[n];
 
-    // frequency shift between central frequency of the pulse (v0)
-    // and central frequency of the calculation grig (vc)
+    // frequency shift between central frequency of the pulse (vc)
+    // and central frequency of the calculation grid (v0)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
             E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
@@ -183,7 +201,7 @@ void Pulse::Initialize()
     double Energy = 0;
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
-            Energy += 2.0 * h * v0
+            Energy += 2.0 * h * vc
                     * pow(abs(E[x][n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
@@ -201,8 +219,6 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     double Dr1 = from->optic->r_max/x0;
     double Dr2 = to  ->optic->r_max/x0;
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    // !!! v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
     int count=0;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
@@ -272,30 +288,30 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
             double r1;
             double r2 = Dr2*(0.5+x2);
-            double lambda, k_wave;
-            std::complex<double> tmp;
 
             // ------------------------------ frequency-domain propagation ------------------------------
 
             // Kirkhoff integral with cylindrical symmetry
             if(method == 1)
             {
-                double R, phi, Dphi;
+                double lambda, k_wave, R, phi, Dphi;
+                std::complex<double> tmp;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     Dphi = M_PI/ceil(M_PI*r1/Dr1);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v_min+Dv*(1.0+n));
+                        lambda = c/(v0+Dv*(n-n0/2));
                         k_wave = 2.0*M_PI/lambda;
                         tmp = 0;
                         for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
                             R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
-                            tmp += exp(-I*k_wave*(R-z)) / R * (1+z/R);
+                            tmp += exp(I*k_wave*(R-z)) / R * (1+z/R);
                         }
                         tmp *= Dphi*r1*Dr1 / (I*lambda);
-                        E[x2][n] +=  E1[x1][n] * tmp;
+                        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                        E[x2][n1] +=  E1[x1][n1] * tmp;
                     }
                 }
             }
@@ -304,16 +320,18 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             //see https://www.physlab.org/wp-content/uploads/2016/04/Diffraction-Ch10.pdf
             if(method == 3)
             {
+                double lambda, k_wave;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v_min+Dv*(1.0+n));
+                        lambda = c/(v0+Dv*(n-n0/2));
                         k_wave = 2.0*M_PI/lambda;
-                        E[x2][n] += E1[x1][n]
+                        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                        E[x2][n1] += E1[x1][n1]
                                 * 2.0*M_PI*r1*Dr1 //ring area
-                                * exp(-I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
+                                * exp(I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
                                 / (I*lambda*z)
                                 * j0(k_wave*r1*r2/z);
                     }
@@ -326,7 +344,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             // Probably more reliable than Fresnel approximation
             if(method == 5)
             {
-                double R_min, R_max, R, delta_R;
+                double lambda, k_wave, R_min, R_max, R, delta_R;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
@@ -336,11 +354,12 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     delta_R = (R_max-R_min);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v_min+Dv*(1.0+n));
+                        lambda = c/(v0+Dv*(n-n0/2));
                         k_wave = 2.0*M_PI/lambda;
-                        E[x2][n] += E1[x1][n]
+                        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                        E[x2][n1] += E1[x1][n1]
                                 * 2.0*M_PI*r1*Dr1 //ring area
-                                * exp(-I*k_wave*(R-z))
+                                * exp(I*k_wave*(R-z))
                                 / (I*lambda*R)
                                 * j0(k_wave*delta_R/2);
                     }
@@ -352,9 +371,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             // Kirchoff monchrome
             if(method == 2)
             {
+                double lambda = c/vc;
+                double k_wave = 2.0*M_PI/lambda;
                 double R, phi, Dphi;
-                lambda = c/v0;
-                k_wave = 2.0*M_PI/lambda;
+                std::complex<double> tmp;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
@@ -363,7 +383,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi)
                     {
                         R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
-                        tmp += exp(-I*k_wave*(R-z)) / R * (1+z/R);
+                        tmp += exp(I*k_wave*(R-z)) / R * (1+z/R);
                     }
                     tmp *= Dphi*r1*Dr1 / (I*lambda);
                     for(int n=0; n<n0; n++)
@@ -374,13 +394,14 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             // Fresnel monchrome
             if(method == 4)
             {
-                lambda = c/v0;
-                k_wave = 2.0*M_PI/lambda;
+                double lambda = c/vc;
+                double k_wave = 2.0*M_PI/lambda;
+                std::complex<double> tmp;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     tmp = 2*M_PI*r1*Dr1 //ring area
-                            * exp(-I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
+                            * exp(I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
                             / (I*lambda*z)
                             * j0(k_wave*r1*r2/z);
                     for(int n=0; n<n0; n++)
@@ -391,9 +412,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             // Polyanskiy monchrome
             if(method == 6)
             {
+                double lambda = c/vc;
+                double k_wave = 2.0*M_PI/lambda;
                 double R_min, R_max, R, delta_R;
-                lambda = c/v0;
-                k_wave = 2.0*M_PI/lambda;
+                std::complex<double> tmp;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
@@ -402,7 +424,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     R = (R_min+R_max)/2;                 // average --''--
                     delta_R = (R_max-R_min);
                     tmp = 2*M_PI*r1*Dr1 //ring area
-                            * exp(-I*k_wave*(R-z))
+                            * exp(I*k_wave*(R-z))
                             / (I*lambda*R)
                             * j0(k_wave*delta_R/2);
                     for(int n=0; n<n0; n++)
@@ -412,18 +434,17 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
         }
 
-    }
-
-    Debug(2, "propagation: integration done");
-
-    if(method==1 || method==3 || method==5) // frequency-domain propagation
-    {
-        for(int x=0; x<x0; x++)
+        if(method==1 || method==3 || method==5) // frequency-domain propagation: do IFFT
         {
-            IFFT(E[x], E1[x]); // frequency -> time domain
-            for(int n=0; n<n0; n++)
-                E[x][n] = E1[x][n];
+            for(int x=0; x<x0; x++)
+            {
+                IFFT(E[x], E1[x]); // frequency -> time domain
+                for(int n=0; n<n0; n++)
+                    E[x][n] = E1[x][n];
+            }
         }
+
+        Debug(2, "propagation: diffraction integral calculations done");
     }
 
     Debug(2, "propagation: all done");
@@ -460,8 +481,8 @@ void Pulse::SavePulse()
     E1 = new std::complex<double>* [x0];
     for(int x=0; x<x0; x++)
         E1[x] = new std::complex<double>[n0];
-    // reverse frequency shift between central frequency of the pulse (v0)
-    // and central frequency of the calculation grig (vc)
+    // reverse frequency shift between central frequency of the pulse (vc)
+    // and central frequency of the calculation grig (v0)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
             E1[x][n] = E[x][n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
@@ -490,7 +511,7 @@ void Pulse::SavePulse()
     H5LTset_attribute_double(file, "pulse", "t_min", dbl, 1);
     dbl[0] = t_max;
     H5LTset_attribute_double(file, "pulse", "t_max", dbl, 1);
-    dbl[0] = v0;
+    dbl[0] = vc;
     H5LTset_attribute_double(file, "pulse", "freq", dbl, 1);
 
     H5Fclose(file);
@@ -512,9 +533,11 @@ bool Pulse::LoadPulse(std::string filename)
     Debug(2, "Reading pulse data from file \'" + filename + "\'");
 
     hid_t file = H5Fopen(filename.c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
-    if(file < 0){ //H5Fopen reterns a negative value in case of error
+    if(file < 0) //H5Fopen reterns a negative value in case of error
+    {
         file = H5Fopen((search_dir+"\\"+filename).c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
-        if(file < 0){
+        if(file < 0)
+        {
             std::cout << "ERROR: Cannot open HDF5 file \'" << filename << "\'\n";
             return false;
         }
@@ -529,15 +552,16 @@ bool Pulse::LoadPulse(std::string filename)
     hid_t status3 = H5LTget_attribute_double(file, "pulse", "t_max", dbl);
     double t_max1 = dbl[0];
     hid_t status4 = H5LTget_attribute_double(file, "pulse", "freq", dbl);
-    v0 = dbl[0];
-    if(status1<0 || status2<0 || status3<0 || status4<0){
+    vc = dbl[0];
+    if(status1<0 || status2<0 || status3<0 || status4<0)
+    {
         std::cout << "ERROR: Cannot read pulse attributes from file \'" << filename << "\'\n";
         return false;
     }
     Debug(2, "r_max = " + toExpString(r_max1) + " m");
     Debug(2, "t_min = " + toExpString(t_min1) + " s");
     Debug(2, "t_max = " + toExpString(t_max1) + " s");
-    Debug(2, "v0 = " + toExpString(v0) + " Hz");
+    Debug(2, "freq = " + toExpString(vc) + " Hz");
 
     // --------------------------- GET READY TO READ DATA -------------------------------
     hid_t dataset_re = H5Dopen(file, "pulse/re", H5P_DEFAULT);
@@ -559,7 +583,8 @@ bool Pulse::LoadPulse(std::string filename)
     re[0] = new double[x01*n01];
     im[0] = new double[x01*n01];
 
-    for (int x=1; x<x01; x++){
+    for (int x=1; x<x01; x++)
+    {
         re[x] = re[0]+x*n01;
         im[x] = im[0]+x*n01;
     }
@@ -568,7 +593,8 @@ bool Pulse::LoadPulse(std::string filename)
     status1 = H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &re[0][0]);
     status2 = H5Dread(dataset_im, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &im[0][0]);
 
-    if(status1<0 || status2<0){
+    if(status1<0 || status2<0)
+    {
         std::cout << "ERROR: Cannot read field data from file \'" << filename << "\'\n";
         return false;
     }
@@ -599,11 +625,13 @@ bool Pulse::LoadPulse(std::string filename)
     double Dt1 = (t_max1-t_min1)/n01;
 
     #pragma omp parallel for
-    for(int x=0; x<x0; x++){
+    for(int x=0; x<x0; x++)
+    {
         double r = Dr*(0.5+x);
         for(int n=0; n<n0; n++){
             double t = t_min + Dt*(0.5+n);
-            if(r>r_max1 || t<t_min1 || t>t_max1){
+            if(r>r_max1 || t<t_min1 || t>t_max1)
+            {
                 E[x][n] = 0;
                 break;
             }

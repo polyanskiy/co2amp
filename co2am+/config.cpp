@@ -6,9 +6,11 @@ void MainWindow::UpdateConfigurationFiles()
     // co2am+.ini
     QSettings settings("co2am+.ini", QSettings::IniFormat);
 
+    formatVersion = 2020;
+
     settings.setValue("co2am+/formatVersion", formatVersion);
 
-    settings.setValue("grid/vc",             lineEdit_vc->text());
+    settings.setValue("grid/v0",             lineEdit_v0->text());
     settings.setValue("grid/precision_t",    comboBox_precision_t->currentIndex());
     settings.setValue("grid/precision_r",    comboBox_precision_r->currentIndex());
     settings.setValue("grid/t_min",          lineEdit_t_min->text());
@@ -39,13 +41,15 @@ void MainWindow::UpdateConfigurationFiles()
     file.setFileName("config_files.yml");
     file.open(QFile::WriteOnly | QFile::Truncate);
 
-    for(int i=0; i<configFile_id.size(); i++){
+    for(int i=0; i<configFile_id.size(); i++)
+    {
         out << "- id: " << configFile_id[i] << "\n"
             << "  type: " <<configFile_type[i] << "\n";
     }
     file.close();
 
-    for(int i=0; i<configFile_id.size(); i++){
+    for(int i=0; i<configFile_id.size(); i++)
+    {
         file.setFileName(configFile_id[i]+".yml");
         file.open(QFile::WriteOnly | QFile::Truncate);
         out << configFile_content[i];
@@ -73,13 +77,16 @@ void MainWindow::ReadConfigurationFiles()
     QTextStream in(&file);
 
     file.setFileName("config_files.yml");
-    if(file.open(QIODevice::ReadOnly | QFile::Text)){
+    if(file.open(QIODevice::ReadOnly | QFile::Text))
+    {
         str = in.readAll();
         file.close();
         file_list = str.split("- ", QString::SkipEmptyParts);
-        for(int i=0; i<file_list.size(); i++){
+        for(int i=0; i<file_list.size(); i++)
+        {
             file_record = file_list[i].split("\n", QString::SkipEmptyParts);
-            if(file_record.size() == 2){ // "- id: ...", "type: ..."
+            if(file_record.size() == 2) // "- id: ...", "type: ..."
+            {
                 QString id   = file_record[0].split(": ")[1]; // "- id: ..."
                 QString type = file_record[1].split(": ")[1]; // "  type: ..."
                 //add element to id/type/content list
@@ -101,8 +108,8 @@ void MainWindow::ReadConfigurationFiles()
 
     // co2am+.ini
     QSettings settings("co2am+.ini", QSettings::IniFormat);
-    formatVersion = settings.value("co2am+/formatVersion", "2019").toFloat(); // only change when format is changed (not every release)
-    lineEdit_vc            -> setText        (settings.value("grid/vc",       "30e12").toString());
+    formatVersion = settings.value("co2am+/formatVersion", "2020").toFloat(); // only change when format is changed (not every release)
+    lineEdit_v0            -> setText        (settings.value("grid/v0",       "30e12").toString());
     comboBox_precision_t   -> setCurrentIndex(settings.value("grid/precision_t",    5).toInt());
     comboBox_precision_r   -> setCurrentIndex(settings.value("grid/precision_r",    5).toInt());
     lineEdit_t_min         -> setText        (settings.value("grid/t_min", "-250e-12").toString());
@@ -133,7 +140,8 @@ void MainWindow::ReadConfigurationFiles()
     // comments.txt
     file.setFileName("comments.txt");
     plainTextEdit_comments->setPlainText("");
-    if(file.open(QIODevice::ReadOnly | QFile::Text)){
+    if(file.open(QIODevice::ReadOnly | QFile::Text))
+    {
         plainTextEdit_comments->setPlainText(in.readAll());
         file.close();
     }
@@ -142,11 +150,17 @@ void MainWindow::ReadConfigurationFiles()
     if(!QFile::exists("co2am+.ini") && QFile::exists("project.ini")) //pre-2019
         formatVersion = 2015;
 
-    if(formatVersion<2019){ // not a default, but less than given version
+    if(formatVersion<2018.9) // not a default, but less than given version
+    {
         QMessageBox::critical(this, "co2am+", "It looks like this file was created by an older "
                                               "version of co2amp/co2am+ and is not supported.\n"
                                               "Try using co2amp v.2019-04-29");
         return;
+    }
+
+    if(formatVersion>=2018.9 && formatVersion<2019.1)
+    {
+        lineEdit_v0            -> setText        (settings.value("grid/vc",       "30e12").toString());
     }
     // /////////////////////////////// backwards compatibility end ///////////////////////////////////////
     Update();

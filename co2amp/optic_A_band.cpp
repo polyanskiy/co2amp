@@ -264,10 +264,14 @@ void A::AmplificationBand(void)
 
     // Normalized populations of rotational sublevels
     // nop[i][ba][vl][j]
-    for(i=0; i<6; i++){
-        for(ba=0; ba<4; ba++){
-            for(vl=0; vl<3; vl++){
-                for(j=0; j<61; j++){
+    for(i=0; i<6; i++)
+    {
+        for(ba=0; ba<4; ba++)
+        {
+            for(vl=0; vl<3; vl++)
+            {
+                for(j=0; j<61; j++)
+                {
                     nop[i][ba][vl][j] = h*B[i][ba][vl]/(k*T0) * (2*j+1) * exp(-h*B[i][ba][vl]/(k*T0)*j*(j+1));
                     if(i!=1 && i!=4) // symmetric molecules (not 628 or 638)
                         nop[i][ba][vl][j] *= 2;
@@ -278,9 +282,12 @@ void A::AmplificationBand(void)
 
     // Transition frequencies, Hz
     // v[i][ba][br][j]
-    for(i=0; i<6; i++){
-        for(ba=0; ba<4; ba++){
-            for(j=0; j<61; j++){
+    for(i=0; i<6; i++)
+    {
+        for(ba=0; ba<4; ba++)
+        {
+            for(j=0; j<61; j++)
+            {
                 v[i][ba][0][j] = V[i][ba][0] + B[i][ba][0]*(j-1)*j     - B[i][ba][1]*j*(j+1); //10P
                 v[i][ba][1][j] = V[i][ba][0] + B[i][ba][0]*(j+1)*(j+2) - B[i][ba][1]*j*(j+1); //10R
                 v[i][ba][2][j] = V[i][ba][1] + B[i][ba][0]*(j-1)*j     - B[i][ba][2]*j*(j+1); //9P
@@ -291,9 +298,12 @@ void A::AmplificationBand(void)
 
     // Transition cross-sections, m^2
     // sigma[i][ba][br][j]
-    for(i=0; i<6; i++){
-        for(ba=0; ba<4; ba++){
-            for(br=0; br<4; br++){
+    for(i=0; i<6; i++)
+    {
+        for(ba=0; ba<4; ba++)
+        {
+            for(br=0; br<4; br++)
+            {
                 for(j=0; j<61; j++)
                     sigma[i][ba][br][j] = pow(c/v[i][ba][br][j],2) * A[i][ba][br][j] / 4 / (M_PI*gamma);
             }

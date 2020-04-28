@@ -15,8 +15,10 @@ void MainWindow::on_toolButton_configFile_add_clicked()
     QStringList type_list = {"PULSE", "LAYOUT", "A", "P", "L", "M", "F", "S", "C"};
 
     // allow only one layout
-    for(int i=0; i<configFile_id.size(); i++){
-        if(configFile_type[i] == "LAYOUT"){
+    for(int i=0; i<configFile_id.size(); i++)
+    {
+        if(configFile_type[i] == "LAYOUT")
+        {
             selection_list.removeOne("LAYOUT");
             type_list.removeOne("LAYOUT");
         }
@@ -32,23 +34,27 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
     QString id="";
     bool good_id_provided = false;
-    while(!good_id_provided){
+    while(!good_id_provided)
+    {
         id = QInputDialog().getText(this, "co2am+", " ID",
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
-        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
+        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$")))
+        {
             QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;
         }
-        if(ConfigFileNameExists(id)){
+        if(ConfigFileNameExists(id))
+        {
             QMessageBox().warning(this, "co2am+", "ID already exists");
             continue;
         }
         good_id_provided = true;
     }
 
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -72,7 +78,8 @@ void MainWindow::on_toolButton_configFile_add_clicked()
 
 void MainWindow::on_toolButton_configFile_up_clicked()
 {
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -99,7 +106,8 @@ void MainWindow::on_toolButton_configFile_up_clicked()
 
 void MainWindow::on_toolButton_configFile_down_clicked()
 {
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -133,22 +141,26 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
     QString id="";
     bool ok_pressed;
     bool good_id_provided = false;
-    while(!good_id_provided){
+    while(!good_id_provided)
+    {
         id = QInputDialog().getText(this, "co2am+", "ID", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
-        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$"))){
+        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$")))
+        {
             QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;
         }
-        if(ConfigFileNameExists(id)){
+        if(ConfigFileNameExists(id))
+        {
             QMessageBox().warning(this, "co2am+", "ID already exists");
             continue;
         }
         good_id_provided = true;
     }  
 
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -171,7 +183,8 @@ void MainWindow::on_toolButton_configFile_remove_clicked()
     if(QMessageBox::question(this, "co2am+", "Sure?") != QMessageBox::Yes)
         return;
 
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -201,10 +214,12 @@ void MainWindow::on_listWidget_configFile_list_currentRowChanged(int)
 
 void MainWindow::on_plainTextEdit_configFile_content_textChanged()
 {
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
-        else{
+        else
+        {
             plainTextEdit_configFile_content->blockSignals(true);
             plainTextEdit_configFile_content->undo();
             plainTextEdit_configFile_content->blockSignals(false);
@@ -223,7 +238,8 @@ void MainWindow::on_pushButton_configFile_load_clicked()
 {
     QFileInfo fileinfo;
 
-    if(yaml_dir == QString()){
+    if(yaml_dir == QString())
+    {
         fileinfo.setFile(path_to_co2amp);
         yaml_dir = QDir::toNativeSeparators(fileinfo.dir().path() + "/library/optics/");
     }
@@ -232,7 +248,8 @@ void MainWindow::on_pushButton_configFile_load_clicked()
     if(path == QString())
         return;
 
-    if(CalcResultsExist()){
+    if(CalcResultsExist())
+    {
         if(OkToInvalidate())
             InvalidateResults();
         else
@@ -240,7 +257,8 @@ void MainWindow::on_pushButton_configFile_load_clicked()
     }
 
     QFile file(path);
-    if(file.open(QIODevice::ReadOnly | QFile::Text)){
+    if(file.open(QIODevice::ReadOnly | QFile::Text))
+    {
         QTextStream yaml(&file);
         configFile_content[listWidget_configFile_list->currentRow()] = yaml.readAll();
         file.close();
@@ -260,7 +278,8 @@ void MainWindow::on_pushButton_configFile_save_clicked()
 {
     QFileInfo fileinfo;
 
-    if(yaml_dir == QString()){
+    if(yaml_dir == QString())
+    {
         fileinfo.setFile(path_to_co2amp);
         yaml_dir = QDir::toNativeSeparators(fileinfo.dir().path() + "/library/optics/");
     }
@@ -270,7 +289,8 @@ void MainWindow::on_pushButton_configFile_save_clicked()
         return;
 
     QFile file(path);
-    if(file.open(QIODevice::WriteOnly)){
+    if(file.open(QIODevice::WriteOnly))
+    {
         QTextStream yaml(&file);
         yaml << configFile_content[listWidget_configFile_list->currentRow()];
         file.close();
@@ -309,7 +329,8 @@ void MainWindow::PopulateConfigFileList()
     listWidget_configFile_list->blockSignals(true);
 
     listWidget_configFile_list->clear();
-    for(int i=0; i<configFile_id.size(); i++){
+    for(int i=0; i<configFile_id.size(); i++)
+    {
         listWidget_configFile_list->addItem(configFile_id[i]);
         listWidget_configFile_list->setCurrentRow(i);
         listWidget_configFile_list->currentItem()->setIcon(QIcon(":/images/"+configFile_type[i]+".svg"));

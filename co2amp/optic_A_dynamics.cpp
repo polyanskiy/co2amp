@@ -27,10 +27,12 @@ void A::InternalDynamics(double time)
     pump3 = 0;
     pump4 = 0;
 
-    if(pumping == "discharge"){
+    if(pumping == "discharge")
+    {
         // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
         double step = 25e-9;
-        if(time-time_tick/2<=time_b && time+time_tick/2>time_b){
+        if(time-time_tick/2<=time_b && time+time_tick/2>time_b)
+        {
             q2_a = q2_b;
             q3_a = q3_b;
             q4_a = q4_b;
@@ -54,12 +56,13 @@ void A::InternalDynamics(double time)
         pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
     }
-    if(pumping == "optical"){
+    if(pumping == "optical")
+    {
         double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
-        if(pump_wl>3.8e-6 && pump_wl<4.8e-6){ // direct excitation of (001) level
+        if(pump_wl>3.8e-6 && pump_wl<4.8e-6) // direct excitation of (001) level
             pump3 = photon_flux * pump_sigma;
-        }
-        if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
+        if(pump_wl>2.2e-6 && pump_wl<3.2e-6) // excitation through combinational vibration (101,021)
+        {
             pump3 = photon_flux * pump_sigma;
             pump2 = 2 * pump3;
         }
@@ -68,10 +71,13 @@ void A::InternalDynamics(double time)
     // time of travel from input plane to first interaction with this AM section
     double time_from_first_plane = 0;
     for(Plane* plane : planes)
-        if(plane->optic->id == id){
+    {
+        if(plane->optic->id == id)
+        {
             time_from_first_plane = plane->time_from_first_plane;
             break;
         }
+    }
 
     // time of arraival of first pulse to this AM section
     double time_of_first_pulse_arrival = 1e12;
@@ -80,8 +86,10 @@ void A::InternalDynamics(double time)
             time_of_first_pulse_arrival = pulse->time_in + time_from_first_plane;
 
 
-    for(int x=0; x<x0; x++){
-        if( time > time_of_first_pulse_arrival || x==0 ){ // population is same everythere if no pulse interaction yet occured
+    for(int x=0; x<x0; x++)
+    {
+        if( time > time_of_first_pulse_arrival || x==0 ) // population is same everythere if no pulse interaction yet occured
+        {
             A = T[x]/273.0 * pow(1.0+0.5*e2e(T[x]),-3);
             X = pow(T[x],-1.0/3);
 
@@ -113,7 +121,8 @@ void A::InternalDynamics(double time)
             cv = 2.5*(y1+y2) + 1.5*y3;
             T[x] += ( y1/cv * (500.0*r3*f3 + 960.0*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT/N/cv ) * time_tick;
         }
-        else{
+        else
+        {
             e4[x] = e4[0];
             e3[x] = e3[0];
             e2[x] = e2[0];
@@ -165,12 +174,14 @@ double A::PumpingPulseIntensity(double time)
 
 void A::InitializePopulations()
 { 
-    for(int x=0; x<=x0-1; x++){
+    for(int x=0; x<=x0-1; x++)
+    {
         T[x] = T0;
         e4[x] = 1.0/(exp(3350.0/T0)-1.0);
         e2[x] = 2.0/(exp(960.0/T0)-1.0);
         e3[x] = 1.0/(exp(3380.0/T0)-1.0);
-        /*if(pumping == "optical"){
+        /*if(pumping == "optical")
+        {
             double Temp2, e1, fluence;
             fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
             // number of quanta added to upper state:
@@ -208,7 +219,8 @@ double A::VibrationalTemperatures(int x, int mode){
     double X3 = exp(-3380.0/Temp3);
 
     // iterations: solve Nevdakhs's equations
-    for(int i=0; i<10; i++){
+    for(int i=0; i<10; i++)
+    {
         X1 = exp(-1920.0/Temp2); // no need to solve 1st equation (e1=...): X1 is known if X2 is known (T1=T2)
         X3 = 1.0 - e2[x]/(1.0-X1)*(1.0-X2)/(2.0*X2); // 2nd equation (e2=...)
         X2 = 1.0 - sqrt( e3[x]/(1.0-X1)*(1.0-X3)/X3 ); // 3rd equation (e3=...)
@@ -216,7 +228,8 @@ double A::VibrationalTemperatures(int x, int mode){
     }
     Temp3 = -3380.0/log(X3);*/
 
-    switch(mode){
+    switch(mode)
+    {
         case 1:
             return Temp2;
         case 2:
@@ -235,7 +248,8 @@ void A::UpdateDynamicsFiles(double time)
 
     if(pumping == "discharge"){
         //////////////////////// Discharge ////////////////////////
-        if(time==0){
+        if(time==0)
+        {
             file = fopen((id+"_discharge.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] current[A] voltage[V]\n");
         }
@@ -245,7 +259,8 @@ void A::UpdateDynamicsFiles(double time)
         fclose(file);
 
         //////////////////////////// q ////////////////////////////
-        if(time==0){
+        if(time==0)
+        {
             file = fopen((id+"_q.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] q2 q3 q4\n");
         }
@@ -257,7 +272,8 @@ void A::UpdateDynamicsFiles(double time)
 
     if(pumping == "optical"){
         //////////////////////// Discharge ////////////////////////
-        if(time==0){
+        if(time==0)
+        {
             file = fopen((id+"_pumping_pulse.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] intensity[W/m^2]\n");
         }
@@ -268,7 +284,8 @@ void A::UpdateDynamicsFiles(double time)
     }
 
     /////////////// e (average number of quanta in vibration modes) ////////////////
-    if(time==0){
+    if(time==0)
+    {
         file = fopen((id+"_e.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] e1 e2 e3 e4\n");
     }
@@ -280,7 +297,8 @@ void A::UpdateDynamicsFiles(double time)
     fclose(file);
 
     ///////////////////////// Temperatures /////////////////////////
-    if(time==0){
+    if(time==0)
+    {
         file = fopen((id+"_temperatures.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] T[K] T2[K] T3[K] T4[K]\n");
     }

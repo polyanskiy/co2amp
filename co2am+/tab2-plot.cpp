@@ -33,7 +33,8 @@ void MainWindow::Plot()
     if(!QFile::exists("energy.dat") && !flag_calculating)
         return;
 
-    if(tabWidget_main->currentIndex()!=2){
+    if(tabWidget_main->currentIndex()!=2)
+    {
         flag_plot_postponed = true;
         return;
     }
@@ -80,28 +81,29 @@ void MainWindow::Plot()
     double zoom = doubleSpinBox_zoom->value();
 
     QSize size(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-    switch(comboBox_size->currentIndex()){
-    case 0: // "Auto"
-        size = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-        break;
-    case 1: // "360x270"
-        size = QSize(floor(360.0*zoom),(int)floor(270.0*zoom));
-        break;
-    case 2: // "480x360"
-        size = QSize(floor(480.0*zoom),(int)floor(360.0*zoom));
-        break;
-    case 3: // "640x480"
-        size = QSize(floor(640.0*zoom),(int)floor(480.0*zoom));
-        break;
-    case 4: // "800x600"
-        size = QSize(floor(800.0*zoom),(int)floor(600.0*zoom));
-        break;
-    case 5: // "1024x768"
-        size = QSize(floor(1024.0*zoom),(int)floor(768.0*zoom));
-        break;
-    case 6: // "Custom"
-        size = QSize(floor(spinBox_width->value()*zoom),(int)floor(spinBox_height->value()*zoom));
-        break;
+    switch(comboBox_size->currentIndex())
+    {
+        case 0: // "Auto"
+            size = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
+            break;
+        case 1: // "360x270"
+            size = QSize(floor(360.0*zoom),(int)floor(270.0*zoom));
+            break;
+        case 2: // "480x360"
+            size = QSize(floor(480.0*zoom),(int)floor(360.0*zoom));
+            break;
+        case 3: // "640x480"
+            size = QSize(floor(640.0*zoom),(int)floor(480.0*zoom));
+            break;
+        case 4: // "800x600"
+            size = QSize(floor(800.0*zoom),(int)floor(600.0*zoom));
+            break;
+        case 5: // "1024x768"
+            size = QSize(floor(1024.0*zoom),(int)floor(768.0*zoom));
+            break;
+        case 6: // "Custom"
+            size = QSize(floor(spinBox_width->value()*zoom),(int)floor(spinBox_height->value()*zoom));
+            break;
     }
 
     svg_fig1->setFixedSize(size);
@@ -155,33 +157,37 @@ void MainWindow::Plot()
     double v_range = comboBox_precision_t->currentText().toDouble()
             / (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())
             / pow(2, comboBox_freqScale->currentIndex());
-    double v_min = lineEdit_vc->text().toDouble() - v_range/2;
-    double v_max = lineEdit_vc->text().toDouble() + v_range/2;
+    double v_min = lineEdit_v0->text().toDouble() - v_range/2;
+    double v_max = lineEdit_v0->text().toDouble() + v_range/2;
 
     // frequency / wavelength / wavenumber axis
     double c = 2.99792458e8;// m/s
     QString frequency_xlabel;
     QString frequency_using;
-    if(comboBox_frequencyUnit->currentIndex() == 0){ // THz
+    if(comboBox_frequencyUnit->currentIndex() == 0) // THz
+    {
         frequency_xlabel = "Frequency, THz";
         frequency_using = " using ($1/1e12)";
         v_min /= 1e12;
         v_max /= 1e12;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 1){ // 1/cm
+    if(comboBox_frequencyUnit->currentIndex() == 1) // 1/cm
+    {
         frequency_xlabel = "Wavenumber, 1/cm";
         frequency_using = " using ($1/2.99792458e10)";
         v_min = v_min/c/100;
         v_max = v_max/c/100;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 2){ // µm
+    if(comboBox_frequencyUnit->currentIndex() == 2) // µm
+    {
         frequency_xlabel = "Wavelength, µm";
         frequency_using = " using (2.99792458e14/$1)";
         double tmp = v_min;
         v_min = c/v_max*1e6;
         v_max = c/tmp*1e6;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 3){ // nm
+    if(comboBox_frequencyUnit->currentIndex() == 3) // nm
+    {
         frequency_xlabel = "Wavelength, nm";
         frequency_using = " using (2.99792458e17/$1)";
         double tmp = v_min;
@@ -221,7 +227,8 @@ void MainWindow::Plot()
     out << "set output \"fig_fluence.svg\"\n";
     out << "set xlabel \"r, " << length_unit << "\"\n";
     out << "set ylabel \"Fluence, " << fluence_unit << "\"\n";
-    for(int i=0; i<=9; i++){
+    for(int i=0; i<=9; i++)
+    {
         pass_n = PassNumber(i);
         if(pass_n == -1)
             continue;
@@ -254,7 +261,8 @@ void MainWindow::Plot()
     out << "set xlabel \"Time, " << t_unit << "\"\n";
     out << "set xrange [" << t_min << ":" << t_max << "]\n";
     out << "set ylabel \"Power, " << power_unit << "\"\n";
-    for(int i=0; i<=9; i++){
+    for(int i=0; i<=9; i++)
+    {
         pass_n = PassNumber(i);
         if(pass_n == -1)
             continue;
@@ -288,7 +296,8 @@ void MainWindow::Plot()
     out << "set xrange [" << v_min << ":" << v_max << "]\n";
     out << "set ylabel \"Intensity, a.u.\"\n";
     out << "set yrange [0:*]\n";
-    for(int i=0; i<=9; i++){
+    for(int i=0; i<=9; i++)
+    {
         pass_n = PassNumber(i);
         if(pass_n == -1)
             continue;
@@ -312,7 +321,8 @@ void MainWindow::Plot()
     QProcess *proc4 = new QProcess(this);
     proc4->start("\"" + path_to_gnuplot + "\" script_spectra.gp");
 
-    if(optic_type == "A"){
+    if(optic_type == "A")
+    {
         // GnuPlot script: Temperatures
         file.setFileName("script_temperatures.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
@@ -355,7 +365,8 @@ void MainWindow::Plot()
         out << "set xlabel \"" << frequency_xlabel << "\"\n";
         out << "set xrange [" << v_min << ":" << v_max << "]\n";
         out << "set ylabel \"Gain, %/cm\"\n";
-        for(int i=0; i<10; i++){
+        for(int i=0; i<10; i++)
+        {
             pass_n = PassNumber(i);
             if(pass_n == -1)
                 continue;
@@ -381,7 +392,8 @@ void MainWindow::Plot()
 
         // GnuPlot script: Discharge
         QProcess *proc8 = new QProcess(this);
-        if(QFile::exists(optic_id + "_discharge.dat")){
+        if(QFile::exists(optic_id + "_discharge.dat"))
+        {
             file.setFileName("script_discharge.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
             out << common_file_head;
@@ -418,7 +430,8 @@ void MainWindow::Plot()
 
         // GnuPlot script: pumping pulse
         QProcess *proc10 = new QProcess(this);
-        if(QFile::exists(optic_id + "_pumping_pulse.dat")){
+        if(QFile::exists(optic_id + "_pumping_pulse.dat"))
+        {
             file.setFileName("script_pumping_pulse.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
             out << common_file_head;
@@ -441,7 +454,8 @@ void MainWindow::Plot()
         proc10->waitForFinished();
     }
 
-    if(optic_type == "F"){
+    if(optic_type == "F")
+    {
         // GnuPlot script: Transmittance (spatial filter)
         file.setFileName("script_transmittance.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
@@ -457,7 +471,8 @@ void MainWindow::Plot()
         proc5->waitForFinished();
     }
 
-    if(optic_type == "S"){
+    if(optic_type == "S")
+    {
         // GnuPlot script: Transmittance (spectral filter)
         file.setFileName("script_transmittance.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
@@ -474,7 +489,8 @@ void MainWindow::Plot()
         proc5->waitForFinished();
     }
 
-    if(optic_type == "P"){
+    if(optic_type == "P")
+    {
         // GnuPlot script: Phase
         plot_n = 0;
         file.setFileName("script_phase.gp");
@@ -485,7 +501,8 @@ void MainWindow::Plot()
         out << "set xrange [" << t_min << ":" << t_max << "]\n";
         out << "set ylabel \"Phase, rad.\"\n";
         out << "set yrange [-3.15:3.15]\n";
-        for(int i=0; i<=9; i++){
+        for(int i=0; i<=9; i++)
+        {
             pass_n = PassNumber(i);
             if(pass_n == -1)
                 continue;
@@ -522,7 +539,8 @@ void MainWindow::Plot()
     svg_fig2->load(QString("fig_spectra.svg"));
     svg_fig4->load(QString("fig_fluence.svg"));
     svg_fig5->load(QString("fig_power.svg"));
-    if(optic_type == "A"){ //active medium
+    if(optic_type == "A") //active medium
+    {
         svg_fig3->load(QString("fig_gain.svg"));
         if(QFile::exists("fig_discharge.svg"))
             svg_fig6->load(QString("fig_discharge.svg"));

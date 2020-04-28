@@ -12,7 +12,8 @@ C::C(std::string id)
     std::string value="";
 
     // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R")){
+    if(!YamlGetValue(&value, yaml, "R"))
+    {
         configuration_error = true;
         return;
     }
@@ -20,7 +21,8 @@ C::C(std::string id)
     Debug(2, "R = " + toExpString(r_max) + " m");
 
     // Chirp
-    if(!YamlGetValue(&value, yaml, "chirp")){
+    if(!YamlGetValue(&value, yaml, "chirp"))
+    {
         configuration_error = true;
         return;
     }   
@@ -44,22 +46,37 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     StatusDisplay(pulse, plane, time, "chirping/de-chirping...");
 
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     #pragma omp parallel for // mulithread
-    for(int x=0; x<x0; x++){
-        double delay;
-        std::complex<double> *spectrum;
-        spectrum = new std::complex<double>[n0];
-        FFT(pulse->E[x], spectrum);
-        for(int n=0; n<n0; n++){
-            delay = (v_min+Dv*(1.0+n)-vc) * chirp; // delay increases with frequency (red chirp) - group delay
-            delay *= 0.5; // conversion to phase delay.
-            spectrum[n] *= exp(I*2.0*M_PI*(v_min+Dv*(1.0+n)-vc)*(-delay)); // no "-" in the exponent in frequency domain E(omega)
+    for(int x=0; x<x0; x++)
+    {
+        double v;
+
+        std::complex<double> *E1; // field in frequency domaine
+        E1 = new std::complex<double>[n0];
+        FFT(pulse->E[x], E1);
+
+        /*
+        // this can be used with any chirp profile
+        double shift = 0;
+        for(int n=n0; n<n0; n++)
+        {
+            v = Dv*(n-n0/2); // relative frequency (v-v0)
+            shift += v * chirp * Dv;
+            int n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
+            E1[n1] *= exp(I*2.0*M_PI*shift);
         }
-        IFFT(spectrum, pulse->E[x]);
-        delete[] spectrum;
+        */
+        // liniar chirp
+        for(int n=0; n<n0; n++)
+        {
+            v = Dv*(n-n0/2); // relative frequency (v-v0)
+            int n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
+            E1[n1] *= exp(I*M_PI*v*v*chirp);
+        }
+
+        IFFT(E1, pulse->E[x]);
+        delete[] E1;
     }
 
 }

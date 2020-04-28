@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     int j;
     QString str;
     QDir dir;
-    do{
+    do
+    {
         str.setNum(i);
         work_dir = QDir::tempPath() + "/co2amp/";
         for(j=0; j<6-str.size(); j++)
@@ -38,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     project_file = QString();
 
     //////////////////////////////////////// Validators ///////////////////////////////////////
-    lineEdit_vc        -> setValidator(new QDoubleValidator(this));
+    lineEdit_v0        -> setValidator(new QDoubleValidator(this));
     lineEdit_t_min     -> setValidator(new QDoubleValidator(this));
     lineEdit_t_max     -> setValidator(new QDoubleValidator(this));
     lineEdit_time_tick -> setValidator(new QDoubleValidator(this));
@@ -112,7 +113,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     /////////////////////////////// Process command line //////////////////////////////////////
     QStringList arg = qApp->arguments();
-    if( arg.count()>1 && QFile::exists(arg.last()) ){
+    if( arg.count()>1 && QFile::exists(arg.last()) )
+    {
         project_file = arg.last();
         LoadProject();
     }
@@ -161,7 +163,8 @@ void MainWindow::on_pushButton_open_clicked()
             str = QFileDialog::getOpenFileName(this, QString(), def_dir, "co2am+ project (*.co2)");
         else
             str = QFileDialog::getOpenFileName(this, QString(), project_file, "co2am+ project (*.co2)");
-        if(str != QString()){
+        if(str != QString())
+        {
             project_file = QDir::toNativeSeparators(str);
             LoadProject();
         }
@@ -184,7 +187,8 @@ void MainWindow::on_pushButton_saveas_clicked()
 
     fileinfo.setFile(str);
     QDir dir = fileinfo.dir();
-    if(fileinfo.suffix()!="co2"){
+    if(fileinfo.suffix()!="co2")
+    {
         QMessageBox().warning(this, "co2am+", "Wrong or missing extension (must be \'.co2\')");
         return;
     }
@@ -201,12 +205,14 @@ void MainWindow::on_pushButton_savePulse_clicked()
     QStringList pulse_list;
     QString pulse;
 
-    for(int i=0; i<configFile_id.count(); i++){
+    for(int i=0; i<configFile_id.count(); i++)
+    {
         if(configFile_type[i] == "PULSE")
             pulse_list.append(configFile_id[i]);
     }
 
-    if(pulse_list.count() > 1){
+    if(pulse_list.count() > 1)
+    {
         bool ok_pressed;
         pulse = QInputDialog().getItem(this, "co2am+", "Chose pulse to save",
                                               pulse_list, 0, false, &ok_pressed);
@@ -218,7 +224,8 @@ void MainWindow::on_pushButton_savePulse_clicked()
 
     QString save_path = QDir::toNativeSeparators(def_dir + "\\" + pulse + ".pulse");
     save_path = QFileDialog::getSaveFileName(this, QString(), save_path, "HDF5 (*.pulse)");
-    if(save_path != QString()){
+    if(save_path != QString())
+    {
         QFile::remove(save_path);
         QFile::copy(pulse+".pulse", save_path);
     }

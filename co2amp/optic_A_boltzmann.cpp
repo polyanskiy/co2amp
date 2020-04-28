@@ -32,8 +32,10 @@ void A::Boltzmann(double time)
     SolveEquations();
 
     ////////////////////////// Stage 2: fine net //////////////////////
-    for(i=0; i<b0; i++){
-        if(f[1]/f[i] >= 1e6){
+    for(i=0; i<b0; i++)
+    {
+        if(f[1]/f[i] >= 1e6)
+        {
             u_lim = Du*i;
             break;
         }
@@ -57,7 +59,8 @@ void A::WriteEquations(void)
     for(i=0; i<b0; i++)
         u[i] = i*Du;
 
-    for(i=0; i<b0; i++){
+    for(i=0; i<b0; i++)
+    {
         for(j=0; j<b0; j++)
             M[i][j] = 0;
         // Coeffitients of f_i
@@ -68,24 +71,26 @@ void A::WriteEquations(void)
         if(i > 0)
             M[i][i] += -1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i-1]/(Y1*Qm1[i-1] + Y2*Qm2[i-1] + Y3*Qm3[i-1]);
         // Coefficients of f_[i+uxx/Du]
-        for(k=1; k<11; k++){
+        for(k=1; k<11; k++)
+        {
             j = (int)floor((u[i]+u1[k])/Du + 0.5);
             if(j <= b0-1)
                 M[i][j] += Y1*u[j]*Q1[k][j];
         }
-        for(k=1; k<16; k++){
+        for(k=1; k<16; k++)
+        {
             j = (int)floor((u[i]+u2[k])/Du + 0.5);
             if(j <= b0-1)
                 M[i][j] += Y2*u[j]*Q2[k][j];
         }
         // Coefficients of f_[i+1]
-	if(i+1 < b0)
+        if(i+1 < b0)
             M[i][i+1] += 1.09e-3/2/Du*pow(u[i+1],2)*(Y1/M1*Qm1[i+1] + Y2/M2*Qm2[i+1] + Y3/M3*Qm3[i+1]) + Y1*C1*u[i+1]/2/Du + Y2*C2*u[i+1]/2/Du + 6*B*Y2*u[i+1]/2/Du*Q[i+1];
         // Coefficients of f_[i-1]
         if(i-1 >= 0)
             M[i][i-1] += -1.09e-3/2/Du*pow(u[i-1],2)*(Y1/M1*Qm1[i-1] + Y2/M2*Qm2[i-1] + Y3/M3*Qm3[i-1]) - Y1*C1*u[i-1]/2/Du - Y2*C2*u[i-1]/2/Du - 6*B*Y2*u[i-1]/2/Du*Q[i-1];
         // Coefficients of f_[i+2]
-	if(i+2 < b0)
+        if(i+2 < b0)
             M[i][i+2] += 1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i+1]/(Y1*Qm1[i+1] + Y2*Qm2[i+1] + Y3*Qm3[i+1]);
         // Coefficients of f_[i-2]
         if(i-2 >=0)
@@ -102,33 +107,39 @@ void A::SolveEquations(void)
     for(i=0; i<b0; i++)
             f[i] = 0;
 
-    for(j=1; j<b0; j++){
-        if(M[j-1][j-1]==0.0){
+    for(j=1; j<b0; j++)
+    {
+        if(M[j-1][j-1]==0.0)
+        {
             printf("!%d\n", j-1);
             jj = j;
             while(M[jj][jj]==0.0 && jj<b0-1)
                 jj++;
-	    for(i=0; i<b0; i++){ // swap j and jj lines;
+            for(i=0; i<b0; i++) // swap j and jj lines;
+            {
                 a = M[j-1][i];
                 M[j-1][i] = M[jj][i];
                 M[jj][i] = a;
             }
         }
-        if(M[j-1][j-1]==0.0){
+        if(M[j-1][j-1]==0.0)
+        {
             printf("Error !!!!!!!!!!!!!!!!!!!%d\n", j-1);
             fflush(stdout);
-	}
-	for(jj=j; jj<b0; jj++){
-	    a = M[jj][j-1] / M[j-1][j-1];
-	    //#pragma omp parallel for shared(M) private(i) // multithreaded
-	    for(i=0; i<b0; i++)
+        }
+        for(jj=j; jj<b0; jj++)
+        {
+            a = M[jj][j-1] / M[j-1][j-1];
+            //#pragma omp parallel for shared(M) private(i) // multithreaded
+            for(i=0; i<b0; i++)
                 M[jj][i] -= a*M[j-1][i];
         }
     }
 
     f[b0-1] = 1e-6;
-    for(i=b0-2; i>=0; i--){
-	for(j=i+1; j<b0; j++)
+    for(i=b0-2; i>=0; i--)
+    {
+        for(j=i+1; j<b0; j++)
             f[i] -= f[j]*M[i][j];
         f[i] /= M[i][i];
     }
@@ -162,7 +173,8 @@ void A::CalculateQ(void)
     for(i=0; i<b0-1; i++)
         v += -5.93e7 * 1.0/3.0*E_over_N * Du* Du*(i+0.5) * 1.0/(Y1*(Qm1[i]+Qm1[i+1])/2.0 + Y2*(Qm2[i]+Qm2[i+1])/2.0 + Y3*(Qm3[i]+Qm3[i+1])/2.0) * (f[i+1]-f[i])/Du;
 
-    for(i=0; i<b0-1; i++){
+    for(i=0; i<b0-1; i++)
+    {
         for(k=1; k<11; k++)
             w1[k] += 5.93e-9 * Du * Du*(i+0.5) * (Q1[k][i]+Q1[k][i+1])/2.0 * (f[i]+f[i+1])/2.0;
         for(k=1; k<16; k++)
@@ -211,7 +223,8 @@ void A::CalculateQ(void)
         qT = 0;
 
     double sum=q2+q3+q4+qT+qEI;
-    if(sum>1){ // Fine-tune Q's (Summ = 1)
+    if(sum>1) // Fine-tune Q's (Summ = 1)
+    {
         q2 /= sum;
         q3 /= sum;
         q4 /= sum;
@@ -233,15 +246,18 @@ void A::InterpolateArray(double* input_x, double* input_y, int input_size, doubl
     j=0;
 
 
-    while((double)j*Du <= input_x[0]){
+    while((double)j*Du <= input_x[0])
+    {
         output_array[j] = input_y[0];
         j++;
         if(j >= output_size)
             return;
     }
 
-    for(i=1; i<=input_size-1; i++){
-        while((double)j*Du <= input_x[i]){
+    for(i=1; i<=input_size-1; i++)
+    {
+        while((double)j*Du <= input_x[i])
+        {
             x1 = input_x[i-1];
             x2 = input_x[i];
             y1 = input_y[i-1];
@@ -256,7 +272,8 @@ void A::InterpolateArray(double* input_x, double* input_y, int input_size, doubl
         }
     }
 
-    while(j < output_size){
+    while(j < output_size)
+    {
         output_array[j] = input_y[input_size-1];
         j++;
     }
@@ -445,9 +462,9 @@ void A::Save_f()
 
     fprintf(file, "eV\tf\n");
 
-    for(i=0; i<b0; i++){
+    for(i=0; i<b0; i++)
         fprintf(file, "%.4E\t%.4E\n", u[i], f[i]);
-    }
+
     fclose(file);
 }
 
@@ -457,9 +474,8 @@ void A::AllocateMemoryBoltzmann(void)
     u = new double [b0];
 
     Q1 = new double* [11];
-    for(int j=0; j<11; j++){
+    for(int j=0; j<11; j++)
         Q1[j] = new double [b0];
-    }
 
     Q2 = new double* [16];
     for(int j=0; j<16; j++)

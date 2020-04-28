@@ -76,9 +76,11 @@ YamlHighlighter::YamlHighlighter(QTextDocument *parent) : QSyntaxHighlighter(par
 
 void YamlHighlighter::highlightBlock(const QString &text)
 {
-    for (const HighlightingRule &rule : qAsConst(highlightingRules)) {
+    for(const HighlightingRule &rule : qAsConst(highlightingRules))
+    {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
-        while (matchIterator.hasNext()) {
+        while (matchIterator.hasNext())
+        {
             QRegularExpressionMatch match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), rule.format);
         }
@@ -133,7 +135,8 @@ void MainWindow::YamlFixFormat()
     new_yaml.replace(QRegularExpression("^[ ]*([-|+]?[0-9][0-9.eE\\-\\+]*)",
                                         QRegularExpression::MultilineOption), "    \\1");
 
-    if(new_yaml != old_yaml){
+    if(new_yaml != old_yaml)
+    {
         int current_config_file = listWidget_configFile_list->currentRow();
         configFile_content[current_config_file] = new_yaml;
 

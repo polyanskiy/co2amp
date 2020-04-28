@@ -10,8 +10,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
     double Dt = (t_max-t_min)/n0;    // pulse time step, s
     double Dv = 1.0/(t_max-t_min);   // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    double v_max = vc + Dv*n0/2;
 
     double N[6] = {2.7e25*p_626, 2.7e25*p_628, 2.7e25*p_828, 2.7e25*p_636, 2.7e25*p_638,2.7e25*p_838}; // CO2 number densities, 1/m^3
     double Nco2 = 2.7e25*p_CO2;
@@ -23,11 +21,14 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double exp_tauR = exp(-Dt/tauR); // full-step
     double exp_T2 = exp(-Dt/T2/2.0); // half-step
     std::complex<double> exp_phase[6][4][4][61]; // half-step
-    for(int i=0; i<6; i++){
-       for(int ba=0; ba<4; ba++){
-            for(int br=0; br<4; br++){
+    for(int i=0; i<6; i++)
+    {
+       for(int ba=0; ba<4; ba++)
+       {
+            for(int br=0; br<4; br++)
+            {
                 for(int j=0; j<61; j++)
-                    exp_phase[i][ba][br][j] = exp(-I*M_PI*(vc-v[i][ba][br][j])*Dt); //half-step: note factor 2.0 in front of "PI" removed
+                    exp_phase[i][ba][br][j] = exp(I*M_PI*(v0-v[i][ba][br][j])*Dt); //half-step: note factor 2.0 in front of "PI" removed
             }
         }
     }
@@ -40,8 +41,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     // ====================== AMPLIFICATIOIN ======================
     int count = 0;
     #pragma omp parallel for// multithreaded
-    for(int x=0; x<x0; x++){
-        if(debug_level >= 0){
+    for(int x=0; x<x0; x++)
+    {
+        if(debug_level >= 0)
+        {
             #pragma omp critical
             {
                 StatusDisplay(pulse, plane, time,
@@ -63,7 +66,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         double delta;                           // change in population difference
 
         // Initial populations and polarizations
-        for(i=0; i<6; i++){
+        for(i=0; i<6; i++)
+        {
             // Vibrational level population densities in thermal equilibrium - see Witteman p. 71 and Nevdakh 2007
             double Q = 1.0 / ( (1.0-exp(-1920.0/Temp2))*pow(1.0-exp(-960.0/Temp2),2.0)*(1.0-exp(-3380.0/Temp3)) ); // partition function
             // reg
@@ -83,14 +87,18 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             Nvib0[i][3][1] = N[i]*exp(-1920.0/Temp2)*exp(-3380.0/Temp3)/Q;   // lower I (10 um)
             Nvib0[i][3][2] = N[i]*exp(-2.0*960.0/Temp2)*exp(-3380.0/Temp3)/Q;// lower II (9 um)
 
-            for(ba=0; ba<4; ba++){
-                for(vl=0; vl<3; vl++){
+            for(ba=0; ba<4; ba++)
+            {
+                for(vl=0; vl<3; vl++)
+                {
                     Nvib[i][ba][vl] = Nvib0[i][ba][vl]; // initial population densities of vibrational levels
                     for(j=0; j<61; j++)
                         Nrot[i][ba][vl][j] = nop[i][ba][vl][j] * Nvib[i][ba][vl]; // initial population densities of rotational levels
                 }
-                for(br=0; br<4; br++){
-                    for(j=0; j<61; j++){
+                for(br=0; br<4; br++)
+                {
+                    for(j=0; j<61; j++)
+                    {
                         rho[i][ba][br][j] = 0;
                         Dn[i][ba][br][j] = 0;
                     }
@@ -99,11 +107,14 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         }
 
         // Amplification
-        for(int n=0; n<n0; n++){
+        for(int n=0; n<n0; n++)
+        {
             // population inversions
-            for(i=0; i<6; i++){ // for each isotopologue
+            for(i=0; i<6; i++) // for each isotopologue
+            {
                 if(N[i]==0.0) continue;
-                for(j=0; j<61; j++){
+                for(j=0; j<61; j++)
+                {
                     // reg
                     Dn[i][0][0][j] = j>0  ? Nrot[i][0][0][j-1] - Nrot[i][0][1][j] : 0; // 10P
                     Dn[i][0][1][j] = j<60 ? Nrot[i][0][0][j+1] - Nrot[i][0][1][j] : 0; // 10R
@@ -128,20 +139,25 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // gain spectrum
-            if(x==0 && n==0){ // in the beam center(!) before amplification
-                for(i=0; i<6; i++){
+            if(x==0 && n==0) // in the beam center(!) before amplification
+            {
+                for(i=0; i<6; i++)
+                {
                     if(N[i]==0.0)
                         continue;
-                    for(ba=0; ba<4; ba++){
+                    for(ba=0; ba<4; ba++)
+                    {
                         if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                             continue;
-                        for(br=0; br<4; br++){
-                            for(j=0; j<61; j++){
-                                if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                        for(br=0; br<4; br++)
+                        {
+                            for(j=0; j<61; j++)
+                            {
+                                if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
                                     continue;
                                 for(int n1=0; n1<n0; n1++)
                                     gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j]
-                                            * gamma/M_PI/(pow(2.0*M_PI*(v_min+Dv*(0.5+n1)-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
+                                            * gamma/M_PI/(pow(2.0*M_PI*(v0+Dv*(n1-n0/2)-v[i][ba][br][j]),2)+pow(gamma,2)); // Gain [m-1]
                             }
                         }
                     }
@@ -150,15 +166,19 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
             // Eq 1 (field) & Eq 2 (polarization)
             E_in = pulse->E[x][n];
-            for(i=0; i<6; i++){
+            for(i=0; i<6; i++)
+            {
                 if(N[i]==0)
                     continue;
-                for(ba=0; ba<4; ba++){
+                for(ba=0; ba<4; ba++)
+                {
                     if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
-                    for(br=0; br<4; br++){
-                        for(j=0; j<61; j++){
-                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v_min || v[i][ba][br][j]>v_max)
+                    for(br=0; br<4; br++)
+                    {
+                        for(j=0; j<61; j++)
+                        {
+                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
                                 continue;
                             // Eq 2
                             rho[i][ba][br][j] *= exp_T2; // relaxation (half-step 1)
@@ -174,17 +194,20 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // Eq 3 (populations)
-            for(i=0; i<6; i++){
+            for(i=0; i<6; i++)
+            {
                 if(N[i]==0.0) continue;
                 for(ba=0; ba<4; ba++){
                     if( (ba==0 && !band_reg) || (ba==1 && !band_hot) || (ba==2 && !band_hot) || (ba==3 && !band_seq) )
                         continue;
-                    for(j=0; j<61; j++){
+                    for(j=0; j<61; j++)
+                    {
                         // ROTATIONAL REFILL
                         for(vl=0; vl<3; vl++)
                             Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j]) * (1-exp_tauR);
                         // STIMULATED TRANSITIONS
-                        for(br=0; br<4; br++){
+                        for(br=0; br<4; br++)
+                        {
                             if(sigma[i][ba][br][j] == 0.0)
                                 continue;
 
@@ -198,11 +221,13 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                             else               // R
                                 Nrot[i][ba][0][j+1]+=delta;
                             // lower level
-                            if(br==0 || br==1){ // I (10um)
+                            if(br==0 || br==1) // I (10um)
+                            {
                                 Nvib[i][ba][1]    -= delta;
                                 Nrot[i][ba][1][j] -= delta;
                             }
-                            else{               // II (9um)
+                            else               // II (9um)
+                            {
                                 Nvib[i][ba][2]    -= delta;
                                 Nrot[i][ba][2][j] -= delta;
                             }
@@ -215,9 +240,11 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         // vibrational temerature change
         double e1_tmp = 1.0/(exp(1920.0/Temp2)-1.0);
         double e2_tmp = 2.0/(exp(960.0/Temp2)-1.0);
-        for(i=0; i<6; i++){
+        for(i=0; i<6; i++)
+        {
             if(N[i]==0.0) continue;
-            for(ba=0; ba<4; ba++){
+            for(ba=0; ba<4; ba++)
+            {
                 double tmp = (Nvib0[i][ba][0] - Nvib[i][ba][0]) / Nco2; // multithread fails otherwise
                 e3[x] -= tmp;
                 e2[x] += tmp *  2.0*e2_tmp/(2*e1_tmp+e2_tmp); // 2.0*e2_tmp/(2*e1_tmp+e2_tmp): number of quanta added to nu2 per one laser transiton
@@ -232,8 +259,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     FILE *file;
     double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
-    double v_min = vc - Dv*n0/2;
-    // v=v_min+Dv*(1.0+n) - not ...(0.5+n) !!! - don't know why, but spectrum and time FFT/IFFT are consistent this way
 
     int pass = 0;
     for(int i=0; i<plane->number; i++)
@@ -247,6 +272,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     file = fopen((basename+"_gain.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", v_min+Dv*(1.0+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+        fprintf(file, "%e\t%e\n", v0+Dv*(n-n0/2), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+
     fclose(file);
 }

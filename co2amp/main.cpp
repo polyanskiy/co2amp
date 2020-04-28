@@ -8,7 +8,7 @@ std::vector<Pulse*> pulses;
 std::vector<Optic*> optics;
 std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
-double vc;                 // central frequency
+double v0;                 // central frequency of the calculation grid
 double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
@@ -26,7 +26,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2020-04-20";
+    std::string version = "2020-04-28";
 
     std::clock_t start_time = std::clock();
 
@@ -38,13 +38,15 @@ int main(int argc, char **argv)
 
     std::string command = ReadCommandLine(argc, argv);
 
-    if (command == "" ){
+    if (command == "" )
+    {
         std::cout << "Input ERROR: Missing command line argument(s)\n";
         std::cout << "Error in command line. Aborting.\n";
         return EXIT_FAILURE;
     }
 
-    if(command == "version"){
+    if(command == "version")
+    {
         std::cout << version;
         return EXIT_SUCCESS;
     }
@@ -57,7 +59,8 @@ int main(int argc, char **argv)
 
     Debug(1, "Command line read done");
 
-    if (!ReadConfigFiles("config_files.yml")){
+    if (!ReadConfigFiles("config_files.yml"))
+    {
         std::cout << "Error in configuration file(s). Aborting.\n";
         return EXIT_FAILURE;
     }
@@ -81,7 +84,8 @@ int main(int argc, char **argv)
 void Calculations()
 {
     // Total pumping energy
-    /*if(n_amsections>0 && p_CO2+p_N2+p_He>0){
+    /*if(n_amsections>0 && p_CO2+p_N2+p_He>0)
+    {
         double Epump=0;
         double t_lim = t_inj+tbp*(K0-1);
         if(mode==1) // train
@@ -93,15 +97,18 @@ void Calculations()
 
     std::cout << "CALCULATION\n";
 
-    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick){
-
+    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
+    {
         for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 
-        for(int plane_n=0; plane_n<planes.size(); plane_n++){
-            for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
+        for(int plane_n=0; plane_n<planes.size(); plane_n++)
+        {
+            for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+            {
                 double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_in;
-                if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival){
+                if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival)
+                {
                     // 1: Propagate beam to(!) this plane
                     if(plane_n != 0) // propagate to(!) this palne
                         pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
@@ -109,9 +116,8 @@ void Calculations()
                     StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
                     UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
                     // 3: Do Interaction (amplification etc.)
-                    if(plane_n != planes.size()-1){ // interact with this palne
+                    if(plane_n != planes.size()-1) // interact with this palne
                         planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time);
-                    }
                 }
             }
         }
@@ -121,7 +127,8 @@ void Calculations()
 
 void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status)
 {
-    if(pulse == nullptr){
+    if(pulse == nullptr)
+    {
         if(time < 0)
             std::cout << "\r" << status
                       << "                                               ";
@@ -129,7 +136,8 @@ void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status)
             std::cout << "\r" << toExpString(time) << " s: " << status
                       << "                                               ";
     }
-    else{
+    else
+    {
         if(pulses.size()==1)
             std::cout << "\r" << toExpString(time) << " s; "
                       << plane->optic->id

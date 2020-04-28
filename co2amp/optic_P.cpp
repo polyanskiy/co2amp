@@ -12,7 +12,8 @@ P::P(std::string id)
     std::string value="";
 
     // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R")){
+    if(!YamlGetValue(&value, yaml, "R"))
+    {
         configuration_error = true;
         return;
     }

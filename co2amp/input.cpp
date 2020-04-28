@@ -3,7 +3,7 @@
 std::string ReadCommandLine(int argc, char **argv)
 {       
     // CALCULATION ARGUMeNTS
-    vc = -1;         // Center frequency, Hz
+    v0 = -1;         // Center frequency, Hz
     x0 = -1;         // # of bins in radial coordinate grid
     n0 = -1;         // # of bins in time & frequency grids
     t_min = -1;      // Pulse time calculation limit, s
@@ -25,27 +25,33 @@ std::string ReadCommandLine(int argc, char **argv)
             return "version";
 
         // - CALCULATION ARGUMENTS -
-        if (!strcmp(argv[i], "-vc")){
-            vc = atof(argv[i+1]);
+        if (!strcmp(argv[i], "-v0") || !strcmp(argv[i], "-vc")) //vc: temporary for backwards compatibility
+        {
+            v0 = atof(argv[i+1]);
             count = count | 1;
         }
-        if (!strcmp(argv[i], "-x0")){
+        if (!strcmp(argv[i], "-x0"))
+        {
             x0 = atoi(argv[i+1]);
             count = count | 2;
         }
-        if (!strcmp(argv[i], "-n0")){
+        if (!strcmp(argv[i], "-n0"))
+        {
             n0 = atoi(argv[i+1]);
             count = count | 4;
         }
-        if (!strcmp(argv[i], "-t_min")){
+        if (!strcmp(argv[i], "-t_min"))
+        {
             t_min = atof(argv[i+1]);
             count = count | 8;
         }
-        if (!strcmp(argv[i], "-t_max")){
+        if (!strcmp(argv[i], "-t_max"))
+        {
             t_max = atof(argv[i+1]);
             count = count | 16;
         }
-        if (!strcmp(argv[i], "-time_tick")){
+        if (!strcmp(argv[i], "-time_tick"))
+        {
             time_tick = atof(argv[i+1]);
             count = count | 32;
         }
@@ -76,7 +82,8 @@ bool ReadConfigFiles(std::string path)
 
     Debug(2, "Interpreting configuration file list \'" + path + "\'");
     in = std::ifstream(path, std::ios::in);
-    if(in){
+    if(in)
+    {
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
@@ -90,7 +97,8 @@ bool ReadConfigFiles(std::string path)
     std::string type="";
     std::string layout_file_name="";
     iss = std::istringstream(file_content_str);
-    while(std::getline(iss, str)){
+    while(std::getline(iss, str))
+    {
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
@@ -99,7 +107,8 @@ bool ReadConfigFiles(std::string path)
             id = value;
         if(key == "  type")
             type = value;
-        if(id != "" && type != ""){
+        if(id != "" && type != "")
+        {
             Debug(2, "Found entry: ID \"" + id + "\", Type \"" + type + "\"");
             if(type=="A")
                 optics.push_back(new A(id));
@@ -135,12 +144,14 @@ bool ReadConfigFiles(std::string path)
         return false;
 
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
-    for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++){
+    for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+    {
         pulses[pulse_n]->number = pulse_n;
         pulses[pulse_n]->Initialize();
         if(configuration_error)
             return false;
-        if(pulse_n>0 && pulses[pulse_n]->time_in < pulses[pulse_n-1]->time_in){
+        if(pulse_n>0 && pulses[pulse_n]->time_in < pulses[pulse_n-1]->time_in)
+        {
             std::cout << "Arrange pulses in order of injection (smaller \'t_inj\' first)!\n";
             return false;
         }
@@ -154,8 +165,8 @@ bool ReadConfigFiles(std::string path)
 }
 
 
-bool ReadLayoutConfigFile(std::string path){
-
+bool ReadLayoutConfigFile(std::string path)
+{
     std::string str, file_content_str, key, value;
     std::ifstream in;
     std::istringstream iss, iss2;
@@ -166,11 +177,13 @@ bool ReadLayoutConfigFile(std::string path){
 
     Debug(2, "Interpreting layout configuration file \'" + path +"\'");
     in = std::ifstream(path, std::ios::in);
-    if(in){
+    if(in)
+    {
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
-    else{
+    else
+    {
         std::cout << "Error reading layout file \'" + path + "\'\n";
         return false;
     }
@@ -179,35 +192,43 @@ bool ReadLayoutConfigFile(std::string path){
     Debug(2, "Creating layout form file \'" + path + "\'");
     iss = std::istringstream(file_content_str);
     bool flag_gotimesfound = false;
-    while(std::getline(iss, str)){
+    while(std::getline(iss, str))
+    {
         iss2 = std::istringstream(str);
         std::getline(iss2, key, ':');
         std::getline(iss2, value);
-        if(key == "- go"){
+        if(key == "- go")
+        {
             if(go != "" || times != -1) // missing 'times' or previous 'go'
                 break;
             go = value;
             go.erase(remove_if(go.begin(), go.end(), isspace), go.end()); // remove spaces
         }
-        if(key == "  times"){
+        if(key == "  times")
+        {
             if(times != -1) // missing 'go'
                 break;
             times = std::stoi(value);
         }
 
-        if(go != "" && times != -1){
+        if(go != "" && times != -1)
+        {
             flag_gotimesfound = true;
             Debug(2, "go = \"" + go + "\"; times = " + std::to_string(times));
             Debug(2, "Reading \'go\' entries (separated by \'>\'):");
-            for(prop_n=0; prop_n<times; prop_n++){
+            for(prop_n=0; prop_n<times; prop_n++)
+            {
                 Debug(2, "Propagation #" + std::to_string(prop_n+1) + " of " + std::to_string(times));
                 iss2 = std::istringstream(go);
-                while(std::getline(iss2, value, '>')){
+                while(std::getline(iss2, value, '>'))
+                {
                     if(value == "")
                         continue;
-                    if(is_number(value)){
+                    if(is_number(value))
+                    {
                         Debug(2, "Propagation distance: " + value + " m");
-                        if(plane_n==-1){
+                        if(plane_n==-1)
+                        {
                             std::cout << "Layout error: first entry must be an optic\n";
                             return false;
                         }
@@ -220,11 +241,13 @@ bool ReadLayoutConfigFile(std::string path){
                             Debug(2, "Added " + value + " m space after plane #" +
                               std::to_string(plane_n) + " (now " + std::to_string(planes[plane_n]->space) + " m)");
                     }
-                    else{
+                    else
+                    {
                         plane_n++;
                         Debug(2, "Plane entry: optic \"" + value + "\"");
                         Optic *optic = FindOpticByID(value);
-                        if(optic == nullptr){
+                        if(optic == nullptr)
+                        {
                             std::cout << "Error in layout configuration: cannot find optic \"" << value << "\"\n";
                             return false;
                         }
@@ -240,25 +263,30 @@ bool ReadLayoutConfigFile(std::string path){
     }
 
     // Error handlers
-    if(go != ""){
+    if(go != "")
+    {
         std::cout << "missing \'times\' key in layout configuration file \'" << path << "\'\n";
         std::cout << "go: " << go << "\n";
         return false;
     }
-    if(times != -1){
+    if(times != -1)
+    {
         std::cout << "missing \'go\' key in layout configuration file \'" << path << "\'\n";
         std::cout << "times: " << times << "\n";
         return false;
     }
-    if(!flag_gotimesfound){
+    if(!flag_gotimesfound)
+    {
         std::cout << "Layout error: cannot find a pair of \'go\' and \'times\' values in layout configuration file \'" << path << "\'\n";
         return false;
     }
 
     // Print full layout for debugging
     Debug(1, "LAYOUT:");
-    if(debug_level>=1){
-        for(plane_n=0; plane_n<planes.size(); plane_n++){
+    if(debug_level>=1)
+    {
+        for(plane_n=0; plane_n<planes.size(); plane_n++)
+        {
             std::cout << planes[plane_n]->optic->id;
             if(plane_n != planes.size()-1)
                 std::cout << ">>" ;
@@ -268,19 +296,22 @@ bool ReadLayoutConfigFile(std::string path){
         std::cout << "\n";
     }
 
-    if(planes[planes.size()-1]->optic->type != "P"){
+    if(planes[planes.size()-1]->optic->type != "P")
+    {
         std::cout << "Layout error: last plane must be optic type \'P\' (probe)\n";
         return false;
     }
 
-    if(planes[planes.size()-1]->space != 0){
+    if(planes[planes.size()-1]->space != 0)
+    {
         std::cout << "Layout error: there should be no space after the last plane\n";
         return false;
     }
 
     // calculate layout plane's "time" (distance from first surface in seconds)
     double time = 0;
-    for(plane_n=0; plane_n<planes.size(); plane_n++){
+    for(plane_n=0; plane_n<planes.size(); plane_n++)
+    {
         planes[plane_n]->time_from_first_plane = time;
         time += planes[plane_n]->space / c;
     }

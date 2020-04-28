@@ -12,7 +12,8 @@ A::A(std::string id)
     std::string value="";
 
     // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R")){
+    if(!YamlGetValue(&value, yaml, "R"))
+    {
         configuration_error = true;
         return;
     }
@@ -20,7 +21,8 @@ A::A(std::string id)
     Debug(2, "R = " + toExpString(r_max) + " m");
 
     // Length (L)
-    if(!YamlGetValue(&value, yaml, "L")){
+    if(!YamlGetValue(&value, yaml, "L"))
+    {
         configuration_error = true;
         return;
     }
@@ -30,27 +32,32 @@ A::A(std::string id)
 
     // ------- PUMPING -------
     // pumping type (must be "discharge" or "optical")
-    if(!YamlGetValue(&value, yaml, "pumping")){
+    if(!YamlGetValue(&value, yaml, "pumping"))
+    {
         configuration_error = true;
         return;
     }
     pumping = value;
     Debug(2, "pumping = " + pumping);
-    if(pumping != "discharge" && pumping != "optical"){
+    if(pumping != "discharge" && pumping != "optical")
+    {
         configuration_error = true;
         std::cout << "ERROR: Wrong \'pumping\' parameter (must be \"discharge\" or \"optical\")\n";
         return;
     }
 
-    if(pumping == "discharge"){
-        if(!YamlGetValue(&value, yaml, "Vd")){
+    if(pumping == "discharge")
+    {
+        if(!YamlGetValue(&value, yaml, "Vd"))
+        {
             configuration_error = true;
             return;
         }
         Vd = std::stod(value);
         Debug(2, "Vd (discharge volume) = " + toExpString(Vd) + " m^3");
 
-        if(!YamlGetValue(&value, yaml, "D")){
+        if(!YamlGetValue(&value, yaml, "D"))
+        {
             configuration_error = true;
             return;
         }
@@ -60,7 +67,8 @@ A::A(std::string id)
         // Discharge profile: time(s) Current(A) Voltage(V)
         if(!YamlGetData(&discharge_time, yaml, "discharge", 0)
                 || !YamlGetData(&discharge_current, yaml, "discharge", 1)
-                || !YamlGetData(&discharge_voltage, yaml, "discharge", 2)){
+                || !YamlGetData(&discharge_voltage, yaml, "discharge", 2))
+        {
             configuration_error = true;
             return;
         }
@@ -73,22 +81,26 @@ A::A(std::string id)
                 << std::endl;
     }
 
-    if(pumping == "optical"){
-        if(!YamlGetValue(&value, yaml, "pump_wl")){
+    if(pumping == "optical")
+    {
+        if(!YamlGetValue(&value, yaml, "pump_wl"))
+        {
             configuration_error = true;
             return;
         }
         pump_wl = std::stod(value); // m
         Debug(2, "pump_wl (wavelength) = " + toExpString(pump_wl) + " m");
 
-        if(!YamlGetValue(&value, yaml, "pump_sigma")){
+        if(!YamlGetValue(&value, yaml, "pump_sigma"))
+        {
             configuration_error = true;
             return;
         }
         pump_sigma = std::stod(value); // m^2
         Debug(2, "pump_sigma (abs. cross-section) = " + toExpString(pump_wl) + " m^2");
 
-        /*if(!YamlGetValue(&value, yaml, "pump_fluence")){
+        /*if(!YamlGetValue(&value, yaml, "pump_fluence"))
+        {
             configuration_error = true;
             return;
         }
@@ -96,7 +108,8 @@ A::A(std::string id)
 
         // Pumping pulse profile: time(s) Intensity(W/m^2)
         if(!YamlGetData(&pumping_pulse_time, yaml, "pumping_pulse", 0)
-                || !YamlGetData(&pumping_pulse_intensity, yaml, "pumping_pulse", 1)){
+                || !YamlGetData(&pumping_pulse_intensity, yaml, "pumping_pulse", 1))
+        {
             configuration_error = true;
             return;
         }
@@ -119,18 +132,21 @@ A::A(std::string id)
     double O18 = 0; // Oxygen-18 content (0..1)
     double C13 = 0; // Carbon-13 content (0..1)
 
-    if(YamlGetValue(&value, yaml, "p_CO2")){
+    if(YamlGetValue(&value, yaml, "p_CO2"))
+    {
         p_CO2 = std::stod(value);
         Debug(2, "p_CO2 = " + std::to_string(p_CO2) + " bar");
 
-        if(!YamlGetValue(&value, yaml, "O18")){
+        if(!YamlGetValue(&value, yaml, "O18"))
+        {
             configuration_error = true;
             return;
         }
         O18 = std::stod(value);
         Debug(2, "O18 = " + std::to_string(O18) + " (" + std::to_string(O18*100) + " %)");
 
-        if(!YamlGetValue(&value, yaml, "C13")){
+        if(!YamlGetValue(&value, yaml, "C13"))
+        {
             configuration_error = true;
             return;
         }
@@ -145,40 +161,47 @@ A::A(std::string id)
         p_838 = p_CO2 * pow(O18,2) * C13;
         Debug(2, "Isotopic composition (calculated for statistical equilibrium):");
     }
-    else{
+    else
+    {
         std::cout << "Let's check if pressures of six CO2 isotopologues provided...\n";
 
-        if(!YamlGetValue(&value, yaml, "p_626")){
+        if(!YamlGetValue(&value, yaml, "p_626"))
+        {
             configuration_error = true;
             return;
         }
         p_626 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_628")){
+        if(!YamlGetValue(&value, yaml, "p_628"))
+        {
             configuration_error = true;
             return;
         }
         p_628 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_828")){
+        if(!YamlGetValue(&value, yaml, "p_828"))
+        {
             configuration_error = true;
             return;
         }
         p_828 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_636")){
+        if(!YamlGetValue(&value, yaml, "p_636"))
+        {
             configuration_error = true;
             return;
         }
         p_636 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_638")){
+        if(!YamlGetValue(&value, yaml, "p_638"))
+        {
             configuration_error = true;
             return;
         }
         p_638 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_838")){
+        if(!YamlGetValue(&value, yaml, "p_838"))
+        {
             configuration_error = true;
             return;
         }
@@ -197,28 +220,32 @@ A::A(std::string id)
     Debug(2, "p_638 = " + std::to_string(p_638) + " bar");
     Debug(2, "p_636 = " + std::to_string(p_838) + " bar");
 
-    if(!YamlGetValue(&value, yaml, "p_N2")){
+    if(!YamlGetValue(&value, yaml, "p_N2"))
+    {
         configuration_error = true;
         return;
     }
     p_N2 = std::stod(value);
     Debug(2, "p_N2 = " + std::to_string(p_N2) + " bar");
 
-    if(!YamlGetValue(&value, yaml, "p_He")){
+    if(!YamlGetValue(&value, yaml, "p_He"))
+    {
         configuration_error = true;
         return;
     }
     p_He = std::stod(value);
     Debug(2, "p_He = " + std::to_string(p_He) + " bar");
 
-    if(!YamlGetValue(&value, yaml, "T0")){
+    if(!YamlGetValue(&value, yaml, "T0"))
+    {
         configuration_error = true;
         return;
     }
     T0 = std::stod(value);
     Debug(2, "T0 = " + std::to_string(T0) + " K");
 
-    if(p_CO2+p_N2+p_He <=0){
+    if(p_CO2+p_N2+p_He <=0)
+    {
         std::cout << "Total pressure in amplifier section " + this->id + " is 0. No interaction.\n";
         return;
     }
@@ -228,11 +255,13 @@ A::A(std::string id)
     band_seq = true;
     band_hot = true;
 
-    if(!YamlGetValue(&value, yaml, "band_reg")){
+    if(!YamlGetValue(&value, yaml, "band_reg"))
+    {
         configuration_error = true;
         return;
     }
-    if(value!="true" && value!="false"){
+    if(value!="true" && value!="false")
+    {
         configuration_error = true;
         std::cout << "ERROR: Wrong \'band_reg\' parameter (must be \"true\" or \"false\")\n";
         return;
@@ -240,11 +269,13 @@ A::A(std::string id)
     if(value=="false")
         band_reg = false;
 
-    if(!YamlGetValue(&value, yaml, "band_seq")){
+    if(!YamlGetValue(&value, yaml, "band_seq"))
+    {
         configuration_error = true;
         return;
     }
-    if(value!="true" && value!="false"){
+    if(value!="true" && value!="false")
+    {
         configuration_error = true;
         std::cout << "ERROR: Wrong \'band_seq\' parameter (must be \"true\" or \"false\")\n";
         return;
@@ -252,11 +283,13 @@ A::A(std::string id)
     if(value=="false")
         band_seq = false;
 
-    if(!YamlGetValue(&value, yaml, "band_hot")){
+    if(!YamlGetValue(&value, yaml, "band_hot"))
+    {
         configuration_error = true;
         return;
     }
-    if(value!="true" && value!="false"){
+    if(value!="true" && value!="false")
+    {
         configuration_error = true;
         std::cout << "ERROR: Wrong \'band_hot\' parameter (must be \"true\" or \"false\")\n";
         return;
@@ -288,7 +321,8 @@ A::A(std::string id)
     InitializePopulations();
 
     // 3 Initial q's
-    if(pumping == "discharge"){
+    if(pumping == "discharge")
+    {
         Debug(2, "Initializing q's");
         Boltzmann(0);
         q2_b = q2;

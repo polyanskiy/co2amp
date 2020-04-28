@@ -20,7 +20,8 @@ void MainWindow::NewProject()
 bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwise
 {
     QMessageBox::StandardButton mb;
-    if(flag_calculating){ // co2amp running
+    if(flag_calculating) // co2amp running
+    {
          mb = QMessageBox::warning(this, "Calculation in progress - co2am+",
                                    "Cannot close: Calculation in progress.\nWait for calculation to complete or abort it.",
                                    QMessageBox::Ok);
@@ -33,12 +34,15 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
     mb = QMessageBox::warning(this, "Project modified - co2am+", "The project has been modified.\nDo you want to save changes?",
                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
-    if (mb == QMessageBox::Save){
-        if(project_file != QString()){
+    if (mb == QMessageBox::Save)
+    {
+        if(project_file != QString())
+        {
             SaveProject();
             return true;
         }
-        else{
+        else
+        {
             on_pushButton_saveas_clicked();
             if(project_file != QString())
                 return true;
@@ -57,7 +61,8 @@ bool MainWindow::SaveBeforeClose() // return: TRUE if ok to close, FALSE otherwi
 void MainWindow::SaveProject()
 {
     QFileInfo fileinfo(project_file);
-    if(QFile::exists(project_file) && !QFile::remove(project_file)){// cannot remove project file (e.g. it's open in another program)
+    if(QFile::exists(project_file) && !QFile::remove(project_file)) // cannot remove project file (e.g. it's open in another program)
+    {
         QMessageBox().warning(this, "co2am+", "Cannot save to the existing file (file may be open in another program)");
         return;
     }

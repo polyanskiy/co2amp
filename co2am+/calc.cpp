@@ -12,7 +12,7 @@ void MainWindow::Calculate()
     QStringList arguments;
 
     arguments << "\"" + path_to_co2amp + "\"";
-    arguments << "-vc"        << lineEdit_vc->text();
+    arguments << "-v0"        << lineEdit_v0->text();
     arguments << "-n0"        << comboBox_precision_t->currentText();
     arguments << "-x0"        << comboBox_precision_r->currentText();
     arguments << "-t_min"     << lineEdit_t_min->text();
@@ -48,6 +48,7 @@ void MainWindow::BeforeProcessStarted()
     UpdateConfigurationFiles();
     Update();
     tabWidget_main->setCurrentIndex(1); // Process tab
+    ClearPlot();
 }
 
 
