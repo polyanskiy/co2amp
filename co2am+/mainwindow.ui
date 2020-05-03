@@ -1325,11 +1325,11 @@ p, li { white-space: pre-wrap; }
            <item row="1" column="0">
             <widget class="QComboBox" name="comboBox_method">
              <property name="currentIndex">
-              <number>6</number>
+              <number>0</number>
              </property>
              <item>
               <property name="text">
-               <string>None (ignore beam evolution)</string>
+               <string>None (no beam evolution)</string>
               </property>
              </item>
              <item>
@@ -1354,12 +1354,12 @@ p, li { white-space: pre-wrap; }
              </item>
              <item>
               <property name="text">
-               <string>Polyanskiy</string>
+               <string>Polyanskiy (def)</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Polyanskiy monochrome (def)</string>
+               <string>Polyanskiy monochrome</string>
               </property>
              </item>
             </widget>

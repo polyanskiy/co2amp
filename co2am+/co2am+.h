@@ -125,7 +125,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool ConfigFileNameExists(QString ID);
         // tab1-process.cpp
         void WriteToTerminal();
-        void on_lineEdit_vc_textEdited(QString);
+        void on_lineEdit_v0_textEdited(QString);
         void on_lineEdit_t_min_textEdited(QString);
         void on_lineEdit_t_max_textEdited(QString);
         void on_lineEdit_time_tick_textEdited(QString);

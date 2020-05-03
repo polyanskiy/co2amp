@@ -1,9 +1,9 @@
 # Configuration YAML file, type L
 # - Lens -
-# template v.2019-11-18
+# template v.2020-04-30
 
-# radius of the optic (limiting aperture), m
-R: 0.025
+# Radius of the optic (limiting aperture), m
+R: 25e-3
 
-# focal length, m
+# Focal length, m
 F: 1.0

@@ -1,16 +1,20 @@
 # Configuration YAML file, type M
 # - Matter -
-# template v.2019-11-18
+# template v.2020-04-30
 
-# radius of the optic (limiting aperture), m
-R: 0.025
+# Radius of the optic (limiting aperture), m
+R: 25e-3
 
-# material (CdTe/Ge/NaCl/Si/ZnSe/
+# Material (CdTe/GaAs/Ge/KCl/NaCl/Si/ZnSe/air)
 material:  NaCl
-# thickness, m
-thickness: 0.1
-# tilt (deviation from normal incidence), degrees
+# Nonliner index, m^2/W (optional - default value is used if not specified)
+#n2: 2.7e-20
+# 4th order nonlinear index, m^4/W^2 (optional - "0" is used if not specified)
+#n4: 0
+# Thickness, m
+thickness: 100e-3
+# Tilt (deviation from normal incidence), degrees
 tilt: 0
-# number of slices (important for calculation accuracy
+# Number of slices (important for calculation accuracy
 # in the case of nonlinear interaction)
 slices: 10

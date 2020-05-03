@@ -25,9 +25,25 @@ C::C(std::string id)
     {
         configuration_error = true;
         return;
-    }   
-    chirp = std::stof(value);
-    Debug(2, "chirp = " + toExpString(chirp) + " s/Hz");
+    }
+    std::string chirp = value;
+    Debug(2, "chirp = " + chirp);
+
+    if(chirp == "LINEAR")
+    {
+        if(!YamlGetValue(&value, yaml, "c"))
+        {
+            configuration_error = true;
+            return;
+        }
+        chirpyness = std::stof(value);
+        Debug(2, "c (chirpyness, dν/dt) = " + toExpString(chirpyness) + " Hz/s");
+        return;
+    }
+
+    // not supproted chirp type
+    std::cout << "ERROR: wrong \'chirp\' in config file (only LINEAR is currently supported)\'" << yaml << "\'" << std::endl;
+    configuration_error = true;
 }
 
 
@@ -39,10 +55,10 @@ void C::InternalDynamics(double)
 
 void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 {
-    if(chirp == 0)
+    if(chirpyness == 0)
         return;
 
-    Debug(2, "Interaction with chirper, chirp = " + toExpString(chirp) + " s/Hz");
+    Debug(2, "Interaction with chirper, chirpyness = " + toExpString(chirpyness) + " Hz/s");
     StatusDisplay(pulse, plane, time, "chirping/de-chirping...");
 
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
@@ -61,8 +77,9 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
         double shift = 0;
         for(int n=n0; n<n0; n++)
         {
-            v = Dv*(n-n0/2); // relative frequency (v-v0)
-            shift += v * chirp * Dv;
+            v = v0+Dv*(n-n0/2);
+            v -= pulse->vc; // relative frequency (v-vc)
+            shift += v / chirpyness * Dv;
             int n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
             E1[n1] *= exp(I*2.0*M_PI*shift);
         }
@@ -70,9 +87,10 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
         // liniar chirp
         for(int n=0; n<n0; n++)
         {
-            v = Dv*(n-n0/2); // relative frequency (v-v0)
+            v = v0+Dv*(n-n0/2);
+            v -= pulse->vc; // relative frequency (v-vc)
             int n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
-            E1[n1] *= exp(I*M_PI*v*v*chirp);
+            E1[n1] *= exp(I*M_PI*v*v/chirpyness);
         }
 
         IFFT(E1, pulse->E[x]);

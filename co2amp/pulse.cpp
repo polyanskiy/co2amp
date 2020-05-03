@@ -29,15 +29,17 @@ void Pulse::Initialize()
     time_in = std::stod(value);
     Debug(2, "t_in = " + toExpString(time_in) + " s");
 
-    if(!YamlGetValue(&value, yaml, "file"))
+    /*if(!YamlGetValue(&value, yaml, "file"))
     {
         configuration_error = true;
         return;
-    }
+    }*/
 
     //================================== From file ======================================
-    if(value!="null")
+    if(YamlGetValue(&value, yaml, "file", false))
     {
+    //if(value!="null")
+    //{
         if(!LoadPulse(value))
         {
             configuration_error = true;

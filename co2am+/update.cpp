@@ -64,6 +64,7 @@ void MainWindow::Update()
     groupBox_grid->setDisabled(flag_calculating);
 
     ////////////////////////////// CALCULATION PARAMETERS ///////////////////////////////
+    tmp_method = comboBox_method->currentIndex();
     groupBox_calc->setDisabled(flag_calculating);
 
     ///////////////////////////////////// DEBUGGING /////////////////////////////////////

@@ -28,7 +28,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             for(int br=0; br<4; br++)
             {
                 for(int j=0; j<61; j++)
-                    exp_phase[i][ba][br][j] = exp(I*M_PI*(v0-v[i][ba][br][j])*Dt); //half-step: note factor 2.0 in front of "PI" removed
+                    exp_phase[i][ba][br][j] = exp(I*M_PI*(pulse->vc-v[i][ba][br][j])*Dt); //half-step: note factor 2.0 in front of "PI" removed
             }
         }
     }
@@ -109,6 +109,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         // Amplification
         for(int n=0; n<n0; n++)
         {
+            // shift center frequency to pulse->vc
+            pulse->E[x][n] *= exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
             // population inversions
             for(i=0; i<6; i++) // for each isotopologue
             {
@@ -184,7 +186,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                             rho[i][ba][br][j] *= exp_T2; // relaxation (half-step 1)
                             rho[i][ba][br][j] *= exp_phase[i][ba][br][j]; // phase relaxation (half-step 1)
                             rho[i][ba][br][j] -= sigma[i][ba][br][j]*Dn[i][ba][br][j]*E_in/(2.0*T2)*Dt; // excitation (full step)
-                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j]; // phase relaxation (half-step 1)
+                            rho[i][ba][br][j] *= exp_phase[i][ba][br][j]; // phase relaxation (half-step 2)
                             rho[i][ba][br][j] *= exp_T2; // relaxation (half-step 2)
                             // Eq 1
                             pulse->E[x][n] -= rho[i][ba][br][j] * length;
@@ -235,6 +237,9 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     }
                 }
             }
+
+            // shift center frequency back to v0 (center of the calculation grid)
+            pulse->E[x][n] *= exp(I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
         }
 
         // vibrational temerature change

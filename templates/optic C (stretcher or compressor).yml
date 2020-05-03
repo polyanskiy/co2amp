@@ -1,9 +1,0 @@
-# Configuration YAML file, type C
-# - Chirper - (e.g. stretcher or compressor)
-# template v.2019-11-18
-
-# radius of the optic (limiting aperture), m
-R: 0.025
-
-# chirp, s/Hz (positive for red chirp)
-chirp: 100e-24

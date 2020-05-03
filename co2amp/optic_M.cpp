@@ -137,7 +137,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirp, shift, v;
+        double intensity, chirpyness, shift, v;
         std::complex<double> *E1; //field in frequency domaine
         n2 = NonlinearIndex(material);
 
@@ -160,8 +160,9 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             for(int n=0; n<n0; n++)
             {
                 v = v0 + Dv*(n-n0/2);
-                chirp = -th/c *(RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " / Dv " omitted - see next line
-                shift += (v-v0) * chirp; // " * Dv " omitted
+                chirpyness = -c/th / (RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " * Dv " omitted
+                v -= pulse->vc; // relative frequency (v-vc)
+                shift += v / chirpyness; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(I*2.0*M_PI*shift);
             }

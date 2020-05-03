@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20200428_setup.exe"
+OutFile "co2amp_v.20200501_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -57,13 +57,13 @@ Section "Section_01" Sec01
   File "templates\*.yml"
   SetOutPath "$INSTDIR"
   ;co2amp
-  File "co2amp\co2amp.exe"
-  File "co2am+\co2am+.exe"
+  File "co2amp\release\co2amp.exe"
+  File "co2am+\release\co2am+.exe"
   ;QT
-  File "C:\Qt\5.14.1\mingw73_64\bin\Qt5Core.dll"
-  File "C:\Qt\5.14.1\mingw73_64\bin\Qt5Gui.dll"
-  File "C:\Qt\5.14.1\mingw73_64\bin\Qt5Widgets.dll"
-  File "C:\Qt\5.14.1\mingw73_64\bin\Qt5Svg.dll"
+  File "C:\Qt\5.14.2\mingw73_64\bin\Qt5Core.dll"
+  File "C:\Qt\5.14.2\mingw73_64\bin\Qt5Gui.dll"
+  File "C:\Qt\5.14.2\mingw73_64\bin\Qt5Widgets.dll"
+  File "C:\Qt\5.14.2\mingw73_64\bin\Qt5Svg.dll"
   ;MinGW
   File "C:\Qt\Tools\mingw730_64\bin\libgcc_s_seh-1.dll"
   File "C:\Qt\Tools\mingw730_64\bin\libgomp-1.dll"
@@ -74,16 +74,16 @@ Section "Section_01" Sec01
   File "C:\Program Files\HDF_Group\HDF5\1.12.0\bin\hdf5_hl.dll"
   ;Platforms
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\5.14.1\mingw73_64\plugins\platforms\qwindows.dll"
+  File "C:\Qt\5.14.2\mingw73_64\plugins\platforms\qwindows.dll"
   SetOutPath "$INSTDIR\imageformats"
-  File "C:\Qt\5.14.1\mingw73_64\plugins\imageformats\qsvg.dll"
+  File "C:\Qt\5.14.2\mingw73_64\plugins\imageformats\qsvg.dll"
   
   ;Write Start menu entries
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\co2amp"
   CreateShortCut "$SMPROGRAMS\co2amp\co2am+.lnk" "$INSTDIR\co2am+.exe"
   ;SetOutPath "$SMPROGRAMS\co2amp"
-  ;SetOverwrite on
+  ;SetOverwrite o
   ;File "co2amp homepage.url"
   CreateShortCut "$SMPROGRAMS\co2amp\Uninstall co2amp.lnk" "$INSTDIR\uninstall.exe" "" ""
   

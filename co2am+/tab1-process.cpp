@@ -23,7 +23,7 @@ void MainWindow::WriteToTerminal()
 }
 
 
-void MainWindow::on_lineEdit_vc_textEdited(QString){
+void MainWindow::on_lineEdit_v0_textEdited(QString){
     if(CalcResultsExist())
     {
         if(OkToInvalidate())

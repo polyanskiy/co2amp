@@ -85,7 +85,6 @@ void A::InternalDynamics(double time)
         if(pulse->time_in + time_from_first_plane < time_of_first_pulse_arrival)
             time_of_first_pulse_arrival = pulse->time_in + time_from_first_plane;
 
-
     for(int x=0; x<x0; x++)
     {
         if( time > time_of_first_pulse_arrival || x==0 ) // population is same everythere if no pulse interaction yet occured
@@ -189,9 +188,11 @@ void A::InitializePopulations()
             double delta_e3 = 1.0*(1-exp(-fluence*pump_sigma)); // max 1 quanta per molecule (arbitrary: attempt to allow multi-photon excitation)
             //double delta_e3 = fluence*pump_sigma; //no bleeching (no limit for number of quanta per molecule: user responsible for keeping pumping realistic)
             e3[x] += delta_e3; // fraction of molecules in upper state
-            if(pump_wl>2.2e-6 && pump_wl<3.2e-6){ // excitation through combinational vibration (101,021)
+            if(pump_wl>2.2e-6 && pump_wl<3.2e-6) // excitation through combinational vibration (101,021)
+            {
                 double delta_e2 = 2.0*delta_e3; // "0" approximation: all lower level energy goes to nu2 mode (in reality e3 = e2/2 + e1)
-                for(int i=0; i<10; i++){ // iterations: e2->Temp2->e1->e2->...
+                for(int i=0; i<10; i++) // iterations: e2->Temp2->e1->e2->...
+                {
                     Temp2 = 960.0/log(2.0/(e2[x]+delta_e2)+1.0); // Temp2 after excitation
                     e1 = 1.0/(exp(1920.0/Temp2)-1); // number of quanta in nu1 at this temperature
                     delta_e2 = 2.0*delta_e3 * (e2[x]+delta_e2)/(2.0*e1+e2[x]+delta_e2); //corrected delta_e2

@@ -9,7 +9,7 @@ std::string ReadCommandLine(int argc, char **argv)
     t_min = -1;      // Pulse time calculation limit, s
     t_max = -1;      // Pulse shift from 0, s
     time_tick = -1;  // Time step for main (slow) time, s
-    method = 2;      // co2amp approximation
+    method = 5;      // Polyanskiy approximation
     debug_level = 0; // No debugging info output by default
     search_dir = ""; // Additional directory for HDF5 pulse files
 

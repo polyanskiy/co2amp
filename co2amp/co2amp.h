@@ -154,7 +154,7 @@ public:
     C(std::string yaml);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
-    double chirp; // s/Hz
+    double chirpyness; // Hz/s
 };
 
 
