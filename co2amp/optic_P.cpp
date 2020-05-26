@@ -11,14 +11,14 @@ P::P(std::string id)
 
     std::string value="";
 
-    // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R"))
+    // r_max (semiDia)
+    if(!YamlGetValue(&value, yaml, "semiDia"))
     {
         configuration_error = true;
         return;
     }
     r_max = std::stod(value);
-    Debug(2, "R = " + toExpString(r_max) + " m");
+    Debug(2, "semiDia = " + toExpString(r_max) + " m");
 }
 
 

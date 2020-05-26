@@ -1,10 +1,10 @@
 # Configuration YAML file, type PULSE
-# template v.2020-04-30
+# template v.2020-05-25
 
 # Injection moment, s
 t_in: 0.7e-6
 
-####################### OPTION 1: LOAD A '*.pulse' FILE ######################
+####################### OPTION 1: LOAD a '*.pulse' FILE ######################
 
 # Path to the file (absolute or relative to directory with current .co2 file)
 #file: "my_pulse.pulse"

@@ -14,14 +14,14 @@ L::L(std::string id)
 
     std::string value="";
 
-    // r_max (R)
-    if(!YamlGetValue(&value, yaml, "R"))
+    // r_max (semiDia)
+    if(!YamlGetValue(&value, yaml, "semiDia"))
     {
         configuration_error = true;
         return;
     }
     r_max = std::stod(value);
-    Debug(2, "R = " + toExpString(r_max) + " m");
+    Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // F
     if(!YamlGetValue(&value, yaml, "F"))
@@ -54,13 +54,13 @@ void L::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     #pragma omp parallel for
     for(int x=0; x<x0; x++)
     {
-        if(method==0 || method==2 || method==4 || method==6) // monochrome or no propagation
+        if(method==0) // no propagation
         {
             for(int n=0; n<n0; n++)
                 pulse->E[x][n] *= exp(-I*2.0*M_PI*(pulse->vc/c)*pow(Dr*(0.5+x),2)/(2.0*F));
         }
 
-        else
+        else // frequency domain
         {
             double k_wave;
             std::complex<double> *E1;

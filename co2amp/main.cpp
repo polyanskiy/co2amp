@@ -1,4 +1,5 @@
 #include "co2amp.h"
+#include <iomanip>
 
 
 // GLOBAL VARIABLES
@@ -13,7 +14,8 @@ double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
 // ---- CALCULATION PARAMETERS -----
-int method;                // propagation method: co2am approximation, Kirchoff (exact) or Fresnel approximation
+int method;                // propagation method
+                           // 0: no propagation 1: Fresnel 2: Rayleigh-Sommerfeld
 // ----------- DEBUGGING ----------
 int debug_level;           // debug output control
                            // -1: less than nothing 0: nothing; 1: some; 2: a lot; 3: everything
@@ -26,9 +28,9 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2020-05-01";
+    std::string version = "2020-05-25";
 
-    std::clock_t start_time = std::clock();
+    std::clock_t stopwatch = std::clock();
 
     c = 2.99792458e8; // m/s
     h = 6.626069e-34; // J*s
@@ -75,7 +77,26 @@ int main(int argc, char **argv)
     Debug(2,"Success!");
     StatusDisplay(nullptr, nullptr, -1, "All done!");
 
-    std::cout << std:: endl << "Execution time: "  << (std::clock()-start_time)/CLOCKS_PER_SEC << " s";
+    // Show run time
+    stopwatch = std::clock()-stopwatch;
+    float run_s = (float)stopwatch/CLOCKS_PER_SEC;
+    int run_m = run_s / 60;
+    int run_h = run_s / (60*60);
+    int run_d = run_s / (24*60*60);
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << std:: endl << "Execution time: ";
+    std::cout << run_s << " s";
+    if(run_m>0)
+        std::cout << " (";
+    if(run_d>0)
+        std::cout << run_d << " d, ";
+    if(run_h>0)
+        std::cout << run_h - run_d*24 << " h, ";
+    if(run_m>0)
+    {
+        std::cout << run_m - run_h*60 << " m, ";
+        std::cout << run_s - run_m*60 << " s)";
+    }
 
     return EXIT_SUCCESS;
 }

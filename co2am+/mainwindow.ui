@@ -1325,7 +1325,7 @@ p, li { white-space: pre-wrap; }
            <item row="1" column="0">
             <widget class="QComboBox" name="comboBox_method">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <item>
               <property name="text">
@@ -1334,32 +1334,12 @@ p, li { white-space: pre-wrap; }
              </item>
              <item>
               <property name="text">
-               <string>Kirchoff</string>
+               <string>Fresnel approximation (default)</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Kirchoff monochrome</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Fresnel</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Fresnel monochrome</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Polyanskiy (def)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Polyanskiy monochrome</string>
+               <string>Rayleigh-Sommerfeld (slow)</string>
               </property>
              </item>
             </widget>

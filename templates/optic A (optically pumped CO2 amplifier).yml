@@ -1,9 +1,9 @@
 # Configuration YAML file, type A
 # - Optically pumped active medium -
-# template v.2020-04-30
+# template v.2020-05-25
 
-# Radius of the optic (limiting aperture), m
-R: 25e-3
+# Semi-diameter of the limiting aperture, m
+semiDia: 25e-3
 
 # Length of active medium, m
 L: 1

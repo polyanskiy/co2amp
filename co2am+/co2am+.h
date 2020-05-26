@@ -132,7 +132,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_comboBox_precision_t_activated(int);
         void on_comboBox_precision_r_activated(int);
         void on_comboBox_method_activated(int);
-        //void on_checkBox_noprop_clicked();
         // tab2-plot.cpp
         void Plot();
         void ClearPlot();

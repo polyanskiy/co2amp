@@ -242,10 +242,9 @@ extern double c, h;               // spped of light [m/s]; Plank's [J s]
 extern bool configuration_error;  // true if error in a configuration file is detected
 extern std::string search_dir;    // additional directory for HDF5 pulse files
 extern int method;                // propagation method
-                                  // -1: no beam variation due to proparation (old "-noprop" parameter)
-                                  // 0: co2amp approximation (default)
-                                  // 1: exact solution of Kirchoff integral
-                                  // 2: Fresnel approximaiton
+                                  // 0: no beam variation due to proparation (old "-noprop" parameter)
+                                  // 1: Fresnel (default)
+                                  // 2: Rayleigh-Sommerfeld
 
 
 // --------------------------------------- FUNCTIONS -------------------------------------------

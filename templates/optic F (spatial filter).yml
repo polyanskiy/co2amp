@@ -1,9 +1,9 @@
 # Configuration YAML file, type F
 # - Spatial filter -
-# template v.2020-04-30
+# template v.2020-05-25
 
-# Radius of the optic (limiting aperture), m
-R: 25e-3
+# Semi-diameter of the limiting aperture, m
+semiDia: 25e-3
 
 # Filter type (ND/MASK/SIN/GAUSS/FREEFORM)
 filter: SIN
