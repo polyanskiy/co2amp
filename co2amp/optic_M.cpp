@@ -161,8 +161,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             {
                 v = v0 + Dv*(n-n0/2);
                 chirpyness = -c/th / (RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " * Dv " omitted
-                v -= pulse->vc; // relative frequency (v-vc)
-                shift += v / chirpyness; // " * Dv " omitted
+                //v -= pulse->vc; // relative frequency (v-vc)
+                shift += (v-pulse->vc) / chirpyness; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(I*2.0*M_PI*shift);
             }

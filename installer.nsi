@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20200525_setup.exe"
+OutFile "co2amp_v.20200601_setup.exe"
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -52,7 +52,7 @@ Section "Section_01" Sec01
 
   ;Write files to installation directory
   SetOutPath "$INSTDIR\doc"
-  File "doc\tex\co2amp.pdf"
+  File "doc\co2amp2020\co2amp2020.pdf"
   SetOutPath "$INSTDIR\templates"
   File "templates\*.yml"
   SetOutPath "$INSTDIR"

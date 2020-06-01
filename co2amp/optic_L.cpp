@@ -54,14 +54,15 @@ void L::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     #pragma omp parallel for
     for(int x=0; x<x0; x++)
     {
-        if(method==0) // no propagation
+        /*if(method==0) // no propagation
         {
             for(int n=0; n<n0; n++)
                 pulse->E[x][n] *= exp(-I*2.0*M_PI*(pulse->vc/c)*pow(Dr*(0.5+x),2)/(2.0*F));
         }
 
-        else // frequency domain
-        {
+        else
+        {*/
+            // frequency domain
             double k_wave;
             std::complex<double> *E1;
             E1 = new std::complex<double>[n0];
@@ -74,6 +75,6 @@ void L::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
             IFFT(E1, pulse->E[x]);
             delete[] E1;
-        }
+        //}
     }
 }

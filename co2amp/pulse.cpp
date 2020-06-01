@@ -293,8 +293,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             double r1;
             double r2 = Dr2*(0.5+x2);
 
-            //Fresnell diffraction with cylindrical symmetry
-            //see https://www.physlab.org/wp-content/uploads/2016/04/Diffraction-Ch10.pdf
+            // Fresnell diffraction with cylindrical symmetry
             if(method == 1)
             {
                 double lambda, k_wave;
@@ -319,26 +318,59 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             if(method == 2)
             {
                 double lambda, k_wave, R, phi, Dphi;
+                double R2, R2max; // R^2
                 std::complex<double> tmp;
                 for(int x1=0; x1<x0; x1++) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
-                    Dphi = M_PI/ceil(M_PI*r1/Dr1);
+                    //Dphi = M_PI/ceil(M_PI*(x1+0.5));
+                    Dphi = 1/ceil(x1+0.5);
+                    R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
                     for(int n=0; n<n0; n++)
                     {
                         lambda = c/(v0+Dv*(n-n0/2));
                         k_wave = 2.0*M_PI/lambda;
                         tmp = 0;
                         for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
-                            R = sqrt(pow(r1,2) + pow(r2,2) + pow(z,2) - 2*r1*r2*cos(phi));
-                            tmp += 2.0 * exp(I*k_wave*(R-z)) / R * z/R;
+                            R2 = R2max - 2*r1*r2*cos(phi);
+                            R = sqrt(R2);
+                            tmp += exp(I*k_wave*(R-z)) / R2;
                         }
-                        tmp *= Dphi*r1*Dr1 / (I*lambda);
+                        tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                         E[x2][n1] +=  E1[x1][n1] * tmp;
                     }
                 }
             }
+
+            // Experimental propagation
+            /*if(method == 3)
+            {
+                double lambda, k_wave, R, phi, Dphi;
+                double R2, R2max; // R^2
+                std::complex<double> tmp;
+                for(int x1=0; x1<x0; x1++) // input plane
+                {
+                    r1 = Dr1*(0.5+x1);
+                    //Dphi = 1/ceil(x1*x2/x0 * (from->optic->r_max + to->optic->r_max)/z +0.5);
+                    Dphi = 1/ceil(x1 * (from->optic->r_max + to->optic->r_max)/z +0.5);
+                    R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
+                    for(int n=0; n<n0; n++)
+                    {
+                        lambda = c/(v0+Dv*(n-n0/2));
+                        k_wave = 2.0*M_PI/lambda;
+                        tmp = 0;
+                        for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
+                            R2 = R2max - 2*r1*r2*cos(phi);
+                            R = sqrt(R2);
+                            tmp += exp(I*k_wave*(R-z)) / R2;
+                        }
+                        tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
+                        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                        E[x2][n1] +=  E1[x1][n1] * tmp;
+                    }
+                }
+            }*/
         }
 
         for(int x=0; x<x0; x++)
