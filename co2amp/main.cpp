@@ -28,7 +28,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2020-06-01";
+    std::string version = "2020-07-07";
 
     std::clock_t stopwatch = std::clock();
 
@@ -72,7 +72,10 @@ int main(int argc, char **argv)
 
     // Save pulses at the output
     for(int i=0; i<pulses.size(); i++)
+    {
         pulses[i]->SavePulse();
+        pulses[i]->SaveBeam();
+    }
 
     Debug(2,"Success!");
     StatusDisplay(nullptr, nullptr, -1, "All done!");

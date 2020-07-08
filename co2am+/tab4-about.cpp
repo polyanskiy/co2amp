@@ -2,11 +2,11 @@
 
 void MainWindow::SetAboutText()
 {  
-    QString co2amplus_version = "2020-06-01";
+    QString co2amplus_version = "2020-07-07";
 
     // get co2amp version string
     process = new QProcess(this);
-    process->start("\"" + path_to_co2amp + "\" -version");
+    process->start(path_to_co2amp, QStringList("-version"));
     process->waitForFinished();
     QString co2amp_version = process->readAllStandardOutput();
     delete process;

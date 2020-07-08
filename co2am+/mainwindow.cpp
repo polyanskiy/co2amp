@@ -223,11 +223,24 @@ void MainWindow::on_pushButton_savePulse_clicked()
         pulse = pulse_list[0];
 
     QString save_path = QDir::toNativeSeparators(def_dir + "\\" + pulse + ".pulse");
-    save_path = QFileDialog::getSaveFileName(this, QString(), save_path, "HDF5 (*.pulse)");
-    if(save_path != QString())
+    save_path = QFileDialog::getSaveFileName(this, QString(), save_path,
+                                             "Full space-time info as HDF5 file (*.pulse);;"
+                                             "Beam profile at t=0 in ASCII format (*.asc);;"
+                                             "Beam profile at t=0 in Zemax format (*.zbf)");
+    if(save_path != QString() && QFileInfo(save_path).suffix() == "pulse")
     {
         QFile::remove(save_path);
         QFile::copy(pulse+".pulse", save_path);
+    }
+    if(save_path != QString() && QFileInfo(save_path).suffix() == "asc")
+    {
+        QFile::remove(save_path);
+        QFile::copy(pulse+".asc", save_path);
+    }
+    if(save_path != QString() && QFileInfo(save_path).suffix() == "zbf")
+    {
+        QFile::remove(save_path);
+        QFile::copy(pulse+".zbf", save_path);
     }
 }
 

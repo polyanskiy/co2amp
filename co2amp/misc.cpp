@@ -25,6 +25,21 @@ std::string toExpString(double num)
     return out.str();
 }
 
+std::string toString(int num)
+{
+    std::ostringstream out;
+    out << num;
+    return out.str();
+}
+
+
+std::string toString(double num)
+{
+    std::ostringstream out;
+    out << num;
+    return out.str();
+}
+
 
 bool YamlGetValue(std::string *value, std::string path, std::string key, bool required)
 {

@@ -23,7 +23,8 @@ public:
     Pulse(std::string yaml);
     void Initialize(void);
     void Propagate(Plane *from, Plane *to, double time);
-    void SavePulse(void);
+    void SavePulse(void); // HDF5 .pulse file
+    void SaveBeam(void); // Zemax beam file (.zbf) and ASCII (.asc) beam profile
     std::string id;
     std::string yaml;
     int number;
@@ -261,6 +262,8 @@ bool YamlGetValue(std::string *value, std::string path, std::string key, bool re
 bool YamlGetData(std::vector<double> *data, std::string path, std::string key, int column_n);
 double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
+std::string toString(int num);
+std::string toString(double num);
 
 /////////////////////////// input.cpp ////////////////////////////
 std::string ReadCommandLine(int, char**);

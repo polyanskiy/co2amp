@@ -81,10 +81,10 @@ void MainWindow::ReadConfigurationFiles()
     {
         str = in.readAll();
         file.close();
-        file_list = str.split("- ", QString::SkipEmptyParts);
+        file_list = str.split("- ", Qt::SkipEmptyParts);
         for(int i=0; i<file_list.size(); i++)
         {
-            file_record = file_list[i].split("\n", QString::SkipEmptyParts);
+            file_record = file_list[i].split("\n", Qt::SkipEmptyParts);
             if(file_record.size() == 2) // "- id: ...", "type: ..."
             {
                 QString id   = file_record[0].split(": ")[1]; // "- id: ..."

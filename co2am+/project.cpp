@@ -69,11 +69,21 @@ void MainWindow::SaveProject()
 
     UpdateConfigurationFiles();
 
+    QStringList arguments;
+    arguments << "a";
+    arguments << "-tzip";
+    arguments << project_file;
+    arguments << "*.dat";
+    arguments << "*.txt";
+    arguments << "*.ini";
+    arguments << "*.yml";
+
     QProcess *proc;
     proc = new QProcess(this);
-    proc->start("\"" + path_to_7zip + "\" a -tzip \"" + project_file + "\" *.dat ; *.txt ; *.ini ; *.yml");
+    proc->start(path_to_7zip, arguments);
     proc->waitForFinished(-1); // no time-out
     delete proc;
+
     flag_project_modified = false;
     Update();
 }
@@ -91,11 +101,18 @@ void MainWindow::LoadProject()
     ClearPlot();
     ClearWorkDir();
     textBrowser_terminal->clear();
+
+    QStringList arguments;
+    arguments << "e";
+    arguments << "-y";
+    arguments << project_file;
+
     QProcess *proc;
     proc = new QProcess(this);
-    proc->start("\"" + path_to_7zip + "\" e -y \"" + project_file + "\"");
+    proc->start(path_to_7zip, arguments);
     proc->waitForFinished(-1); // no time out
     delete proc;
+
     ReadConfigurationFiles();
     QFileInfo fileinfo(project_file);
     def_dir = QDir::toNativeSeparators(fileinfo.dir().absolutePath());

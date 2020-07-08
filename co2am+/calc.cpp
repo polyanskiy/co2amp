@@ -8,10 +8,7 @@ void MainWindow::Calculate()
 
     BeforeProcessStarted(); //prepare everything
 
-    // Composing arguments string
     QStringList arguments;
-
-    arguments << "\"" + path_to_co2amp + "\"";
     arguments << "-v0"        << lineEdit_v0->text();
     arguments << "-n0"        << comboBox_precision_t->currentText();
     arguments << "-x0"        << comboBox_precision_r->currentText();
@@ -19,8 +16,8 @@ void MainWindow::Calculate()
     arguments << "-t_max"     << lineEdit_t_max->text();
     arguments << "-time_tick" << lineEdit_time_tick->text();
     arguments << "-method"    << QString::number(comboBox_method->currentIndex());
-    arguments << "-search_dir"<< "\"" + def_dir + "\"";
-
+    //arguments << "-search_dir"<< "\"" + def_dir + "\"";
+    arguments << "-search_dir"<< def_dir;
     arguments << "-debug" << spinBox_debug_level->text();
 
     //////////////////// Starting The Process ////////////////////
@@ -28,7 +25,7 @@ void MainWindow::Calculate()
     connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(WriteToTerminal()));
     connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(AfterProcessFinished()));
     process->setWorkingDirectory(work_dir);
-    process->start(arguments.join(" "));
+    process->start(path_to_co2amp, arguments);
 }
 
 

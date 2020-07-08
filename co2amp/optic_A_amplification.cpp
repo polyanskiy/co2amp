@@ -18,7 +18,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
 
     // Pre-calculate exponents for accelerating calculations
-    double exp_tauR = exp(-Dt/tauR); // full-step
+    double exp_tauR = exp(-Dt/tauR/2.0); // half-step
     double exp_T2 = exp(-Dt/T2/2.0); // half-step
     std::complex<double> exp_phase[6][4][4][61]; // half-step
     for(int i=0; i<6; i++)
@@ -204,17 +204,18 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                         continue;
                     for(j=0; j<61; j++)
                     {
-                        // ROTATIONAL REFILL
+                        // ROTATIONAL REFILL (half-step 1)
                         for(vl=0; vl<3; vl++)
                             Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j]) * (1-exp_tauR);
-                        // STIMULATED TRANSITIONS
+
+                        // STIMULATED TRANSITIONS (full step)
                         for(br=0; br<4; br++)
                         {
                             if(sigma[i][ba][br][j] == 0.0)
                                 continue;
 
                             delta = 4.0 * real(rho[i][ba][br][j]*conj((E_in+pulse->E[x][n])/2.0)) * Dt;
-                            // E_in+pulse->E[x][n])/2.0: average field (before and after amplification)
+                            // NOTE: E_in+pulse->E[x][n])/2.0 is the average field (before and after amplification)
 
                             // upper level
                             Nvib[i][ba][0] += delta;
@@ -234,6 +235,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                                 Nrot[i][ba][2][j] -= delta;
                             }
                         }
+
+                        // ROTATIONAL REFILL (half-step 2)
+                        for(vl=0; vl<3; vl++)
+                            Nrot[i][ba][vl][j] += (nop[i][ba][vl][j]*Nvib[i][ba][vl] - Nrot[i][ba][vl][j]) * (1-exp_tauR);
                     }
                 }
             }

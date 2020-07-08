@@ -3,7 +3,7 @@
 
 int MainWindow::PassNumber(int i)
 {
-    QStringList list = lineEdit_passes->text().split(",", QString::SkipEmptyParts);
+    QStringList list = lineEdit_passes->text().split(",", Qt::SkipEmptyParts);
     if(i < list.count())
         return list[i].toInt();
     return -1;

@@ -569,23 +569,25 @@ bool Pulse::LoadPulse(std::string filename)
             if(r>r_max1 || t<t_min1 || t>t_max1)
             {
                 E[x][n] = 0;
-                break;
             }
-            int x1 = (int)floor(r/Dr1 - 0.5);
-            int x2 = x1+1;
-            int n1 = (int)floor((t-t_min1)/Dt1 - 0.5);
-            int n2 = n1+1;
+            else
+            {
+                int x1 = (int)floor(r/Dr1 - 0.5);
+                int x2 = x1+1;
+                int n1 = (int)floor((t-t_min1)/Dt1 - 0.5);
+                int n2 = n1+1;
 
-            if(x1<0) x1=0;
-            if(n1<0) n1=0;
-            if(x2>=x01) x2=x01-1;
-            if(n2>=n01) n2=n01-1;
-            double a = r/Dr1 - (x1+0.5);
-            double b = (t-t_min1)/Dt1 - (n1+0.5);
-            E[x][n] = E1[x1][n1] * (1-a) * (1-b)
-                    + E1[x2][n1] * a     * (1-b)
-                    + E1[x1][n2] * (1-a) * b
-                    + E1[x2][n2] * a     * b;
+                if(x1<0) x1=0;
+                if(n1<0) n1=0;
+                if(x2>=x01) x2=x01-1;
+                if(n2>=n01) n2=n01-1;
+                double a = r/Dr1 - (x1+0.5);
+                double b = (t-t_min1)/Dt1 - (n1+0.5);
+                E[x][n] = E1[x1][n1] * (1-a) * (1-b)
+                        + E1[x2][n1] * a     * (1-b)
+                        + E1[x1][n2] * (1-a) * b
+                        + E1[x2][n2] * a     * b;
+            }
         }
     }
 
@@ -597,4 +599,171 @@ bool Pulse::LoadPulse(std::string filename)
     // ------------------------------------ SUCCESS! ------------------------------------
     Debug(2, "Pulse read from file done!");
     return true;
+}
+
+
+void Pulse::SaveBeam()
+{
+    StatusDisplay(nullptr, nullptr, -1, "saving beam profile for pulse " + this->id + "...");
+
+    // use field at pulse time moment closest to t=0
+    /*double Dt = (t_max-t_min)/n0;
+    int n_zerotime = 0;
+    double zerotime = t_min+Dt*0.5;
+    for(int n=0; n<n0; n++)
+    {
+        double t = t_min+Dt*(0.5+n);
+        if(fabs(t)<fabs(zerotime))
+        {
+            zerotime = t;
+            n_zerotime = n;
+        }
+    }
+    Debug(2, "zerotime = " + toExpString(n_zerotime));
+    Debug(2, "n = " + toString(n_zerotime));*/
+
+    double Dr = planes[planes.size()-1]->optic->r_max / x0; // last optic in the layout
+
+
+    double *Fluence = new double[x0];
+    for(int x=0; x<x0; x++)
+        Fluence[x] = 0;
+
+    double Fmax = 0;
+    for(int x=0; x<x0; x++)
+    {
+        for(int n=0; n<n0; n++)
+            Fluence[x] += pow(abs(E[x][n]),2); // a.u.
+        if(Fluence[x] > Fmax)
+            Fmax = Fluence[x];
+    }
+    for(int x=0; x<x0; x++)
+        Fluence[x] /= Fmax; // a.u. normalized
+
+
+
+    // ZBF: Using example C program from C:\Users\username\Documents\Zemax\POP\BEAMFILES
+
+    /* set some parameters to use for the beam */
+    int i, j, k, nx, ny, is_polarized, unittype;
+    double dx, dy, waist, position, lambda, rayleigh, ficl;//, *cax;
+    nx = x0*2;
+    ny = x0*2;
+    dx = Dr*1000; //  this is in mm if unittype is 0
+    dy = Dr*1000;
+    is_polarized = 0; // use 1 for a polarized beam
+    unittype = 0; // millimeters
+
+    waist = Dr*x0/2 * 1000; // assume w = semiDia/2, convert to mm
+    position = 0.0;
+    lambda = c/vc * 1000; //mm
+    rayleigh = M_PI*waist*waist/lambda;
+    ficl = 0.0; //  unused for this ZBF
+
+    /* now make the beam */
+    //cax = (double *) malloc(sizeof(double)*2*nx*ny);
+    double *cax = new double[2*nx*ny];
+
+    k = 0;
+    for (j = 0; j < ny; j++)
+    {
+        for (i = 0; i < nx; i++)
+        {
+            //std::complex<double> E1 = 0;
+            double E1 = 0;
+            double x_exact = sqrt(pow(i+0.5-x0,2)+pow(j+0.5-x0,2));
+            int x_lo = (int)floor(x_exact);
+            int x_hi = (int)ceil(x_exact);
+            if( (x_lo < x0) && (x_hi < x0) )
+            {
+                if(x_lo == x_hi)
+                    //E1 = E[x_lo][n_zerotime];
+                    E1 = sqrt(Fluence[x_lo]);
+                else
+                    //E1 = E[x_lo][n_zerotime]*((double)x_hi-x_exact) + E[x_hi][n_zerotime]*(x_exact-(double)x_lo);
+                    E1 = sqrt(Fluence[x_lo]*((double)x_hi-x_exact) + Fluence[x_hi]*(x_exact-(double)x_lo));
+            }
+
+            cax[k]   = E1;//.real();
+            cax[k+1] = 0;//E1.imag();
+
+            k += 2;
+        }
+    }
+
+
+    // Write ZBF file
+    FILE *out;
+    out = fopen((id+".zbf").c_str(), "wb");
+
+    /* write the format version number */
+    i = 0;
+    fwrite(&i, sizeof(int), 1, out);
+
+    /* write the beam nx size */
+    fwrite(&nx, sizeof(int), 1, out);
+
+    /* write the beam ny size */
+    fwrite(&ny, sizeof(int), 1, out);
+
+    /* write the ispolarized flag */
+    fwrite(&is_polarized, sizeof(int), 1, out);
+
+    /* write out the current units */
+    fwrite(&unittype, sizeof(int), 1, out);
+
+    /* 4 unused integers */
+    i = 0;
+    fwrite(&i, sizeof(int), 1, out);
+    fwrite(&i, sizeof(int), 1, out);
+    fwrite(&i, sizeof(int), 1, out);
+    fwrite(&i, sizeof(int), 1, out);
+
+    /* dx */
+    fwrite(&dx, sizeof(double), 1, out);
+
+    /* dy */
+    fwrite(&dy, sizeof(double), 1, out);
+
+    /* beam parameters */
+    fwrite(&position, sizeof(double), 1, out);
+    fwrite(&rayleigh, sizeof(double), 1, out);
+    fwrite(&lambda,   sizeof(double), 1, out);
+    fwrite(&waist,    sizeof(double), 1, out);
+
+    /* fiber coupling */
+    fwrite(&ficl, sizeof(double), 1, out);
+
+    /* 4 unused doubles */
+    double x = 0.0;
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+
+    /* now the beam itself */
+    fwrite(cax, sizeof(double), nx*ny*2, out);
+
+    fclose(out);
+
+    // Write ASCII file
+    out = fopen((id+".asc").c_str(), "w");
+    k = 0;
+    for (j = 0; j < ny; j++)
+    {
+        for (i = 0; i < nx; i++)
+        {
+            fprintf(out, "%d", (int)(cax[k]*cax[k]*4096));
+            k += 2;
+            if(i<nx-1)
+                fprintf(out, " ");
+        }
+        fprintf(out, "\n");
+    }
+    fclose(out);
+
+    //free (cax);
+
+    delete[] cax;
+    delete[] Fluence;
 }

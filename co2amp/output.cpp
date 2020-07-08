@@ -131,7 +131,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
             phase[n] = arg(E[0][n]);
     }
 
-    // Write sphase file
+    // Write phase file
     file = fopen((basename+"_phase.dat").c_str(), "w");
     fprintf(file, "#Data format: Time[s] Phase[rad]\n");
     for(int n=0; n<n0; n++)
