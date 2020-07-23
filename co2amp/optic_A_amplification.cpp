@@ -17,7 +17,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
 
-    // Pre-calculate exponents for accelerating calculations
+    // Pre-calculate exponents to accelerate calculations
     double exp_tauR = exp(-Dt/tauR/2.0); // half-step
     double exp_T2 = exp(-Dt/T2/2.0); // half-step
     std::complex<double> exp_phase[6][4][4][61]; // half-step
@@ -155,7 +155,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                         {
                             for(j=0; j<61; j++)
                             {
-                                if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
+                                //if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
+                                if(sigma[i][ba][br][j]==0.0)
                                     continue;
                                 for(int n1=0; n1<n0; n1++)
                                     gainSpectrum[n1] += sigma[i][ba][br][j]*(M_PI*gamma) * Dn[i][ba][br][j]
@@ -180,7 +181,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     {
                         for(j=0; j<61; j++)
                         {
-                            if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
+                            //if(sigma[i][ba][br][j]==0.0 || v[i][ba][br][j]<v0-Dv*n0/2 || v[i][ba][br][j]>v0+Dv*n0/2)
+                            if(sigma[i][ba][br][j]==0.0)
                                 continue;
                             // Eq 2
                             rho[i][ba][br][j] *= exp_T2; // relaxation (half-step 1)
