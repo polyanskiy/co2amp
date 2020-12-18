@@ -182,7 +182,7 @@ private:
     double humidity;  // %, only for air, default=50
     double n2;        // optional - nonlinear index m^2/W - use NonlinearIndex() function if not set
     double n4;        // optional - neext-order nonlinearity index m^4/W^2 (0 if not set)
-    int slices;       // number of slices (more slices - better accuracy)
+    int slices;       // number of slices (more slices = higher accuracy)
     double RefractiveIndex(std::string material, double nu, double humidity=0);
     double NonlinearIndex(std::string material);
 };

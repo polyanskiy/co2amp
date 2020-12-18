@@ -26,4 +26,4 @@ RESOURCES += images.qrc
 RC_FILE = icon.rc
 CONFIG += qt
 QT += widgets
-QT += svg
+QT += svgwidgets
