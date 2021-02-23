@@ -46,7 +46,7 @@ void Pulse::Initialize()
             return;
         }
         // frequency shift between central frequency of the pulse (vc)
-        // and central frequency of the calculation grig (v0)
+        // and central frequency of the calculation grid (v0)
         for(int x=0; x<x0; x++)
             for(int n=0; n<n0; n++)
                 E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
@@ -761,8 +761,6 @@ void Pulse::SaveBeam()
         fprintf(out, "\n");
     }
     fclose(out);
-
-    //free (cax);
 
     delete[] cax;
     delete[] Fluence;

@@ -116,10 +116,6 @@ private:
     double *T, *e2, *e3, *e4;
     double *gainSpectrum;
 
-    // ------- OTHER VARIABLES -------
-    //double humidity; // air humidity [%]
-
-
     //////////////////////////// optic_A_band.cpp /////////////////////////////
     void AmplificationBand(void);
 
@@ -176,15 +172,25 @@ public:
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
+    // ------- GENERAL -------
     std::string material;
     double thickness; // m
     double tilt;      // radians, default=0
+    int slices;       // number of slices (more slices - better accuracy)
+    // ------- REFRACTION -------
     double humidity;  // %, only for air, default=50
     double n2;        // optional - nonlinear index m^2/W - use NonlinearIndex() function if not set
     double n4;        // optional - neext-order nonlinearity index m^4/W^2 (0 if not set)
-    int slices;       // number of slices (more slices - better accuracy)
+    // ------- ABSORPTION -------
+    //double Eg;        // optional - band gap J - use BandGap() function if not set
+    double chi;       // optional - nonlinear absorption order
+    double alpha0;    // optional - linear absorption coefficient 1/m
+    double alpha1;    // optional - multiphoton absorption coefficient (m^2/W)^(chi-1)/m: chi=ceil(Eg/(h*nu))
+    double alpha2;    // optional - linear absorption in conduction band
+    double **excited; // a number proportional to density of conduction electrons
     double RefractiveIndex(std::string material, double nu, double humidity=0);
     double NonlinearIndex(std::string material);
+    double BandGap(std::string material);
 };
 
 

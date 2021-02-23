@@ -67,7 +67,6 @@ M::M(std::string id)
     {
         n2 = std::stod(value);
         std::cout << id << ": Custom n2 = " << value << " m^2/W\n";
-        //Debug(2, "n2 = " + std::to_string(n2) + " m^2/W");
     }
 
     n4 = 0;
@@ -77,6 +76,46 @@ M::M(std::string id)
         std::cout << id << ": n4 = " << value << " m^4/W^2\n";
     }
 
+    /*// Band gap
+    Eg = -1;
+    if(YamlGetValue(&value, yaml, "Eg", false))
+    {
+        Eg = std::stod(value);
+        std::cout << id << ": Custom Eg = " << value << " J\n";
+    }*/
+
+    // Band gap
+    chi = 0;
+    if(YamlGetValue(&value, yaml, "chi", false))
+    {
+        chi = std::stod(value);
+        std::cout << id << ": Custom chi = " << value << "\n";
+    }
+
+    // Linear absorption in valence band
+    alpha0 = 0;
+    if(YamlGetValue(&value, yaml, "alpha0", false))
+    {
+        alpha0 = std::stod(value);
+        std::cout << id << ": Custom alpha0 = " << value << " 1/m\n";
+    }
+
+    // Multiphoton absorption (jump over band gap)
+    alpha1 = 0;
+    if(YamlGetValue(&value, yaml, "alpha1", false))
+    {
+        alpha1 = std::stod(value);
+        std::cout << id << ": Custom alpha1 = " << value << "\n";
+    }
+
+    // Linear absorption in conduction band
+    alpha2 = 0;
+    if(YamlGetValue(&value, yaml, "alpha2", false))
+    {
+        alpha2 = std::stod(value);
+        std::cout << id << ": Custom alpha2 = " << value << "\n";
+    }
+
     // number of slices
     slices = 1;
     if(!YamlGetValue(&value, yaml, "slices", false))
@@ -84,6 +123,19 @@ M::M(std::string id)
     else
         slices = std::stod(value);
     Debug(2, "# of slices = " + std::to_string(slices));
+
+
+    // ------- MISC INITIALISATIONS -------
+    // allocate memory
+    excited = new double* [slices];
+    for(int i=0; i<slices; i++)
+    {
+        excited[i] = new double [x0];
+        for(int x=0; x<x0; x++)
+            excited[i][x] = 0;
+    }
+
+
 }
 
 
@@ -108,13 +160,19 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     StatusDisplay(pulse, plane, time, "material...");
 
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
+    //double Dt = (t_max-t_min)/n0;  // pulse time step, s
 
-    // account for tilt (longer path and lower intensity)
+    // account for tilt
     // tilt = angle of incidence  (radians) - "Theta1"
     // refr = angle of refraction (radians) - "Theta2"
     double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->vc)));
     double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
+
+    n2 = NonlinearIndex(material);
+    /*Eg = BandGap(material);
+    double chi = ceil(Eg/(h*pulse->vc)) - 1;
+    Debug(2, "chi = " + std::to_string(chi));*/
 
     if(tilt !=0 )
     {
@@ -137,13 +195,15 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirpyness, shift, v;
+        double intensity, chirpyness, shift, v;//, alpha;
         std::complex<double> *E1; //field in frequency domaine
-        n2 = NonlinearIndex(material);
 
-        // Use split-step method for each slice
+        // Pulse interaction with each slice
         for(int i=0; i<slices; i++)
         {
+            // -------------- REFRACTION --------------
+            // - Use split-step method for each slice -
+
             // nonlinear index (n2) and nonlinear absorption Step 1 (half-thickness of the slice)
             for(int n=0; n<n0; n++)
             {
@@ -151,6 +211,11 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
+
+                //alpha = alpha0 + pow(alpha1*intensity,chi) + excited[i][x];
+
+                //pulse->E[x][n] *= exp(I*2.0*M_PI*shift)     //effect of nonlinear index
+                //               *  sqrt(exp(-alpha*th/2.0)); //absorption
             }
 
             // linear dispersion (full thickness of the slice)
@@ -161,7 +226,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             {
                 v = v0 + Dv*(n-n0/2);
                 chirpyness = -c/th / (RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " * Dv " omitted
-                //v -= pulse->vc; // relative frequency (v-vc)
                 shift += (v-pulse->vc) / chirpyness; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(I*2.0*M_PI*shift);
@@ -176,7 +240,24 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 intensity *= tilt_factor; // reduced intensity in tilted windows
                 shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
+
+                //alpha = alpha0 + pow(alpha1*intensity,chi) + excited[i][x];
+                //excited[i][x] += pow(alpha2*intensity,chi)*Dt;
+
+                //pulse->E[x][n] *= exp(I*2.0*M_PI*shift)     //effect of nonlinear index
+                //               *  sqrt(exp(-alpha*th/2.0)); //absorption
             }
+
+            // -------------- ABSORPTION --------------
+
+            /*for(int n=0; n<n0; n++)
+            {
+                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
+                intensity *= tilt_factor; // reduced intensity in tilted windows
+                excited[i][x] += pow(alpha2*intensity,chi)*Dt;
+                double alpha = alpha0 + pow(alpha1*intensity,chi) + excited[i][x];
+                pulse->E[x][n] *= sqrt(exp(-alpha*th)); //absorption
+            }*/
         }
     }
 }
@@ -301,4 +382,30 @@ double M::NonlinearIndex(std::string material)
         return 3e-23;                      // m^2/W
     return 0;
 }
+
+
+/*double M::BandGap(std::string material)
+{
+    if(Eg>=0) // custom band gap from YAML configuration file
+        return Eg;
+
+    if(material =="KCl")
+        return 8.7 * 1.60218e-19; // eV -> J
+    if(material =="NaCl")
+        return 9.0 * 1.60218e-19; // eV -> J
+    if(material =="ZnSe")
+        return 2.8 * 1.60218e-19; // eV -> J
+    if(material =="Ge")
+        return 0.67 * 1.60218e-19; // eV -> J
+    if(material =="GaAs")
+        return 1.43 * 1.60218e-19; // eV -> J
+    if(material =="CdTe")
+        return 1.5 * 1.60218e-19; // eV -> J
+    if(material =="Si")
+        return 1.14 * 1.60218e-19; // eV -> J
+    if(material =="air")
+        return 0;
+
+    return 0;
+}*/
 
