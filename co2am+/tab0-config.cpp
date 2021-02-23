@@ -40,7 +40,7 @@ void MainWindow::on_toolButton_configFile_add_clicked()
                                     QLineEdit::Normal, SuggestConfigFileName(type), &ok_pressed);
         if(!ok_pressed)
             return;
-        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$")))
+        if(!id.contains(QRegularExpression("^[A-Za-z][A-Za-z0-9_]*$")))
         {
             QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;
@@ -146,7 +146,7 @@ void MainWindow::on_toolButton_configFile_rename_clicked()
         id = QInputDialog().getText(this, "co2am+", "ID", QLineEdit::Normal, oldid, &ok_pressed);
         if(!ok_pressed || id == oldid)
             return;
-        if(!id.contains(QRegExp("^[A-Za-z][A-Za-z0-9_]*$")))
+        if(!id.contains(QRegularExpression("^[A-Za-z][A-Za-z0-9_]*$")))
         {
             QMessageBox().warning(this, "co2am+", "Please provide a valid ID");
             continue;

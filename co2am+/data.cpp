@@ -26,7 +26,7 @@ QString MainWindow::Type(QString id)
 void MainWindow::SelectEnergies()
 {
     QString line;
-    QRegExp separators("[\t\n]");
+    QRegularExpression separators("[\t\n]");
     int pulse_n = comboBox_pulse->currentIndex();
     int optic_n = comboBox_optic->currentIndex();
 

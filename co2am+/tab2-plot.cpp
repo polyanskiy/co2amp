@@ -43,7 +43,7 @@ void MainWindow::Plot()
 
     QFile file;
     QTextStream out(&file);
-    out.setCodec("UTF-8");
+    //out.setCodec("UTF-8");
 
     QString optic_id = comboBox_optic->currentText();
     QString pulse_id = comboBox_pulse ->currentText();

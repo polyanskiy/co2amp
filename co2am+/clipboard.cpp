@@ -218,7 +218,7 @@ void MainWindow::CopyMultipassData(QString longext)
 {
     //QString line;
     QStringList out;
-    QRegExp separators("[ \t\n\r]");
+    QRegularExpression separators("[ \t\n\r]");
 
     QString optic_id = comboBox_optic->currentText();
     QString pulse_id = comboBox_pulse->currentText();

@@ -188,6 +188,7 @@ private:
     double alpha1;    // optional - multiphoton absorption coefficient (m^2/W)^(chi-1)/m: chi=ceil(Eg/(h*nu))
     double alpha2;    // optional - linear absorption in conduction band
     double **excited; // a number proportional to density of conduction electrons
+
     double RefractiveIndex(std::string material, double nu, double humidity=0);
     double NonlinearIndex(std::string material);
     double BandGap(std::string material);
