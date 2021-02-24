@@ -183,15 +183,16 @@ private:
     double n4;        // optional - neext-order nonlinearity index m^4/W^2 (0 if not set)
     // ------- ABSORPTION -------
     //double Eg;        // optional - band gap J - use BandGap() function if not set
-    double chi;       // optional - nonlinear absorption order
-    double alpha0;    // optional - linear absorption coefficient 1/m
-    double alpha1;    // optional - multiphoton absorption coefficient (m^2/W)^(chi-1)/m: chi=ceil(Eg/(h*nu))
-    double alpha2;    // optional - linear absorption in conduction band
-    double **excited; // a number proportional to density of conduction electrons
+    //double chi;       // optional - nonlinear absorption order
+    //double alpha0;    // optional - linear absorption coefficient 1/m
+    //double alpha1;    // optional - multiphoton absorption coefficient (m^2/W)^(chi-1)/m: chi=ceil(Eg/(h*nu))
+    //double alpha2;    // optional - linear absorption in conduction band
+    //double **excited; // a number proportional to density of conduction electrons
 
-    double RefractiveIndex(std::string material, double nu, double humidity=0);
-    double NonlinearIndex(std::string material);
-    double BandGap(std::string material);
+    double RefractiveIndex(double nu);
+    double NonlinearIndex();
+    double AbsorptionCoefficient(double nu);
+    //double BandGap();
 };
 
 

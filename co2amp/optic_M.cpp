@@ -85,15 +85,15 @@ M::M(std::string id)
     }*/
 
     // Band gap
-    chi = 0;
+    /*chi = 0;
     if(YamlGetValue(&value, yaml, "chi", false))
     {
         chi = std::stod(value);
         std::cout << id << ": Custom chi = " << value << "\n";
-    }
+    }*/
 
     // Linear absorption in valence band
-    alpha0 = 0;
+    /*alpha0 = 0;
     if(YamlGetValue(&value, yaml, "alpha0", false))
     {
         alpha0 = std::stod(value);
@@ -114,7 +114,7 @@ M::M(std::string id)
     {
         alpha2 = std::stod(value);
         std::cout << id << ": Custom alpha2 = " << value << "\n";
-    }
+    }*/
 
     // number of slices
     slices = 1;
@@ -127,13 +127,13 @@ M::M(std::string id)
 
     // ------- MISC INITIALISATIONS -------
     // allocate memory
-    excited = new double* [slices];
+    /*excited = new double* [slices];
     for(int i=0; i<slices; i++)
     {
         excited[i] = new double [x0];
         for(int x=0; x<x0; x++)
             excited[i][x] = 0;
-    }
+    }*/
 
 
 }
@@ -165,11 +165,11 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     // account for tilt
     // tilt = angle of incidence  (radians) - "Theta1"
     // refr = angle of refraction (radians) - "Theta2"
-    double refr = asin(sin(tilt)/(RefractiveIndex(material, pulse->vc)));
+    double refr = asin(sin(tilt)/(RefractiveIndex(pulse->vc)));
     double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
-    n2 = NonlinearIndex(material);
+    n2 = NonlinearIndex();
     /*Eg = BandGap(material);
     double chi = ceil(Eg/(h*pulse->vc)) - 1;
     Debug(2, "chi = " + std::to_string(chi));*/
@@ -218,17 +218,18 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 //               *  sqrt(exp(-alpha*th/2.0)); //absorption
             }
 
-            // linear dispersion (full thickness of the slice)
+            // linear dispersion and absorption (full thickness of the slice)
             E1 = new std::complex<double>[n0];
             FFT(pulse->E[x], E1);
             shift = 0;
             for(int n=0; n<n0; n++)
             {
                 v = v0 + Dv*(n-n0/2);
-                chirpyness = -c/th / (RefractiveIndex(material,v+Dv/2)-RefractiveIndex(material,v-Dv/2));// " * Dv " omitted
+                chirpyness = -c/th / (RefractiveIndex(v+Dv/2)-RefractiveIndex(v-Dv/2));// " * Dv " omitted
                 shift += (v-pulse->vc) / chirpyness; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                E1[n1] *= exp(I*2.0*M_PI*shift);
+                E1[n1] *= exp(I*2.0*M_PI*shift); // refraction
+                E1[n1] *= sqrt(exp(-AbsorptionCoefficient(v)*th)); //absorption
             }
             IFFT(E1, pulse->E[x]);
             delete[] E1;
@@ -263,11 +264,17 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 }
 
 
-double M::RefractiveIndex(std::string material, double nu, double humidity)
+double M::RefractiveIndex(double nu)
 {
     // wavelength
     double x = c / nu * 1e6; // s^-1 -> um
 
+    if(material == "BaF2") //Li-1980
+    {
+        x= x<0.15 ? 0.15 : x;
+        x= x>15 ? 15 : x;
+        return sqrt( 1.33973 + 0.81070/(1-pow(0.10065/x,2)) + 0.19652/(1-pow(29.87/x,2)) + 4.52469/(1-pow(53.82/x,2)));
+    }
     if(material == "KCl") //Li-1976
     {
         x= x<0.18 ? 0.18 : x;
@@ -358,28 +365,30 @@ double M::RefractiveIndex(std::string material, double nu, double humidity)
 }
 
 
-double M::NonlinearIndex(std::string material)
+double M::NonlinearIndex()
 {
     if(n2>=0) // custom nonlinear index from YAML configuration file
         return n2;
 
-    if(material =="KCl")  //Sheik-Bahae-1991
-        return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um
-    if(material =="NaCl") //Sheik-Bahae-1991
-        return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um
-    if(material =="ZnSe") //Sheik-Bahae-1991
-        return 170e-13 * 4.19e-7 / 2.48;  // esu -> m^2/W (2.87e-18) @ 1.06 um
-    if(material =="Ge")   //Sheik-Bahae-1991
-        return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um
-    if(material =="GaAs") //Sheik-Bahae-1991
-        return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06 um
+    if(material =="BaF2")
+        return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="KCl")
+        return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="NaCl")
+        return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="ZnSe")
+        return 170e-13 * 4.19e-7 / 2.48;  // esu -> m^2/W (2.87e-18) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="Ge")
+        return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um (Sheik-Bahae-1991)
+    if(material =="GaAs")
+        return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06 um (Sheik-Bahae-1991)
         //return 1.7e-17; // m^2/W - Kapetanakos et. al. IEEE J. Quant. Electron. 37(5) (2001)
-    if(material =="CdTe") //Sheik-Bahae-1991
-        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um
-    if(material =="Si")   //Bristow-2007
-        return 1e-17;                      // m^2/W @ 2.2 um
-    if(material =="air")  //Geints Quantum Electron 2014
-        return 3e-23;                      // m^2/W
+    if(material =="CdTe")
+        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="Si")
+        return 1e-17;                      // m^2/W @ 2.2 um (Bristow-2007)
+    if(material =="air")
+        return 3e-23;                      // m^2/W (Geints Quantum Electron 2014)
     return 0;
 }
 
@@ -408,4 +417,19 @@ double M::NonlinearIndex(std::string material)
 
     return 0;
 }*/
+
+
+double M::AbsorptionCoefficient(double nu)
+{
+    // wavelength
+    double x = c / nu * 1e6; // s^-1 -> um
+
+    if(material == "BaF2")
+    {
+        if(x<6)
+            return 0;
+        return 0.9 * (exp(1.17*(x-8.0)) - 1.0);  // 1/m
+    }
+    return 0;
+}
 
