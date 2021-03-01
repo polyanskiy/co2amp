@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     comboBox_size      -> setCurrentIndex(settings.value("plot_size",      0).toInt());
     spinBox_width      -> setValue       (settings.value("plot_width",  1600).toInt());
     spinBox_height     -> setValue       (settings.value("plot_height", 1200).toInt());
-    doubleSpinBox_zoom -> setValue       (settings.value("plot_zoom",    1.0).toFloat());
+    //doubleSpinBox_zoom -> setValue       (settings.value("plot_zoom",    1.0).toFloat());
     checkBox_grid      -> setChecked     (settings.value("plot_grid",      1).toBool());
     checkBox_labels    -> setChecked     (settings.value("plot_labels",    1).toBool());
     tabWidget_main     -> setCurrentIndex(0); // always set to input tab
@@ -71,37 +71,37 @@ MainWindow::MainWindow(QWidget *parent)
     // Plot() "Graph view" settings are considered application preferences
     // they are stored in registry, and not saved as part of project
     // modifying them causes graphs to re-plot but doesn't rise the "modified" flag
-    connect(comboBox_size,           SIGNAL(activated(QString)),  this, SLOT(Plot()));
+    connect(comboBox_size,           SIGNAL(activated(int)),      this, SLOT(Plot()));
     connect(checkBox_grid,           SIGNAL(clicked()),           this, SLOT(Plot()));
     connect(checkBox_labels,         SIGNAL(clicked()),           this, SLOT(Plot()));
     connect(pushButton_update,       SIGNAL(clicked()),           this, SLOT(Plot()));
     // FlagModifiedAndPlot()
-    connect(comboBox_optic,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_pulse,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_energyPlot,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_timeScale,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_freqScale,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_optic,          SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_pulse,          SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_energyPlot,     SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_timeScale,      SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_freqScale,      SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
     connect(checkBox_log,            SIGNAL(clicked()),           this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_timeUnit,       SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_energyUnit,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_lengthUnit,     SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_fluenceUnit,    SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_tUnit,          SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_powerUnit,      SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_frequencyUnit,  SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_dischargeUnits, SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
-    connect(comboBox_intensityUnit,  SIGNAL(activated(QString)),  this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_timeUnit,       SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_energyUnit,     SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_lengthUnit,     SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_fluenceUnit,    SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_tUnit,          SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_powerUnit,      SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_frequencyUnit,  SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_dischargeUnits, SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_intensityUnit,  SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
     // PostponePlot() ...without rising the "modified" flag
     connect(spinBox_width,           SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));
     connect(spinBox_height,          SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));
-    connect(doubleSpinBox_zoom,      SIGNAL(valueChanged(double)),this, SLOT(PostponePlot()));
+    //connect(doubleSpinBox_zoom,      SIGNAL(valueChanged(double)),this, SLOT(PostponePlot()));
     // FlagModifiedAndPostponePlot()
     connect(lineEdit_passes,         SIGNAL(textEdited(QString)), this, SLOT(FlagModifiedAndPostponePlot()));
     // PlotIfPostponed()
     connect(lineEdit_passes,         SIGNAL(returnPressed()),     this, SLOT(PlotIfPostponed()));
     connect(spinBox_width,           SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
     connect(spinBox_height,          SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
-    connect(doubleSpinBox_zoom,      SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
+    //connect(doubleSpinBox_zoom,      SIGNAL(editingFinished()),   this, SLOT(PlotIfPostponed()));
 
     /////////////////////////////// Create program window /////////////////////////////////////
     restoreGeometry(settings.value("window_geometry").toByteArray());
@@ -135,7 +135,7 @@ MainWindow::~MainWindow()
     settings.setValue("plot_size",   comboBox_size      -> currentIndex());
     settings.setValue("plot_width",  spinBox_width      -> value());
     settings.setValue("plot_height", spinBox_height     -> value());
-    settings.setValue("plot_zoom",   doubleSpinBox_zoom -> value());
+    //settings.setValue("plot_zoom",   doubleSpinBox_zoom -> value());
     settings.setValue("plot_grid",   checkBox_grid      -> isChecked());
     settings.setValue("plot_labels", checkBox_labels    -> isChecked());
     settings.setValue("window_geometry", saveGeometry());
@@ -174,7 +174,7 @@ void MainWindow::on_pushButton_open_clicked()
 
 void MainWindow::on_pushButton_saveas_clicked()
 {
-    QString str, selfilter;
+    QString str;//, selfilter;
     QFileInfo fileinfo;
 
     if(project_file == QString())

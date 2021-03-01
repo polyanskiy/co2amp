@@ -78,7 +78,7 @@ void MainWindow::Plot()
     svg_fig8->setHidden(optic_type != "A");
     svg_fig9->setHidden(optic_type != "A");
 
-    double zoom = doubleSpinBox_zoom->value();
+    //double zoom = doubleSpinBox_zoom->value();
 
     QSize size(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     switch(comboBox_size->currentIndex())
@@ -87,22 +87,22 @@ void MainWindow::Plot()
             size = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
             break;
         case 1: // "360x270"
-            size = QSize(floor(360.0*zoom),(int)floor(270.0*zoom));
+            size = QSize(floor(360.0),(int)floor(270.0));
             break;
         case 2: // "480x360"
-            size = QSize(floor(480.0*zoom),(int)floor(360.0*zoom));
+            size = QSize(floor(480.0),(int)floor(360.0));
             break;
         case 3: // "640x480"
-            size = QSize(floor(640.0*zoom),(int)floor(480.0*zoom));
+            size = QSize(floor(640.0),(int)floor(480.0));
             break;
         case 4: // "800x600"
-            size = QSize(floor(800.0*zoom),(int)floor(600.0*zoom));
+            size = QSize(floor(800.0),(int)floor(600.0));
             break;
         case 5: // "1024x768"
-            size = QSize(floor(1024.0*zoom),(int)floor(768.0*zoom));
+            size = QSize(floor(1024.0),(int)floor(768.0));
             break;
         case 6: // "Custom"
-            size = QSize(floor(spinBox_width->value()*zoom),(int)floor(spinBox_height->value()*zoom));
+            size = QSize(floor(spinBox_width->value()),(int)floor(spinBox_height->value()));
             break;
     }
 
@@ -196,8 +196,8 @@ void MainWindow::Plot()
     }
 
     QString common_file_head = "set terminal svg size "
-            + QString::number(svg_fig1->width()/zoom) + ","
-            + QString::number(svg_fig1->height()/zoom) +"\n"
+            + QString::number(svg_fig1->width()) + ","
+            + QString::number(svg_fig1->height()) +"\n"
             + "set encoding utf8\n";
     if(!checkBox_labels->isChecked())
         common_file_head += "unset key\n";

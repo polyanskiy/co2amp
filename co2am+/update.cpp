@@ -5,7 +5,7 @@ void MainWindow::Update()
 {
     int index;
     bool bl;
-    QString str;
+    //QString str;
 
     //////////////////////////////////// GUI CONTROLS ///////////////////////////////////
     if(!flag_calculating)
