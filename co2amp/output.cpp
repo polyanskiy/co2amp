@@ -124,7 +124,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     phase = new double[n0];
 
     // Phase in the center of the beam!
-    for(int n=0; n<n0; n++){
+    for(int n=0; n<n0; n++)
+    {
         if(abs(E[0][n])<1000) // remove noise
             phase[n] = 0;
         else
