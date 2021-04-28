@@ -6,7 +6,8 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20210227_setup.exe"
+OutFile "co2amp_v.20210427_setup.exe"
+Unicode True
 
 ;Default install path
 InstallDir "$PROGRAMFILES64\co2amp"          ;default
@@ -60,11 +61,11 @@ Section "Section_01" Sec01
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"
   ;QT
-  File "C:\Qt\6.0.0\mingw81_64\bin\Qt6Core.dll"
-  File "C:\Qt\6.0.0\mingw81_64\bin\Qt6Gui.dll"
-  File "C:\Qt\6.0.0\mingw81_64\bin\Qt6Widgets.dll"
-  File "C:\Qt\6.0.0\mingw81_64\bin\Qt6Svg.dll"
-  File "C:\Qt\6.0.0\mingw81_64\bin\Qt6SvgWidgets.dll"
+  File "C:\Qt\6.0.3\mingw81_64\bin\Qt6Core.dll"
+  File "C:\Qt\6.0.3\mingw81_64\bin\Qt6Gui.dll"
+  File "C:\Qt\6.0.3\mingw81_64\bin\Qt6Widgets.dll"
+  File "C:\Qt\6.0.3\mingw81_64\bin\Qt6Svg.dll"
+  File "C:\Qt\6.0.3\mingw81_64\bin\Qt6SvgWidgets.dll"
   ;MinGW
   File "C:\Qt\Tools\mingw810_64\bin\libgcc_s_seh-1.dll"
   File "C:\Qt\Tools\mingw810_64\bin\libgomp-1.dll"
@@ -75,9 +76,9 @@ Section "Section_01" Sec01
   File "C:\Program Files\HDF_Group\HDF5\1.12.0\bin\hdf5_hl.dll"
   ;Platforms
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\6.0.0\mingw81_64\plugins\platforms\qwindows.dll"
+  File "C:\Qt\6.0.3\mingw81_64\plugins\platforms\qwindows.dll"
   SetOutPath "$INSTDIR\imageformats"
-  File "C:\Qt\6.0.0\mingw81_64\plugins\imageformats\qsvg.dll"
+  File "C:\Qt\6.0.3\mingw81_64\plugins\imageformats\qsvg.dll"
   
   ;Write Start menu entries
   SetShellVarContext all

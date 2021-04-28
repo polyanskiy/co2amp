@@ -100,6 +100,35 @@ M::M(std::string id)
         std::cout << id << ": Custom multiphoton absorption coefficient alpha1 = " << value << "\n";
     }
 
+    // Absorption in conduction band
+    alpha2 = -1;
+    if(YamlGetValue(&value, yaml, "alpha2", false))
+    {
+        alpha2 = std::stod(value);
+        std::cout << id << ": Custom alpha2 = " << value << "\n";
+    }
+
+    alpha3 = 0;
+    if(YamlGetValue(&value, yaml, "alpha3", false))
+    {
+        alpha3 = std::stod(value);
+        std::cout << id << ": Custom alpha3 = " << value << "\n";
+    }
+
+    alpha4 = 0;
+    if(YamlGetValue(&value, yaml, "alpha4", false))
+    {
+        alpha4 = std::stod(value);
+        std::cout << id << ": Custom alpha4 = " << value << "\n";
+    }
+
+    alpha5 = 0;
+    if(YamlGetValue(&value, yaml, "alpha5", false))
+    {
+        alpha5 = std::stod(value);
+        std::cout << id << ": Custom alpha5 = " << value << "\n";
+    }
+
     // Multiphoton absorption order
     chi = -1;
     if(YamlGetValue(&value, yaml, "chi", false))
@@ -107,14 +136,6 @@ M::M(std::string id)
         chi = std::stod(value);
         std::cout << id << ": Custom multiphoton absorption order chi = " << value << "(m^2/W)^(chi-1)/m\n";
     }
-
-    /*// Linear absorption in conduction band
-    alpha2 = 0;
-    if(YamlGetValue(&value, yaml, "alpha2", false))
-    {
-        alpha2 = std::stod(value);
-        std::cout << id << ": Custom alpha2 = " << value << "\n";
-    }*/
 
     // number of slices
     slices = 1;
@@ -160,7 +181,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     StatusDisplay(pulse, plane, time, "material...");
 
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-    //double Dt = (t_max-t_min)/n0;  // pulse time step, s
+    double Dt = (t_max-t_min)/n0;  // pulse time step, s
 
     // account for tilt
     // tilt = angle of incidence  (radians) - "Theta1"
@@ -170,7 +191,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
 
     n2 = NonlinearIndex();
-    alpha1 = MultiphotonAbsorptionCoefficient();
+    alpha1 = MultiphotonAbsorptionCoefficient1();
+    alpha2 = MultiphotonAbsorptionCoefficient2();
     chi = MultiphotonAbsorptionOrder();
 
     /*Eg = BandGap(material);
@@ -198,7 +220,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirpyness, shift, v;//, alpha;
+        double intensity, chirpyness, shift, v, alphaMP;
+        double integral; // proportional to number of electrons in the conduction band
         std::complex<double> *E1; //field in frequency domaine
 
         // Pulse interaction with each slice
@@ -208,18 +231,26 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             // - Use split-step method for each slice -
 
             // nonlinear index (n2) and multiphoton absorption Step 1 (half-thickness of the slice)
+            //integral = 0;
+            alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
+
+                // nonlinear refraction
                 shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
-                pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
-                pulse->E[x][n] *= sqrt(exp(-pow(alpha1*intensity,chi)*th/2.0)); //multiphoton absorption
+                pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
-                //alpha = alpha0 + pow(alpha1*intensity,chi) + excited[i][x];
+                // multiphoton absorption
+                //alphaMP += pow(alpha1*intensity,chi)*Dt;
+                //alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
+                //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
+                alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
+                pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
 
-                //pulse->E[x][n] *= exp(I*2.0*M_PI*shift)     //effect of nonlinear index
-                //               *  sqrt(exp(-alpha*th/2.0)); //absorption
+                //excited[i][x] += alpha*Dt;
+                //integral += alphaMP*Dt;
             }
 
             // linear dispersion and absorption (full thickness of the slice)
@@ -239,19 +270,26 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             delete[] E1;
 
             // nonlinear index (n2) and multiphoton absorption Step 2 (half-thickness of the slice)
+            //integral = 0;
+            alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
+
+                // nonlinear refraction
                 shift = pulse->vc * th/2.0/c * (n2*intensity + n4*pow(intensity,2));
-                pulse->E[x][n] *= exp(I*2.0*M_PI*shift); //effect of nonlinear index
-                pulse->E[x][n] *= sqrt(exp(-pow(alpha1*intensity,chi)*th/2.0)); //multiphoton absorption
+                pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
-                //alpha = alpha0 + pow(alpha1*intensity,chi) + excited[i][x];
-                //excited[i][x] += pow(alpha2*intensity,chi)*Dt;
+                // multiphoton absorption
+                //alphaMP += pow(alpha1*intensity,chi)*Dt;
+                //alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
+                //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
+                alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
+                pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
 
-                //pulse->E[x][n] *= exp(I*2.0*M_PI*shift)     //effect of nonlinear index
-                //               *  sqrt(exp(-alpha*th/2.0)); //absorption
+                //excited[i][x] += alpha*Dt;
+                //integral += alphaMP*Dt;
             }
         }
     }
@@ -431,10 +469,17 @@ double M::AbsorptionCoefficient(double nu)
 }
 
 
-double M::MultiphotonAbsorptionCoefficient()
+double M::MultiphotonAbsorptionCoefficient1()
 {
     if(alpha1>=0) // custom multiphoton absorption coefficient from YAML configuration file
         return alpha1;
+    return 0;
+}
+
+double M::MultiphotonAbsorptionCoefficient2()
+{
+    if(alpha2>=0) // custom multiphoton absorption coefficient from YAML configuration file
+        return alpha2;
     return 0;
 }
 
