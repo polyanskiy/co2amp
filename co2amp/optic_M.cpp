@@ -231,8 +231,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             // - Use split-step method for each slice -
 
             // nonlinear index (n2) and multiphoton absorption Step 1 (half-thickness of the slice)
-            //integral = 0;
-            alphaMP = 0;
+            integral = 0;
+            //alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
@@ -244,13 +244,13 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
                 // multiphoton absorption
                 //alphaMP += pow(alpha1*intensity,chi)*Dt;
-                //alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
+                alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
                 //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
-                alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
+                //alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
                 pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
 
                 //excited[i][x] += alpha*Dt;
-                //integral += alphaMP*Dt;
+                integral += alphaMP*intensity*Dt;
             }
 
             // linear dispersion and absorption (full thickness of the slice)
@@ -270,8 +270,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             delete[] E1;
 
             // nonlinear index (n2) and multiphoton absorption Step 2 (half-thickness of the slice)
-            //integral = 0;
-            alphaMP = 0;
+            integral = 0;
+            //alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
@@ -283,13 +283,13 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
                 // multiphoton absorption
                 //alphaMP += pow(alpha1*intensity,chi)*Dt;
-                //alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
+                alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
                 //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
-                alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
+                //alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
                 pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
 
                 //excited[i][x] += alpha*Dt;
-                //integral += alphaMP*Dt;
+                integral += alphaMP*intensity*Dt;
             }
         }
     }
