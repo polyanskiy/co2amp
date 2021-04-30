@@ -220,8 +220,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirpyness, shift, v, alphaMP;
-        double integral; // proportional to number of electrons in the conduction band
+        double intensity, chirpyness, shift, v, alphaNL;
+        double integral; // proportional to the number of created free carriers
         std::complex<double> *E1; //field in frequency domaine
 
         // Pulse interaction with each slice
@@ -232,7 +232,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
             // nonlinear index (n2) and multiphoton absorption Step 1 (half-thickness of the slice)
             integral = 0;
-            //alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
@@ -243,14 +242,9 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
                 // multiphoton absorption
-                //alphaMP += pow(alpha1*intensity,chi)*Dt;
-                alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
-                //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
-                //alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
-                pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
-
-                //excited[i][x] += alpha*Dt;
-                integral += alphaMP*intensity*Dt;
+                alphaNL = pow(alpha1*intensity,chi) + alpha2*integral;
+                pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
+                integral += alphaNL*intensity*Dt;
             }
 
             // linear dispersion and absorption (full thickness of the slice)
@@ -271,7 +265,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
             // nonlinear index (n2) and multiphoton absorption Step 2 (half-thickness of the slice)
             integral = 0;
-            //alphaMP = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
@@ -282,14 +275,9 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
                 // multiphoton absorption
-                //alphaMP += pow(alpha1*intensity,chi)*Dt;
-                alphaMP = pow(alpha1*intensity,chi) + alpha2*integral;
-                //alphaMP = alpha2*intensity + pow(alpha3*intensity,2) + pow(alpha4*intensity,3) + pow(alpha5*intensity,4);
-                //alphaMP = pow(alpha1*intensity,chi) + pow(alpha2*intensity,chi+1);
-                pulse->E[x][n] *= sqrt(exp(-alphaMP*th/2.0));
-
-                //excited[i][x] += alpha*Dt;
-                integral += alphaMP*intensity*Dt;
+                alphaNL = pow(alpha1*intensity,chi) + alpha2*integral;
+                pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
+                integral += alphaNL*intensity*Dt;
             }
         }
     }
@@ -324,6 +312,12 @@ double M::RefractiveIndex(double nu)
         x= x<0.54 ? 0.54 : x;
         x= x>18.2 ? 18.2 : x;
         return sqrt(1.0+4.45813734/(1-pow(0.200859853/x,2))+0.467216334/(1-pow(0.391371166/x,2))+2.89566290/(1-pow(47.1362108/x,2)));
+    }
+    if(material == "ZnS") //Klein-1986
+    {
+        x= x<0.405 ? 0.405 : x;
+        x= x>13 ? 13 : x;
+        return sqrt(8.393+0.14383/(pow(x,2)-pow(0.2421,2))+4430.99/(pow(x,2)-pow(36.71,2)));
     }
     if(material == "Ge") //Barnes-1979
     {
@@ -488,6 +482,6 @@ double M::MultiphotonAbsorptionOrder()
 {
     if(chi>=0) // custom multiphoton absorption order from YAML configuration file
         return chi;
-    return 0;
+    return 1; // not "0": to avoid 0^0 (= 1)
 }
 
