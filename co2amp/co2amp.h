@@ -187,9 +187,7 @@ private:
     double alpha0;    // optional - linear absorption coefficient 1/m
     double alpha1;    // optional - multiphoton absorption coefficient m^2/W / m^(1/chi)
     double alpha2;    // optional - linear absorption in conduction band
-    double alpha3;
-    double alpha4;
-    double alpha5;
+
     //double **excited; // a number proportional to density of conduction electrons
 
     double RefractiveIndex(double nu);
