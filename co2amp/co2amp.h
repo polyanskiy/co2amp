@@ -180,22 +180,22 @@ private:
     // ------- REFRACTION -------
     double humidity;  // %, only for air, default=50
     double n2;        // optional - nonlinear index m^2/W - use NonlinearIndex() function if not set
-    double n4;        // optional - neext-order nonlinearity index m^4/W^2 (0 if not set)
+    //double n4;        // optional - next-order nonlinearity index m^4/W^2 (0 if not set)
     // ------- ABSORPTION -------
     //double Eg;      // optional - band gap J - use BandGap() function if not set
-    double chi;       // optional - nonlinear absorption order
+    //double chi;       // optional - nonlinear absorption order
     double alpha0;    // optional - linear absorption coefficient 1/m
-    double alpha1;    // optional - multiphoton absorption coefficient m^2/W / m^(1/chi)
-    double alpha2;    // optional - linear absorption in conduction band
+    //double alpha1;    // optional - multiphoton absorption coefficient m^2/W / m^(1/chi)
+    //double alpha2;    // optional - linear absorption in conduction band
 
     //double **excited; // a number proportional to density of conduction electrons
 
     double RefractiveIndex(double nu);
     double NonlinearIndex();
     double AbsorptionCoefficient(double nu);
-    double MultiphotonAbsorptionCoefficient1();
+    /*double MultiphotonAbsorptionCoefficient1();
     double MultiphotonAbsorptionCoefficient2();
-    double MultiphotonAbsorptionOrder();
+    double MultiphotonAbsorptionOrder();*/
     //double BandGap();
 };
 
