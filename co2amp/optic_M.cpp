@@ -295,11 +295,59 @@ double M::RefractiveIndex(double nu)
     // wavelength
     double x = c / nu * 1e6; // s^-1 -> um
 
+    if(material == "AgBr") //Fit of Shrotter-1931 and McCarthy-1973
+    {
+        x= x<0.495 ? 0.495 : x;
+        x= x>12.67 ? 12.67 : x;
+        return sqrt(3.860 + 0.8677*pow(x,2) / (pow(x,2)-pow(0.3211,2)) + 21.61*pow(x,2) / (pow(x,2)-pow(254.2,2)));
+    }
+    if(material == "AgCl") //Tilton-1950
+    {
+        x= x<0.578 ? 0.578 : x;
+        x= x>20.06 ? 20.06 : x;
+        return sqrt(4.00804+0.079086/(pow(x,2)-0.04584)-0.00085111*pow(x,2)-0.00000019762*pow(x,4));
+    }
+    if(material == "AMTIR1") //SCHOTT IRG 22 Product flyer (Aptil 2017)
+    {
+        x= x<0.8 ? 0.8 : x;
+        x= x>15.5 ? 15.5 : x;
+        return sqrt(3.4834+2.8203/(1-0.1352/pow(x,2))+0.9773/(1-1420.7/pow(x,2)));
+    }
     if(material == "BaF2") //Li-1980
     {
         x= x<0.15 ? 0.15 : x;
         x= x>15 ? 15 : x;
         return sqrt( 1.33973 + 0.81070/(1-pow(0.10065/x,2)) + 0.19652/(1-pow(29.87/x,2)) + 4.52469/(1-pow(53.82/x,2)));
+    }
+    if(material == "CdTe") //DeBell-1979
+    {
+        x= x<6 ? 6 : x;
+        x= x>22 ? 22 :x;
+        return sqrt( 1.0 + 6.1977889*pow(x,2)/(pow(x,2)-pow(0.317069,2)) + 3.2243821*pow(x,2)/(pow(x,2)-pow(72.0663,2)) );
+    }
+    if(material == "CsI") //Li-1976
+    {
+        x= x<0.25 ? 0.25 : x;
+        x= x>67 ? 67 : x;
+        return sqrt(1.27587+0.68689/(1-pow(0.130/x,2))+0.26090/(1-pow(0.147/x,2))+0.06256/(1-pow(0.163/x,2))+0.06527/(1-pow(0.177/x,2))+0.14991/(1-pow(0.185/x,2))+0.51818/(1-pow(0.206/x,2))+0.01918/(1-pow(0.218/x,2))+3.38229/(1-pow(161.29/x,2)));
+    }
+    if(material == "GaAs") //Skauli-2003
+    {
+        x= x<0.97 ? 0.97 : x;
+        x= x>17 ? 17 : x;
+        return sqrt(5.372514+5.466742/(1-pow(0.4431307/x,2))+0.02429960/(1-pow(0.8746453/x,2))+1.957522/(1-pow(36.9166/x,2)));
+    }
+    if(material == "Ge") //Burnett-2016
+    {
+        x= x<2 ? 2 : x;
+        x= x>14 ? 14 : x;
+        return sqrt(1+0.4886331/(1-1.393959/pow(x,2))+14.5142535/(1-0.1626427/pow(x,2))+0.0091224/(1-752.190/pow(x,2)));
+    }
+    if(material == "KBr") //Li-1976
+    {
+        x= x<0.2 ? 0.2 : x;
+        x= x>42 ? 42 : x;
+        return sqrt(3.39408+0.79221/(1-pow(0.146/x,2))+0.01981/(1-pow(0.173/x,2))+0.15587/(1-pow(0.187/x,2))+0.17673/(1-pow(60.61/x,2))+2.06217/(1-pow(87.72/x,2)));
     }
     if(material == "KCl") //Li-1976
     {
@@ -313,11 +361,11 @@ double M::RefractiveIndex(double nu)
         x= x>30 ? 30 : x;
         return sqrt( 1.00055 + 0.19800*pow(x,2)/(pow(x,2)-pow(0.050,2)) + 0.48398*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.38696*pow(x,2)/(pow(x,2)-pow(0.128,2)) + 0.25998*pow(x,2)/(pow(x,2)-pow(0.158,2)) + 0.08796*pow(x,2)/(pow(x,2)-pow(40.50,2)) + 3.17064*pow(x,2)/(pow(x,2)-pow(60.98,2)) + 0.30038*pow(x,2)/(pow(x,2)-pow(120.34,2)) );
     }
-    if(material == "ZnSe") //Tatian-1984
+    if(material == "Si") //Edwards-1980
     {
-        x= x<0.54 ? 0.54 : x;
-        x= x>18.2 ? 18.2 : x;
-        return sqrt(1.0+4.45813734/(1-pow(0.200859853/x,2))+0.467216334/(1-pow(0.391371166/x,2))+2.89566290/(1-pow(47.1362108/x,2)));
+        x= x<2.4373 ? 2.4373 : x;
+        x= x>25 ? 25 :x;
+        return 3.41983+0.159906/(pow(x,2)-0.028)-0.123109/pow((pow(x,2)-0.028),2)+1.26878E-6*pow(x,2)-1.95104E-9*pow(x,4);
     }
     if(material == "ZnS") //Klein-1986
     {
@@ -325,29 +373,11 @@ double M::RefractiveIndex(double nu)
         x= x>13 ? 13 : x;
         return sqrt(8.393+0.14383/(pow(x,2)-pow(0.2421,2))+4430.99/(pow(x,2)-pow(36.71,2)));
     }
-    if(material == "Ge") //Barnes-1979
+    if(material == "ZnSe") //Tatian-1984
     {
-        x= x<2.5 ? 2.5 : x;
-        x= x>12 ? 12 : x;
-        return sqrt( 9.28156 + 6.72880*pow(x,2)/(pow(x,2)-0.44105) + 0.21307*pow(x,2)/(pow(x,2)-3870.1) );
-    }
-    if(material == "GaAs") //Skauli-2003
-    {
-        x= x<0.97 ? 0.97 : x;
-        x= x>17 ? 17 : x;
-        return sqrt(1+4.372514+5.466742/(1-pow(0.4431307/x,2))+0.02429960/(1-pow(0.8746453/x,2))+1.957522/(1-pow(36.9166/x,2)));
-    }
-    if(material == "CdTe") //DeBell-1979
-    {
-        x= x<6 ? 6 : x;
-        x= x>22 ? 22 :x;
-        return sqrt( 1.0 + 6.1977889*pow(x,2)/(pow(x,2)-pow(0.317069,2)) + 3.2243821*pow(x,2)/(pow(x,2)-pow(72.0663,2)) );
-    }
-    if(material == "Si") //Edwards-1980
-    {
-        x= x<2.4373 ? 2.4373 : x;
-        x= x>25 ? 25 :x;
-        return 3.41983+0.159906/(pow(x,2)-0.028)-0.123109/pow((pow(x,2)-0.028),2)+1.26878E-6*pow(x,2)-1.95104E-9*pow(x,4);
+        x= x<0.54 ? 0.54 : x;
+        x= x>18.2 ? 18.2 : x;
+        return sqrt(1.0+4.45813734/(1-pow(0.200859853/x,2))+0.467216334/(1-pow(0.391371166/x,2))+2.89566290/(1-pow(47.1362108/x,2)));
     }
     if(material == "air") //Mathar-2007
     {
@@ -399,28 +429,43 @@ double M::RefractiveIndex(double nu)
 
 double M::NonlinearIndex()
 {
+    //***************//
+    // n2 unit: m2/W //
+    //***************//
+
     if(n2>=0) // custom nonlinear index from YAML configuration file
         return n2;
 
+    if(material =="AgBr")
+        return 1.0e-19;
+    if(material =="AgCl")
+        return 1.7e-19;
     if(material =="BaF2")
-        return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-    if(material =="KCl")
-        return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-    if(material =="NaCl")
-        return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
-    if(material =="ZnSe")
-        return 170e-13 * 4.19e-7 / 2.48;  // esu -> m^2/W (2.87e-18) @ 1.06 um (Sheik-Bahae-1991)
-    if(material =="Ge")
-        return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um (Sheik-Bahae-1991)
+        //return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
+        return 1.7e-20;
+    if(material =="CdTe")
+        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="CsI")
+        return 1.2e-19;
     if(material =="GaAs")
         return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06 um (Sheik-Bahae-1991)
         //return 1.7e-17; // m^2/W - Kapetanakos et. al. IEEE J. Quant. Electron. 37(5) (2001)
-    if(material =="CdTe")
-        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um (Sheik-Bahae-1991)
+    if(material =="Ge")
+        return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um (Sheik-Bahae-1991)
+    if(material =="KCl")
+        //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
+        return 3.4e-20;
+    if(material =="NaCl")
+        //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
+        return 3.5e-20;
     if(material =="Si")
         return 1e-17;                      // m^2/W @ 2.2 um (Bristow-2007)
+    if(material =="ZnS")
+        return 2.5e-19;
+    if(material =="ZnSe")
+        return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06 um (Sheik-Bahae-1991)
     if(material =="air")
-        return 3e-23;                      // m^2/W (Geints Quantum Electron 2014)
+        return 3e-23;                      // Polyanskiy-2021(1) https://doi.org/10.1364/OL.423800
     return 0;
 }
 
@@ -465,6 +510,13 @@ double M::AbsorptionCoefficient(double nu)
             return 0;
         return 0.9 * (exp(1.17*(x-8.0)) - 1.0);  // 1/m
     }
+
+    if(material == "CsI")
+        return 0.2;
+
+    if(material == "KBr")
+        return 0.35;
+
     return 0;
 }
 
