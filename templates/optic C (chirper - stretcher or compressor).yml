@@ -1,11 +1,23 @@
 # Configuration YAML file, type C
 # - Chirper - (e.g. stretcher or compressor)
-# template v.2020-05-25
-
+# template v.2021-11-04
 # Semi-diameter of the limiting aperture, m
 semiDia: 25e-3
 
-# Only LINEAR chirp is presently supported
+# Chirp must be LINEAR or FREEFORM
+# Chirpyness is d(nu)/dt, the unit is Hz/s
+# Note: smaller absolute chirpyness affects the pulse more!!!
+
+# Chirp (LINEAR/FREEFORM)
 chirp: LINEAR
-# Chirpyness d(nu)/dt, Hz/s
+
+
+# if chirp == LINEAR: chirpyness, Hz/s
 c: 3.5e21
+
+# if chirp == FREEFORM: tabulated chirpyness profile
+# format: f c (frequency, Hz - chirpyness, Hz/s)
+#form: |
+#    32.0e12 3.1e21
+#    32.5e12 3.5e21
+#    33.0e12 3.3e21

@@ -65,6 +65,18 @@ void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
             SaveSVG("fig_gain.svg");
     }
 
+
+
+    if(Type(optic_id)=="C")
+    {
+        if(m==1) //data
+            CopyDataFromFile(optic_id + "_chirpyness.dat");
+        if(m==2) // pixmap
+            CopyPixmap(svg_fig3);
+        if(m==3) // SVG
+            SaveSVG("fig_chirpyness.svg");
+    }
+
     if(Type(optic_id)=="S")
     {
         if(m==1) //data

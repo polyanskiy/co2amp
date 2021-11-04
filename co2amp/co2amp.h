@@ -151,7 +151,9 @@ public:
     C(std::string yaml);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
-    double chirpyness; // Hz/s
+private:
+    double *Chirpyness; // Chirpiness array (Hz/s)
+    void WriteChirpynessFile();
 };
 
 
@@ -191,6 +193,7 @@ private:
     //double **excited; // a number proportional to density of conduction electrons
 
     double RefractiveIndex(double nu);
+    double GroupIndex(double nu);
     double NonlinearIndex();
     double AbsorptionCoefficient(double nu);
     /*double MultiphotonAbsorptionCoefficient1();

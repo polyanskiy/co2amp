@@ -70,7 +70,7 @@ void MainWindow::Plot()
 
     svg_fig1->setHidden(false);
     svg_fig2->setHidden(false);
-    svg_fig3->setHidden(optic_type != "A" && optic_type != "S");
+    svg_fig3->setHidden(optic_type != "A" && optic_type != "C" && optic_type != "S");
     svg_fig4->setHidden(false);
     svg_fig5->setHidden(false);
     svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
@@ -425,7 +425,6 @@ void MainWindow::Plot()
             out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n";
             out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
             file.close();
-            //proc9->start("\"" + path_to_gnuplot + "\" script_q.gp");
             proc9->start(path_to_gnuplot, QStringList("script_q.gp"));
         }
 
@@ -453,6 +452,23 @@ void MainWindow::Plot()
         proc8->waitForFinished();
         proc9->waitForFinished();
         proc10->waitForFinished();
+    }
+
+    if(optic_type == "C")
+    {
+        // GnuPlot script: Chirpyness (chirper)
+        file.setFileName("script_chirpyness.gp");
+        file.open(QFile::WriteOnly | QFile::Truncate);
+        out << common_file_head;
+        out << "set output \"fig_chirpyness.svg\"\n";
+        out << "set xlabel \"" << frequency_xlabel << "\"\n";
+        out << "set xrange [" << v_min << ":" << v_max << "]\n";
+        out << "set ylabel \"Chirpyness, Hz/s\"\n";
+        out << "plot \"" << optic_id << "_chirpyness.dat\"" << frequency_using << ":($2) with lines notitle\n";
+        file.close();
+        QProcess *proc5 = new QProcess(this);
+        proc5->start(path_to_gnuplot, QStringList("script_chirpyness.gp"));
+        proc5->waitForFinished();
     }
 
     if(optic_type == "F")
@@ -552,6 +568,8 @@ void MainWindow::Plot()
         if(QFile::exists("fig_q.svg"))
             svg_fig9->load(QString("fig_q.svg"));
     } 
+    if(optic_type == "C") // chirper
+        svg_fig3->load(QString("fig_chirpyness.svg"));
     if(optic_type == "S") // spectral filter
         svg_fig3->load(QString("fig_transmittance.svg"));
     if(optic_type == "F") // spatial filter

@@ -62,7 +62,7 @@ M::M(std::string id)
     }
 
     // n2
-    n2 = -1;
+    n2 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "n2", false))
     {
         n2 = std::stod(value);
@@ -77,7 +77,7 @@ M::M(std::string id)
     }*/
 
     /*// Band gap
-    Eg = -1;
+    Eg = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "Eg", false))
     {
         Eg = std::stod(value);
@@ -85,7 +85,7 @@ M::M(std::string id)
     }*/
 
     // Linear absorption in valence band
-    alpha0 = -1;
+    alpha0 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "alpha0", false))
     {
         alpha0 = std::stod(value);
@@ -93,7 +93,7 @@ M::M(std::string id)
     }
 
     // Multiphoton absorption order
-    /*chi = -1;
+    /*chi = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "chi", false))
     {
         chi = std::stod(value);
@@ -101,7 +101,7 @@ M::M(std::string id)
     }*/
 
     // Multiphoton absorption (jump over band gap)
-    /*alpha1 = -1;
+    /*alpha1 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "alpha1", false))
     {
         alpha1 = std::stod(value);
@@ -109,7 +109,7 @@ M::M(std::string id)
     }*/
 
     // Free-carrier absorption
-    /*alpha2 = -1;
+    /*alpha2 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "alpha2", false))
     {
         alpha2 = std::stod(value);
@@ -255,7 +255,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             for(int n=0; n<n0; n++)
             {
                 v = v0 + Dv*(n-n0/2);
-                chirpyness = -c/th / (RefractiveIndex(v+Dv/2)-RefractiveIndex(v-Dv/2));// " * Dv " omitted
+                //chirpyness = -c/th / (RefractiveIndex(v+Dv/2)-RefractiveIndex(v-Dv/2));// " * Dv " omitted
+                chirpyness = c/th / (GroupIndex(v0+Dv/2)-GroupIndex(v0-Dv/2));// " * Dv " omitted
                 shift += (v-pulse->vc) / chirpyness; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(I*2.0*M_PI*shift); // refraction
@@ -367,6 +368,12 @@ double M::RefractiveIndex(double nu)
         x= x>25 ? 25 :x;
         return 3.41983+0.159906/(pow(x,2)-0.028)-0.123109/pow((pow(x,2)-0.028),2)+1.26878E-6*pow(x,2)-1.95104E-9*pow(x,4);
     }
+    if(material == "SiO2") //Malitson-1965
+    {
+        x= x<0.21 ? 0.21 : x;
+        x= x>6.7 ? 6.7 :x;
+        return sqrt(1+0.6961663/(1-pow(0.0684043/x,2))+0.4079426/(1-pow(0.1162414/x,2))+0.8974794/(1-pow(9.896161/x,2)));
+    }
     if(material == "ZnS") //Klein-1986
     {
         x= x<0.405 ? 0.405 : x;
@@ -427,13 +434,20 @@ double M::RefractiveIndex(double nu)
 }
 
 
+double M::GroupIndex(double nu)
+{
+    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
+    return RefractiveIndex(nu) + nu * (RefractiveIndex(nu+Dv/2)-RefractiveIndex(nu-Dv/2)) / Dv;
+}
+
+
 double M::NonlinearIndex()
 {
     //***************//
     // n2 unit: m2/W //
     //***************//
 
-    if(n2>=0) // custom nonlinear index from YAML configuration file
+    if(!std::isnan(n2)) // not NAN: custom nonlinear index from YAML configuration file
         return n2;
 
     if(material =="AgBr")
@@ -442,7 +456,7 @@ double M::NonlinearIndex()
         return 1.7e-19;
     if(material =="BaF2")
         //return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 1.7e-20;
+        return 1.7e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
     if(material =="CdTe")
         return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um (Sheik-Bahae-1991)
     if(material =="CsI")
@@ -454,25 +468,27 @@ double M::NonlinearIndex()
         return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um (Sheik-Bahae-1991)
     if(material =="KCl")
         //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 3.4e-20;
+        return 3.4e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
     if(material =="NaCl")
         //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 3.5e-20;
+        return 3.5e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
     if(material =="Si")
-        return 1e-17;                      // m^2/W @ 2.2 um (Bristow-2007)
+        return 1e-17;                      // @ 2.2 um (Bristow-2007)
+    if(material =="SiO2")
+        return 1.1e-13 * 4.19e-7 / 1.40;   // esu -> m^2/W (3.29e-20) @ 1.06 um (Sheik-Bahae-1991)
     if(material =="ZnS")
         return 2.5e-19;
     if(material =="ZnSe")
         return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06 um (Sheik-Bahae-1991)
     if(material =="air")
-        return 3e-23;                      // Polyanskiy-2021(1) https://doi.org/10.1364/OL.423800
+        return 3e-23;                      // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OL.423800
     return 0;
 }
 
 
 /*double M::BandGap(std::string material)
 {
-    if(Eg>=0) // custom band gap from YAML configuration file
+    if(!std::isnan(Eg)) // not NAN:  custom band gap from YAML configuration file
         return Eg;
 
     if(material =="KCl")
@@ -498,7 +514,7 @@ double M::NonlinearIndex()
 
 double M::AbsorptionCoefficient(double nu)
 {
-    if(alpha0>=0) // custom absorption coefficient from YAML configuration file
+    if(!std::isnan(alpha0)) // not NAN: custom absorption coefficient from YAML configuration file
         return alpha0;
 
     // wavelength
@@ -523,14 +539,14 @@ double M::AbsorptionCoefficient(double nu)
 
 /*double M::MultiphotonAbsorptionCoefficient1()
 {
-    if(alpha1>=0) // custom multiphoton absorption coefficient from YAML configuration file
+    if(!std::isnan(alpha1)) // not NAN: custom multiphoton absorption coefficient from YAML configuration file
         return alpha1;
     return 0;
 }
 
 double M::MultiphotonAbsorptionCoefficient2()
 {
-    if(alpha2>=0) // custom multiphoton absorption coefficient from YAML configuration file
+    if(!std::isnan(alpha2)) // not NAN: custom multiphoton absorption coefficient from YAML configuration file
         return alpha2;
     return 0;
 }
@@ -538,7 +554,7 @@ double M::MultiphotonAbsorptionCoefficient2()
 
 double M::MultiphotonAbsorptionOrder()
 {
-    if(chi>=0) // custom multiphoton absorption order from YAML configuration file
+    if(!std::isnan(chi)) // not NAN: custom multiphoton absorption order from YAML configuration file
         return chi;
     return 1; // not "0": to avoid 0^0 (= 1)
 }*/

@@ -133,7 +133,7 @@ bool YamlGetData(std::vector<double> *data, std::string path, std::string key, i
 
 double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x)
 {
-    if(X->size()<=1)
+    if(X->size()<1) // require at least one point
         return 0;
 
     if(x <= (*X)[0])
