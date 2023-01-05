@@ -6,8 +6,10 @@
 Makefile*
 co2amp/debug
 co2amp/release
+co2amp/.qtc_clangd
 co2am+/debug
 co2am+/release
+co2am+/.qtc_clangd
 *.Debug
 *.Release
 moc_*

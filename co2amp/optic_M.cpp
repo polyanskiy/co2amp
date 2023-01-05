@@ -92,29 +92,31 @@ M::M(std::string id)
         std::cout << id << ": Custom linear absorption coefficient alpha0 = " << value << " 1/m\n";
     }
 
+    /*
     // Multiphoton absorption order
-    /*chi = nan(""); //set to NAN
+    chi = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "chi", false))
     {
         chi = std::stod(value);
         std::cout << id << ": Custom multiphoton absorption order chi = " << value << "\n";
-    }*/
+    }
 
     // Multiphoton absorption (jump over band gap)
-    /*alpha1 = nan(""); //set to NAN
+    alpha1 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "alpha1", false))
     {
         alpha1 = std::stod(value);
         std::cout << id << ": Custom multiphoton absorption coefficient alpha1 = " << value << " m^(2-1/chi)/W\n";
-    }*/
+    }
 
     // Free-carrier absorption
-    /*alpha2 = nan(""); //set to NAN
+    alpha2 = nan(""); //set to NAN
     if(YamlGetValue(&value, yaml, "alpha2", false))
     {
         alpha2 = std::stod(value);
         std::cout << id << ": Custom free-carrier absorption coefficient alpha2 = " << value << " m^2/J\n";
-    }*/
+    }
+    */
 
     // number of slices
     slices = 1;
@@ -171,13 +173,11 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     double B_integral = 0;
 
     n2 = NonlinearIndex();
-    /*alpha1 = MultiphotonAbsorptionCoefficient1();
+    /*
+    alpha1 = MultiphotonAbsorptionCoefficient1();
     alpha2 = MultiphotonAbsorptionCoefficient2();
-    chi = MultiphotonAbsorptionOrder();*/
-
-    /*Eg = BandGap(material);
-    double chi = ceil(Eg/(h*pulse->vc)) - 1;
-    Debug(2, "chi = " + std::to_string(chi));*/
+    chi = MultiphotonAbsorptionOrder();
+    */
 
     if(tilt !=0 )
     {
@@ -201,8 +201,12 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirpyness, shift, v;//, alphaNL;
-        //double integral; // proportional to the number of created free carriers
+        double intensity, chirpyness, shift, v;
+        /*
+        double alphaNL;
+        double integral; // proportional to the number of created free carriers
+        */
+
         std::complex<double> *E1; //field in frequency domaine
 
 
@@ -227,7 +231,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             // -------------- REFRACTION AND ABSORPTION --------------
             // - Use split-step method for each slice -
 
-            // nonlinear index (n2) and multiphoton absorption Step 1 (half-thickness of the slice)
+            // nonlinear refraction [and absorption] Step 1 (half-thickness of the slice)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
@@ -238,10 +242,13 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
+                /*
                 // nonlinear absorption
-                /*alphaNL = pow(alpha1*intensity,chi) + alpha2*integral;
+                alphaNL = pow(alpha1*intensity,chi) + integral;
                 pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
-                integral += alphaNL*intensity*Dt;*/
+                //integral += alphaNL*intensity*Dt;
+                integral += pow(alpha2*intensity,chi)*Dt;
+                */
 
                 // B-integral
                 if(x==0 && n==n_peak)
@@ -265,7 +272,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             IFFT(E1, pulse->E[x]);
             delete[] E1;
 
-            // nonlinear index (n2) and multiphoton absorption Step 2 (half-thickness of the slice)
+            // nonlinear refraction [and absorption] Step 2 (half-thickness of the slice)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
@@ -276,10 +283,13 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                 shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
                 pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
 
+                /*
                 // nonlinear absorption
-                /*alphaNL = pow(alpha1*intensity,chi) + alpha2*integral;
+                alphaNL = pow(alpha1*intensity,chi) + integral;
                 pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
-                integral += alphaNL*intensity*Dt;*/
+                //integral += alphaNL*intensity*Dt;
+                integral += pow(alpha2*intensity,chi)*Dt;
+                */
 
                 // B-integral
                 if(x==0 && n==n_peak)
@@ -361,6 +371,12 @@ double M::RefractiveIndex(double nu)
         x= x<0.2 ? 0.2 : x;
         x= x>30 ? 30 : x;
         return sqrt( 1.00055 + 0.19800*pow(x,2)/(pow(x,2)-pow(0.050,2)) + 0.48398*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.38696*pow(x,2)/(pow(x,2)-pow(0.128,2)) + 0.25998*pow(x,2)/(pow(x,2)-pow(0.158,2)) + 0.08796*pow(x,2)/(pow(x,2)-pow(40.50,2)) + 3.17064*pow(x,2)/(pow(x,2)-pow(60.98,2)) + 0.30038*pow(x,2)/(pow(x,2)-pow(120.34,2)) );
+    }
+    if(material == "NaF") //Li-1976
+    {
+        x= x<0.15 ? 0.15 : x;
+        x= x>17 ? 17 : x;
+        return sqrt(1+0.41572+0.32785/(1-pow(0.117/x,2))+3.18248/(1-pow(40.57/x,2)));
     }
     if(material == "Si") //Edwards-1980
     {
@@ -472,6 +488,8 @@ double M::NonlinearIndex()
     if(material =="NaCl")
         //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
         return 3.5e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+    if(material =="NaF")
+        return 3.5e-20;                    // preliminary
     if(material =="Si")
         return 1e-17;                      // @ 2.2 um (Bristow-2007)
     if(material =="SiO2")
@@ -486,32 +504,6 @@ double M::NonlinearIndex()
 }
 
 
-/*double M::BandGap(std::string material)
-{
-    if(!std::isnan(Eg)) // not NAN:  custom band gap from YAML configuration file
-        return Eg;
-
-    if(material =="KCl")
-        return 8.7 * 1.60218e-19; // eV -> J
-    if(material =="NaCl")
-        return 9.0 * 1.60218e-19; // eV -> J
-    if(material =="ZnSe")
-        return 2.8 * 1.60218e-19; // eV -> J
-    if(material =="Ge")
-        return 0.67 * 1.60218e-19; // eV -> J
-    if(material =="GaAs")
-        return 1.43 * 1.60218e-19; // eV -> J
-    if(material =="CdTe")
-        return 1.5 * 1.60218e-19; // eV -> J
-    if(material =="Si")
-        return 1.14 * 1.60218e-19; // eV -> J
-    if(material =="air")
-        return 0;
-
-    return 0;
-}*/
-
-
 double M::AbsorptionCoefficient(double nu)
 {
     if(!std::isnan(alpha0)) // not NAN: custom absorption coefficient from YAML configuration file
@@ -522,22 +514,24 @@ double M::AbsorptionCoefficient(double nu)
 
     if(material == "BaF2")
     {
-        if(x<6)
+        if(x<8)
             return 0;
-        return 0.9 * (exp(1.17*(x-8.0)) - 1.0);  // 1/m
+        return 0.8 * (exp(1.20*(x-8.0)) - 1.0);  // 1/m
     }
 
-    if(material == "CsI")
-        return 0.2;
-
-    if(material == "KBr")
-        return 0.35;
+    if(material == "NaF")
+    {
+        if(x<8)
+            return 0;
+        return 5.0 * (exp(0.97*(x-8.0)) - 1.0);  // 1/m
+    }
 
     return 0;
 }
 
 
-/*double M::MultiphotonAbsorptionCoefficient1()
+/*
+double M::MultiphotonAbsorptionCoefficient1()
 {
     if(!std::isnan(alpha1)) // not NAN: custom multiphoton absorption coefficient from YAML configuration file
         return alpha1;
@@ -557,5 +551,5 @@ double M::MultiphotonAbsorptionOrder()
     if(!std::isnan(chi)) // not NAN: custom multiphoton absorption order from YAML configuration file
         return chi;
     return 1; // not "0": to avoid 0^0 (= 1)
-}*/
-
+}
+*/

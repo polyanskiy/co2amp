@@ -28,7 +28,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2021-11-03";
+    std::string version = "2023-01-05";
 
     std::clock_t stopwatch = std::clock();
 
@@ -123,6 +123,7 @@ void Calculations()
 
     for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
     {
+        #pragma omp parallel for// multithreaded
         for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 

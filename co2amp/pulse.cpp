@@ -250,22 +250,21 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
         #pragma omp parallel for
         for(int x=0; x<x0; x++)
         {
-            double x_exact = Dr2 / Dr1 * (double)x;
-            int x_lo = (int)floor(x_exact);
-            int x_hi = (int)ceil(x_exact);
-            if( (x_lo < x0) && (x_hi < x0) )
-            {
-                if(x_lo == x_hi)
-                {
-                    for(int n=0; n<n0; n++)
-                        E[x][n] = E1[x_lo][n];
-                }
-                else
-                {
-                    for(int n=0; n<n0; n++)
-                        E[x][n] = E1[x_lo][n]*((double)x_hi-x_exact) + E1[x_hi][n]*(x_exact-(double)x_lo);
-                }
-            }
+            double r = Dr2*(0.5+x);
+
+            if(r > Dr1*x0)
+                continue;
+
+            int x1 = (int)floor(r/Dr1 - 0.5);
+            int x2 = x1+1;
+
+            if(x1<0) x1=0;
+            if(x2>=x0) x2=x0-1;
+
+            double a = r/Dr1 - (x1+0.5);
+
+            for(int n=0; n<n0; n++)
+                E[x][n] = E1[x1][n]*(1-a) + E1[x2][n]*a;
         }
     }
 

@@ -1,20 +1,26 @@
 # Configuration YAML file, type M
 # - Matter -
-# template v.2020-05-25
+# template v.2023-01-05
 
 # Semi-diameter of the limiting aperture, m
 semiDia: 25e-3
 
-# Material (CdTe/GaAs/Ge/KCl/NaCl/Si/ZnSe/air)
+# Material (AgBr/AgCl/AMTIR1/BaF2/CdTe/CsI/GaAs/Ge/KBr/KCl/NaCl/NaF/Si/SiO2/ZnS/ZnSe/air)
 material:  NaCl
+
 # Nonliner index, m^2/W (optional - default value is used if not specified)
-#n2: 2.7e-20
-# 4th order nonlinear index, m^4/W^2 (optional - "0" is used if not specified)
-#n4: 0
+#n2: 3.0e-20
+
+# Linear absorption coefficient, 1/m (optional - default is 0 except NaF and BaF2
+# where wavelength-dependent absorption is used - see mabual)
+#alpha0: 0
+
 # Thickness, m
 thickness: 100e-3
+
 # Tilt (deviation from normal incidence), degrees
 tilt: 0
+
 # Number of slices (important for calculation accuracy
 # in the case of nonlinear interaction)
 slices: 10

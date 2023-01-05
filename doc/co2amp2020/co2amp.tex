@@ -85,7 +85,7 @@ All \textbf{co2amp} inputs and outputs for a certain model constitute a project.
 
 \begin{figure}[ht]
  \centering
- \includegraphics[width=10cm]{images/gui-input}
+ \includegraphics[width=14cm]{images/gui-input}
  \caption{"Input" tab of the \textbf{co2am+} user interface program. YAML files specifying the \texttt{pulse}, \texttt{layout} and \texttt{optics} are listed on the left. Content of a selected file is displayed and can be edited in the big edit box on the right.}
  \label{fig:gui-input}
 \end{figure}
@@ -136,7 +136,7 @@ Pulse time frame is used for all \texttt{pulse} related calculations (interactio
 In \textbf{co2am+} the \textbf{co2amp} command line arguments are specified in the "Process" tab (Fig.~\ref{fig:gui-process}).
 \begin{figure}[ht]
  \centering
- \includegraphics[width=10cm]{images/gui-process}
+ \includegraphics[width=14cm]{images/gui-process}
  \caption{"Process" tab of the \textbf{co2am+} user interface program. Values of \textbf{co2amp} command line arguments are specified on the left. \textbf{co2amp} output is displayed in the black text box on the right.}
  \label{fig:gui-process}
 \end{figure}
@@ -151,7 +151,7 @@ Identifying an appropriate calculation grid is very important for building an ac
 SI units without prefixes, e.g. "meters, seconds, Amperes..." but not "centimeters, nanoseconds, kiloamperes...", are used in \textbf{co2amp} input and output and also in the \textbf{co2amp} code internally. \textbf{co2amp+} allows changing the units used for the graphical representation of the calculation results on the "Output" tab (Fig.~\ref{fig:gui-output}).
 \begin{figure}[ht]
  \centering
- \includegraphics[width=10cm]{images/gui-output}
+ \includegraphics[width=14cm]{images/gui-output}
  \caption{"Output" tab of the \textbf{co2am+} user interface program. Controls on the left allow selecting the data to display and fine-tuning the look of the plots.}
  \label{fig:gui-output}
 \end{figure}
@@ -511,25 +511,25 @@ In the case of an oblique incidence, effective intensity $I_{eff}$ is reduced an
 where $I$ and $\Theta$ are the intensity before the \texttt{optic} and the actual thickness of the material and $\theta_r$ is the refraction angle.
 
 
-\subsubsection{Linear dispersion}
+\subsubsection{Linear dispersion and absorption}
 \begin{equation}
  \begin{aligned}
   &\widehat{E}'(\nu,\rho) = \mathcal{F}(E'(t,\rho))\\
-  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (2 \pi i \Delta \nu)\\
+  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (2 \pi i \Delta \nu) \sqrt{\exp(-\alpha_0 \Theta_{eff})}\\
   &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
  \end{aligned}
 \end{equation}
 where 
 \begin{equation}\label{eq:Delta_nu}
- \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu'
+ \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
 \end{equation}
-$c$ is the speed of light
+$c$ is the speed of light,
 \begin{equation}
- \frac{dt}{d\nu'} = \frac{\Theta_{eff}}{c} \frac{dn_{g}}{d\nu'}
+ \frac{dt}{d\nu'} = \frac{\Theta_{eff}}{c} \frac{dn_{g}}{d\nu'},
 \end{equation}
 $\nu_c$ is the central frequency.
 
-where $\widehat{E}(\nu,\rho)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_{g}$ is the group index of refraction, and $\Theta$ is the thickness of the window. The dispersion formulas used for calculating $n_0$ are given in Appendix~\ref{appendix:optical_constants}.
+where $\widehat{E}(\nu,\rho)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_{g}$ is the group index of refraction. The dispersion formulas used for calculating $n_{g}$ are given in Appendix~\ref{appendix:optical_constants}.
 
 \subsubsection{Nonlinear interaction}
 \begin{equation}
@@ -742,28 +742,21 @@ where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
 
 
 \subsection{Optical pumping}
-Initial support for optical pumping is included in the \texttt{co2amp} code. We assume instant excitation (pump pulse is short compared to vibrational relaxation).  The fraction of {CO$_2$} molecules excited by the optical pulse is calculated as
+In the case of optical pumping population dynamics is modelled with equations \ref{eq:e}--\ref{eq:dTdt} with the exception of the expressions for excitation rates in Eq.~\ref{eq:dedt_rates} that are replaced by
 
-\begin{equation}\label{eq:OpticalPumping_N}
-\Delta e_3 = e_{max} \left(1-\exp(-\Phi \sigma)\right)
+\begin{equation}\label{eq:dedt_rates_optical}
+\begin{aligned}
+&p_{e4} = 0;\\
+&p_{e3} = \Phi \sigma;\\
+&p_{e2} = \left\{
+  \begin{array}{>{\displaystyle}l>{\displaystyle}l}
+  0             & direct~excitation~of~(00^01)~at~\sim4.3~{\mu}m\\
+  2 \Phi \sigma & excitation~via~(10^01, 02^01)~at~\sim2.8~{\mu}m\\
+  4 \Phi \sigma & excitation~via~(20^01, 12^01, 04^01)~at~\sim2.0~{\mu}m
+  \end{array}
+\end{aligned}
 \end{equation}
-where $e_{max}$ is the saturation population number, $\Phi$ is the flux of the pumping photons, and $\sigma$ is the absorption cross-section. In a classic 2-level system $e_{max} = 0.5$ (maximum 50\% of the molecules can be excited). However, we (rather arbitrary at the moment) use  $e_{max} = 1$ in order to allow modeling of multi-photon excitation scenarios.
-
-An adjustment then is made to the average number of quanta in the asymmetric stretch vibration:
-
-\begin{equation}\label{eq:OpticalPumping_e3}
-e_3 = e'_3 + \Delta e_3
-\end{equation}
-where $e'_3 = \frac{1}{\exp\left(\frac{3350}{T_0}\right)-1}$ is the value of $e_3$ before excitation, and $T_0$ is the initial temperature of the gas.
-
-For optical pumping at {$\sim 3~\mu$m} through a combinational vibration {(10$^0$1, 02$^0$1)}, $e_2$ also increases as follows:
-
-\begin{equation}\label{eq:OpticalPumping_e2}
-e_2 = e'_2 + 2 \Delta e_3 \times \frac{e'_2}{2e'_1+e'_2}
-\end{equation}
-where $e'_1 = \frac{1}{\exp\left(\frac{1920}{T_2}\right)-1}$, $e'_2 = \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}$, and the last term takes into account the equilibrium energy distribution between the coupled symmetric stretch and bending vibrations. Several iterations are needed to accurately determine $e_2$: The first iteration is done for $T_2=T_0$; a corrected value of $T_2$ is then calculated using the first of the equations (\ref{eq:e}), and is used in the next iteration for calculating $e_2$, and so forth.
-
-For optical pumping, the dynamics of vibrational relaxation is modeled using equations~(\ref{eq:dedt}) with $p_{e2}=p_{e3}=p_{e4}=0$.
+where $\Phi$ is the flux of the pumping photons (number of photons per $\text{m}^2$ per second), and $\sigma$ is the absorption cross-section. Equations \ref{eq:dedt_rates_optical} imply that each pumping photon delivers one quantum of energy to the upper laser level, and zero, two or four quanta to the lower level, depending on the pumping transition.
 
 
 
@@ -857,7 +850,7 @@ where pressure $P$ is measured in bars.
 
 
 \subsection{Populations}
-In the approximation used in the \texttt{co2amp} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, during the pulse only the stimulated transitions contribute to the change of the populations of the vibrational levels.
+In the approximation used in the \texttt{co2amp} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, only the stimulated transitions contribute to the change of the populations of vibrational levels during the pulse.
 
 In the fast time-frame associated with the pulse there is no equilibrium in the vibrational energy distribution, and a proper population dynamics rather than the temperature model must be used. Thus, during the amplification, population of each rotational-vibrational level is considered independently. After the pulse leaves the active medium, the energy distribution within each vibrational mode becomes normalized quickly, and can be described by the temperature model again.
 
@@ -901,9 +894,7 @@ Changes of the average quantum numbers in the vibrational modes due to stimulate
 \end{equation}
 wherein the last term in the second equation takes into account the equilibrium energy distribution between the coupled symmetric stretch and bending vibrations, $e'_1 = \frac{1}{\exp\left(\frac{1920}{T_2}\right)-1}$, $e'_2 = \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}$, and $T_2$ is the vibrational temperature before the propagation of the pulse.
 
-New vibrational temperatures then are calculated using the first and second equations \ref{eq:e}.
-
-
+New vibrational temperatures are then calculated with Eq.~\ref{eq:e}.
 
 
 
@@ -1638,63 +1629,84 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \chapter{Properties of optical materials}
 \label{appendix:optical_constants}
-The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes are used in the program (wavelength $\lambda$ in the dispersion formulas must be expressed in {\textmu}m):
+The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes and linear absorption ($\alpha_0$) are used in the program (wavelength $\lambda$ in the formulas must be expressed in {\textmu}m):
 
 \subsection*{AgBr}
 $n_0=\sqrt{3.860 + \frac{0.8677\lambda^2}{\lambda^2-0.3211^2} + \frac{21.61\lambda^2}{\lambda^2-254.2^2}}$ ($\lambda$ = 0.495--12.67~{\textmu}m) - Fit of data from \cite{Schroter-1931} and \cite{McCarthy-1973}\\
-$n_2 = 1\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary estimate
+\\
+$n_2 = 2.0\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
 
 \subsection*{AgCl}
 $n_0=\sqrt{4.00804+\frac{0.079086}{\lambda^2-0.04584}-0.00085111\lambda^2-0.00000019762\lambda^4}$ ($\lambda$ = 0.578--20.6~{\textmu}m) \cite{Tilton-1950}\\
-$n_2 = 1.7\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary estimate
+\\
+$n_2 = 1.7\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
 
 \subsection*{AMTIR1 (IRG 22)}
 $n_0=\sqrt{3.4834+\frac{2.8203\lambda^2}{\lambda^2-0.1352}+\frac{0.9773\lambda^2}{\lambda^2-1420.7}}$ ($\lambda$ = 0.8--15.5~{\textmu}m) \cite{AMTIR1}
 
 \subsection*{BaF$_2$}
 $n_0=\sqrt{1.33973+\frac{0.81070\lambda^2}{\lambda^2-0.10065^2}+\frac{0.19652\lambda^2}{\lambda^2-29.87^2}+\frac{4.52469\lambda^2}{\lambda^2-53.82^2}}$ ($\lambda$ = 0.15--15~{\textmu}m) \cite{Li-1980}\\
-$n_2 = 1.7\times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}
+\\
+$n_2 = 1.7\times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}\\
+\\
+$\alpha_0 = 0.8 (e^{1.20(\lambda-8)}-1)$ m$^{-1}$ - Preliminary data
 
 \subsection*{CdTe}
 $n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ ($\lambda$ = 6--22~{\textmu}m) \cite{DeBell-1979}\\
+\\
 $n_2 = -2.95\times 10^{-17}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
 
 \subsection*{CsI}
 $n_0=\sqrt{1.27587+\frac{0.68689\lambda^2}{\lambda^2-0.130^2}+\frac{0.26090\lambda^2}{\lambda^2-0.147^2}+\frac{0.06256\lambda^2}{\lambda^2-0.163^2}+\frac{0.06527\lambda^2}{\lambda^2-0.177^2}+\frac{0.14991\lambda^2}{\lambda^2-0.185^2}+\frac{0.51818\lambda^2}{\lambda^2-0.206^2}+\frac{0.01918\lambda^2}{\lambda^2-0.218^2}+\frac{3.38229\lambda^2}{\lambda^2-161.29^2}}$ ($\lambda$ = 0.25--67~{\textmu}m) \cite{Li-1976}\\
-$n_2 = 1.2\times 10^{-19}$ m$^2$/W - Preliminary estimate
+\\
+$n_2 = 1.2\times 10^{-19}$ m$^2$/W - Preliminary data
 
 \subsection*{GaAs}
 $n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ ($\lambda$ = 0.97--17~{\textmu}m) \cite{Skauli-2003}\\
+\\
 $n_2 = -3.26\times 10^{-17}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
 
 \subsection*{Ge}
 $n_0=\sqrt{1+\frac{0.4886331\lambda^2}{\lambda^2-1.393959}+\frac{14.5142535\lambda^2}{\lambda^2-0.1626427}+\frac{0.0091224\lambda^2}{\lambda^2-752.190}}$ ($\lambda$ = 2--14~{\textmu}m) \cite{Burnett-2016}\\
+\\
 $n_2 = 2.83\times 10^{-17}$ m$^2$/W at 10.6 {\textmu}m \cite{Sheik-Bahae-1991}
 
 \subsection*{KBr}
 $n_0=\sqrt{1.39408+\frac{0.79221\lambda^2}{\lambda^2-0.146^2}+\frac{0.01981\lambda^2}{\lambda^2-0.173^2}+\frac{0.15587\lambda^2}{\lambda^2-0.187^2}+\frac{0.17673\lambda^2}{\lambda^2-60.61^2}+\frac{2.06217\lambda^2}{\lambda^2-87.72^2}}$ ($\lambda$ = 0.2--42~{\textmu}m) \cite{Li-1976}\\
+\\
+$n_2 = 4.3 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
 
 \subsection*{KCl}
 $n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ ($\lambda$ = 0.18--35~{\textmu}m) \cite{Li-1976}\\
-$n_2 = 5.6 \times 10^{-20}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
+\\
 $n_2 = 3.4 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}
 
 \subsection*{NaCl}
 $n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$\\($\lambda$ = 0.2--30~{\textmu}m) \cite{Li-1976}\\
-$n_2 = 4.38\times 10^{-20}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
+\\
 $n_2 = 3.5 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}
+
+\subsection*{NaF}
+$n_0=\sqrt{1.0.41572+\frac{0.32785\lambda^2}{\lambda^2-0.117^2}+\frac{3.18248\lambda^2}{\lambda^2-40.57^2}}$ ($\lambda$ = 0.15--17~{\textmu}m) \cite{Li-1976}\\
+\\
+$n_2 = 0.6 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data\\
+\\
+$\alpha_0 = 5.0 (e^{0.97(\lambda-8)}-1)$ m$^{-1}$ - Preliminary data
 
 \subsection*{Si}
 $n_0=3.41983+\frac{0.159906}{\lambda^2-0.028}-0.123109\left(\frac{1}{\lambda^2-0.028}\right)^2+1.26878\times 10^{-6}\lambda^2-1.95104\times 10^{-9}\lambda^4$\\($\lambda$ = 2.44--25~{\textmu}m) \cite{Edwards-1980}\\
+\\
 $n_2 = 1.0\times 10^{-17}$ m$^2$/W at 2.2 {\textmu}m \cite{Bristow-2007}
 
 \subsection*{SiO$_2$}
 $n_0=\sqrt{1+\frac{0.6961663\lambda^2}{\lambda^2-0.0684043^2}+\frac{0.4079426\lambda^2}{\lambda^2-0.1162414^2}+\frac{0.8974794\lambda^2}{\lambda^2-9.896161^2}}$ ($\lambda$ = 0.21--6.7~{\textmu}m) \cite{Malitson-1965}\\
+\\
 $n_2 = 3.29\times 10^{-20}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
 
 \subsection*{ZnS}
 $n_0=\sqrt{8.393+\frac{0.14383}{\lambda^2-0.2421^{2}}+\frac{4430.99}{\lambda^2-36.71^{2}}}$ ($\lambda$ = 0.405--13~{\textmu}m) \cite{Klein-1986}\\
-$n_2 = 2.5\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary estimate
+\\
+$n_2 = 2.5\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
 
 \subsection*{ZnSe}
 $n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ ($\lambda$ = 0.54--18.2~{\textmu}m) \cite{Tatian-1984}\\
@@ -1702,6 +1714,7 @@ $n_2 = 2.87\times 10^{-18}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
 
 \subsection*{Air}
 Refractive index $n_0$ is calculated using Mathar's model for $\lambda$ = 7.5--14~{\textmu}m \cite{Mathar-2007}\\
+\\
 $n_2 = 3\times 10^{-23}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021a}
 
 

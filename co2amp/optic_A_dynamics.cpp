@@ -6,7 +6,11 @@ void A::InternalDynamics(double time)
     if(p_CO2+p_N2+p_He <= 0)
         return;
 
-    StatusDisplay(nullptr, nullptr, time, "pumping and relaxation (" + id +")...");
+    #pragma omp critical
+    {
+        //StatusDisplay(nullptr, nullptr, time, "pumping and relaxation (" + id +")...");
+        StatusDisplay(nullptr, nullptr, time, "pumping and relaxation...");
+    }
 
     double A, X, W;
     double K, K31, K32, K33, K21, K22, K23;
@@ -59,13 +63,19 @@ void A::InternalDynamics(double time)
     if(pumping == "optical")
     {
         double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
-        if(pump_wl>3.8e-6 && pump_wl<4.8e-6) // direct excitation of (001) level
-            pump3 = photon_flux * pump_sigma;
-        if(pump_wl>2.2e-6 && pump_wl<3.2e-6) // excitation through combinational vibration (101,021)
-        {
-            pump3 = photon_flux * pump_sigma;
+
+        pump3 = photon_flux * pump_sigma;
+        pump2 = 0;
+
+        if(pump_wl>3.5e-6 && pump_wl<=5.0e-6) // direct excitation of (001) level
+            pump2 = 0;
+
+        if(pump_wl>2.5e-6 && pump_wl<=3.5e-6) // excitation through combinational vibration (101,021)
             pump2 = 2 * pump3;
-        }
+
+        if(pump_wl>1.8e-6 && pump_wl<=2.5e-6) // excitation through combinational vibration (201,121,041)
+            pump2 = 4 * pump3;
+
     }
 
     // time of travel from input plane to first interaction with this AM section
@@ -179,27 +189,6 @@ void A::InitializePopulations()
         e4[x] = 1.0/(exp(3350.0/T0)-1.0);
         e2[x] = 2.0/(exp(960.0/T0)-1.0);
         e3[x] = 1.0/(exp(3380.0/T0)-1.0);
-        /*if(pumping == "optical")
-        {
-            double Temp2, e1, fluence;
-            fluence = pump_fluence / (h*c/pump_wl); // photons/m^2
-            // number of quanta added to upper state:
-            //double delta_e3 = 0.5*(1-exp(-fluence*pump_sigma)); // max 0.5 quanta per molecule (classic 2-level system)
-            double delta_e3 = 1.0*(1-exp(-fluence*pump_sigma)); // max 1 quanta per molecule (arbitrary: attempt to allow multi-photon excitation)
-            //double delta_e3 = fluence*pump_sigma; //no bleeching (no limit for number of quanta per molecule: user responsible for keeping pumping realistic)
-            e3[x] += delta_e3; // fraction of molecules in upper state
-            if(pump_wl>2.2e-6 && pump_wl<3.2e-6) // excitation through combinational vibration (101,021)
-            {
-                double delta_e2 = 2.0*delta_e3; // "0" approximation: all lower level energy goes to nu2 mode (in reality e3 = e2/2 + e1)
-                for(int i=0; i<10; i++) // iterations: e2->Temp2->e1->e2->...
-                {
-                    Temp2 = 960.0/log(2.0/(e2[x]+delta_e2)+1.0); // Temp2 after excitation
-                    e1 = 1.0/(exp(1920.0/Temp2)-1); // number of quanta in nu1 at this temperature
-                    delta_e2 = 2.0*delta_e3 * (e2[x]+delta_e2)/(2.0*e1+e2[x]+delta_e2); //corrected delta_e2
-                }
-                e2[x] += delta_e2;
-            }
-        }*/
     }
 }
 
