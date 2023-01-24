@@ -27,6 +27,31 @@ M::M(std::string id)
         return;
     }
     material = value;
+    if(     material != "air" &&
+            material != "AgBr" &&
+            material != "AgCl" &&
+            material != "BaF2" &&
+            material != "CdTe" &&
+            material != "CsI" &&
+            material != "GaAs" &&
+            material != "Ge" &&
+            material != "IRG22" && material != "AMTIR1" &&
+            material != "IRG24" &&
+            material != "IRG25" &&
+            material != "KBr" &&
+            material != "KCl" &&
+            material != "KRS5" &&
+            material != "NaCl" &&
+            material != "NaF" &&
+            material != "Si" &&
+            material != "SiO2" &&
+            material != "ZnS" &&
+            material != "ZnSe" )
+    {
+        std::cout << "Configuration error: material \"" << material << "\" not supported\n";
+        configuration_error = true;
+        return;
+    }
     Debug(2, "material = " + material);
 
     // thickness
@@ -318,12 +343,6 @@ double M::RefractiveIndex(double nu)
         x= x>20.06 ? 20.06 : x;
         return sqrt(4.00804+0.079086/(pow(x,2)-0.04584)-0.00085111*pow(x,2)-0.00000019762*pow(x,4));
     }
-    if(material == "AMTIR1") //SCHOTT IRG 22 Product flyer (Aptil 2017)
-    {
-        x= x<0.8 ? 0.8 : x;
-        x= x>15.5 ? 15.5 : x;
-        return sqrt(3.4834+2.8203/(1-0.1352/pow(x,2))+0.9773/(1-1420.7/pow(x,2)));
-    }
     if(material == "BaF2") //Li-1980
     {
         x= x<0.15 ? 0.15 : x;
@@ -354,6 +373,24 @@ double M::RefractiveIndex(double nu)
         x= x>14 ? 14 : x;
         return sqrt(1+0.4886331/(1-1.393959/pow(x,2))+14.5142535/(1-0.1626427/pow(x,2))+0.0091224/(1-752.190/pow(x,2)));
     }
+    if(material == "IRG22" || material == "AMTIR1") //SCHOTT IRG 22 Product flyer (April 2017)
+    {
+        x= x<0.8 ? 0.8 : x;
+        x= x>15.5 ? 15.5 : x;
+        return sqrt(3.4834+2.8203/(1-0.1352/pow(x,2))+0.9773/(1-1420.7/pow(x,2)));
+    }
+    if(material == "IRG24") //SCHOTT IRG 24 Product flyer (April 2017)
+    {
+        x= x<0.8 ? 0.8 : x;
+        x= x>15.5 ? 15.5 : x;
+        return sqrt(3.8965+2.9567/(1-0.1620/pow(x,2))+0.9461/(1-1939.1/pow(x,2)));
+    }
+    if(material == "IRG25") //SCHOTT IRG 25 Product flyer (April 2017)
+    {
+        x= x<0.85 ? 0.85 : x;
+        x= x>15.5 ? 15.5 : x;
+        return sqrt(3.7574+3.0990/(1-0.1596/pow(x,2))+1.6660/(1-2045.5/pow(x,2)));
+    }
     if(material == "KBr") //Li-1976
     {
         x= x<0.2 ? 0.2 : x;
@@ -365,6 +402,12 @@ double M::RefractiveIndex(double nu)
         x= x<0.18 ? 0.18 : x;
         x= x>35 ? 35 : x;
         return sqrt( 1.26486 + 0.30523*pow(x,2)/(pow(x,2)-pow(0.100,2)) + 0.41620*pow(x,2)/(pow(x,2)-pow(0.131,2)) + 0.18870*pow(x,2)/(pow(x,2)-pow(0.162,2)) + 2.6200*pow(x,2)/(pow(x,2)-pow(70.42,2)) );
+    }
+    if(material == "KRS5") //Rodney-1956
+    {
+        x= x<0.577 ? 0.577 : x;
+        x= x>39.4 ? 39.4 : x;
+        return sqrt(2.8293958/(1-0.0225/pow(x,2))+1.6675593/(1-0.0625/pow(x,2))+1.1210424/(1-0.1225/pow(x,2))+0.04513366/(1-0.2025/pow(x,2))+12.380234/(1-27089.737/pow(x,2)));
     }
     if(material == "NaCl") //Li-1976
     {
@@ -467,39 +510,54 @@ double M::NonlinearIndex()
         return n2;
 
     if(material =="AgBr")
-        return 1.0e-19;
+        return 2.0e-19;                    // @ 9.2um Polyanskiy (preliminary)
     if(material =="AgCl")
-        return 1.7e-19;
+        return 1.7e-19;                    // @ 9.2um Polyanskiy (preliminary)
     if(material =="BaF2")
-        //return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 1.7e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06um (Sheik-Bahae-1991)
+        return 1.7e-20;                    // @ 9.2um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
     if(material =="CdTe")
-        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um (Sheik-Bahae-1991)
+        //return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06um (Sheik-Bahae-1991)
+        return 3.0e-18;                    // @ 9.2um Polyanskiy - rough estimate (preliminary)
     if(material =="CsI")
-        return 1.2e-19;
+        return 1.2e-19;                    // @ 9.2um Polyanskiy (preliminary)
     if(material =="GaAs")
-        return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06 um (Sheik-Bahae-1991)
+        //return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06um (Sheik-Bahae-1991)
         //return 1.7e-17; // m^2/W - Kapetanakos et. al. IEEE J. Quant. Electron. 37(5) (2001)
+        return 8.0e-18;                    // @ 9.2um Polyanskiy - rough estimate (preliminary)
     if(material =="Ge")
-        return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um (Sheik-Bahae-1991)
+        //return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6um (Sheik-Bahae-1991)
+        return 4.0e-17;                    // @ 9.2um Polyanskiy (preliminary)
+    if(material =="IRG22" || material =="AMTIR1")
+        return 1.4e-18;                    // @9.2 um Polyanskiy (preliminary)
+    if(material =="IRG24")
+        return 2.5e-18;                    // @9.2 um Polyanskiy (preliminary)
+    if(material =="IRG25")
+        return 2.3e-18;                    // @9.2 um Polyanskiy (preliminary)
+    if(material =="KBr")
+        return 4.3e-20;                    // @9.2 um Polyanskiy (preliminary)
     if(material =="KCl")
-        //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 3.4e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06um (Sheik-Bahae-1991)
+        return 3.4e-20;                    // @9.2 um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+    if(material =="KRS5")
+        return 9.0e-19;                    // @9.2 um Polyanskiy (preliminary)
     if(material =="NaCl")
-        //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um (Sheik-Bahae-1991)
-        return 3.5e-20;                    // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06um (Sheik-Bahae-1991)
+        return 3.5e-20;                    // @9.2 um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
     if(material =="NaF")
-        return 3.5e-20;                    // preliminary
+        return 6.0e-21;                    // @9.2um Polyanskiy (preliminary)
     if(material =="Si")
-        return 1e-17;                      // @ 2.2 um (Bristow-2007)
+        //return 1e-17;                      // @2.2um (Bristow-2007)
+        return 1.2e-17;                    // @9.2um Polyanskiy (preliminary)
     if(material =="SiO2")
-        return 1.1e-13 * 4.19e-7 / 1.40;   // esu -> m^2/W (3.29e-20) @ 1.06 um (Sheik-Bahae-1991)
+        return 1.1e-13 * 4.19e-7 / 1.40;   // esu -> m^2/W (3.29e-20) @ 1.06um (Sheik-Bahae-1991)
     if(material =="ZnS")
-        return 2.5e-19;
+        return 2.5e-19;                    // @ 9.2um Polyanskiy (preliminary)
     if(material =="ZnSe")
-        return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06 um (Sheik-Bahae-1991)
+        //return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06um (Sheik-Bahae-1991)
+        return 6.5e-19;                    // @ 9.2um Polyanskiy (preliminary)
     if(material =="air")
-        return 3e-23;                      // @ 9.2 um  Polyanskiy-2021 https://doi.org/10.1364/OL.423800
+        return 3e-23;                      // @ 9.2um Polyanskiy-2021 https://doi.org/10.1364/OL.423800
     return 0;
 }
 
