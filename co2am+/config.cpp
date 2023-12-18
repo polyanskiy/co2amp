@@ -32,6 +32,7 @@ void MainWindow::UpdateConfigurationFiles()
     settings.setValue("plot/fluenceUnit",    comboBox_fluenceUnit->currentIndex());
     settings.setValue("plot/powerUnit",      comboBox_powerUnit->currentIndex());
     settings.setValue("plot/intensityUnit",  comboBox_intensityUnit->currentIndex());
+    settings.setValue("plot/spectrumUnit",   comboBox_spectrumUnit->currentIndex());
     settings.setValue("plot/dischargeUnits", comboBox_dischargeUnits->currentIndex());
 
     // YAML files
@@ -127,15 +128,16 @@ void MainWindow::ReadConfigurationFiles()
     comboBox_timeScale     -> setCurrentIndex(settings.value("plot/timeScale",      0).toInt());
     comboBox_freqScale     -> setCurrentIndex(settings.value("plot/freqScale",      0).toInt());
     checkBox_log           -> setChecked     (settings.value("plot/log",            0).toBool());
-    comboBox_timeUnit      -> setCurrentIndex(settings.value("plot/timeUnit",       2).toInt()); // def: us
-    comboBox_lengthUnit    -> setCurrentIndex(settings.value("plot/lengthUnit",     2).toInt()); // def: mm
-    comboBox_tUnit         -> setCurrentIndex(settings.value("plot/tUnit",          4).toInt()); // def: ps
-    comboBox_frequencyUnit -> setCurrentIndex(settings.value("plot/frequencyUnit",  0).toInt()); // def: THz
+    comboBox_timeUnit      -> setCurrentIndex(settings.value("plot/timeUnit",       0).toInt()); // def: s
+    comboBox_lengthUnit    -> setCurrentIndex(settings.value("plot/lengthUnit",     1).toInt()); // def: m
+    comboBox_tUnit         -> setCurrentIndex(settings.value("plot/tUnit",          0).toInt()); // def: s
+    comboBox_frequencyUnit -> setCurrentIndex(settings.value("plot/frequencyUnit",  0).toInt()); // def: Hz
     comboBox_energyUnit    -> setCurrentIndex(settings.value("plot/energyUnit",     2).toInt()); // def: J
-    comboBox_fluenceUnit   -> setCurrentIndex(settings.value("plot/fluenceUnit",    4).toInt()); // def: J/cm2
-    comboBox_powerUnit     -> setCurrentIndex(settings.value("plot/powerUnit",      2).toInt()); // def: TW
-    comboBox_intensityUnit -> setCurrentIndex(settings.value("plot/intensityUnit",  1).toInt()); // def: kW/cm2
-    comboBox_dischargeUnits-> setCurrentIndex(settings.value("plot/dischargeUnits", 1).toInt()); // def: kV, kA
+    comboBox_fluenceUnit   -> setCurrentIndex(settings.value("plot/fluenceUnit",    3).toInt()); // def: J/m^2
+    comboBox_powerUnit     -> setCurrentIndex(settings.value("plot/powerUnit",      6).toInt()); // def: W
+    comboBox_intensityUnit -> setCurrentIndex(settings.value("plot/intensityUnit",  3).toInt()); // def: W/m^2
+    comboBox_spectrumUnit  -> setCurrentIndex(settings.value("plot/spectrumUnit",   0).toInt()); // def: J/Hz
+    comboBox_dischargeUnits-> setCurrentIndex(settings.value("plot/dischargeUnits", 0).toInt()); // def: V, A
 
     // comments.txt
     file.setFileName("comments.txt");

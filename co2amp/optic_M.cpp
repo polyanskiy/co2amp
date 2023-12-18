@@ -510,55 +510,63 @@ double M::NonlinearIndex()
         return n2;
 
     if(material =="AgBr")
-        return 2.0e-19;                    // @ 9.2um Polyanskiy (preliminary)
+        return 6.0e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="AgCl")
-        return 1.7e-19;                    // @ 9.2um Polyanskiy (preliminary)
+        return 4.8e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="BaF2")
-        //return 0.67e-13 * 4.19e-7 / 1.49; // esu -> m^2/W (5.62e-20) @ 1.06um (Sheik-Bahae-1991)
-        return 1.7e-20;                    // @ 9.2um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 0.67e-13 * 4.19e-7 / 1.49;  // esu -> m^2/W (5.62e-20) @ 1.06 um [Sheik-Bahae 1991]
+        return 1.7e-20;                    // @ 9.2 um [Polyanskiy 2021b]
     if(material =="CdTe")
-        //return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06um (Sheik-Bahae-1991)
-        return 3.0e-18;                    // @ 9.2um Polyanskiy - rough estimate (preliminary)
+        return -2000e-13 * 4.19e-7 / 2.84; // esu -> m^2/W (-2.95e-17) @ 1.06 um [Sheik-Bahae 1991]
     if(material =="CsI")
-        return 1.2e-19;                    // @ 9.2um Polyanskiy (preliminary)
+        return 1.2e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="GaAs")
-        //return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06um (Sheik-Bahae-1991)
-        //return 1.7e-17; // m^2/W - Kapetanakos et. al. IEEE J. Quant. Electron. 37(5) (2001)
-        return 8.0e-18;                    // @ 9.2um Polyanskiy - rough estimate (preliminary)
+        //return -2700e-13 * 4.19e-7 / 3.47; // esu -> m^2/W (-3.26e-17) @ 1.06 um [Sheik-Bahae 1991]
+        //return 1.7e-17;                    // @ 10 um [Kapetanakos 2001]
+        return 7.5e-18;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="Ge")
-        //return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6um (Sheik-Bahae-1991)
-        return 4.0e-17;                    // @ 9.2um Polyanskiy (preliminary)
+        //return 2700e-13 * 4.19e-7 / 4.00;  // esu -> m^2/W (2.83e-17) @ 10.6 um [Sheik-Bahae 1991]
+        return 4.0e-17;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="IRG22" || material =="AMTIR1")
-        return 1.4e-18;                    // @9.2 um Polyanskiy (preliminary)
+        return 1.4e-18;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="IRG24")
-        return 2.5e-18;                    // @9.2 um Polyanskiy (preliminary)
+        return 2.5e-18;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="IRG25")
-        return 2.3e-18;                    // @9.2 um Polyanskiy (preliminary)
+        return 2.3e-18;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="KBr")
-        return 4.3e-20;                    // @9.2 um Polyanskiy (preliminary)
+        return 4.3e-20;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="KCl")
-        //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06um (Sheik-Bahae-1991)
-        return 3.4e-20;                    // @9.2 um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 2e-13 * 4.19e-7 / 1.49;    // esu -> m^2/W (5.62e-20) @ 1.06 um [Sheik-Bahae 1991]
+        return 3.4e-20;                    // @ 9.2 um [Polyanskiy 2021b]
     if(material =="KRS5")
-        return 9.0e-19;                    // @9.2 um Polyanskiy (preliminary)
+        return 9.0e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="NaCl")
-        //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06um (Sheik-Bahae-1991)
-        return 3.5e-20;                    // @9.2 um Polyanskiy-2021 https://doi.org/10.1364/OE.434238
+        //return 1.6e-13 * 4.19e-7 / 1.53;  // esu -> m^2/W (4.38e-20) @ 1.06 um [Sheik-Bahae 1991]
+        return 3.5e-20;                    // @ 9.2 um [Polyanskiy 2021b]
     if(material =="NaF")
-        return 6.0e-21;                    // @9.2um Polyanskiy (preliminary)
+        return 6.0e-21;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="Si")
-        //return 1e-17;                      // @2.2um (Bristow-2007)
-        return 1.2e-17;                    // @9.2um Polyanskiy (preliminary)
+        //return 1.01e-17;                   // @ 2.15 um [Bristow_2007]
+        return 1.2e-17;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="SiO2")
-        return 1.1e-13 * 4.19e-7 / 1.40;   // esu -> m^2/W (3.29e-20) @ 1.06um (Sheik-Bahae-1991)
+        return 1.1e-13 * 4.19e-7 / 1.40;   // esu -> m^2/W (3.29e-20) @ 1.06 um [Sheik-Bahae 1991]
     if(material =="ZnS")
-        return 2.5e-19;                    // @ 9.2um Polyanskiy (preliminary)
+        return 4.0e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="ZnSe")
-        //return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06um (Sheik-Bahae-1991)
-        return 6.5e-19;                    // @ 9.2um Polyanskiy (preliminary)
+        //return 170e-13 * 4.19e-7 / 2.48;   // esu -> m^2/W (2.87e-18) @ 1.06 um [Sheik-Bahae 1991]
+        return 6.5e-19;                    // @ 9.2 um [Polyanskiy 2023]
     if(material =="air")
-        return 3e-23;                      // @ 9.2um Polyanskiy-2021 https://doi.org/10.1364/OL.423800
+        return 3e-23;                      // @ 9.2 um [Polyanskiy 2021a]
     return 0;
+
+    /*  --------- REFERENCES ----------
+     *  Bristow 2007       https://doi.org/10.1063/1.2737359
+     *  Kapetanakos 2001   https://doi.org/10.1109/3.918576 (source of n2 data not properly cited)
+     *  Polyanskiy 2021a   https://doi.org/10.1364/OL.423800
+     *  Polyanskiy 2021b   https://doi.org/10.1364/OE.434238
+     *  Polyanskiy 2023    https://doi.org/10.1364/opticaopen.24615624
+     *  Sheik-Bahae 1991   https://doi.org/10.1109/3.89946
+    */
 }
 
 

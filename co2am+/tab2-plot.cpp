@@ -125,16 +125,17 @@ void MainWindow::Plot()
     double time_mult       = pow(10, comboBox_timeUnit->currentIndex()*3);
     double energy_mult     = pow(10, comboBox_energyUnit->currentIndex()*3 - 6);
     double length_mult     = pow(10, comboBox_lengthUnit->currentIndex()*3 - 3);
-    double fluence_mult    = pow(10, floor(comboBox_fluenceUnit->currentIndex()/3)*3 - 3);
+    double fluence_mult    = pow(10, floor(comboBox_fluenceUnit->currentIndex()/3.0)*3 - 3);
     if(comboBox_fluenceUnit->currentIndex()%3 == 1)
         fluence_mult *= pow(10,-4);
     if(comboBox_fluenceUnit->currentIndex()%3 == 2)
         fluence_mult *= pow(10,-6);
-    double intensity_mult  = pow(10, floor(comboBox_intensityUnit->currentIndex()/3)*3 - 3);
+    double intensity_mult  = pow(10, floor(comboBox_intensityUnit->currentIndex()/3.0)*3 - 3);
     if(comboBox_intensityUnit->currentIndex()%3 == 1)
         intensity_mult *= pow(10,-4);
     if(comboBox_intensityUnit->currentIndex()%3 == 2)
         intensity_mult *= pow(10,-6);
+    double spectrum_mult  = pow(10, comboBox_spectrumUnit->currentIndex() + 4 * (3*ceil(comboBox_spectrumUnit->currentIndex()/3.0) - comboBox_spectrumUnit->currentIndex()) );
     double t_mult          = pow(10, comboBox_tUnit->currentIndex()*3);
     double power_mult      = pow(10, comboBox_powerUnit->currentIndex()*3 - 18);
     double discharge_mult  = pow(10, comboBox_dischargeUnits->currentIndex()*3 - 6);
@@ -144,8 +145,9 @@ void MainWindow::Plot()
     QString length_unit    = comboBox_lengthUnit    -> currentText();
     QString fluence_unit   = comboBox_fluenceUnit   -> currentText();
     QString t_unit         = comboBox_tUnit         -> currentText();
-    QString power_unit     = comboBox_powerUnit     -> currentText();   
+    QString power_unit     = comboBox_powerUnit     -> currentText();
     QString intensity_unit = comboBox_intensityUnit -> currentText();
+    QString spectrum_unit  = comboBox_spectrumUnit  -> currentText();
     QString voltage_unit   = comboBox_dischargeUnits-> currentText().split(", ")[0];
     QString current_unit   = comboBox_dischargeUnits-> currentText().split(", ")[1];
 
@@ -164,31 +166,43 @@ void MainWindow::Plot()
     double c = 2.99792458e8;// m/s
     QString frequency_xlabel;
     QString frequency_using;
-    if(comboBox_frequencyUnit->currentIndex() == 0) // THz
+    if(comboBox_frequencyUnit->currentIndex() == 0) // Hz
     {
-        frequency_xlabel = "Frequency, THz";
+        frequency_xlabel = "Frequency (Hz)";
+        frequency_using = " using ($1)";
+    }
+    if(comboBox_frequencyUnit->currentIndex() == 1) // GHz
+    {
+        frequency_xlabel = "Frequency (GHz)";
+        frequency_using = " using ($1/1e9)";
+        v_min /= 1e9;
+        v_max /= 1e9;
+    }
+    if(comboBox_frequencyUnit->currentIndex() == 2) // THz
+    {
+        frequency_xlabel = "Frequency (THz)";
         frequency_using = " using ($1/1e12)";
         v_min /= 1e12;
         v_max /= 1e12;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 1) // 1/cm
+    if(comboBox_frequencyUnit->currentIndex() == 3) // 1/cm
     {
-        frequency_xlabel = "Wavenumber, 1/cm";
+        frequency_xlabel = "Wavenumber (1/cm)";
         frequency_using = " using ($1/2.99792458e10)";
         v_min = v_min/c/100;
         v_max = v_max/c/100;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 2) // µm
+    if(comboBox_frequencyUnit->currentIndex() == 4) // µm
     {
-        frequency_xlabel = "Wavelength, µm";
+        frequency_xlabel = "Wavelength (µm)";
         frequency_using = " using (2.99792458e14/$1)";
         double tmp = v_min;
         v_min = c/v_max*1e6;
         v_max = c/tmp*1e6;
     }
-    if(comboBox_frequencyUnit->currentIndex() == 3) // nm
+    if(comboBox_frequencyUnit->currentIndex() == 5) // nm
     {
-        frequency_xlabel = "Wavelength, nm";
+        frequency_xlabel = "Wavelength (nm)";
         frequency_using = " using (2.99792458e17/$1)";
         double tmp = v_min;
         v_min = c/v_max*1e9;
@@ -208,12 +222,12 @@ void MainWindow::Plot()
     SelectEnergies();
     file.setFileName("script_energy.gp");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << common_file_head;
-    out << "set output \"fig_energy.svg\"\n";
-    out << "set xlabel \"Time, " << time_unit << "\"\n";
-    out << "set ylabel \"Pulse energy, " << energy_unit << "\"\n";
+    out << common_file_head
+        << "set output \"fig_energy.svg\"\n"
+        << "set xlabel \"Time (" << time_unit << ")\"\n"
+        << "set ylabel \"Pulse energy (" << energy_unit << ")\"\n";
     checkBox_log->isChecked() ? out << "set logscale y\n" : out << "set yrange [0:*]\n";
-    out << "plot \"energy_selected.dat\" using ($1*" << time_mult << "):($2*" << energy_mult << ") notitle\n";
+    out << "plot \"energy_selected.dat\" using ($1*" << time_mult << "):($2*" << energy_mult << ") with points pt 7 ps 0.75 notitle\n";
     file.close();
     QProcess *proc1 = new QProcess(this);
     proc1->start(path_to_gnuplot, QStringList("script_energy.gp"));
@@ -223,10 +237,10 @@ void MainWindow::Plot()
     plot_n = 0;
     file.setFileName("script_fluence.gp");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << common_file_head;
-    out << "set output \"fig_fluence.svg\"\n";
-    out << "set xlabel \"r, " << length_unit << "\"\n";
-    out << "set ylabel \"Fluence, " << fluence_unit << "\"\n";
+    out << common_file_head
+        << "set output \"fig_fluence.svg\"\n"
+        << "set xlabel \"r (" << length_unit << ")\"\n"
+        << "set ylabel \"Fluence (" << fluence_unit << ")\"\n";
     for(int i=0; i<=9; i++)
     {
         pass_n = PassNumber(i);
@@ -256,11 +270,11 @@ void MainWindow::Plot()
     plot_n = 0;
     file.setFileName("script_power.gp");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << common_file_head;
-    out << "set output \"fig_power.svg\"\n";
-    out << "set xlabel \"Time, " << t_unit << "\"\n";
-    out << "set xrange [" << t_min << ":" << t_max << "]\n";
-    out << "set ylabel \"Power, " << power_unit << "\"\n";
+    out << common_file_head
+        << "set output \"fig_power.svg\"\n"
+        << "set xlabel \"Time (" << t_unit << ")\"\n"
+        << "set xrange [" << t_min << ":" << t_max << "]\n"
+        << "set ylabel \"Power (" << power_unit << ")\"\n";
     for(int i=0; i<=9; i++)
     {
         pass_n = PassNumber(i);
@@ -290,12 +304,12 @@ void MainWindow::Plot()
     plot_n = 0;
     file.setFileName("script_spectra.gp");
     file.open(QFile::WriteOnly | QFile::Truncate);
-    out << common_file_head;
-    out << "set output \"fig_spectra.svg\"\n";
-    out << "set xlabel \"" << frequency_xlabel << "\"\n";
-    out << "set xrange [" << v_min << ":" << v_max << "]\n";
-    out << "set ylabel \"Intensity, a.u.\"\n";
-    out << "set yrange [0:*]\n";
+    out << common_file_head
+        << "set output \"fig_spectra.svg\"\n"
+        << "set xlabel \"" << frequency_xlabel << "\"\n"
+        << "set xrange [" << v_min << ":" << v_max << "]\n"
+        << "set ylabel \"Spectral energy density (" << spectrum_unit << ")\"\n"
+        << "set yrange [0:*]\n";
     for(int i=0; i<=9; i++)
     {
         pass_n = PassNumber(i);
@@ -308,9 +322,10 @@ void MainWindow::Plot()
             out << "plot ";
         else
             out << ",\\\n";
-        out << "\"" << filename << "\"";
-        out << frequency_using;
-        out << ":($2) with lines ti \"";
+        out << "\"" << filename << "\""
+            << frequency_using
+            << ":($2*" << spectrum_mult << ")"
+            << " with lines ti \"";
         if(plot_n==0)
             out << "Pass# ";
         out << pass_n << "\"";
@@ -326,15 +341,15 @@ void MainWindow::Plot()
         // GnuPlot script: Temperatures
         file.setFileName("script_temperatures.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_temperatures.svg\"\n";
-        out << "set xlabel \"Time, " << time_unit << "\"\n";
-        out << "set ylabel \"Temperature, K\"\n";
-        out << "set yrange [0:*]\n";
-        out << "plot \"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: T2\",\\\n";
-        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: T3\",\\\n";
-        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: T4\",\\\n";
-        out <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl:  T\"\n";
+        out << common_file_head
+            << "set output \"fig_temperatures.svg\"\n"
+            << "set xlabel \"Time (" << time_unit << ")\"\n"
+            << "set ylabel \"Temperature (K)\"\n"
+            << "set yrange [0:*]\n"
+            << "plot \"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: T2\",\\\n"
+            <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: T3\",\\\n"
+            <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: T4\",\\\n"
+            <<      "\"" << optic_id << "_temperatures.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl:  T\"\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_temperatures.gp"));
@@ -342,16 +357,16 @@ void MainWindow::Plot()
         // GnuPlot script: e
         file.setFileName("script_e.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_e.svg\"\n";
-        out << "set xlabel \"Time, " << time_unit << "\"\n";
-        out << "set ylabel \"e (# of quanta / molecule)\"\n";
-        out << "set yrange [0:*]\n";
-        // (Qstring(...) used below to solve a unicode problem - "μ" is not written to file correctly)
-        out << "plot \"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($2) with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n");
-        out <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($3) with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n");
-        out      << "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($4) with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n";
-        out <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($5) with lines ls 3 ti \"N2: e4\"\n";
+        out << common_file_head
+            << "set output \"fig_e.svg\"\n"
+            << "set xlabel \"Time (" << time_unit << ")\"\n"
+            << "set ylabel \"e (quanta / molecule)\"\n"
+            << "set yrange [0:*]\n"
+            // (Qstring(...) used below to solve a unicode problem - "μ" is not written to file correctly)
+            << "plot \"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($2) with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n")
+            <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($3) with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n")
+            <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($4) with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n"
+            <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($5) with lines ls 3 ti \"N2: e4\"\n";
         file.close();
         QProcess *proc6 = new QProcess(this);
         proc6->start(path_to_gnuplot, QStringList("script_e.gp"));
@@ -360,11 +375,11 @@ void MainWindow::Plot()
         plot_n = 0;
         file.setFileName("script_gain.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_gain.svg\"\n";
-        out << "set xlabel \"" << frequency_xlabel << "\"\n";
-        out << "set xrange [" << v_min << ":" << v_max << "]\n";
-        out << "set ylabel \"Gain, %/cm\"\n";
+        out << common_file_head
+            << "set output \"fig_gain.svg\"\n"
+            << "set xlabel \"" << frequency_xlabel << "\"\n"
+            << "set xrange [" << v_min << ":" << v_max << "]\n"
+            << "set ylabel \"Gain, %/cm\"\n";
         for(int i=0; i<10; i++)
         {
             pass_n = PassNumber(i);
@@ -377,9 +392,9 @@ void MainWindow::Plot()
                 out << "plot ";
             else
                 out << ",\\\n";
-            out << "\"" << filename << "\"";
-            out << frequency_using;
-            out << ":($2) with lines ti \"";
+            out << "\"" << filename << "\""
+                << frequency_using
+                << ":($2) with lines ti \"";
             if(plot_n==0)
                 out << "Pass# ";
             out << pass_n << "\"";
@@ -396,16 +411,16 @@ void MainWindow::Plot()
         {
             file.setFileName("script_discharge.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
-            out << common_file_head;
-            out << "set output \"fig_discharge.svg\"\n";
-            out << "set y2range [0:*]\n";
-            out << "set ytics nomirror\n";
-            out << "set y2tics nomirror\n";
-            out << "set xlabel \"Time, " << time_unit << "\"\n";
-            out << "set ylabel \"Current, " << current_unit << "\"\n";
-            out << "set y2label \"Voltage, " << voltage_unit << "\"\n";
-            out << "plot \"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($2*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n";
-            out <<      "\"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($3*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
+            out << common_file_head
+                << "set output \"fig_discharge.svg\"\n"
+                << "set y2range [0:*]\n"
+                << "set ytics nomirror\n"
+                << "set y2tics nomirror\n"
+                << "set xlabel \"Time (" << time_unit << ")\"\n"
+                << "set ylabel \"Current (" << current_unit << ")\"\n"
+                << "set y2label \"Voltage (" << voltage_unit << ")\"\n"
+                << "plot \"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($2*" << discharge_mult << ") axis x1y1 with lines ti \"Current\",\\\n"
+                <<      "\"" << optic_id << "_discharge.dat\" using ($1*" << time_mult << "):($3*" << discharge_mult << ") axis x1y2 with lines ti \"Voltage\"\n";
             file.close();
             proc8->start(path_to_gnuplot, QStringList("script_discharge.gp"));
         }
@@ -415,15 +430,15 @@ void MainWindow::Plot()
         if(QFile::exists(optic_id + "_q.dat")){
             file.setFileName("script_q.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
-            out << common_file_head;
-            out << "set output \"fig_q.svg\"\n";
-            out << "set yrange [0:1]\n";
-            out << "set xlabel \"Time, " << time_unit << "\"\n";
-            out << "set ylabel \"q\"\n";
-            out << "plot \"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: q2\",\\\n";
-            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: q3\",\\\n";
-            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n";
-            out <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
+            out << common_file_head
+                << "set output \"fig_q.svg\"\n"
+                << "set yrange [0:1]\n"
+                << "set xlabel \"Time (" << time_unit << ")\"\n"
+                << "set ylabel \"q\"\n"
+                << "plot \"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($2) with lines ti \"Lower: q2\",\\\n"
+                <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($3) with lines ti \"Upper: q3\",\\\n"
+                <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($4) with lines ti \"N2: q4\",\\\n"
+                <<      "\"" << optic_id << "_q.dat\" using ($1*" << time_mult << "):($5) with lines ti \"Transl: qT\"\n";
             file.close();
             proc9->start(path_to_gnuplot, QStringList("script_q.gp"));
         }
@@ -434,12 +449,11 @@ void MainWindow::Plot()
         {
             file.setFileName("script_pumping_pulse.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
-            out << common_file_head;
-            out << "set output \"fig_pumping_pulse.svg\"\n";
-            //out << "set yrange [0:1]\n";
-            out << "set xlabel \"Time, " << time_unit << "\"\n";
-            out << "set ylabel \"Intensity, " << intensity_unit << "\"\n";;
-            out << "plot \"" << optic_id << "_pumping_pulse.dat\" "
+            out << common_file_head
+                << "set output \"fig_pumping_pulse.svg\"\n"
+                << "set xlabel \"Time (" << time_unit << ")\"\n"
+                << "set ylabel \"Intensity (" << intensity_unit << ")\"\n"
+                << "plot \"" << optic_id << "_pumping_pulse.dat\" "
                 << "using ($1*" << time_mult << "):($2*" << intensity_mult << ")"
                 << "with lines ti \"Pumping pulse\"\n";
             file.close();
@@ -459,12 +473,12 @@ void MainWindow::Plot()
         // GnuPlot script: Chirpyness (chirper)
         file.setFileName("script_chirpyness.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_chirpyness.svg\"\n";
-        out << "set xlabel \"" << frequency_xlabel << "\"\n";
-        out << "set xrange [" << v_min << ":" << v_max << "]\n";
-        out << "set ylabel \"Chirpyness, Hz/s\"\n";
-        out << "plot \"" << optic_id << "_chirpyness.dat\"" << frequency_using << ":($2) with lines notitle\n";
+        out << common_file_head
+            << "set output \"fig_chirpyness.svg\"\n"
+            << "set xlabel \"" << frequency_xlabel << "\"\n"
+            << "set xrange [" << v_min << ":" << v_max << "]\n"
+            << "set ylabel \"Chirpyness, Hz/s\"\n"
+            << "plot \"" << optic_id << "_chirpyness.dat\"" << frequency_using << ":($2) with lines notitle\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_chirpyness.gp"));
@@ -476,12 +490,12 @@ void MainWindow::Plot()
         // GnuPlot script: Transmittance (spatial filter)
         file.setFileName("script_transmittance.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_transmittance.svg\"\n";
-        out << "set xlabel \"r, " << length_unit << "\"\n";
-        out << "set ylabel \"Transmittance\"\n";
-        out << "set yrange [0:1]\n";
-        out << "plot \"" << optic_id << "_transmittance.dat\" using ($1*" << length_mult << "):($2) with lines notitle\n";
+        out << common_file_head
+            << "set output \"fig_transmittance.svg\"\n"
+            << "set xlabel \"r (" << length_unit << ")\"\n"
+            << "set ylabel \"Transmittance\"\n"
+            << "set yrange [0:1]\n"
+            << "plot \"" << optic_id << "_transmittance.dat\" using ($1*" << length_mult << "):($2) with lines notitle\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_transmittance.gp"));
@@ -493,13 +507,13 @@ void MainWindow::Plot()
         // GnuPlot script: Transmittance (spectral filter)
         file.setFileName("script_transmittance.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_transmittance.svg\"\n";
-        out << "set xlabel \"" << frequency_xlabel << "\"\n";
-        out << "set xrange [" << v_min << ":" << v_max << "]\n";
-        out << "set ylabel \"Transmittance\"\n";
-        out << "set yrange [0:1]\n";
-        out << "plot \"" << optic_id << "_transmittance.dat\"" << frequency_using << ":($2) with lines notitle\n";
+        out << common_file_head
+            << "set output \"fig_transmittance.svg\"\n"
+            << "set xlabel \"" << frequency_xlabel << "\"\n"
+            << "set xrange [" << v_min << ":" << v_max << "]\n"
+            << "set ylabel \"Transmittance\"\n"
+            << "set yrange [0:1]\n"
+            << "plot \"" << optic_id << "_transmittance.dat\"" << frequency_using << ":($2) with lines notitle\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_transmittance.gp"));
@@ -512,12 +526,12 @@ void MainWindow::Plot()
         plot_n = 0;
         file.setFileName("script_phase.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
-        out << common_file_head;
-        out << "set output \"fig_phase.svg\"\n";
-        out << "set xlabel \"Time, " << t_unit << "\"\n";
-        out << "set xrange [" << t_min << ":" << t_max << "]\n";
-        out << "set ylabel \"Phase, rad.\"\n";
-        out << "set yrange [-3.15:3.15]\n";
+        out << common_file_head
+            << "set output \"fig_phase.svg\"\n"
+            << "set xlabel \"Time (" << t_unit << ")\"\n"
+            << "set xrange [" << t_min << ":" << t_max << "]\n"
+            << "set ylabel \"Phase (rad)\"\n"
+            << "set yrange [-3.15:3.15]\n";
         for(int i=0; i<=9; i++)
         {
             pass_n = PassNumber(i);

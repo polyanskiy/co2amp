@@ -101,16 +101,24 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }                                                                  //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
 
     // spectrum normalization
-    double max_int=0;
+    /*double max_int=0;
     for(int n=0; n<n0; n++)
         if(average_spectrum[n] >= max_int)
             max_int = average_spectrum[n];
     for(int n=0; n<n0 && max_int>0; n++)
-            average_spectrum[n] /= max_int;
+            average_spectrum[n] /= max_int;*/
+
+    // convert spectrum to absolute units (J/Hz)
+    double integrated_spectrum = 0;
+    for(int n=0; n<n0; n++)
+        integrated_spectrum += average_spectrum[n];
+    for(int n=0; n<n0; n++)
+            average_spectrum[n] *= Energy/integrated_spectrum/Dv;
 
     // Write spectrum file
     file = fopen((basename+"_spectrum.dat").c_str(), "w");
-    fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
+    //fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
+    fprintf(file, "#Data format: frequency[Hz] spectral_energy_density[J/Hz]\n");
     for(int n=0; n<n0; n++)
     {
         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;

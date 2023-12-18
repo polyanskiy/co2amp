@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(comboBox_frequencyUnit,  SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
     connect(comboBox_dischargeUnits, SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
     connect(comboBox_intensityUnit,  SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
+    connect(comboBox_spectrumUnit,   SIGNAL(activated(int)),      this, SLOT(FlagModifiedAndPlot()));
     // PostponePlot() ...without rising the "modified" flag
     connect(spinBox_width,           SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));
     connect(spinBox_height,          SIGNAL(valueChanged(int)),   this, SLOT(PostponePlot()));

@@ -1,13 +1,19 @@
 \documentclass{report}
 \usepackage{fullpage,amssymb,amsmath,graphicx,tabularx,rotating,spverbatim}
-\usepackage[euler]{textgreek} %define \textmu
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
+%\usepackage[euler]{textgreek} %define \textmu
+
+\usepackage{siunitx}
+\sisetup{range-phrase=--, , range-units=single}
+\usepackage[version=4]{mhchem}
+
+\usepackage{lmodern}
+
+%\usepackage[utf8]{inputenc}
+%\usepackage[english]{babel}
 \usepackage[hidelinks]{hyperref}
 \usepackage[nottoc]{tocbibind}
 \usepackage[toc,page]{appendix}
-%\usepackage[backend=biber,style=numeric-comp,citestyle=numeric,sorting=none]{biblatex}
-%\usepackage[backend=biber,style=chem-angew,citestyle=numeric,sorting=none]{biblatex}
+
 \usepackage[backend=biber,style=ieee,citestyle=numeric,sorting=none]{biblatex}
 \addbibresource{co2amp.bib}
 
@@ -24,92 +30,107 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{General notes}
 
-\section{Program capabilities}
+\section{Program Capabilities}
 \begin{enumerate}
-\item Ultrashort pulse amplification in {CO$_2$} active medium
-\subitem Rotational numbers up to $J=60$
-\subitem Regular, hot and sequence bands
-\subitem Isotopic {CO$_2$}
-\item Molecular dynamics
-\subitem Realistic pumping
-\subitem Collisional relaxation processes
-\subitem Stimulated transitions
-\subitem Independent consideration of active medium regions at different elongations from the optical axis
-\item Diffraction-based beam propagation
-\subitem Beam manipulation with common optical elements
-\subitem Arbitrary optical configurations
-\item Linear dispersion and non-linear effects in optical materials
-\subitem Pulse chirping
-\subitem Kerr lensing
-\subitem Self-phase modulation
-\item Advanced optics
-\subitem Chirped-pulse amplification
-\subitem Spectral filtering
-\subitem Trains of pulses
-\subitem Staging (program output as an input for the next stage)
-\item User's interface
-\subitem Easy specification of parameters
-\subitem Graphical output
-\subitem Project save/recall
+    \item Ultrashort pulse amplification in \ce{CO2} active medium
+    \begin{itemize}
+        \item Rotational numbers up to \( J = 60 \)
+        \item Regular, hot, and sequence bands
+        \item Isotopic \ce{CO2}
+    \end{itemize}
+    \item Molecular dynamics
+    \begin{itemize}
+        \item Realistic pumping
+        \item Collisional relaxation processes
+        \item Stimulated transitions
+        \item Independent consideration of active medium regions at different elongations from the optical axis
+    \end{itemize}
+    \item Diffraction-based beam propagation
+    \begin{itemize}
+        \item Beam manipulation with common optical elements
+        \item Arbitrary optical configurations
+    \end{itemize}
+    \item Linear dispersion and non-linear effects in optical materials
+    \begin{itemize}
+        \item Pulse chirping
+        \item Kerr lensing
+        \item Self-phase modulation
+    \end{itemize}
+    \item Advanced optics
+    \begin{itemize}
+        \item Chirped-pulse amplification
+        \item Spectral filtering
+        \item Trains of pulses
+        \item Staging (program output as an input for the next stage)
+    \end{itemize}
+    \item User's interface
+    \begin{itemize}
+        \item Easy specification of parameters
+        \item Graphical output
+        \item Project save/recall
+    \end{itemize}
 \end{enumerate}
 
-\section{Availability, tools and third party components}
-The simulation core \textbf{co2amp} and the user's interface shell \textbf{co2am+} are written in C++ programming language. \textbf{co2am+} uses the QT library (\url{http://qt.io}), and QT Creator (a part of the QT project) is used as a development environment. Windows executables are built using the MinGW compiler obtained as a part of the open-source QT distribution. The code is published in the GitHub website (\url{https://github.com/polyanskiy/co2amp}) and is freely available for use, modification, and redistribution under the terms of the GNU General Public License (GPL~v.3) (\url{https://www.gnu.org/licenses/gpl-3.0.html}). A binary package is provided in the form of a Windows installer that contains pre-compiled executables, documentation, templates and examples at \url{https://github.com/polyanskiy/co2amp/releases/}. The project only uses cross-platform libraries and thus should compile under other platforms (MacOS, Linux). \textbf{co2amp} depends on three third party components: gnuplot, 7-zip and HDF5 that are freely available for multiple platforms at \url{http://www.gnuplot.info/}, \url{https://www.7-zip.org/} and \url{https://www.hdfgroup.org/solutions/hdf5/} respectively. These components must be installed separately. The windows installer is built using the Nullsoft Scriptable Install System (NSIS, \url{https://nsis.sourceforge.io/}), and this is the only platform-specific part of the project. Finally, the documentation is mostly written in \LaTeX (http://www.latex-project.org) using the Overleaf online editor and compiler (\url{https://www.overleaf.com/}). YAML and HDF5 file formats are adopted for the specification of input parameters and storing the output field information respectively.
+
+\section{Availability, Tools, and Third Party Components}
+The simulation core \textbf{\texttt{co2amp}} and the user's interface shell \textbf{\texttt{co2amp+}} are written in the C++ programming language. \textbf{\texttt{co2amp+}} utilizes the \texttt{QT} library (\url{http://qt.io}), and \texttt{QT Creator}, a component of the \texttt{QT} project, is employed as the development environment. Windows executables are compiled using the \texttt{MinGW} compiler, which is part of the open-source \texttt{QT} distribution. The code is hosted on GitHub (\url{https://github.com/polyanskiy/co2amp}) and is freely available for use, modification, and redistribution under the GNU General Public License (GPL v.3) (\url{https://www.gnu.org/licenses/gpl-3.0.html}). A binary package is available as a Windows installer, containing pre-compiled executables, documentation, templates, and examples at \url{https://github.com/polyanskiy/co2amp/releases/}. The project leverages cross-platform libraries, facilitating compilation on other platforms (MacOS, Linux). \textbf{\texttt{co2amp}} relies on three third-party components: \texttt{gnuplot}, \texttt{7-zip}, and \texttt{HDF5}, available at \url{http://www.gnuplot.info/}, \url{https://www.7-zip.org/}, and \url{https://www.hdfgroup.org/solutions/hdf5/}, respectively. These components must be installed separately. The Windows installer is created using the \texttt{Nullsoft Scriptable Install System (NSIS, \url{https://nsis.sourceforge.io/})}, representing the only platform-specific component of the project. The documentation is primarily written in \LaTeX (\url{http://www.latex-project.org}) using the \texttt{Overleaf} online editor and compiler (\url{https://www.overleaf.com/}). YAML and HDF5 file formats are adopted for specifying input parameters and storing output field information, respectively.
+
+
 
 \section{Acknowledgements}
-Viktor Platonenko from Moscow State University (Russia) provided a \texttt{Mathcad} code for pulse amplification in the {CO$_2$} active medium that was used as the  starting point for developing the \texttt{co2amp} program; Dr.~Platonenko also offered valuable input in the early stages of the work.
+Viktor Platonenko from Moscow State University (Russia) provided a \texttt{Mathcad} code for pulse amplification in the \ce{CO2} active medium, which served as the starting point for developing the \textbf{\texttt{co2amp}} program. Dr.~Platonenko also offered valuable input during the early stages of the work on \textbf{\texttt{co2amp+}}.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Basic concepts}
+\chapter{Basic Concepts}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{co2amp and co2am+}
-\textbf{co2amp} is a terminal program that allows simulating propagation of ultrashort pulses through an arbitrary cylindrically-symmetric optical system that can include {CO$_2$} amplifiers. It takes inputs in the form of specially formatted text files and command line arguments and produces outputs in the form of tabulated data files and a binary file with the complete information on the output field. \textbf{co2amp} can be used independently, however a graphical user interface makes the task of managing the program's inputs and outputs much more convenient.
+\section{\textbf{\texttt{co2amp}} and \textbf{\texttt{co2amp+}}}
+\textbf{\texttt{co2amp}} is a terminal program designed for simulating the propagation of ultrashort pulses through an arbitrary cylindrically-symmetric optical system, which may include \ce{CO2} amplifiers. It operates using inputs in the form of specially formatted text files and command line arguments, and generates outputs as tabulated data files and a binary file containing comprehensive information on the output field. While \textbf{\texttt{co2amp}} can function independently, its use is greatly facilitated by a graphical user interface, which significantly simplifies the management of the program’s inputs and outputs.
 
-\textbf{co2am+} is a graphical user interface program that simplifies the process of working with multiple input- and output- files and calculation parameters by keeping them organized and easily accessible via an intuitive working environment. \textbf{co2am+} allows saving/recalling the entire file structure of a project and command line parameters in a single compressed '.co2' file.
+\textbf{\texttt{co2amp+}} is a graphical user interface program that streamlines the process of handling multiple input and output files, as well as calculation parameters, by maintaining an organized and easily navigable working environment. \textbf{\texttt{co2amp+}} features functionality for saving and recalling the entire file structure of a project along with command line parameters in a single compressed '.co2' file.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Projects}
-The \textbf{co2amp} input parameters include the characteristics of the initial \texttt{pulse(s)}, the optical \texttt{layout} configuration, specifications for all \texttt{optics} used in the model (including laser amplifiers), and calculation parameters (e.g. calculation grid definition).
+The \textbf{\texttt{co2amp}} input parameters include the characteristics of the initial \texttt{pulse(s)}, the optical \texttt{layout} configuration, specifications for all \texttt{optics} used in the model (including laser amplifiers), and calculation parameters (e.g., calculation grid definition).
 
 The temporal shape of the pulse and the beam profile at every element of the optical layout are saved and can be accessed in both graphical and tabulated-numerical representations.
 
-All \textbf{co2amp} inputs and outputs for a certain model constitute a project.
+All \textbf{\texttt{co2amp}} inputs and outputs for a certain model constitute a project.
 
-\textbf{co2am+} allows storing all inputs and outputs of the model except the output field in a single compressed project file with a '.co2' extension. Complete pulse information (complex field in every node of the space-time calculation grid) at the output of the system can be saved separately as a binary HDF5 file ('.pulse' extension) and used as an input for another project. An example of the input file structure of a '.co2' project accessed via the \textbf{co2am+} interface is shown in Fig.~\ref{fig:gui-input}.
+\textbf{\texttt{co2amp+}} facilitates the storage of all inputs and outputs of the model, except for the output field, in a single compressed project file with a '.co2' extension. Complete pulse information (complex field at every node of the space-time calculation grid) at the system's output can be saved separately as a binary HDF5 file (with a '.pulse' extension) and used as an input for another project. An example of the input file structure of a '.co2' project accessed via the \textbf{\texttt{co2amp+}} interface is illustrated in Fig.~\ref{fig:gui-input}.
 
 \begin{figure}[ht]
  \centering
  \includegraphics[width=14cm]{images/gui-input}
- \caption{"Input" tab of the \textbf{co2am+} user interface program. YAML files specifying the \texttt{pulse}, \texttt{layout} and \texttt{optics} are listed on the left. Content of a selected file is displayed and can be edited in the big edit box on the right.}
+ \caption{"Input" tab of the \textbf{\texttt{co2amp+}} user interface program. YAML files specifying the \texttt{pulse}, \texttt{layout}, and \texttt{optics} are listed on the left. Content of a selected file is displayed and can be edited in the big edit box on the right.}
  \label{fig:gui-input}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Pulse}, \texttt{layout} and \texttt{optic}}
-A \texttt{pulse} is a complex electric field defined in every node of the calculation grid. A project can include one or more input pulses. Each one of them is defined in a separate YAML ('.yml') file. Either a reference to an output from another project (a '.pulse' file) or an explicit specification of the pulse's spatial- and temporal- profile can be used to define an input pulse.
+\section{\texttt{Pulse}, \texttt{Layout} and \texttt{Optic}}
+A \texttt{pulse} is a complex electric field defined at every node of the calculation grid. A project can include one or more input pulses. Each is defined in a separate YAML ('.yml') file. A pulse can be defined either by referencing an output from another project (a '.pulse' file) or by explicitly specifying the pulse's spatial and temporal profile.
 
-The optical \texttt{layout} consists of a series of infinitely-thin \texttt{optics} separated by free space. \texttt{Pulses} propagate freely between the \texttt{optic}. A project must have one and only one \texttt{layout}. The \texttt{layout} is defined in a '.yml' file that specifies the order of the \texttt{planes} and distances between them.
+The optical \texttt{layout} consists of a series of infinitely-thin \texttt{optics} separated by free space. \texttt{Pulses} propagate freely between \texttt{optics}. A project must have exactly one \texttt{layout}. The \texttt{layout} is defined in a '.yml' file that specifies the order of the \texttt{planes} and the distances between them.
 
-An \texttt{optic} is an element of a system that alters the pulse when it passes through it. There are several types of \texttt{optic} described in some detail later. For example, a \textit{Lens} is an \texttt{optic} that introduces a radial-coordinate-dependent frequency shift changing the divergence of the beam. Each \texttt{optic} is specified in a separate '.yml' file. One \texttt{optic} can be used several times in the same \texttt{layout}. In this case \texttt{pulses} pass through the \texttt{optic} several times as, for example, in a laser cavity\footnote{Internally, \textbf{co2amp} code uses an additional concept: a \texttt{plane}. A \texttt{plane} is an element of a \texttt{layout} that, unlike an \texttt{optic}, only appears in the \texttt{layout} once. An \texttt{optic} is then associated with each \texttt{plane}. A \texttt{plane} is basically a placeholder for an \texttt{optic}.}.
+An \texttt{optic} is a system element that alters the pulse as it passes through. Several types of \texttt{optics} are described in detail later. For example, a \textit{Lens} is an \texttt{optic} introducing a radial-coordinate-dependent frequency shift, altering the beam's divergence. Each \texttt{optic} is specified in a separate '.yml' file. An \texttt{optic} can be used multiple times in the same \texttt{layout}, as in a laser cavity\footnote{Internally, the \textbf{\texttt{co2amp}} code employs an additional concept: a \texttt{plane}. A \texttt{plane} is a \texttt{layout} element that, unlike an \texttt{optic}, appears in the \texttt{layout} only once. An \texttt{optic} is then associated with each \texttt{plane}. Essentially, a \texttt{plane} is a placeholder for an \texttt{optic}.}.
 
-\textbf{co2amp} supports seven types of \texttt{optics} listed in the Table~\ref{table:optics}
+\textbf{\texttt{co2amp}} supports seven types of \texttt{optics}, listed in Table~\ref{table:optics}.
 
 \begin{table}
-\caption{Types of \texttt{optics}}
+\caption{Types of \texttt{Optics}}
 \label{table:optics}
 \begin{tabularx}{\textwidth}{c l X}
 \hline 
 \textit{\textbf{Type ID}} & \textit{\textbf{Name}} & \textit{\textbf{Description}}\\
 \hline 
 &&\\
-A & \textit{Active medium}	&  A CO$_2$ amplifier section.\\
+A & \textit{Active medium} & A CO$_2$ amplifier section.\\
 &&\\
 P & \textit{Probe} & A passive surface. May be used as a limiting aperture.\\
 &&\\
@@ -119,79 +140,81 @@ S & \textit{Spectral filter} & An \texttt{optic} with frequency-dependent transm
 &&\\
 L & \textit{Lens} & An ideal thin lens.\\
 &&\\
-M & \textit{Material} & A layer of a material. May introduce linear- and/or non-linear dispersion and/or absorption.\\
+M & \textit{Material} & A layer of material. May introduce linear and/or non-linear dispersion and/or absorption.\\
 &&\\
-C & \textit{Chirper} & An \texttt{optic} that applies a chirp to the pulse. Typically stretcher or compressor.\\
+C & \textit{Chirper} & An \texttt{optic} that applies a chirp to the pulse. Typically a stretcher or compressor.\\
 \hline
 \end{tabularx}
 \end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Calculation grid}
-The \texttt{pulse} is defined as a complex electric field in the nodes of a 2-dimensional space-time calculation grid moving with the pulse. Calculation grid is mostly defined via \textbf{co2amp} command line arguments. The only exception is the maximum radial coordinate that is equal to the semi-diameter of the clear aperture of an \texttt{optic} and thus changes from \texttt{optic} to \texttt{optic}. The command line arguments associated with the pulse space-time calculation grid are the numbers of nodes ("precision") in the pulse time- and radial coordinate- grids, minimum- and maximum- time limits and the central frequency. The central frequency is needed to unambiguously define the calculation grid in the frequency domains. 
+\section{Calculation Grid}
+The \texttt{pulse} is defined as a complex electric field at the nodes of a 2-dimensional space-time calculation grid, which moves with the pulse. The calculation grid is primarily defined via \textbf{\texttt{co2amp}} command line arguments. The only exception is the maximum radial coordinate, equal to the semi-diameter of the clear aperture of an \texttt{optic}, and thus varies from one \texttt{optic} to another. The command line arguments associated with the pulse's space-time calculation grid include the numbers of nodes (representing "precision") in the time and radial coordinate grids, the minimum and maximum time limits, and the central frequency. The central frequency is essential for unambiguously defining the calculation grid in the frequency domain.
 
-Pulse time frame is used for all \texttt{pulse} related calculations (interaction with \texttt{optics}, free-space propagation) and for fast processes in some \texttt{optics}, e.g. fast molecular dynamics (stimulated transitions and rotational relaxation in an \textit{Active medium}). Processes that are much slower than the duration of the pulse (e.g. pumping of the active medium and vibrational relaxation) are modeled separately in a slower laboratory time-frame. Time-tick of the laboratory time-frame is also defined via a \textbf{co2amp} command line argument.
+The pulse time frame is utilized for all \texttt{pulse}-related calculations (interaction with \texttt{optics}, free-space propagation) and for fast processes in some \texttt{optics}, such as fast molecular dynamics (stimulated transitions and rotational relaxation in an \textit{Active Medium}). Processes significantly slower than the pulse duration (like the pumping of the active medium and vibrational relaxation) are modeled separately in a slower laboratory time-frame. The time-tick of this laboratory time-frame is also defined via a \textbf{\texttt{co2amp}} command line argument.
 
-In \textbf{co2am+} the \textbf{co2amp} command line arguments are specified in the "Process" tab (Fig.~\ref{fig:gui-process}).
+In \textbf{\texttt{co2amp+}}, the \textbf{\texttt{co2amp}} command line arguments are specified in the "Process" tab (Fig.~\ref{fig:gui-process}).
 \begin{figure}[ht]
  \centering
  \includegraphics[width=14cm]{images/gui-process}
- \caption{"Process" tab of the \textbf{co2am+} user interface program. Values of \textbf{co2amp} command line arguments are specified on the left. \textbf{co2amp} output is displayed in the black text box on the right.}
+ \caption{"Process" tab of the \textbf{\texttt{co2amp+}} user interface program. Values of \textbf{\texttt{co2amp}} command line arguments are specified on the left. \textbf{\texttt{co2amp}} output is displayed in the black text box on the right.}
  \label{fig:gui-process}
 \end{figure}
-The number of nodes in both coordinates of the pulse space-time frame always is a power of two that allows the use of Fast Fourier Transform (FFT) algorithms. Calculations with a larger number of nodes  usually are more accurate but, on the other hand, take longer and require more computer memory (both calculation time and required memory are roughly proportional to the product of the number of  nodes in the time and space grids). Therefore it  is recommended to start  running the simulation with a smaller number of nodes and then repeat it several times, each time with a denser grid. The absence of considerable change in the program’s output with an increase in the number of nodes will indicate that the density of the grid is satisfactory.
+The number of nodes in both coordinates of the pulse space-time frame is always a power of two, enabling the use of Fast Fourier Transform (FFT) algorithms. Calculations with more nodes are generally more accurate but require longer computation times and more computer memory (both calculation time and required memory are approximately proportional to the product of the number of nodes in the time and space grids). Therefore, it is recommended to start the simulation with a smaller number of nodes and incrementally increase the grid density, repeating the simulation multiple times. The absence of significant changes in the program’s output with an increase in the number of nodes indicates that the grid density is satisfactory.
 
-The time-step, $\Delta t=(t_{max}-t_{min})/N_t$, where $t_{max}$ and $t_{min}$ define the time range and $N_t$ is the number of nodes in the time grid, must be small enough to accurately describe the pulse profile at all stages of its  propagation through the optical system. It also is important to remember that the time range and number of nodes in the time grid also define the range and step in the frequency domain: $\Delta\nu=1/(t_{max}-t_{min})$ and $(\nu_{max}-\nu_{min})=1/\Delta t$. This means that the time range must be long enough to provide sufficient resolution in the frequency domain, while, concurrently, the time step must be sufficiently short to provide a bandwidth that fits the entire spectral region of interest.
+The time-step, \( \Delta t = (t_{\text{max}} - t_{\text{min}}) / N_t \), where \( t_{\text{max}} \) and \( t_{\text{min}} \) define the time range and \( N_t \) is the number of nodes in the time grid, must be sufficiently small to accurately describe the pulse profile throughout its propagation in the optical system. It is also important to note that the time range and the number of nodes in the time grid define the frequency domain range and step: \( \Delta\nu = 1 / (t_{\text{max}} - t_{\text{min}}) \) and \( (\nu_{\text{max}} - \nu_{\text{min}}) = 1 / \Delta t \). This means that the time range must be long enough to provide adequate resolution in the frequency domain, while the time step must be short enough to encompass the entire spectral region of interest.
 
-Identifying an appropriate calculation grid is very important for building an accurate model of an optical system. Putting an effort in this part of the simulation process will pay off with fast, reliable calculations.
+Identifying an appropriate calculation grid is crucial for building an accurate model of an optical system. Investing effort in this part of the simulation process will yield fast and reliable calculations.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Units}
-SI units without prefixes, e.g. "meters, seconds, Amperes..." but not "centimeters, nanoseconds, kiloamperes...", are used in \textbf{co2amp} input and output and also in the \textbf{co2amp} code internally. \textbf{co2amp+} allows changing the units used for the graphical representation of the calculation results on the "Output" tab (Fig.~\ref{fig:gui-output}).
+SI units without prefixes, such as "meters, seconds, Amperes" (but not "centimeters, nanoseconds, kiloamperes"), are used in \textbf{\texttt{co2amp}} for input, output, and also internally within the code. \textbf{\texttt{co2amp+}} provides the functionality to change the units used for graphical representation of the calculation results on the "Output" tab (Fig.~\ref{fig:gui-output}).
 \begin{figure}[ht]
  \centering
  \includegraphics[width=14cm]{images/gui-output}
- \caption{"Output" tab of the \textbf{co2am+} user interface program. Controls on the left allow selecting the data to display and fine-tuning the look of the plots.}
+ \caption{"Output" tab of the \textbf{\texttt{co2amp+}} user interface program. Controls on the left allow selecting the data to display and fine-tuning the look of the plots.}
  \label{fig:gui-output}
 \end{figure}
-However, when numerical data are accessed via [Right-click on a plot] -- [Copy raw data] the units of the data are always "prefix-less".
+However, when numerical data are accessed via [Right-click on a plot] -- [Copy raw data], the units of the data are always in their "prefix-less" form.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Program output}
-The output of the program is given as a temporal and spatial structure of every \texttt{pulse} at each \texttt{optic} in the \texttt{layout}. Temporal (and spectral) profiles are integrated on the entire area of the \texttt{optic}, and spatial profiles are integrated on the duration of the pulse time-frame.
+\section{Program Output}
+The output of the program includes the temporal and spatial structure of each \texttt{pulse} at every \texttt{optic} within the \texttt{layout}. Temporal (and spectral) profiles are integrated over the entire area of the \texttt{optic}, while spatial profiles are integrated over the duration of the pulse time-frame.
 
-In the \textbf{co2am+} "Output" tab the user can chose a \texttt{pulse} and an \texttt{optic} to display (Fig.~\ref{fig:gui-output}). If the selected \texttt{optic} is used several times in the \texttt{layout}, it also is possible to specify which passes through the \texttt{optic} will be displayed. Also, the integral pulse energy can be provided either at every pass through a selected \texttt{optic}, or at all passes through all \texttt{optics} of the \texttt{layout}.
+In the \textbf{\texttt{co2amp+}} "Output" tab, users can choose a \texttt{pulse} and an \texttt{optic} to display (Fig.~\ref{fig:gui-output}). If the selected \texttt{optic} is utilized multiple times in the \texttt{layout}, there is also an option to specify which passes through the \texttt{optic} are to be displayed. Additionally, the integral pulse energy can be provided either at each pass through a selected \texttt{optic} or across all passes through all \texttt{optics} in the \texttt{layout}.
 
-Output for some types of \texttt{optics} supplies additional type-specific information. For instance, for \textit{Active medium}, this includes gain, discharge profile, population dynamics, and the dynamics of the distribution of pumping energy (fractions of discharge energy going into the excitation of laser levels, excitation of molecular translations and ionization). Output for the optic of type \textit{Probe} include the information of the phase of the optical field in the center of the beam.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{"Comments" and "About" tabs of co2am+}
-The "Comments" tab provides an edit box to enter any comments about the project that will be stored as a part of the project in the '.co2' file.
-
-The "About" tab contains information about the versions of the \textbf{co2amp} and \textbf{co2am+} programs, links to the license and the documentation (this file), author contact information, and a suggested citation format.
+Output for certain types of \texttt{optics} includes additional type-specific information. For example, for an \textit{Active medium}, this encompasses gain, discharge profile, population dynamics, and the dynamics of the distribution of pumping energy (fractions of discharge energy contributing to the excitation of laser levels, excitation of molecular translations, and ionization). Output for an \texttt{optic} of type \textit{Probe} includes information on the phase of the optical field at the center of the beam.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Elements of a project}
+\section{"Comments" and "About" Tabs of \textbf{\texttt{co2amp+}}}
+The "Comments" tab in \textbf{\texttt{co2amp+}} provides an editable text box where users can enter any comments about the project. These comments will be stored as part of the project in the '.co2' file.
 
-A project must include the following elements specified in the input YAML files:
+The "About" tab contains information about the versions of \textbf{\texttt{co2amp}} and \textbf{\texttt{co2amp+}}, including links to the license and the documentation (this file), author contact information, and a suggested citation format.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Elements of a Project}
+
+A project in \textbf{\texttt{co2amp}} must include the following elements, each specified in separate input YAML ('.yml') files:
 \begin{enumerate}
     \item One or more \texttt{pulses}
     \item One or more \texttt{optics}
     \item One \texttt{layout}
 \end{enumerate}
-Each element is specified in a dedicated YAML ('.yml') file\footnote{\textbf{co2amp} also requires an additional input file 'config\_files.yml' that lists all input YAML files and the types of corresponding elements. \textbf{co2am+} creates this file automatically.}. The last \texttt{optic} in the \texttt{layout} must be of type P (\textit{Probe}).
+Each element is detailed in its dedicated YAML file\footnote{\textbf{\texttt{co2amp}} additionally requires an input file 'config\_files.yml' that enumerates all input YAML files and the types of corresponding elements. \textbf{\texttt{co2amp+}} automatically generates this file.}. The last \texttt{optic} in the \texttt{layout} must be of type P (\textit{Probe}).
 
-In the following sections we briefly describe each of these elements and discuss models associated with them. This description is not complete. Refer to the templates and the example files (and the comments in them) for more information.
+The subsequent sections provide brief descriptions of each of these elements and the models associated with them. For a comprehensive understanding, refer to the templates, example files, and the comments within them.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\texttt{Pulse}}
-Unless the output of another project ('.pulse' file) is used as an input, both the temporal- and spatial- shape of the input \texttt{pulse} must be specified in a corresponding YAML ('.yml') file. The \texttt{pulse} is assumed to be transform-limited (no initial chirping). The \texttt{pulse} energy, central frequency, and the injection time must also be specified. The injection time specifies the time-delay between the zero moment of the lab time frame ("slow" time frame) and injecting a \texttt{pulse} into the optical system (first \texttt{optic} in the \texttt{layout}). An example of a \texttt{pulse} configuration file is shown below.
+Unless utilizing the output of another project (a '.pulse' file) as input, both the temporal and spatial shape of the input \texttt{pulse} must be defined in a corresponding YAML ('.yml') file. The \texttt{pulse} is assumed to be transform-limited, meaning it has no initial chirping. Specifications such as the \texttt{pulse} energy, central frequency, and injection time are also required. The injection time denotes the time-delay between the zero moment of the laboratory time frame ("slow" time frame) and the injection of a \texttt{pulse} into the optical system (the first \texttt{optic} in the \texttt{layout}). An example of a \texttt{pulse} configuration file is provided below.
 
 \begin{verbatim}
 #=========================
@@ -209,13 +232,13 @@ fwhm: 2e-12
 #=========================
 \end{verbatim}
 
-This file specifies a 2~ps (FWHM) transform-limited Gaussian pulse with an $w=3$~mm Gaussian beam profile, 1~mJ energy and 32.5~THz central frequency injected into the system at $t_{in}=0$. There are several pre-defined beam- and pule- profile options: \texttt{GAUSS}, \texttt{FLATTOP}, \texttt{SUPERGAUSS4}, \texttt{SUPERGAUSS6} etc. Alternatively, a \texttt{FREEFORM} option can be selected followed by a tabulated numerical specification of an arbitrary shape (see 'pulse.yml' template for details). 
+This file specifies a 2~ps (FWHM) transform-limited Gaussian pulse with a $w=3$~mm Gaussian beam profile, 1~mJ energy, and a 32.5~THz central frequency, injected into the system at $t_{\text{in}}=0$. Several pre-defined beam and pulse profile options are available, such as \texttt{GAUSS}, \texttt{FLATTOP}, \texttt{SUPERGAUSS4}, \texttt{SUPERGAUSS6}, etc. Alternatively, a \texttt{FREEFORM} option allows for the specification of an arbitrary shape through a tabulated numerical profile (refer to the 'pulse.yml' template for details).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\texttt{Layout}}
 \subsection{Configuration}
-The \texttt{layout} configuration defines the order of \texttt{optics} and the distances between them. A simple \texttt{layout} configuration file looks like this:
+The \texttt{layout} configuration defines the sequence of \texttt{optics} and the distances between them in the optical system. Below is an example of a simple \texttt{layout} configuration file:
 
 \begin{verbatim}
 #=========================
@@ -226,7 +249,7 @@ The \texttt{layout} configuration defines the order of \texttt{optics} and the d
 #=========================
 \end{verbatim}
 
-Here, the system consists of two \texttt{optics}: \texttt{P1} and \texttt{P2} separated by 3 meters of free space. The pulse(s) pass through the system once. If the \texttt{times} value is more than 1, a pulse after passing through \texttt{P2} will go to \texttt{P1} again, and the propagation through the system will repeat the specified number of times. There can be several "go-times" in a \texttt{layout} configuration file. An example of a \texttt{layout} configuration for a more complex system is shown below
+In this example, the system consists of two \texttt{optics}, \texttt{P1} and \texttt{P2}, separated by 3 meters of free space. The pulses pass through the system once. If the \texttt{times} value is greater than 1, a pulse after passing through \texttt{P2} will return to \texttt{P1}, and the propagation through the system will repeat for the specified number of times. A \texttt{layout} configuration file can contain several such "go-times" sequences. Below is an example of a \texttt{layout} configuration for a more complex system:
 
 \begin{spverbatim}
 #=========================
@@ -240,20 +263,20 @@ Here, the system consists of two \texttt{optics}: \texttt{P1} and \texttt{P2} se
 
 - go: 0.45 >> i >> 0.90 >> GE >> 0.25 >> w >> WIN1 >> w >> 0.45 >> AM1 >> 0.40 >> AM2 >> 0.45 >> w >> WIN2 >> w >> 0.10 >> MIR >> m >> 0.10 >> w >> WIN2 >> w >> 0.45 >> AM2 >> 0.40 >> AM1 >> 0.45 >> w >> WIN1 >> w >> 0.25 >> OUT
   times: 1
-  #=========================
+#=========================
 \end{spverbatim}
 
 
-\subsection{Dealing with long optical elements}
-In the \textbf{co2amp} model, the \texttt{optics} are infinitely thin. In a case of a long \texttt{optic}, for example an \textit{Active medium}, the model first calculates the field modification accumulated by a \texttt{pulse} when it propagates through the \texttt{optic} and then apply it as if it occurred at once. This approach may not work well if the actual optical element is long and the \texttt{pulse} changes considerably while propagating through it, thus interacting differently with different parts of the \texttt{optic}. Accuracy of the model can be improved if long elements are divided into shorter sub-sections.
+\subsection{Dealing with Long Optical Elements}
+In the \textbf{\texttt{co2amp}} model, \texttt{optics} are considered infinitely thin. For long \texttt{optics}, such as an \textit{Active Medium}, the model calculates the field modification accumulated by a \texttt{pulse} as it propagates through the \texttt{optic} and then applies this modification as if it occurred instantaneously. However, this approach might not be accurate if the actual optical element is lengthy and the \texttt{pulse} changes significantly while propagating through it, thereby interacting differently with various parts of the \texttt{optic}. The model's accuracy can be improved by dividing long elements into shorter sub-sections.
 
-Fig.~\ref{fig:layout} shows an example of a 2-meter long \texttt{layout} with a meter long active medium in the middle. In one case shown in Fig.~\ref{fig:layout}a we first propagate the\texttt{pulse} to the middle of the amplifier section, then apply the amplification accumulated over 1~meter and propagate the\texttt{pulse} to the last \texttt{optic}.
+Fig.~\ref{fig:layout} illustrates an example of a 2-meter long \texttt{layout} with a meter-long active medium in the middle. In one scenario, shown in Fig.~\ref{fig:layout}a, we first propagate the \texttt{pulse} to the midpoint of the amplifier section, then apply the amplification accumulated over 1 meter, and finally propagate the \texttt{pulse} to the last \texttt{optic}.
 \begin{figure}[ht]
 \centering
 \includegraphics{images/layout}
-\caption{Example of \texttt{layout} configuration for a long \texttt{optic} (in this case an \textit{Active medium}. a) The \textit{Active medium} is represented by a single \texttt{optic}. b) The \textit{Active medium} is split in two shorter sections.}\label{fig:layout}
+\caption{Example of \texttt{layout} configuration for a long \texttt{optic} (in this case, an \textit{Active Medium}). a) The \textit{Active Medium} is represented by a single \texttt{optic}. b) The \textit{Active Medium} is split into two shorter sections.}\label{fig:layout}
 \end{figure}
-The corresponding \texttt{layout} configuration is
+The corresponding \texttt{layout} configuration is:
 
 \begin{verbatim}
 #=========================
@@ -264,46 +287,43 @@ The corresponding \texttt{layout} configuration is
 #=========================
 \end{verbatim}
 
-Alternatively, we can represent the active medium by two 0.5-meter sections as shown in Fig.~\ref{fig:layout}b. The corresponding layout is
+Alternatively, the active medium can be represented by two 0.5-meter sections, as shown in Fig.~\ref{fig:layout}b. The corresponding layout is:
 
 \begin{verbatim}
 #=========================
-# long amplifier is divided in two shorter sections
+# long amplifier divided into two shorter sections
 
 - go: P1 >> 0.75 >> AM1 >> 0.5 >> AM2 >> 0.75 >> P2
   times: 1
 #=========================
 \end{verbatim}
 
-Population dynamics in all amplifier sections is modeled separately, and thus, by splitting a long amplifier into shorter sections we also obtain a more realistic model of the active medium.
+By splitting a long amplifier into shorter sections, the population dynamics within each amplifier section is modeled more accurately, leading to a more realistic representation of the active medium.
 
 
 %%%%%%%%%%%%%
-\subsection{Modelling of \texttt{pulse} propagation between \texttt{optics}}\label{propagation}
+\subsection{Modeling of \texttt{Pulse} Propagation Between \texttt{Optics}}\label{propagation}
 
-Consider free-space wave propagation between plane-parallel surfaces $S'$ and $S$ separated by distance $z$ as shown in Fig.~\ref{fig:diffraction} for the case of cylindrical symmetry.
+Consider free-space wave propagation between plane-parallel surfaces \(S'\) and \(S\), separated by distance \(z\), as illustrated in Fig.~\ref{fig:diffraction} for a system with cylindrical symmetry.
 \begin{figure}[ht] 
  \centering
  \includegraphics[width=10cm]{images/diffraction.pdf}
- \caption{Application of Huygens-Fresnel principle to beam propagation from plane $S'$ to plane $S$ for a system with cylindrical symmetry.}
+ \caption{Application of the Huygens-Fresnel principle to beam propagation from plane \(S'\) to plane \(S\) in a system with cylindrical symmetry.}
  \label{fig:diffraction}
 \end{figure}
-According to Huygens-Fresnel principle, the field $E$ in a point on the plane $S$  is defined as a superposition of secondary waves emitted from every point of plane $S'$~\cite{BornWolf:1999}. This can be written in the case of cylindrical symmetry as~\cite{Siegman:1986,PeatrossWare:2015}
+According to the Huygens-Fresnel principle, the field \(E\) at a point on plane \(S\) is defined as a superposition of secondary waves emitted from every point of plane \(S'\)~\cite{BornWolf:1999}. This can be expressed in the case of cylindrical symmetry as~\cite{Siegman:1986,PeatrossWare:2015}:
 \begin{subequations} \label{eq:DI}
  \begin{align}
-  &E(\rho) = -\frac{i}{\lambda} \int_{\rho'=0}^{\infty} E'(\rho') \int_{\phi'=0}^{2\pi} \frac{e^{ikR}}{R} K d\phi' \rho' d\rho'
-  \label{eq:DI2a}\\
-  &R = \sqrt{\rho^2 + \rho'^2 + z^2 -2\rho\rho'\cos\phi'}
-  \label{eq:DI2b}\\
-  &K = \cos\theta = \frac{z}{R}
-  \label{eq:DI2c}
+  &E(\rho) = -\frac{i}{\lambda} \int_{\rho'=0}^{\infty} E'(\rho') \int_{\phi'=0}^{2\pi} \frac{e^{ikR}}{R} K d\phi' \rho' d\rho' \label{eq:DI2a}\\
+  &R = \sqrt{\rho^2 + \rho'^2 + z^2 - 2\rho\rho'\cos\phi'} \label{eq:DI2b}\\
+  &K = \cos\theta = \frac{z}{R} \label{eq:DI2c}
  \end{align}
 \end{subequations}
-where $\lambda$ is the wavelength, $k=2\pi/\lambda$ the wavenumber, and $K$ the obliquity factor as it appears in Rayleigh-Sommerfeld diffraction theory.
+where \(\lambda\) is the wavelength, \(k = 2\pi / \lambda\) the wavenumber, and \(K\) the obliquity factor as it appears in Rayleigh-Sommerfeld diffraction theory.
 
-Note that because the field on the output plane $S$ doesn't depend on the angular coordinate $\phi$, $\phi=0$ is chosen for the simplification of Eq.~(\ref{eq:DI}).
+Since the field on the output plane \(S\) does not depend on the angular coordinate \(\phi\), \(\phi = 0\) is chosen for the simplification of Eq.~\ref{eq:DI}.
 
-Direct numerical integration of Eq.~(\ref{eq:DI}) having $O(N^3)$ complexity is very time consuming and thus an approximation is usually used to accelerate computations. Fresnel diffraction is the most known approximation to the diffraction integral. The following assumptions are done in the Fresnel approximation
+Direct numerical integration of Eq.~\ref{eq:DI}, with \(O(N^3)\) complexity, is very time-consuming. Therefore, an approximation is usually employed to accelerate computations. The most well-known approximation is Fresnel diffraction, which assumes:
 \begin{equation} \label{eq:FreA}
  \begin{split}
   &K \approx 1\\
@@ -314,33 +334,33 @@ Direct numerical integration of Eq.~(\ref{eq:DI}) having $O(N^3)$ complexity is 
   \end{cases}
  \end{split}
 \end{equation}
-where "denominator" and "exponent" signify the position of the $R$ variable in Eq.~(\ref{eq:DI2a}).
+where "denominator" and "exponent" indicate the position of the \(R\) variable in Eq.~\ref{eq:DI2a}.
 
-After substituting Eq.~(\ref{eq:FreA}) to Eq.~(\ref{eq:DI2a}) and using the following formula
+Substituting Eq.~\ref{eq:FreA} into Eq.~\ref{eq:DI2a} and using the formula
 \begin{equation} \label{eq:formula}
  \int_{0}^{2\pi} e^{\pm i a \cos\phi}  d\phi = 2 \pi J_0(a)
 \end{equation}
-where $J$ is the Bessel function we get the expression for Fresnel diffraction with cylindrical symmetry
+where \(J\) is the Bessel function, we obtain the expression for Fresnel diffraction with cylindrical symmetry:
 \begin{equation} \label{eq:Fre}
- E(\rho) \approx -\frac {2 \pi i e^{ik\left(z+\frac{k\rho^2}{2z}\right)}} {\lambda z}
- \int_0^\infty E'(\rho') e^{i\frac{k\rho'^2}{2z}} J_0 \left( \frac{k\rho\rho'}{z} \right)  \rho' d\rho'
+ E(\rho) \approx -\frac{2 \pi i e^{ik\left(z+\frac{k\rho^2}{2z}\right)}}{\lambda z}
+ \int_0^\infty E'(\rho') e^{i\frac{k\rho'^2}{2z}} J_0 \left(\frac{k\rho\rho'}{z}\right) \rho' d\rho'
 \end{equation}
 
-\textbf{co2amp} supports both Rayleigh-Sommerfeld- Eq.~(\ref{eq:DI}) and Fresnel- Eq.~(\ref{eq:Fre}) based propagation methods. Also, the user can chose to ignore the \texttt{pulse} evolution during free-space propagation.
+\textbf{\texttt{co2amp}} supports both Rayleigh-Sommerfeld (Eq.~\ref{eq:DI}) and Fresnel (Eq.~\ref{eq:Fre}) based propagation methods. Users can also choose to ignore the \texttt{pulse} evolution during free-space propagation.
 
-Eq.~(\ref{eq:DI}) and Eq.~(\ref{eq:Fre}) assume a monochromatic light, which is not the case for ultrashort pulses that have non-negligible bandwidth. Therefore, in \textbf{co2amp} the propagation is calculated in frequency domain: Eq.~(\ref{eq:DI}) or Eq.~(\ref{eq:Fre}) are applied to Fourier-transformed field in every node of the frequency calculation grid. After that an inverse Fourier transform is used to return to the time domain.
+Eqs.~\ref{eq:DI} and \ref{eq:Fre} assume monochromatic light, which is not the case for ultrashort pulses that possess a non-negligible bandwidth. Therefore, in \textbf{\texttt{co2amp}}, propagation is calculated in the frequency domain: Eqs.~\ref{eq:DI} or \ref{eq:Fre} are applied to the Fourier-transformed field at each node of the frequency calculation grid. Afterward, an inverse Fourier transform is used to return to the time domain.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type A \textit{Active medium}}
-\textit{Active medium} is by far the most complex \texttt{optics} that can be used in a \textbf{co2amp} project. The models used for simulating the molecular dynamics and \texttt{pulse} amplification are described in a dedicated Chapter~\ref{chapter:models}.
+\section{\texttt{Optic} Type A: \textit{Active Medium}}
+The \textit{Active Medium} is the most complex type of \texttt{optic} that can be utilized in a \textbf{\texttt{co2amp}} project. Detailed models used for simulating molecular dynamics and \texttt{pulse} amplification are described in a dedicated Chapter~\ref{chapter:models}.
 
-Configuration file for an \texttt{optic} of type A must include specifications of the gas mixture, pumping, and laser transitions included in the simulations. An example of a configuration file is shown below
+A configuration file for an \texttt{optic} of type A must include specifications of the gas mixture, pumping mechanism, and laser transitions considered in the simulations. An example of such a configuration file is provided below:
 
 \begin{verbatim}
 #=========================
-# AM1.yml from 'examples/ATF 5 TW/ATF 3 final ampifier.co2' project
+# AM1.yml from 'examples/ATF 5 TW/ATF 3 final amplifier.co2' project
 
 # Semi-diameter of the limiting aperture, m
 semiDia: 45e-3
@@ -378,23 +398,23 @@ discharge: |
 #=========================
 \end{verbatim}
 
-The composition (including isotopic enrichment of carbon dioxide) and the initial temperature of the active medium are specified under the "\#Gas mixture (bar)" comment.
+The composition of the active medium, including isotopic enrichment of carbon dioxide, and the initial temperature are specified under the "Gas mixture (bar)" section.
 
-For discharge pumping, the geometry of the discharge and its profile must be given. For optical pumping, the wavelength, the absorption cross-section, and the temporal profile of the pumping pulse must be provided.
+For discharge pumping, the geometry of the discharge and its temporal profile are required. In the case of optical pumping, the wavelength, absorption cross-section, and the temporal profile of the pumping pulse must be provided.
 
-Comments in the 'optic~A~(discharge~pumped~CO2~amplifier).yml' and\\ 'optic~A~(optically~pumped~CO2~amplifier).yml' template files provide a detailed information on the format of the configuration file.
+The 'optic~A~(discharge~pumped~CO2~amplifier).yml' and 'optic~A~(optically~pumped~CO2~amplifier).yml' template files contain detailed information on the configuration file format and can be referred to for further guidance.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type P \textit{Probe}}
-\textit{Probe} is a passive \texttt{optic}. It doesn't change the field that fits inside its semi-diameter.
+\section{\texttt{Optic} Type P: \textit{Probe}}
+A \textit{Probe} is a passive type of \texttt{optic}. It does not alter the field that fits within its semi-diameter. This can be expressed mathematically as:
 
 \begin{equation}
 E(t,\rho) = E'(t,\rho)
 \end{equation}
-where $E'(t,\rho)$ and $E(t,\rho)$ is the field before- and after- an \texttt{optic} respectively.
+where \( E'(t,\rho) \) and \( E(t,\rho) \) represent the field before and after passing through an \texttt{optic}, respectively.
 
-However, a \textit{Probe} \texttt{optic} can be used as a limiting aperture that has a zero transmittance for $\rho>semiDia$. The only configuration parameter for an \texttt{optic} of type P is its semi-diameter. A configuration file for a 25~mm semi-diameter \textit{Probe} is shown below
+However, a \textit{Probe} \texttt{optic} can serve as a limiting aperture, exhibiting zero transmittance for \( \rho > \text{semiDia} \). The sole configuration parameter for an \texttt{optic} of type P is its semi-diameter. An example of a configuration file for a \textit{Probe} with a 25 mm semi-diameter is shown below:
 
 \begin{verbatim}
 #=========================
@@ -404,16 +424,17 @@ semiDia: 25e-3
 #=========================
 \end{verbatim}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type F \textit{Spatial filter}}
-\textit{Spatial filter} applies a specified coordinate-dependent transmittance function to a \texttt{pulse}
+\section{\texttt{Optic} Type F: \textit{Spatial Filter}}
+A \textit{Spatial Filter} applies a specified coordinate-dependent transmittance function to a \texttt{pulse}:
 
 \begin{equation}
 E(t,\rho) = E'(t,\rho) \sqrt{\mathcal{T}(\rho)}
 \end{equation}
-where $\mathcal{T}(\rho)$ is the transmittance function defined in the configuration file.
+where \( \mathcal{T}(\rho) \) is the transmittance function, as defined in the configuration file.
 
-Configuration example:
+An example configuration for a \textit{Spatial Filter} is shown below:
 
 \begin{verbatim}
 #=========================
@@ -426,11 +447,12 @@ r_min: 10e-3
 #=========================
 \end{verbatim}
 
-See the 'optic~F~(spatial~filter).yml' template file for details
+For more details and configuration options, refer to the 'optic~F~(spatial~filter).yml' template file.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type S \textit{Spectral filter}}
-\textit{Spectral filter} applies a specified frequency-dependent transmittance function to a \texttt{pulse}
+\section{\texttt{Optic} Type S: \textit{Spectral Filter}}
+A \textit{Spectral Filter} applies a specified frequency-dependent transmittance function to a \texttt{pulse}:
 
 \begin{equation}
  \begin{aligned}
@@ -439,9 +461,9 @@ See the 'optic~F~(spatial~filter).yml' template file for details
   &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
  \end{aligned}
 \end{equation}
-where $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier transform and the inverse Fourier transform respectively, $\nu$ is the frequency, and $\mathcal{T}(\nu)$ is the transmittance function defined in the configuration file.
+where \( \mathcal{F} \) and \( \mathcal{F}^{-1} \) denote the Fourier transform and the inverse Fourier transform, respectively, \( \nu \) is the frequency, and \( \mathcal{T}(\nu) \) is the transmittance function as defined in the configuration file.
 
-Configuration example:
+An example configuration for a \textit{Spectral Filter} is provided below:
 
 \begin{verbatim}
 #=========================
@@ -465,13 +487,13 @@ form: |
 #=========================
 \end{verbatim}
 
-See the 'optic~S~(spectral~filter).yml' template file for details
+For further details and configuration options, refer to the 'optic~S~(spectral~filter).yml' template file.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type L \textit{Lens}}
-\textit{Lens} is a lens.
+\section{\texttt{Optic} Type L: \textit{Lens}}
+A \textit{Lens} functions as a standard optical lens within the system:
 
 \begin{equation}
  \begin{aligned}
@@ -480,11 +502,11 @@ See the 'optic~S~(spectral~filter).yml' template file for details
   &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
  \end{aligned}
 \end{equation}
-where $k=\frac{2\pi\nu}{c}$ is the wave number ($c$ is the speed of light) and $F$ is the focal length of the lens. 
+where \( k = \frac{2\pi\nu}{c} \) is the wave number (\( c \) is the speed of light) and \( F \) is the focal length of the lens.
 
-The calculation is done in frequency domain to ensure that effective focal length is same for all frequencies in the pulse spectrum.
+The calculation is performed in the frequency domain to ensure that the effective focal length remains consistent across all frequencies in the pulse spectrum.
 
-Configuration example (1-meter focal length lens):
+An example configuration for a lens with a 1-meter focal length is shown below:
 
 \begin{verbatim}
 #=========================
@@ -496,52 +518,48 @@ F: 1.0
 #=========================
 \end{verbatim}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type M \textit{Material}}
 
-In the case of an oblique incidence, effective intensity $I_{eff}$ is reduced and propagation distance in the material (effective thickness) $\Theta_{eff}$ is increased automatically depending on the incidence angle $\theta_i$ and the refractive index $n$ of the material
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\texttt{Optic} Type M: \textit{Material}}
+
+In cases of oblique incidence, the effective intensity \(I_{\text{eff}}\) is reduced and the propagation distance in the material (effective thickness) \(\Theta_{\text{eff}}\) is automatically adjusted based on the incidence angle \(\theta_i\) and the refractive index \(n\):
 
 \begin{equation}
  \begin{aligned}
    &\theta_r = \arcsin\left(\frac{\sin\theta_i}{n_0}\right)\\
-   &I_{eff} = I \frac{\cos\theta_i}{\cos\theta_r}\\
-   &\Theta_{eff} = \frac{\Theta}{\cos\theta_r} 
+   &I_{\text{eff}} = I \frac{\cos\theta_i}{\cos\theta_r}\\
+   &\Theta_{\text{eff}} = \frac{\Theta}{\cos\theta_r} 
  \end{aligned}
 \end{equation}
-where $I$ and $\Theta$ are the intensity before the \texttt{optic} and the actual thickness of the material and $\theta_r$ is the refraction angle.
+where \(I\) and \(\Theta\) are the intensity before the \texttt{optic} and the actual thickness of the material, respectively, and \(\theta_r\) is the refraction angle.
 
-
-\subsubsection{Linear dispersion and absorption}
+\subsubsection{Linear Dispersion and Absorption}
 \begin{equation}
  \begin{aligned}
   &\widehat{E}'(\nu,\rho) = \mathcal{F}(E'(t,\rho))\\
-  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (2 \pi i \Delta \nu) \sqrt{\exp(-\alpha_0 \Theta_{eff})}\\
+  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (2 \pi i \Delta \nu) \sqrt{\exp(-\alpha_0 \Theta_{\text{eff}})}\\
   &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
  \end{aligned}
 \end{equation}
-where 
-\begin{equation}\label{eq:Delta_nu}
+where \(\Delta \nu\) is defined as:
+\begin{equation}\label{eq:Delta_nu_disp}
  \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
 \end{equation}
-$c$ is the speed of light,
 \begin{equation}
- \frac{dt}{d\nu'} = \frac{\Theta_{eff}}{c} \frac{dn_{g}}{d\nu'},
+ \frac{dt}{d\nu'} = \frac{\Theta_{\text{eff}}}{c} \frac{dn_{g}}{d\nu'},
 \end{equation}
-$\nu_c$ is the central frequency.
+with \(c\) as the speed of light, \(n_{g}\) as the group index of refraction, and \(\nu_c\) as the central frequency. The dispersion formulas used for calculating \(n_{g}\) are given in Appendix~\ref{appendix:optical_constants}.
 
-where $\widehat{E}(\nu,\rho)$ is the field in the frequency domain, $\mathcal{F}$ and $\mathcal{F}^{-1}$ are the Fourier-transform and inverse-Fourier-transform functions, $\nu$ is the frequency, $\nu_c$ is the central frequency, $n_{g}$ is the group index of refraction. The dispersion formulas used for calculating $n_{g}$ are given in Appendix~\ref{appendix:optical_constants}.
-
-\subsubsection{Nonlinear interaction}
+\subsubsection{Nonlinear Interaction}
 \begin{equation}
  \begin{aligned}
-  &E(t,\rho) = E'(t,\rho) \exp\left(2\pi i \nu_c \frac{\Theta_{eff}}{c} n_2 I_{eff}(t,\rho)\right)\\
-  &I_{eff}(t,\rho) = 2 h \nu_c (E'(t,\rho))^2 \frac{\cos\theta_i} {\cos\theta_r}
+  &E(t,\rho) = E'(t,\rho) \exp\left(2\pi i \nu_c \frac{\Theta_{\text{eff}}}{c} n_2 I_{\text{eff}}(t,\rho)\right)\\
+  &I_{\text{eff}}(t,\rho) = 2 h \nu_c (E'(t,\rho))^2 \frac{\cos\theta_i} {\cos\theta_r}
  \end{aligned}
 \end{equation}
-where $n_2$ is the nonlinear refractive index, $h$ the Plank's constant, and $I(t,r)$ is the field intensity. The numerical values of $n_2$ used in the program are given in Appendix~\ref{appendix:optical_constants}.
+where \(n_2\) is the nonlinear refractive index, \(h\) is Planck's constant, and \(I(t,r)\) is the field intensity. Numerical values of \(n_2\) used in the program are given in Appendix~\ref{appendix:optical_constants}.
 
-
-Configuration example:
+Configuration example for a \textit{Material} \texttt{optic}:
 
 \begin{verbatim}
 #=========================
@@ -556,12 +574,13 @@ slices: 10
 #=========================
 \end{verbatim}
 
-The following materials are currently supported: CdTe, GaAs, Ge, KCl, NaCl, Si, ZnSe, and air. An arbitrary $n_2$ can be specified in the configuration file. A pre-defied value (Appendix~\ref{appendix:optical_constants}) is used otherwise. To improve accuracy, the \textit{Material} \texttt{optic} can be split in several layers. A split-step method is used to calculate linear- and non-linear interaction with a layer: first, a non-linear interaction with a half-layer is calculated, then a full-layer linear interaction, and finally a half-layer nonlinear interaction again. 
+Currently supported materials include AgBr, AgCl, \ce{BaF2}, CdTe, CsI, GaAs, Ge, IRG22 (AMTIR1), IRG24, IRG25, KBr, KCl, KRS5, NaCl, NaF, Si, \ce{SiO2}, ZnS, ZnSe, and air. An arbitrary \(n_2\) can be specified in the configuration file, with a predefined value used otherwise (see Appendix~\ref{appendix:optical_constants}). To enhance accuracy, the \textit{Material} \texttt{optic} can be divided into several layers. A split-step method is employed for calculating linear and nonlinear interactions with a layer: first, a nonlinear interaction with a half-layer is calculated, followed by a full-layer linear interaction, and then a half-layer nonlinear interaction again.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\texttt{Optic} type C \textit{Chirper}}
-\textit{Chirper} introduces a chirp to a pulse and is typically used to model a stretcher or compressor.
+\section{\texttt{Optic} Type C: \textit{Chirper}}
+A \textit{Chirper} introduces a chirp to a pulse and is typically used to model a stretcher or compressor.
 
 \begin{equation}
 \begin{aligned}
@@ -571,12 +590,12 @@ The following materials are currently supported: CdTe, GaAs, Ge, KCl, NaCl, Si, 
 \end{aligned}
 \end{equation}
 where 
-\begin{equation}\label{eq:Delta_nu}
+\begin{equation}\label{eq:Delta_nu_chirp}
  \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
 \end{equation}
-$\nu_c$ is the central frequency, and $\frac{d\nu}{dt}$ is chirpyness.
+\(\nu_c\) is the central frequency, and \(\frac{d\nu}{dt}\) is the chirpyness.
 
-In the case of linear chirp the chirpyness is constant and and Eq.~(\ref{eq:Delta_nu}) becomes
+In the case of linear chirp, the chirpyness is constant, and Eq.~\ref{eq:Delta_nu_chirp} simplifies to:
 
 \begin{equation}
 \begin{aligned}
@@ -585,7 +604,7 @@ In the case of linear chirp the chirpyness is constant and and Eq.~(\ref{eq:Delt
 \end{aligned}
 \end{equation}
 
-Configuration example:
+An example configuration for a \textit{Chirper} with linear chirp is shown below:
 
 \begin{verbatim}
 #=========================
@@ -598,12 +617,13 @@ c: 3.5e21
 #=========================
 \end{verbatim}
 
-Only linear chirp is presently supported.
+Currently, only linear chirp is supported in the program.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Modelling of processes in \texorpdfstring{CO\textsubscript{2}}{CO2} amplifiers}\label{chapter:models}
+\chapter{Modelling of processes in \texorpdfstring{\ce{CO2}}{CO2} amplifiers}\label{chapter:models}
 
 \section{Molecular dynamics}
 Simulations of active medium pumping by electric discharge and vibrational relaxation are done following Karlov and Konev  \cite{Karlov-1978}.
@@ -624,7 +644,7 @@ Electron energy $u$ is expressed in eV;
 
 Ratio of the electric field to the full molecular density, $\mathcal{E}/\mathcal{N}$, is expressed in units of $10^{-16}$~V·cm$^2$;
 
-$y_j$ are the relative molecule concentrations ($j=1$ corresponds to CO$_2$, $j=2$ to N$_2$ and $j=3$ to He);
+$y_j$ are the relative molecule concentrations ($j=1$ corresponds to \ce{CO2}, $j=2$ to N$_2$ and $j=3$ to He);
 
 $M_1=44$, $M_2=28$, $M_3=4$ are the molar masses;
 
@@ -666,11 +686,11 @@ z_r = 5.93 \times 10^7 \frac{\sum\limits_{j=1,2} y_j C_j \int\limits_0^\infty uf
 
 Finally, the distribution of the excitation energy is calculated using the following expressions:
 
-$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to {CO$_2$} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
+$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to \ce{CO2} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
 
-$q_3 = z_{17}$ - fraction of energy transferred to {CO$_2$} asymmetric stretch mode ($\nu_3$);
+$q_3 = z_{17}$ - fraction of energy transferred to \ce{CO2} asymmetric stretch mode ($\nu_3$);
 
-$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to {N$_2$} vibrations;
+$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to \ce{N2} vibrations;
 
 $q_T = z_t + z_r$ - fraction of energy transferred to translation and rotation;
 
@@ -679,13 +699,13 @@ $q_{ei} = \sum\limits_{k=9}^{15} z_{2k}  + \sum\limits_{k=8}^{10} z_{1k}$ - frac
 
 
 \subsection{Pumping and vibrational relaxation dynamics}
-A 3-temperature model is used for describing the vibrational dynamics of the active medium of {CO$_2$} amplifiers. In this model, the following temperatures are used to describe the distribution of the energy between molecular vibrations:
+A 3-temperature model is used for describing the vibrational dynamics of the active medium of \ce{CO2} amplifiers. In this model, the following temperatures are used to describe the distribution of the energy between molecular vibrations:
 
-$T_2$ – vibrational temperature of $\nu_1$ and $\nu_2$ vibrations of {CO$_2$};
+$T_2$ – vibrational temperature of $\nu_1$ and $\nu_2$ vibrations of \ce{CO2};
 
-$T_3$ – vibrational temperature of the $\nu_3$ vibration of {CO$_2$};
+$T_3$ – vibrational temperature of the $\nu_3$ vibration of \ce{CO2};
 
-$T_4$ – vibrational temperature of {N$_2$}.
+$T_4$ – vibrational temperature of \ce{N2}.
 
 Vibrational temperatures are related to the average numbers of quanta $e_x$ in the corresponding vibrations as follows:
 
@@ -718,7 +738,7 @@ where
 &e_{2T} = \frac{2}{\exp(960/T)-1}
 \end{aligned}
 \end{equation}
-where $W(t)$ is the discharge power density measured in {kW/cm$^3$} , $p_e$ is measured in {{\textmu}s$^{-1}$}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
+where $W(t)$ is the discharge power density measured in {kW/cm$^3$} , $p_e$ is measured in \si{\micro\second^{-1}}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
 
 \begin{equation}
 \begin{aligned}
@@ -754,6 +774,7 @@ In the case of optical pumping population dynamics is modelled with equations \r
   2 \Phi \sigma & excitation~via~(10^01, 02^01)~at~\sim2.8~{\mu}m\\
   4 \Phi \sigma & excitation~via~(20^01, 12^01, 04^01)~at~\sim2.0~{\mu}m
   \end{array}
+  \right.
 \end{aligned}
 \end{equation}
 where $\Phi$ is the flux of the pumping photons (number of photons per $\text{m}^2$ per second), and $\sigma$ is the absorption cross-section. Equations \ref{eq:dedt_rates_optical} imply that each pumping photon delivers one quantum of energy to the upper laser level, and zero, two or four quanta to the lower level, depending on the pumping transition.
@@ -763,12 +784,12 @@ where $\Phi$ is the flux of the pumping photons (number of photons per $\text{m}
 \section{Amplification}
 
 \subsection{Laser transitions}
-Fig. \ref{fig:laser-transitions} shows the vibrational levels and laser transitions included in the \texttt{co2amp} amplification model (because of the lack of the spectroscopic data, the sequence and hot bands currently are only supported for natural isotopologue of {CO$_2$} (\textit{626}\footnote{A 3-digit notation commonly is used for designating the isotopologues (molecules with different isotopic composition) of carbon dioxide. In this notation \textit{2}, \textit{3} and \textit{4} correspondingly stand for {$^{12}$C}, {$^{13}$C} and {$^{14}$C}; \textit{6}, \textit{7} and \textit{8} represent  correspondingly {$^{16}$O}, {$^{17}$O} and {$^{18}$O}. \textit{626} denotes a {CO$_2$} molecule with natural isotopic composition: {{$^{16}$O}-{$^{12}$C}-{$^{16}$O}}.}).
+Fig. \ref{fig:laser-transitions} shows the vibrational levels and laser transitions included in the \textbf{\texttt{co2amp}} amplification model (because of the lack of the spectroscopic data, the sequence and hot bands currently are only supported for natural isotopologue of \ce{CO2} (\textit{626}\footnote{A 3-digit notation commonly is used for designating the isotopologues (molecules with different isotopic composition) of carbon dioxide. In this notation \textit{2}, \textit{3} and \textit{4} correspondingly stand for {$^{12}$C}, {$^{13}$C} and {$^{14}$C}; \textit{6}, \textit{7} and \textit{8} represent  correspondingly {$^{16}$O}, {$^{17}$O} and {$^{18}$O}. \textit{626} denotes a \ce{CO2} molecule with natural isotopic composition: {{$^{16}$O}-{$^{12}$C}-{$^{16}$O}}.}).
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=120mm]{images/laser-transitions}
-\caption{Vibrational transitions included in the amplification model. Wavelengths are given for natural {CO$_2$} isotopologue (\textit{626}).}\label{fig:laser-transitions}
+\caption{Vibrational transitions included in the amplification model. Wavelengths are given for natural \ce{CO2} isotopologue (\textit{626}).}\label{fig:laser-transitions}
 \end{figure}
 
 \subsection{Main equations}
@@ -781,7 +802,7 @@ Amplification is simulated in the fast time-frame moving with the pulse using th
 &\frac{\partial n_J}{\partial t} + \frac{n_J-n_J^0}{\tau _R} = 4(\rho _J E^* + c.c.),
 \end{aligned}
 \end{equation}
-where summation is done over all rotational-vibrational transitions of all {CO$_2$} isotopologues, and
+where summation is done over all rotational-vibrational transitions of all \ce{CO2} isotopologues, and
 
 $E$ - complex field envelope,
 
@@ -850,11 +871,11 @@ where pressure $P$ is measured in bars.
 
 
 \subsection{Populations}
-In the approximation used in the \texttt{co2amp} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, only the stimulated transitions contribute to the change of the populations of vibrational levels during the pulse.
+In the approximation used in the \textbf{\texttt{co2amp}} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, only the stimulated transitions contribute to the change of the populations of vibrational levels during the pulse.
 
 In the fast time-frame associated with the pulse there is no equilibrium in the vibrational energy distribution, and a proper population dynamics rather than the temperature model must be used. Thus, during the amplification, population of each rotational-vibrational level is considered independently. After the pulse leaves the active medium, the energy distribution within each vibrational mode becomes normalized quickly, and can be described by the temperature model again.
 
-An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all {CO$_2$} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic species of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
+An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all \ce{CO2} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic species of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
 
 Initial populations of vibrational levels are calculated for each isotopologue and for each band using the following equations:
 \begin{equation}\label{eq:Boltzman}
@@ -870,7 +891,7 @@ Initial populations of vibrational levels are calculated for each isotopologue a
 &N_{[11^10,03^10]_I}  = N_{[11^10,03^10]_{II}} =   \frac{N}{\mathcal{Q}} \exp\left(\frac{-3\times 960}{T_2}\right)
 \end{aligned}
 \end{equation}
-where $N$ is the density of {CO$_2$} molecules, and $\mathcal{Q}$ the partition function \cite{Witteman-1987}:
+where $N$ is the density of \ce{CO2} molecules, and $\mathcal{Q}$ the partition function \cite{Witteman-1987}:
 \begin{equation}
 \frac{1}{\mathcal{Q}} = \left(1-\exp\left(\frac{-1920}{T_2}\right)\right) \times \left(1-\exp\left(\frac{-3380}{T_3}\right)\right) \times \left(1-\exp\left(\frac{-960}{T_2}\right)\right)^2
 \end{equation}
@@ -912,13 +933,13 @@ Effective cross-sections are expressed in Å; their numerical values in the node
 
 The following notation for cross-sections is used:
 
-$Q_{m1}$ - Transport cross-section of {CO$_2$} \cite{Lowke-1973};
+$Q_{m1}$ - Transport cross-section of \ce{CO2} \cite{Lowke-1973};
 
-$Q_{m2}$ - Transport cross-section of {N$_2$} \cite{Frost-1962};
+$Q_{m2}$ - Transport cross-section of \ce{N2} \cite{Frost-1962};
 
 $Q_{m3}$ - Transport cross-section of He \cite{Lowke-1973};
 
-$Q$ - Cross-section of resonant excitation of {N$_2$} rotation  \cite{Oksyuk-1966,Chandra-1973};
+$Q$ - Cross-section of resonant excitation of \ce{N2} rotation  \cite{Oksyuk-1966,Chandra-1973};
 
 $Q_{11}$ - Cross-section of the process $(000)\rightarrow(01^10)$  \cite{Lowke-1973};
 
@@ -928,11 +949,11 @@ $Q_{13}...Q_{16}$ - Cross-sections of resonant processes around 3.8 eV  \cite{Lo
 
 $Q_{17}$ - Cross-section of the process $(000)\rightarrow(001)$  \cite{Lowke-1973};
 
-$Q_{18}...Q_{1,10}$ - Cross-sections of electronic excitation and ionization of {CO$_2$}  \cite{Hake-1967};
+$Q_{18}...Q_{1,10}$ - Cross-sections of electronic excitation and ionization of \ce{CO2}  \cite{Hake-1967};
 
-$Q_{21}...Q_{28}$ - Cross-sections of the process {N$_2$}$(v=0)\rightarrow${N$_2$}$(v=1...8)$ \cite{Phelps-1968,Schulz-1962,Engelhardt-1964};
+$Q_{21}...Q_{28}$ - Cross-sections of the process \ce{N2}$(v=0)\rightarrow$\ce{N2}$(v=1...8)$ \cite{Phelps-1968,Schulz-1962,Engelhardt-1964};
 
-$Q_{29}...Q_{2,15}$ - Cross-sections of electronic excitation and ionization of {N$_2$} \cite{Engelhardt-1964}. 
+$Q_{29}...Q_{2,15}$ - Cross-sections of electronic excitation and ionization of \ce{N2} \cite{Engelhardt-1964}. 
 
 \begin{table}
 \centering
@@ -1178,7 +1199,7 @@ $B([11^{1f}0,03^{1f}0]_{II})$ & 0.011723 & 0.011055 & 0.010417 & 0.011733 & 0.01
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'626'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'626'} \ce{CO2}, s$^{-1}$}
 \label{table:A626}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1253,7 +1274,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'628'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'628'} \ce{CO2}, s$^{-1}$}
 \label{table:A628}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1328,7 +1349,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'828'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'828'} \ce{CO2}, s$^{-1}$}
 \label{table:A828}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1403,7 +1424,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'636'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'636'} \ce{CO2}, s$^{-1}$}
 \label{table:A636}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1478,7 +1499,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'638'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'638'} \ce{CO2}, s$^{-1}$}
 \label{table:A638}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1553,7 +1574,7 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \begin{sidewaystable}
 \centering
-\caption{Einstein coefficients $A$ of laser transitions of \textit{'838'} {CO$_2$}, s$^{-1}$}
+\caption{Einstein coefficients $A$ of laser transitions of \textit{'838'} \ce{CO2}, s$^{-1}$}
 \label{table:A838}
 \scriptsize
 \begin{tabular}{|c|cccc|cccc|cccc|cccc|}
@@ -1629,93 +1650,112 @@ $J$ & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10R & 9P & 9R & 10P & 10
 
 \chapter{Properties of optical materials}
 \label{appendix:optical_constants}
-The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes and linear absorption ($\alpha_0$) are used in the program (wavelength $\lambda$ in the formulas must be expressed in {\textmu}m):
-
-\subsection*{AgBr}
-$n_0=\sqrt{3.860 + \frac{0.8677\lambda^2}{\lambda^2-0.3211^2} + \frac{21.61\lambda^2}{\lambda^2-254.2^2}}$ ($\lambda$ = 0.495--12.67~{\textmu}m) - Fit of data from \cite{Schroter-1931} and \cite{McCarthy-1973}\\
-\\
-$n_2 = 2.0\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
-
-\subsection*{AgCl}
-$n_0=\sqrt{4.00804+\frac{0.079086}{\lambda^2-0.04584}-0.00085111\lambda^2-0.00000019762\lambda^4}$ ($\lambda$ = 0.578--20.6~{\textmu}m) \cite{Tilton-1950}\\
-\\
-$n_2 = 1.7\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
-
-\subsection*{AMTIR1 (IRG 22)}
-$n_0=\sqrt{3.4834+\frac{2.8203\lambda^2}{\lambda^2-0.1352}+\frac{0.9773\lambda^2}{\lambda^2-1420.7}}$ ($\lambda$ = 0.8--15.5~{\textmu}m) \cite{AMTIR1}
-
-\subsection*{BaF$_2$}
-$n_0=\sqrt{1.33973+\frac{0.81070\lambda^2}{\lambda^2-0.10065^2}+\frac{0.19652\lambda^2}{\lambda^2-29.87^2}+\frac{4.52469\lambda^2}{\lambda^2-53.82^2}}$ ($\lambda$ = 0.15--15~{\textmu}m) \cite{Li-1980}\\
-\\
-$n_2 = 1.7\times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}\\
-\\
-$\alpha_0 = 0.8 (e^{1.20(\lambda-8)}-1)$ m$^{-1}$ - Preliminary data
-
-\subsection*{CdTe}
-$n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ ($\lambda$ = 6--22~{\textmu}m) \cite{DeBell-1979}\\
-\\
-$n_2 = -2.95\times 10^{-17}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
-
-\subsection*{CsI}
-$n_0=\sqrt{1.27587+\frac{0.68689\lambda^2}{\lambda^2-0.130^2}+\frac{0.26090\lambda^2}{\lambda^2-0.147^2}+\frac{0.06256\lambda^2}{\lambda^2-0.163^2}+\frac{0.06527\lambda^2}{\lambda^2-0.177^2}+\frac{0.14991\lambda^2}{\lambda^2-0.185^2}+\frac{0.51818\lambda^2}{\lambda^2-0.206^2}+\frac{0.01918\lambda^2}{\lambda^2-0.218^2}+\frac{3.38229\lambda^2}{\lambda^2-161.29^2}}$ ($\lambda$ = 0.25--67~{\textmu}m) \cite{Li-1976}\\
-\\
-$n_2 = 1.2\times 10^{-19}$ m$^2$/W - Preliminary data
-
-\subsection*{GaAs}
-$n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ ($\lambda$ = 0.97--17~{\textmu}m) \cite{Skauli-2003}\\
-\\
-$n_2 = -3.26\times 10^{-17}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
-
-\subsection*{Ge}
-$n_0=\sqrt{1+\frac{0.4886331\lambda^2}{\lambda^2-1.393959}+\frac{14.5142535\lambda^2}{\lambda^2-0.1626427}+\frac{0.0091224\lambda^2}{\lambda^2-752.190}}$ ($\lambda$ = 2--14~{\textmu}m) \cite{Burnett-2016}\\
-\\
-$n_2 = 2.83\times 10^{-17}$ m$^2$/W at 10.6 {\textmu}m \cite{Sheik-Bahae-1991}
-
-\subsection*{KBr}
-$n_0=\sqrt{1.39408+\frac{0.79221\lambda^2}{\lambda^2-0.146^2}+\frac{0.01981\lambda^2}{\lambda^2-0.173^2}+\frac{0.15587\lambda^2}{\lambda^2-0.187^2}+\frac{0.17673\lambda^2}{\lambda^2-60.61^2}+\frac{2.06217\lambda^2}{\lambda^2-87.72^2}}$ ($\lambda$ = 0.2--42~{\textmu}m) \cite{Li-1976}\\
-\\
-$n_2 = 4.3 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
-
-\subsection*{KCl}
-$n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ ($\lambda$ = 0.18--35~{\textmu}m) \cite{Li-1976}\\
-\\
-$n_2 = 3.4 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}
-
-\subsection*{NaCl}
-$n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$\\($\lambda$ = 0.2--30~{\textmu}m) \cite{Li-1976}\\
-\\
-$n_2 = 3.5 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021b}
-
-\subsection*{NaF}
-$n_0=\sqrt{1.0.41572+\frac{0.32785\lambda^2}{\lambda^2-0.117^2}+\frac{3.18248\lambda^2}{\lambda^2-40.57^2}}$ ($\lambda$ = 0.15--17~{\textmu}m) \cite{Li-1976}\\
-\\
-$n_2 = 0.6 \times 10^{-20}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data\\
-\\
-$\alpha_0 = 5.0 (e^{0.97(\lambda-8)}-1)$ m$^{-1}$ - Preliminary data
-
-\subsection*{Si}
-$n_0=3.41983+\frac{0.159906}{\lambda^2-0.028}-0.123109\left(\frac{1}{\lambda^2-0.028}\right)^2+1.26878\times 10^{-6}\lambda^2-1.95104\times 10^{-9}\lambda^4$\\($\lambda$ = 2.44--25~{\textmu}m) \cite{Edwards-1980}\\
-\\
-$n_2 = 1.0\times 10^{-17}$ m$^2$/W at 2.2 {\textmu}m \cite{Bristow-2007}
-
-\subsection*{SiO$_2$}
-$n_0=\sqrt{1+\frac{0.6961663\lambda^2}{\lambda^2-0.0684043^2}+\frac{0.4079426\lambda^2}{\lambda^2-0.1162414^2}+\frac{0.8974794\lambda^2}{\lambda^2-9.896161^2}}$ ($\lambda$ = 0.21--6.7~{\textmu}m) \cite{Malitson-1965}\\
-\\
-$n_2 = 3.29\times 10^{-20}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
-
-\subsection*{ZnS}
-$n_0=\sqrt{8.393+\frac{0.14383}{\lambda^2-0.2421^{2}}+\frac{4430.99}{\lambda^2-36.71^{2}}}$ ($\lambda$ = 0.405--13~{\textmu}m) \cite{Klein-1986}\\
-\\
-$n_2 = 2.5\times 10^{-19}$ m$^2$/W at 9.2 {\textmu}m - Preliminary data
-
-\subsection*{ZnSe}
-$n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ ($\lambda$ = 0.54--18.2~{\textmu}m) \cite{Tatian-1984}\\
-$n_2 = 2.87\times 10^{-18}$ m$^2$/W at 1.06 {\textmu}m \cite{Sheik-Bahae-1991}
+The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes and linear absorption ($\alpha_0$) are used in the program (wavelength $\lambda$ in the formulas must be expressed in \si{\micro\meter}):
 
 \subsection*{Air}
-Refractive index $n_0$ is calculated using Mathar's model for $\lambda$ = 7.5--14~{\textmu}m \cite{Mathar-2007}\\
+Refractive index $n_0$ is calculated using Mathar's model for \(\lambda\) = \SIrange{7.5}{14}{\micro\meter} \cite{Mathar-2007}\\
 \\
-$n_2 = 3\times 10^{-23}$ m$^2$/W at 9.2 {\textmu}m \cite{Polyanskiy-2021a}
+$n_2 = 3.0\times 10^{-23}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021a}
+
+\subsection*{AgBr}
+$n_0=\sqrt{3.860 + \frac{0.8677\lambda^2}{\lambda^2-0.3211^2} + \frac{21.61\lambda^2}{\lambda^2-254.2^2}}$ (\(\lambda\) = \SIrange{0.495}{12.67}{\micro\meter}) \cite{Polyanskiy-2023}\\
+\\
+$n_2 = 6.0\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{AgCl}
+$n_0=\sqrt{4.00804+\frac{0.079086}{\lambda^2-0.04584}-0.00085111\lambda^2-0.00000019762\lambda^4}$ (\(\lambda\) = \SIrange{0.578}{20.6}{\micro\meter}) \cite{Tilton-1950}\\
+\\
+$n_2 = 4.8\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{\ce{BaF2}}
+$n_0=\sqrt{1.33973+\frac{0.81070\lambda^2}{\lambda^2-0.10065^2}+\frac{0.19652\lambda^2}{\lambda^2-29.87^2}+\frac{4.52469\lambda^2}{\lambda^2-53.82^2}}$ (\(\lambda\) = \SIrange{0.15}{15}{\micro\meter}) \cite{Li-1980}\\
+\\
+$n_2 = 1.7\times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}\\
+\\
+$\alpha_0 = 0.8 (e^{1.20(\lambda-8)}-1)$ m$^{-1}$ \cite{Polyanskiy-2023}
+
+\subsection*{CdTe}
+$n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ (\(\lambda\) = \SIrange{6}{22}{\micro\meter}) \cite{DeBell-1979}\\
+\\
+$n_2 = -2.95\times 10^{-17}$ m$^2$/W at \SI{1.06}{\micro\meter} \cite{Sheik-Bahae-1991}
+
+\subsection*{CsI}
+$n_0=\sqrt{1.27587+\frac{0.68689\lambda^2}{\lambda^2-0.130^2}+\frac{0.26090\lambda^2}{\lambda^2-0.147^2}+\frac{0.06256\lambda^2}{\lambda^2-0.163^2}+\frac{0.06527\lambda^2}{\lambda^2-0.177^2}+\frac{0.14991\lambda^2}{\lambda^2-0.185^2}+\frac{0.51818\lambda^2}{\lambda^2-0.206^2}+\frac{0.01918\lambda^2}{\lambda^2-0.218^2}+\frac{3.38229\lambda^2}{\lambda^2-161.29^2}}$ (\(\lambda\)= \SIrange{0.25}{67}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 1.2\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{GaAs}
+$n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ (\(\lambda\)= \SIrange{0.97}{17}{\micro\meter}) \cite{Skauli-2003}\\
+\\
+$n_2 = 7.5\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{Ge}
+$n_0=\sqrt{1+\frac{0.4886331\lambda^2}{\lambda^2-1.393959}+\frac{14.5142535\lambda^2}{\lambda^2-0.1626427}+\frac{0.0091224\lambda^2}{\lambda^2-752.190}}$ (\(\lambda\)= \SIrange{2}{14}{\micro\meter}) \cite{Burnett-2016}\\
+\\
+$n_2 = 4.0\times 10^{-17}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG22 (AMTIR1)}
+$n_0=\sqrt{3.4834+\frac{2.8203\lambda^2}{\lambda^2-0.1352}+\frac{0.9773\lambda^2}{\lambda^2-1420.7}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG22}\\
+\\
+$n_2 = 1.4\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG24}
+$n_0=\sqrt{3.8965+\frac{2.9567\lambda^2}{\lambda^2-0.1620}+\frac{0.9461\lambda^2}{\lambda^2-1939.1}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG24}\\
+\\
+$n_2 = 2.5\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG25}
+$n_0=\sqrt{3.7574+\frac{3.0990\lambda^2}{\lambda^2-0.1596}+\frac{1.6660\lambda^2}{\lambda^2-2045.5}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG25}\\
+\\
+$n_2 = 2.3\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{KBr}
+$n_0=\sqrt{1.39408+\frac{0.79221\lambda^2}{\lambda^2-0.146^2}+\frac{0.01981\lambda^2}{\lambda^2-0.173^2}+\frac{0.15587\lambda^2}{\lambda^2-0.187^2}+\frac{0.17673\lambda^2}{\lambda^2-60.61^2}+\frac{2.06217\lambda^2}{\lambda^2-87.72^2}}$ (\(\lambda\)= \SIrange{0.2}{42}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 4.3 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{KCl}
+$n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ (\(\lambda\)= \SIrange{0.18}{35}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 3.4 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}
+
+\subsection*{KRS5}
+$n_0=\sqrt{1+\frac{1.8293958\lambda^2}{\lambda^2-0.0225}+\frac{1.6675593\lambda^2}{\lambda^2-0.0625}+\frac{1.1210424\lambda^2}{\lambda^2-0.1225}+\frac{0.04513366\lambda^2}{\lambda^2-0.2025}+\frac{12.380234\lambda^2}{\lambda^2-27089.737}}$ (\(\lambda\)= \SIrange{0.577}{39.4}{\micro\meter}) \cite{Rodney-1956}\\
+\\
+$n_2 = 9.0 \times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{NaCl}
+$n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$ (\(\lambda\)= \SIrange{0.2}{30}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 3.5 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}
+
+\subsection*{NaF}
+$n_0=\sqrt{1.41572+\frac{0.32785\lambda^2}{\lambda^2-0.117^2}+\frac{3.18248\lambda^2}{\lambda^2-40.57^2}}$ (\(\lambda\)= \SIrange{0.15}{17}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 6.0 \times 10^{-21}$ m$^2$/W at \SI{9.2}{\micro\meter} at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}\\
+\\
+$\alpha_0 = 5.0 (e^{0.97(\lambda-8)}-1)$ m$^{-1}$ \cite{Polyanskiy-2023}
+
+\subsection*{Si}
+$n_0=3.41983+\frac{0.159906}{\lambda^2-0.028}-0.123109\left(\frac{1}{\lambda^2-0.028}\right)^2+1.26878\times 10^{-6}\lambda^2-1.95104\times 10^{-9}\lambda^4$ (\(\lambda\)= \SIrange{2.44}{25}{\micro\meter}) \cite{Edwards-1980}\\
+\\
+$n_2 = 1.2\times 10^{-17}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{\ce{SiO2}}
+$n_0=\sqrt{1+\frac{0.6961663\lambda^2}{\lambda^2-0.0684043^2}+\frac{0.4079426\lambda^2}{\lambda^2-0.1162414^2}+\frac{0.8974794\lambda^2}{\lambda^2-9.896161^2}}$ (\(\lambda\)= \SIrange{0.21}{6.7}{\micro\meter}) \cite{Malitson-1965}\\
+\\
+$n_2 = 3.29\times 10^{-20}$ m$^2$/W at \SI{1.06}{\micro\meter} \cite{Sheik-Bahae-1991}
+
+\subsection*{ZnS}
+$n_0=\sqrt{8.393+\frac{0.14383}{\lambda^2-0.2421^{2}}+\frac{4430.99}{\lambda^2-36.71^{2}}}$ (\(\lambda\)= \SIrange{0.405}{13}{\micro\meter}) \cite{Klein-1986}\\
+\\
+$n_2 = 4.0\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{ZnSe}
+$n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ (\(\lambda\)= \SIrange{0.54}{18.2}{\micro\meter}) \cite{Tatian-1984}\\
+\\
+$n_2 = 6.5\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
 
 
 \chapter{Selected formulas explained}
@@ -1742,9 +1782,9 @@ Pumping rate constant is the number of quanta added to a given vibrational mode 
 \begin{equation*}
 p_e = \frac{1}{E_v[\text{J}]} \times \frac{1}{N[\text{cm}^{-3}] n[\text{-}] y[\text{-}]} \times q[\text{-}] W[\text{J}\cdot \text{s}^{-1} \cdot \text{cm}^{-3}]
 \end{equation*}
-where $E_v$ is the energy of the vibrational quanta: 4.665e-20~J (2349~{cm$^{-1}$}) for $\nu_3$ mode of {CO$_2$} (and roughly same for {N$_2$} vibration), and  1.325e-20 J (667 {cm$^{-1}$}) for $\nu_2$ mode; $N$=2.7e19 {cm$^{-3}$} is the density of gas molecules under normal conditions (1~bar, 273~K); $q$ is the fraction of discharge energy deposited in the corresponding vibration; $n$ is the correction factor for molecular density at the conditions different from 'normal'; $y$ is the relative concentration of the gas in the mixture; $W$ is the discharge power density.
+where $E_v$ is the energy of the vibrational quanta: 4.665e-20~J (2349~{cm$^{-1}$}) for $\nu_3$ mode of \ce{CO2} (and roughly same for \ce{N2} vibration), and  1.325e-20 J (667 {cm$^{-1}$}) for $\nu_2$ mode; $N$=2.7e19 {cm$^{-3}$} is the density of gas molecules under normal conditions (1~bar, 273~K); $q$ is the fraction of discharge energy deposited in the corresponding vibration; $n$ is the correction factor for molecular density at the conditions different from 'normal'; $y$ is the relative concentration of the gas in the mixture; $W$ is the discharge power density.
 
-Combining the constants and switching to kW/cm$^3$ for power density and {{\textmu}s$^{-1}$} for the rate constants we get the formulas given in the model description:
+Combining the constants and switching to kW/cm$^3$ for power density and \si{\micro\second^{-1}} for the rate constants we get the formulas given in the model description:
 
 \begin{equation*}
 p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);
