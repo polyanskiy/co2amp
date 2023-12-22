@@ -1,26 +1,32 @@
 # Configuration YAML file, type F
 # - Spatial filter -
-# template v.2020-05-25
+# template v.2023-12-22
 
 # Semi-diameter of the limiting aperture, m
 semiDia: 25e-3
 
-# Filter type (ND/MASK/SIN/GAUSS/FREEFORM)
+# Filter type (ND/APERTURE/MASK/SIN/GAUSS/FREEFORM)
 filter: SIN
 
 # if filter == ND: transmittance (0...1)
 #T: 0.75
 
-# if filter == MASK: mask radius, m
-#r_min: 10e-3
+# if filter == APERTURE: aperture radius, m
+# APERTURE is useful when we don't want to resample the beam (keep semiDia)
+#R: 10e-3
+
+# if filter == MASK: mask (opaque disk) radius, m
+#R: 10e-3
 
 # if filter == SIN: distance from center where transmittance starts to decrease, m
-# (transmittance becomes 0 at r_max
-r_min: 10e-3
+# and width of the ring were transmittance decreases (transmittance becomes 0 at R+w)
+# if w is omitted, it's calculated as semiDia-R (transmittance becomes 0 at semiDia)
+R: 10e-3
+w: 10e-3
 
 # if filter == GAUSS: distance from center where transmittance starts to decrease, m
 # and half-width of the Gaussian
-#r_min: 0
+#R: 0
 #w: 15e-3
 
 # if filter = FREEFORM: tabulated transmittance profile

@@ -11,7 +11,7 @@ F::F(std::string id)
 
     std::string value="";
 
-    // r_max (semiDia)
+    // r_max (semiDia) - note the difference between the user interface- and internal- notation
     if(!YamlGetValue(&value, yaml, "semiDia"))
     {
         configuration_error = true;
@@ -47,45 +47,80 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "MASK")
+    // APERTURE is useful when we don't want to resample the beam (keep semiDia)
+    if(filter == "APERTURE")
     {
-        if(!YamlGetValue(&value, yaml, "r_min"))
+        if(!YamlGetValue(&value, yaml, "R"))
         {
             configuration_error = true;
             return;
         }
-        double r_min = std::stod(value);
-        Debug(2, "r_min = " + toExpString(r_min) + " m");
+        double R = std::stod(value);
+        Debug(2, "R = " + toExpString(R) + " m");
         for(int x=0; x<x0; x++)
-            Transmittance[x] = Dr*(0.5+x)<=r_min ? 0 : 1;
+            Transmittance[x] = Dr*(0.5+x)<=R ? 1 : 0;
+        WriteTransmittanceFile();
+        return;
+    }
+
+    if(filter == "MASK")
+    {
+        if(!YamlGetValue(&value, yaml, "R"))
+        {
+            configuration_error = true;
+            return;
+        }
+        double R = std::stod(value);
+        Debug(2, "R = " + toExpString(R) + " m");
+        for(int x=0; x<x0; x++)
+            Transmittance[x] = Dr*(0.5+x)<=R ? 0 : 1;
         WriteTransmittanceFile();
         return;
     }
 
     if(filter == "SIN")
     {
-        if(!YamlGetValue(&value, yaml, "r_min"))
+        if(!YamlGetValue(&value, yaml, "R"))
         {
             configuration_error = true;
             return;
         }
-        double r_min = std::stod(value);
-        Debug(2, "r_min = " + toExpString(r_min) + " m");
+        double R = std::stod(value);
+        Debug(2, "R = " + toExpString(R) + " m");
+
+        double w = r_max-R;
+        if(YamlGetValue(&value, yaml, "w"))
+            w = std::stod(value);
+        Debug(2, "w = " + toExpString(w) + " m");
+
         for(int x=0; x<x0; x++)
-            Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
+        {
+            //Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
+            if(Dr*(0.5+x)<=R)
+                Transmittance[x] = 1;
+            else
+            {
+                if(Dr*(0.5+x)>R+w)
+                    Transmittance[x] = 0;
+                else
+                    Transmittance[x] = pow(sin(M_PI*(R+w-Dr*(0.5+x))/(2.0*w)),2);
+            }
+
+
+        }
         WriteTransmittanceFile();
         return;
     }
 
     if(filter == "GAUSS")
     {
-        if(!YamlGetValue(&value, yaml, "r_min"))
+        if(!YamlGetValue(&value, yaml, "R"))
         {
             configuration_error = true;
             return;
         }
-        double r_min = std::stod(value);
-        Debug(2, "r_min = " + toExpString(r_min) + " m");
+        double R = std::stod(value);
+        Debug(2, "R = " + toExpString(R) + " m");
         if(!YamlGetValue(&value, yaml, "w"))
         {
             configuration_error = true;
@@ -94,7 +129,7 @@ F::F(std::string id)
         double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
         for(int x=0; x<x0; x++)
-            Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : exp(-2.0*pow((Dr*(0.5+x)-r_min)/w,2));
+            Transmittance[x] = Dr*(0.5+x)<=R ? 1 : exp(-2.0*pow((Dr*(0.5+x)-R)/w,2));
         WriteTransmittanceFile();
         return;
     }
