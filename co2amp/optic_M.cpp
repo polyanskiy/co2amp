@@ -196,6 +196,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     double tilt_factor = cos(tilt)/cos(refr);   // intensity reduction due to tilt
     double th = thickness / cos(refr) / slices; // effective thickness of a slice
     double B_integral = 0;
+    double peak_intensity = 0;
 
     n2 = NonlinearIndex();
     /*
@@ -238,7 +239,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
         // find time position (n) of peak intensity
         if(x==0)
         {
-            double peak_intensity = 0;
+            //double peak_intensity = 0;
             for(int n=0; n<n0; n++)
             {
                 intensity = pow(abs(pulse->E[x][n]), 2); // arb. units
@@ -248,6 +249,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
                     n_peak = n;
                 }
             }
+            peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
         }
 
         // Pulse interaction with each slice
@@ -322,6 +324,10 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
     }
+
+    char formatted_intensity[50];
+    snprintf(formatted_intensity, sizeof(formatted_intensity), "%.2e", peak_intensity);
+    Debug(1, "Peak input intensity(" + plane->optic->id + ") = " + formatted_intensity + " W/m^2 (beam center, peak power)");
     Debug(1, "B_integral(" + plane->optic->id + ") = " + std::to_string(B_integral) + " radians (beam center, peak power)");
 }
 
