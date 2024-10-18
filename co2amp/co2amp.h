@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <cstring>
 #include <vector>
 #include <cmath>
 #include <complex>

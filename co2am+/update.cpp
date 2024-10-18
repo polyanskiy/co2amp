@@ -55,10 +55,14 @@ void MainWindow::Update()
                                                    && current_config_file < config_file_count-1);
 
     ///////////////////////////////// CALCULATION GRID //////////////////////////////////
+    ///
+    label_um->setText(QString::number(2.99792458e14/lineEdit_v0->text().toDouble())); // wl[um] = c[m/s] / nu[Hz] * 1e6
     double delta_t = (lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble())/comboBox_precision_t->currentText().toDouble();
     double delta_v = 1.0/(lineEdit_t_max->text().toDouble()-lineEdit_t_min->text().toDouble());
-    label_deltas->setText("(Δt = " + QString::number(delta_t) + " s;   Δν = " + QString::number(delta_v) + " Hz)");
-    label_um->setText("(λ = " + QString::number(2.99792458e14/lineEdit_v0->text().toDouble()) + " µm)"); // wl[um] = c[m/s] / nu[Hz] * 1e6
+    label_delta_t->setText(QString::number(delta_t));
+    label_delta_v->setText(QString::number(delta_v));
+    label_v_min->setText(QString::number(lineEdit_v0->text().toDouble() - 0.5/delta_t));
+    label_v_max->setText(QString::number(lineEdit_v0->text().toDouble() + 0.5/delta_t));
     tmp_precision_t = comboBox_precision_t->currentIndex();
     tmp_precision_r = comboBox_precision_r->currentIndex();
     groupBox_grid->setDisabled(flag_calculating);

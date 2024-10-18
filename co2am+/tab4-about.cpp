@@ -2,7 +2,7 @@
 
 void MainWindow::SetAboutText()
 {
-    QString co2amplus_version = "2023-11-30";
+    QString co2amplus_version = "2024-10-16";
 
     // get co2amp version string
     process = new QProcess(this);
@@ -12,10 +12,10 @@ void MainWindow::SetAboutText()
     delete process;
 
     QString path_to_manual =
-            QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp2020.pdf");
+            QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/doc/co2amp.pdf");
 
     QString about =
-            "<h1>co2amp 2020</h1><br>"
+            "<h1>co2amp</h1><br>"
             "<b>Versions</b>"
             "<ul style=\"list-style-type:none\">"
             "<li><code>co2amp: v." + co2amp_version + "</code></li>"
