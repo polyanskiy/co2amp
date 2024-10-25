@@ -131,12 +131,23 @@ void MainWindow::LoadProject()
 
 void MainWindow::ClearWorkDir()
 {
-    QDir dir;
-    dir.setPath(work_dir);
-    QStringList filelist = dir.entryList();
+    // remove all files from work_dir
+    QDir workDir(work_dir);
+    QStringList filelist = workDir.entryList();
     int i;
     for(i=0; i<filelist.size(); i++)
-        dir.remove(filelist[i]);
+        workDir.remove(filelist[i]);
+}
+
+
+void MainWindow::CopyHitranFilesToWorkDir()
+{
+    QDir workDir(work_dir);
+    QDir hitranDir(QDir(QFileInfo(path_to_co2amp).absolutePath()).filePath("hitran_data"));
+    QStringList filelist = hitranDir.entryList(QStringList() << "*.par", QDir::Files);
+    int i;
+    for(i=0; i<filelist.size(); i++)
+        QFile::copy(hitranDir.absoluteFilePath(filelist[i]), workDir.absoluteFilePath(filelist[i]));
 }
 
 

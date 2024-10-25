@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20241016_setup.exe"
+OutFile "co2amp_v.20241025_setup.exe"
 Unicode True
 
 ;Default install path
@@ -58,6 +58,8 @@ Section "Section_01" Sec01
   File "templates\*.yml"
   SetOutPath "$INSTDIR\examples"
   File "examples\*.co2"
+  SetOutPath "$INSTDIR\hitran_data"
+  File "hitran_data\*.*"
   SetOutPath "$INSTDIR"
   ;co2amp
   File "co2amp\release\co2amp.exe"

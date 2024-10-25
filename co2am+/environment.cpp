@@ -3,7 +3,7 @@
 
 void MainWindow::FindExternalPrograms()
 {
-    path_to_co2amp    = QStandardPaths::findExecutable("co2amp");
+    path_to_co2amp  = QStandardPaths::findExecutable("co2amp");
     path_to_7zip    = QStandardPaths::findExecutable("7z");
     path_to_gnuplot = QStandardPaths::findExecutable("gnuplot");
 

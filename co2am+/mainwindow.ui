@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>651</width>
+    <width>652</width>
     <height>817</height>
    </rect>
   </property>
@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::TabShape::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -1717,8 +1717,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>369</width>
-             <height>750</height>
+             <width>362</width>
+             <height>742</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_15">

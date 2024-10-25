@@ -6,11 +6,16 @@
 #include <fstream>
 #include <regex>
 #include <cstring>
+#include <array>
 #include <vector>
+#include <set>
 #include <cmath>
 #include <complex>
 #include <omp.h>
 #include "hdf5_hl.h"
+#include <filesystem>
+#include <unordered_map>
+#include <string>
 
 #define I std::complex<double>(0,1)
 
@@ -80,6 +85,7 @@ private:
     bool band_reg;
     bool band_seq;
     bool band_hot;
+    bool band_4um;
     // ------- PUMPING -------
     std::string pumping; // pumping type ("discharge" or "optical")
     std::vector<double> discharge_time;
@@ -97,9 +103,15 @@ private:
     double p_626, p_628, p_828, p_636, p_638, p_838;
     double T0;
     // ------- SPECTROSCOPY -------
-    double nop[6][4][3][61];   // normalized populations
-    double v[6][4][4][61];     // transition frequencies, Hz
-    double sigma[6][4][4][61]; // transition cross-sections, m^2
+    // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...59
+    double nop[6][16][60];        // normalized populations
+    std::vector<double> v[6];     // transition frequencies, Hz
+    std::vector<double> sigma[6]; // transition cross-sections, m^2
+    std::vector<int> vl_up[6];    // upper vibrational level of the transition (see initialization for numbering)
+    std::vector<int> vl_lo[6];    // lower vibrational level of the transition
+    std::vector<int> j_up[6];     // rotational quantum number of the upper level of the transition
+    std::vector<int> j_lo[6];     // rotational quantum number of the lower level of the transition
+
     // ------- BOLTZMANN -------
     int b0;
     double E_over_N;

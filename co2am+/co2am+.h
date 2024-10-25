@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void LoadProject();
         void NewProject();
         void ClearWorkDir();
+        void CopyHitranFilesToWorkDir();
         bool SaveBeforeClose();
         void InvalidateResults();
         bool CalcResultsExist();

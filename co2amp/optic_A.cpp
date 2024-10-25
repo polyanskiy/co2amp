@@ -254,6 +254,7 @@ A::A(std::string id)
     band_reg = true;
     band_seq = true;
     band_hot = true;
+    band_4um = false;
 
     if(!YamlGetValue(&value, yaml, "band_reg"))
     {
@@ -297,6 +298,20 @@ A::A(std::string id)
     if(value=="false")
         band_hot = false;
 
+    if(!YamlGetValue(&value, yaml, "band_4um"))
+    {
+        // do nothing - don't ues 4um band if not called explicitly
+        // default band_4um = false;
+    }
+    else if(value!="true" && value!="false")
+    {
+        configuration_error = true;
+        std::cout << "ERROR: Wrong \'band_4um\' parameter (must be \"true\" or \"false\")\n";
+        return;
+    }
+    if(value=="true")
+        band_4um = true;
+
     Debug(2, "Bands included in calculations:");
     std::string truefalse;
     truefalse = (band_reg ? +"true" : +"false");
@@ -305,6 +320,8 @@ A::A(std::string id)
     Debug(2, "band_seq: " + truefalse);
     truefalse = (band_hot ? +"true" : +"false");
     Debug(2, "band_hot: " + truefalse);
+    truefalse = (band_4um ? +"true" : +"false");
+    Debug(2, "band_4um: " + truefalse);
 
     // ------- MISC INITIALISATIONS -------
     // allocate memory
