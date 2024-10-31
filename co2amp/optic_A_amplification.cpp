@@ -57,8 +57,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
         int vl;
         int j;  // rotational quantum number
-        double Nvib[6][16], Nvib0[6][16];             // Population densities of vibrational lelvels (actual and equilibrium)
-        double Nrot[6][16][60];                        // Population densities of rotational lelvels (actual)
+        double Nvib[6][18], Nvib0[6][18];             // Population densities of vibrational lelvels (actual and equilibrium)
+        double Nrot[6][18][60];                        // Population densities of rotational lelvels (actual)
         std::vector<double> Dn[6];                    // Population inversions (rotational transitions)
         std::vector<std::complex<double>> rho[6];     // Polarizations
         std::complex<double> E_in;                    // input field (before ampliifcation)
@@ -71,36 +71,39 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         {
             // Vibrational level population densities in thermal equilibrium - see Witteman p. 71 and Nevdakh 2007
             double Q = 1 / ( (1-exp(-1920/Temp2))*pow(1-exp(-960/Temp2),2)*(1-exp(-3380/Temp3)) ); // partition function
-            // reg, 4um-1, 4um-2
-            Nvib0[i][0]  = N[i]*exp(-3380/Temp3)/Q;                     // upper reg
-            Nvib0[i][1]  = N[i]*exp(-1920/Temp2)/Q;                     // lower reg 10 um     & lower 4um-1
-            Nvib0[i][2]  = Nvib0[i][1];                                 // lower reg  9 um     & lower 4um-2
-            // hot-e
-            Nvib0[i][3]  = N[i]*exp(-3380/Temp3)*exp(-960/Temp2)/Q;     // upper hot-e
-            Nvib0[i][4]  = N[i]*exp(-(1920+960)/Temp2)/Q;               // lower hot-e 10 um
-            Nvib0[i][5]  = Nvib0[i][4];                                 // lower hot-e  9 um
-            // hot-f
-            Nvib0[i][6]  = Nvib0[i][3];                                 // upper hot-f
-            Nvib0[i][7]  = Nvib0[i][4];                                 // lower hot-f 10 um
-            Nvib0[i][8]  = Nvib0[i][4];                                 // lower hot-f  9 um
-            // seq, 4um-1, 4um-2
-            Nvib0[i][9]  = N[i]*exp(-2*3380/Temp3)/Q;                   // upper seq
-            Nvib0[i][10] = N[i]*exp(-1920/Temp2)*exp(-3380/Temp3)/Q;    // lower seq 10 um     & upper 4um-1
-            Nvib0[i][11] = Nvib0[i][10];                                // lower seq  9 um     & upper 4um-2
-            // 4um-3
-            Nvib0[i][12] = N[i]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;   //                       upper 4um-3e
-            Nvib0[i][13] = N[i]*exp(-2*960/Temp2)/Q;                    //                       lower 4um-3e
-            Nvib0[i][14] = Nvib0[i][12];                                //                       upper 4um-3f
-            Nvib0[i][15] = Nvib0[i][13];                                //                       lower 4um-3f
+            // 001
+            Nvib0[i][0]  = N[i]*exp(-3380/Temp3)/Q; // upper reg
+            // 100 + 020
+            Nvib0[i][1]  = 2* N[i]*exp(-1920/Temp2)/Q;
+            Nvib0[i][2]  = Nvib0[i][1];
+            Nvib0[i][3]  = Nvib0[i][1];
+            Nvib0[i][4]  = Nvib0[i][1];
+            // 011
+            Nvib0[i][5]  = N[i]*exp(-(1920+960)/Temp2)/Q;  // upper hot-e
+            Nvib0[i][6]  = Nvib0[i][5];                    // upper hot-f
+            // 110 + 030
+            Nvib0[i][7]  = 2* N[i]*exp(-3380/Temp3)*exp(-960/Temp2)/Q;
+            Nvib0[i][8]  = Nvib0[i][7];
+            Nvib0[i][9]  = Nvib0[i][7];
+            Nvib0[i][10] = Nvib0[i][7];
+            Nvib0[i][11] = Nvib0[i][7];
+            Nvib0[i][12] = Nvib0[i][7];
+            // 002
+            Nvib0[i][13] = N[i]*exp(-2*3380/Temp3)/Q; // upper seq
+            // 101 + 021
+            Nvib0[i][14] = 2* N[i]*exp(-1920/Temp2)*exp(-3380/Temp3)/Q;
+            Nvib0[i][15] = Nvib0[i][14];
+            Nvib0[i][16] = Nvib0[i][14];
+            Nvib0[i][17] = Nvib0[i][14];
 
-            for(vl=0; vl<16; vl++)
+            for(vl=0; vl<18; ++vl)
             {
                 Nvib[i][vl] = Nvib0[i][vl]; // initial population densities of vibrational levels
-                for(j=0; j<60; j++)
+                for(j=0; j<60; ++j)
                     Nrot[i][vl][j] = nop[i][vl][j] * Nvib[i][vl]; // initial population densities of rotational sub-levels
             }
 
-            for(int i=0; i<6; i++)
+            for(int i=0; i<6; ++i)
             {
                 for(int tr=0; tr<n_transitions[i]; ++tr)
                 {
@@ -172,7 +175,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     continue;
 
                 // ROTATIONAL REFILL (half-step 1)
-                for(vl=0; vl<16; ++vl)
+                for(vl=0; vl<18; ++vl)
                 {
                     for(j=0; j<60; ++j)
                     {
@@ -196,7 +199,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
 
                 // ROTATIONAL REFILL (half-step 2)
-                for(vl=0; vl<16; vl++)
+                for(vl=0; vl<18; vl++)
                 {
                     for(j=0; j<60; ++j)
                     {
