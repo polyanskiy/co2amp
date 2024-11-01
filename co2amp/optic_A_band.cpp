@@ -40,11 +40,11 @@ void A::AmplificationBand(void)
     // |                               1 1 0 + 0 3 0                               |
     // |                                                                           |
     // |  7 | 11^10(1)e |   u    |  3/16  | 7,8,9,10: lower levels of hot bands    |
-    // |  8 | 11^10(1)f |   u    |  3/16  | 11,12: not currently included in       |
-    // |  9 | 11^10(2)e |   u    |  3/16  |        the amplification model         |
+    // |  8 | 11^10(2)e |   u    |  3/16  | 11,12: not currently included in       |
+    // |  9 | 11^10(1)f |   u    |  3/16  |        the amplification model         |
     // | 10 | 11^10(2)f |   u    |  3/16  |                                        |
-    // | 11 | 03^30(1)e |   u    |  1/8   | 7 & 9:  mixed [11^10e, 03^10e] levels  |
-    // | 12 | 03^30(1)f |   u    |  1/8   | 8 & 10: mixed [11^10f, 03^10f] levels  |
+    // | 11 | 03^30(1)e |   u    |  1/8   | 7 & 8:  mixed [11^10e, 03^10e] levels  |
+    // | 12 | 03^30(1)f |   u    |  1/8   | 9 & 10: mixed [11^10f, 03^10f] levels  |
     // |---------------------------------------------------------------------------|
     // |                                   0 0 2                                   |
     // |                                                                           |
@@ -65,8 +65,8 @@ void A::AmplificationBand(void)
     // |  0 | 00^01(1) -> 10^00(1) |    0 -> 1       | reg 10 um   |
     // |  1 | 00^01(1) -> 10^00(2) |    0 -> 2       | reg  9 um   |
     // |  2 | 01^11(1) -> 11^10(1) |    5 -> 7  (e)  | hot 10 um   |
-    // |    |                      |    6 -> 8  (f)  | "           |
-    // |  3 | 01^11(1) -> 11^10(2) |    5 -> 9  (e)  | hot  9 um   |
+    // |    |                      |    6 -> 9  (f)  | "           |
+    // |  3 | 01^11(1) -> 11^10(2) |    5 -> 8  (e)  | hot  9 um   |
     // |    |                      |    6 -> 10 (f)  | "           |
     // |  4 | 00^02(1) -> 10^01(1) |   13 -> 14      | seq 10 um   |
     // |  5 | 00^02(1) -> 10^01(2) |   13 -> 15      | seq  9 um   |
@@ -242,14 +242,14 @@ void A::AmplificationBand(void)
                     else //f
                     {
                         vl_up[i].push_back(6);
-                        vl_lo[i].push_back(8);
+                        vl_lo[i].push_back(9);
                     }
                     break;
                 case 3: // hot 9 um
                     if(ef == 'e')
                     {
                         vl_up[i].push_back(5);
-                        vl_lo[i].push_back(9);
+                        vl_lo[i].push_back(8);
                     }
                     else //f
                     {

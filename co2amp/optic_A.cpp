@@ -300,8 +300,7 @@ A::A(std::string id)
 
     if(!YamlGetValue(&value, yaml, "band_4um"))
     {
-        // do nothing - don't ues 4um band if not called explicitly
-        // default band_4um = false;
+        value = false;
     }
     else if(value!="true" && value!="false")
     {

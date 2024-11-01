@@ -16,17 +16,18 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational termalisation time, s
+    double gamma = 1.0/T2;   // Lorentzian HWHM (for gain spectrum calculation)
 
-    // Pre-calculate exponents to accelerate calculations
-    double exp_tauR = exp(-Dt/tauR/2.0); // half-step
-    double exp_T2 = exp(-Dt/T2/2.0); // half-step
-
+    // number of ro-vibrational transitions extracted from HITRAN files
     int n_transitions[6];
     for(int i=0; i<6; ++i)
     {
-        n_transitions[i] = vl_up[i].size();
+        n_transitions[i] = v[i].size();
     }
 
+    // Pre-calculate re-usable expressios to accelerate computations
+    double exp_tauR = exp(-Dt/tauR/2.0); // half-step
+    double exp_T2 = exp(-Dt/T2/2.0); // half-step
     std::vector<std::complex<double>> exp_phase[6]; // half-step
     for(int i=0; i<6; i++)
     {
@@ -36,7 +37,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         }
     }
 
-    double gamma = 1.0/T2;   // Lorentzian HWHM (for gain spectrum calculation)
     // initialize/clear gain spectrum array
     for(int n=0; n<n0; n++)
         gainSpectrum[n] = 0;
@@ -55,16 +55,16 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
         }
         int i;  // isotopologue  number 0 - 626; 1 - 628; 2 - 828; 3 - 636; 4 - 638; 5 - 838
-        int vl;
+        int vl; // vibrational level number
         int j;  // rotational quantum number
         double Nvib[6][18], Nvib0[6][18];             // Population densities of vibrational lelvels (actual and equilibrium)
-        double Nrot[6][18][60];                        // Population densities of rotational lelvels (actual)
+        double Nrot[6][18][60];                       // Population densities of rotational lelvels (actual)
         std::vector<double> Dn[6];                    // Population inversions (rotational transitions)
         std::vector<std::complex<double>> rho[6];     // Polarizations
         std::complex<double> E_in;                    // input field (before ampliifcation)
         double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
         double Temp3 = VibrationalTemperatures(x, 3); // equilibrium vibrational temterature of nu3 mode
-        double delta;                                // change in population difference
+        double delta;                                 // change in population difference
 
         // Initial populations and polarizations
         for(i=0; i<6; i++)
@@ -103,13 +103,11 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     Nrot[i][vl][j] = nop[i][vl][j] * Nvib[i][vl]; // initial population densities of rotational sub-levels
             }
 
-            for(int i=0; i<6; ++i)
+
+            for(int tr=0; tr<n_transitions[i]; ++tr)
             {
-                for(int tr=0; tr<n_transitions[i]; ++tr)
-                {
-                    rho[i].push_back(0);
-                    Dn[i].push_back(0);
-                }
+                rho[i].push_back(0);
+                Dn[i].push_back(0);
             }
         }
 
@@ -220,29 +218,31 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
             // change of number of nu_3 quanta
             DeltaN_nu3 +=    Nvib[i][0]  - Nvib0[i][0]   + // 00^01(1)
-                             Nvib[i][3]  - Nvib0[i][3]   + // 01^11(1)e
+                             Nvib[i][5]  - Nvib0[i][5]   + // 01^11(1)e
                              Nvib[i][6]  - Nvib0[i][6]   + // 01^11(1)f
-                          2*(Nvib[i][9]  - Nvib0[i][9])  + // 00^02(1)
-                             Nvib[i][10] - Nvib0[i][10]  + // 10^01(1)
-                             Nvib[i][11] - Nvib0[i][11]  + // 10^01(2)
-                             Nvib[i][12] - Nvib0[i][12]  + // 02^21(1)e
-                             Nvib[i][14] - Nvib0[i][14];   // 02^21(1)f
+                          2*(Nvib[i][13] - Nvib0[i][13]) + // 00^02(1)
+                             Nvib[i][14] - Nvib0[i][14]  + // 10^01(1)
+                             Nvib[i][15] - Nvib0[i][15]  + // 10^01(2)
+                             Nvib[i][16] - Nvib0[i][16]  + // 02^21(1)e
+                             Nvib[i][17] - Nvib0[i][17];   // 02^21(1)f
 
             // change of number of nu_2 quanta (+ double the change of nu_1 quanta)
             DeltaN_nu2 += 2*(Nvib[i][1]  - Nvib0[i][1])  + // 10^00(1)
                           2*(Nvib[i][2]  - Nvib0[i][2])  + // 10^00(2)
-                             Nvib[i][3]  - Nvib0[i][3]   + // 01^11(1)e
-                          3*(Nvib[i][4]  - Nvib0[i][4])  + // 11^10(1)e
-                          3*(Nvib[i][5]  - Nvib0[i][5])  + // 11^10(2)e
+                          2*(Nvib[i][3]  - Nvib0[i][3])  + // 02^20(1)e
+                          2*(Nvib[i][4]  - Nvib0[i][4])  + // 02^20(1)f
+                             Nvib[i][5]  - Nvib0[i][5]   + // 01^11(1)e
                              Nvib[i][6]  - Nvib0[i][6]   + // 01^11(1)f
-                          3*(Nvib[i][7]  - Nvib0[i][7])  + // 11^10(1)f
-                          3*(Nvib[i][8]  - Nvib0[i][8])  + // 11^10(2)f
-                          2*(Nvib[i][10] - Nvib0[i][10]) + // 10^01(1)
-                          2*(Nvib[i][11] - Nvib0[i][11]) + // 10^01(2)
-                          2*(Nvib[i][12] - Nvib0[i][12]) + // 02^21(1)e
-                          2*(Nvib[i][13] - Nvib0[i][13]) + // 02^20(1)e
-                          2*(Nvib[i][14] - Nvib0[i][14]) + // 02^21(1)f
-                          2*(Nvib[i][15] - Nvib0[i][15]);  // 02^20(1)f
+                          3*(Nvib[i][7]  - Nvib0[i][7])  + // 11^10(1)e
+                          3*(Nvib[i][8]  - Nvib0[i][8])  + // 11^10(2)e
+                          3*(Nvib[i][9]  - Nvib0[i][9])  + // 11^10(1)f
+                          3*(Nvib[i][10] - Nvib0[i][10]) + // 11^10(2)f
+                          3*(Nvib[i][11] - Nvib0[i][11]) + // 03^30(1)e
+                          3*(Nvib[i][12] - Nvib0[i][12]) + // 03^30(1)f
+                          2*(Nvib[i][14] - Nvib0[i][14]) + // 10^01(1)
+                          2*(Nvib[i][15] - Nvib0[i][15]) + // 10^01(2)
+                          2*(Nvib[i][16] - Nvib0[i][16]) + // 02^21(1)e
+                          2*(Nvib[i][17] - Nvib0[i][17]);  // 02^21(1)f
         }
 
         // change of vibrational temerature
