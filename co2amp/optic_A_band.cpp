@@ -6,16 +6,31 @@ void A::AmplificationBand(void)
     //  DEFINITIONS
 
     //  Isotopologue numbers
-    //  ------------------
-    // | i | isotopologue |
-    // |---|--------------|
-    // | 0 |     626      |
-    // | 1 |     628      |
-    // | 2 |     828      |
-    // | 3 |     636      |
-    // | 4 |     638      |
-    // | 5 |     838      |
-    //  ------------------
+    //  -------------------------------
+    // | i  | isotopologue | HITRAN ID |
+    // |----|--------------|-----------|
+    // | 0  |     626      |     1     |
+    // | 1  |     727      |     9     |
+    // | 2  |     828      |     7     |
+    // | 3  |     636      |     2     |
+    // | 4  |     737      |     B     |
+    // | 5  |     838      |     0     |
+    // | 6  |     627      |     4     |
+    // | 7  |     628      |     3     |
+    // | 8  |     728      |     8     |
+    // | 9  |     637      |     6     |
+    // | 10 |     638      |     5     |
+    // | 11 |     738      |     A     |
+    //  -------------------------------
+
+    // isotopologue namas (for output only)
+    std::string isotopologue[12] =
+        {"626", "727", "828", "636", "737", "838", "627", "628", "728", "637", "638", "738"};
+
+    // map HITRAN isotopologue id's (0...B) to co2amp numbering (0...11)
+    char isot_map[12] =
+        { '1',   '9',   '7',   '2',   'B',   '0',   '4',   '3',   '8',   '6',   '5',   'A'};
+
 
     //  Vibrational levels
     //  ---------------------------------------------------------------------------
@@ -84,14 +99,20 @@ void A::AmplificationBand(void)
     // Rotational constants B, Hz
     // B[i][vl]
     // source: fit of HITRAN data
-    double B[6][18] = {
+    double B[12][18] = {
     // vl:  0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17
         {1.16E+10, 1.17E+10, 1.16E+10, 1.17E+10, 1.17E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.18E+10, 1.18E+10, 1.15E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.17E+10}, //626
-        {1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10}, //628
+        {1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.09E+10, 1.09E+10, 1.09E+10, 1.10E+10, 1.10E+10}, //727
         {1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.05E+10, 1.05E+10, 1.02E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10}, //828
         {1.16E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.18E+10, 1.17E+10, 1.17E+10, 1.18E+10, 1.18E+10, 1.15E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.17E+10}, //636
+        {1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.09E+10, 1.10E+10,        0,        0,        0,        0,        0,        0,        0, 1.09E+10, 1.09E+10, 1.10E+10, 1.10E+10}, //737
+        {1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.05E+10, 1.05E+10, 1.02E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10}, //838
+        {1.13E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.13E+10, 1.13E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.12E+10, 1.13E+10, 1.13E+10, 1.13E+10, 1.13E+10}, //627
+        {1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10}, //628
+        {1.06E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.06E+10, 1.06E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.08E+10, 1.08E+10, 1.05E+10, 1.06E+10, 1.06E+10, 1.07E+10, 1.07E+10}, //728
+        {1.13E+10, 1.13E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.13E+10, 1.13E+10, 1.13E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.14E+10, 1.12E+10, 1.13E+10, 1.13E+10, 1.13E+10, 1.13E+10}, //637
         {1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.11E+10, 1.09E+10, 1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10}, //638
-        {1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.04E+10, 1.05E+10, 1.05E+10, 1.02E+10, 1.03E+10, 1.03E+10, 1.04E+10, 1.04E+10}  //838
+        {1.06E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.06E+10, 1.06E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.07E+10, 1.08E+10, 1.08E+10,        0, 1.06E+10, 1.06E+10, 1.07E+10, 1.07E+10}  //738
     };
 
 
@@ -137,24 +158,15 @@ void A::AmplificationBand(void)
 
             // Isotopologue code in HITRAN
             char isot_id = line[2];
-            char isot_map[6] =
-                {
-                '1', // 626
-                '3', // 628
-                '7', // 828
-                '2', // 636
-                '5', // 638
-                '0'  // 838
-                };
             int i; // isotopologue number in co2amp
-            for (i = 0; i < 6; ++i)
+            for (i=0; i<12; ++i)
             {
                 if (isot_map[i] == isot_id)
                 {
                     break; // exit the loop if a match is found
                 }
             }
-            if(i == 6) // no match found => not one of the supported isotopologues
+            if(i == 12) // no match found => not one of the supported isotopologues
                 continue;
 
             // vibrational bands
@@ -217,10 +229,11 @@ void A::AmplificationBand(void)
                     j_up[i].push_back(J+1);
                     break;
                 case 'Q':
-                    if(J>59)
+                    continue; // ignore Q branch
+                    /*if(J>59)
                         continue;
                     j_lo[i].push_back(J);
-                    j_up[i].push_back(J);
+                    j_up[i].push_back(J);*/
                     break;
             }
 
@@ -306,7 +319,7 @@ void A::AmplificationBand(void)
 
             if(J==20)
             {
-                Debug(2, "Isot: " + std::to_string(i) +
+                Debug(2, "Isot: " + isotopologue[i] +
                             "; Band:" + Vup_id + " ->" + Vlo_id + " " + std::string(1,pqr) + std::to_string(J) + std::string(1,ef) +
                             "; freq = " + std::to_string(v[i].back()/1e12) + " THz" +
                             "; A = " + std::to_string(A) + " 1/s");
@@ -317,16 +330,15 @@ void A::AmplificationBand(void)
 
     // Normalized populations of rotational sublevels
     // nop[i][vl][j]
-    for(int i=0; i<6; ++i)
+    for(int i=0; i<12; ++i)
     {
         for(int vl=0; vl<18; ++vl)
         {
             // Chsrcteristics of vibraitonal levels
             //                vl: 0      1      2      3      4      5      6      7      8      9     10     11     12     13     14     15     16     17
             int l[18]         = { 0,     0,     0,     2,     2,     1,     1,     1,     1,     1,    1,     3,     3,     0,     0,     0,     2,     2    };
-            char parity[18]   = {'u',   'g',   'g',   'g',   'g',   'u',   'u',   'u',   'u',   'u',   'u',   'u',   'u',   'g',   'g',   'u',   'u',   'u'  };
-            char symmetry[18] = {'e',   'e',   'e',   'e',   'f',   'e',   'f',   'e',   'f',   'e',   'f',   'e',   'f',   'e',   'e',   'e',   'e',   'f'  };
-            double weight[18] = {1,     1.0/3, 1.0/3, 1.0/6, 1.0/6, 1.0/2, 1.0/2, 3.0/16,3.0/16,3.0/16,3.0/16,1.0/8, 1.0/8, 1,     1.0/3, 1.0/3, 1.0/6, 1.0/6};
+            char parity[18]   = {'u',   'g',   'g',   'g',   'g',   'g',   'g',   'u',   'u',   'u',   'u',   'u',   'u',   'g',   'u',   'u',   'u',   'u'  };
+            char symmetry[18] = {'e',   'e',   'e',   'e',   'f',   'e',   'f',   'e',   'e',   'f',   'f',   'e',   'f',   'e',   'e',   'e',   'e',   'f'  };
 
             //general expression for energy distribution between rotational sub-levels
             for(int j=0; j<60; ++j)
@@ -340,7 +352,7 @@ void A::AmplificationBand(void)
                 nop[i][vl][j] = 0;
             }
 
-            if(i!=1 && i!=4) // symmetric molecules (not 628 or 638) have forbidden rottational sub-levels
+            if(i<6) // symmetric molecules (626, 727, 828, 636, 737, 838) have forbidden rottational sub-levels
             {
                 if( (parity[vl]=='g' && symmetry[vl]=='e') || (parity[vl]=='u' && symmetry[vl]=='f') ) // only even J's populated
                 {
@@ -363,15 +375,6 @@ void A::AmplificationBand(void)
                     nop[i][vl][j] *= 2;
                 }
             }
-
-            // Apply statistical weight
-            for(int j=0; j<60; ++j)
-            {
-                nop[i][vl][j] *= weight[vl];
-            }
-
-
         }
     }
-
 }

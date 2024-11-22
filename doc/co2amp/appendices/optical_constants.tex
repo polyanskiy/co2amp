@@ -1,0 +1,107 @@
+\chapter{Properties of optical materials}
+\label{appendix:optical_constants}
+The following expressions and values for linear ($n_0$) and nonlinear ($n_2$) refractive indexes and linear absorption ($\alpha_0$) are used in the program (wavelength $\lambda$ in the formulas must be expressed in \si{\micro\meter}):
+
+\subsection*{Air}
+Refractive index $n_0$ is calculated using Mathar's model for \(\lambda\) = \SIrange{7.5}{14}{\micro\meter} \cite{Mathar-2007}\\
+\\
+$n_2 = 3.0\times 10^{-23}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021a}
+
+\subsection*{AgBr}
+$n_0=\sqrt{3.860 + \frac{0.8677\lambda^2}{\lambda^2-0.3211^2} + \frac{21.61\lambda^2}{\lambda^2-254.2^2}}$ (\(\lambda\) = \SIrange{0.495}{12.67}{\micro\meter}) \cite{Polyanskiy-2023}\\
+\\
+$n_2 = 6.0\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{AgCl}
+$n_0=\sqrt{4.00804+\frac{0.079086}{\lambda^2-0.04584}-0.00085111\lambda^2-0.00000019762\lambda^4}$ (\(\lambda\) = \SIrange{0.578}{20.6}{\micro\meter}) \cite{Tilton-1950}\\
+\\
+$n_2 = 4.8\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{\ce{BaF2}}
+$n_0=\sqrt{1.33973+\frac{0.81070\lambda^2}{\lambda^2-0.10065^2}+\frac{0.19652\lambda^2}{\lambda^2-29.87^2}+\frac{4.52469\lambda^2}{\lambda^2-53.82^2}}$ (\(\lambda\) = \SIrange{0.15}{15}{\micro\meter}) \cite{Li-1980}\\
+\\
+$n_2 = 1.7\times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}\\
+\\
+$\alpha_0 = 0.8 (e^{1.20(\lambda-8)}-1)$ m$^{-1}$ \cite{Polyanskiy-2023}
+
+\subsection*{CdTe}
+$n_0=\sqrt{1+\frac{6.1977889\lambda^2}{\lambda^2-0.1005326}+\frac{3.2243821\lambda^2}{\lambda^2-5279.518}}$ (\(\lambda\) = \SIrange{6}{22}{\micro\meter}) \cite{DeBell-1979}\\
+\\
+$n_2 = -2.95\times 10^{-17}$ m$^2$/W at \SI{1.06}{\micro\meter} \cite{Sheik-Bahae-1991}
+
+\subsection*{CsI}
+$n_0=\sqrt{1.27587+\frac{0.68689\lambda^2}{\lambda^2-0.130^2}+\frac{0.26090\lambda^2}{\lambda^2-0.147^2}+\frac{0.06256\lambda^2}{\lambda^2-0.163^2}+\frac{0.06527\lambda^2}{\lambda^2-0.177^2}+\frac{0.14991\lambda^2}{\lambda^2-0.185^2}+\frac{0.51818\lambda^2}{\lambda^2-0.206^2}+\frac{0.01918\lambda^2}{\lambda^2-0.218^2}+\frac{3.38229\lambda^2}{\lambda^2-161.29^2}}$ (\(\lambda\)= \SIrange{0.25}{67}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 1.2\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{GaAs}
+$n_0=\sqrt{5.372514+\frac{5.466742\lambda^2}{\lambda^2-0.4431307^2}+\frac{0.02429960\lambda^2}{\lambda^2-0.8746453^2}+\frac{1.957522\lambda^2}{\lambda^2-36.9166^2}}$ (\(\lambda\)= \SIrange{0.97}{17}{\micro\meter}) \cite{Skauli-2003}\\
+\\
+$n_2 = 7.5\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{Ge}
+$n_0=\sqrt{1+\frac{0.4886331\lambda^2}{\lambda^2-1.393959}+\frac{14.5142535\lambda^2}{\lambda^2-0.1626427}+\frac{0.0091224\lambda^2}{\lambda^2-752.190}}$ (\(\lambda\)= \SIrange{2}{14}{\micro\meter}) \cite{Burnett-2016}\\
+\\
+$n_2 = 4.0\times 10^{-17}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG22 (AMTIR1)}
+$n_0=\sqrt{3.4834+\frac{2.8203\lambda^2}{\lambda^2-0.1352}+\frac{0.9773\lambda^2}{\lambda^2-1420.7}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG22}\\
+\\
+$n_2 = 1.4\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG24}
+$n_0=\sqrt{3.8965+\frac{2.9567\lambda^2}{\lambda^2-0.1620}+\frac{0.9461\lambda^2}{\lambda^2-1939.1}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG24}\\
+\\
+$n_2 = 2.5\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{IRG25}
+$n_0=\sqrt{3.7574+\frac{3.0990\lambda^2}{\lambda^2-0.1596}+\frac{1.6660\lambda^2}{\lambda^2-2045.5}}$ (\(\lambda\)= \SIrange{0.8}{15.5}{\micro\meter}) \cite{IRG25}\\
+\\
+$n_2 = 2.3\times 10^{-18}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{KBr}
+$n_0=\sqrt{1.39408+\frac{0.79221\lambda^2}{\lambda^2-0.146^2}+\frac{0.01981\lambda^2}{\lambda^2-0.173^2}+\frac{0.15587\lambda^2}{\lambda^2-0.187^2}+\frac{0.17673\lambda^2}{\lambda^2-60.61^2}+\frac{2.06217\lambda^2}{\lambda^2-87.72^2}}$ (\(\lambda\)= \SIrange{0.2}{42}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 4.3 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{KCl}
+$n_0=\sqrt{1.26486+\frac{0.30523\lambda^2}{\lambda^2-0.100^2}+\frac{0.41620\lambda^2}{\lambda^2-0.131^2}+\frac{0.18870\lambda^2}{\lambda^2-0.162^2}+\frac{2.6200\lambda^2}{\lambda^2-70.42^2}}$ (\(\lambda\)= \SIrange{0.18}{35}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 3.4 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}
+
+\subsection*{KRS5}
+$n_0=\sqrt{1+\frac{1.8293958\lambda^2}{\lambda^2-0.0225}+\frac{1.6675593\lambda^2}{\lambda^2-0.0625}+\frac{1.1210424\lambda^2}{\lambda^2-0.1225}+\frac{0.04513366\lambda^2}{\lambda^2-0.2025}+\frac{12.380234\lambda^2}{\lambda^2-27089.737}}$ (\(\lambda\)= \SIrange{0.577}{39.4}{\micro\meter}) \cite{Rodney-1956}\\
+\\
+$n_2 = 9.0 \times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{NaCl}
+$n_0=\sqrt{1.00055+\frac{0.19800\lambda^2}{\lambda^2-0.050^2}+\frac{0.48398\lambda^2}{\lambda^2-0.100^2}+\frac{0.38696\lambda^2}{\lambda^2-0.128^2}+\frac{0.25998\lambda^2}{\lambda^2-0.158^2}+\frac{0.08796\lambda^2}{\lambda^2-40.50^2}+\frac{3.17064\lambda^2}{\lambda^2-60.98^2}+\frac{0.30038\lambda^2}{\lambda^2-120.34^2}}$ (\(\lambda\)= \SIrange{0.2}{30}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 3.5 \times 10^{-20}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2021b}
+
+\subsection*{NaF}
+$n_0=\sqrt{1.41572+\frac{0.32785\lambda^2}{\lambda^2-0.117^2}+\frac{3.18248\lambda^2}{\lambda^2-40.57^2}}$ (\(\lambda\)= \SIrange{0.15}{17}{\micro\meter}) \cite{Li-1976}\\
+\\
+$n_2 = 6.0 \times 10^{-21}$ m$^2$/W at \SI{9.2}{\micro\meter} at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}\\
+\\
+$\alpha_0 = 5.0 (e^{0.97(\lambda-8)}-1)$ m$^{-1}$ \cite{Polyanskiy-2023}
+
+\subsection*{Si}
+$n_0=3.41983+\frac{0.159906}{\lambda^2-0.028}-0.123109\left(\frac{1}{\lambda^2-0.028}\right)^2+1.26878\times 10^{-6}\lambda^2-1.95104\times 10^{-9}\lambda^4$ (\(\lambda\)= \SIrange{2.44}{25}{\micro\meter}) \cite{Edwards-1980}\\
+\\
+$n_2 = 1.2\times 10^{-17}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{\ce{SiO2}}
+$n_0=\sqrt{1+\frac{0.6961663\lambda^2}{\lambda^2-0.0684043^2}+\frac{0.4079426\lambda^2}{\lambda^2-0.1162414^2}+\frac{0.8974794\lambda^2}{\lambda^2-9.896161^2}}$ (\(\lambda\)= \SIrange{0.21}{6.7}{\micro\meter}) \cite{Malitson-1965}\\
+\\
+$n_2 = 3.29\times 10^{-20}$ m$^2$/W at \SI{1.06}{\micro\meter} \cite{Sheik-Bahae-1991}
+
+\subsection*{ZnS}
+$n_0=\sqrt{8.393+\frac{0.14383}{\lambda^2-0.2421^{2}}+\frac{4430.99}{\lambda^2-36.71^{2}}}$ (\(\lambda\)= \SIrange{0.405}{13}{\micro\meter}) \cite{Klein-1986}\\
+\\
+$n_2 = 4.0\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}
+
+\subsection*{ZnSe}
+$n_0=\sqrt{1+\frac{4.45813734\lambda^2}{\lambda^2-0.200859853^2}+\frac{0.467216334\lambda^2}{\lambda^2-0.391371166^2}+\frac{2.89566290\lambda^2}{\lambda^2-47.1362108^2}}$ (\(\lambda\)= \SIrange{0.54}{18.2}{\micro\meter}) \cite{Tatian-1984}\\
+\\
+$n_2 = 6.5\times 10^{-19}$ m$^2$/W at \SI{9.2}{\micro\meter} \cite{Polyanskiy-2023}

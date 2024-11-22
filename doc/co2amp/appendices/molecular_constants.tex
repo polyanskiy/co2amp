@@ -1,0 +1,668 @@
+\chapter{Molecular constants}
+\label{appendix:molecular_constants}
+
+\section*{Use of data included in the HITRAN database and estimating missing rotational lines}
+
+In most cases, the transition frequencies and Einstein coefficients ($A$) for every rotational line of supported ro-vibrational bands are extracted directly from a HITRAN database \texttt{.par} file. The molecular constants ($B$) for each vibrational level can be obtained by fitting the transition frequencies listed in HITRAN with an analytical formula, as described later in this Appendix. However, the current version of HITRAN (HITRAN2020 \cite{Gordon-2022}) lacks information on certain transitions that could potentially make a significant contribution to the amplification process. To address these gaps, we have supplemented the most critical missing data with rough estimates to enable more realistic modeling, albeit with limited precision.
+
+Table~\ref{table:HITRAN} lists the number of rotational lines in the P- and R-branches of each ro-vibrational band included in the \textbf{\texttt{co2amp}} model. The numbering of the ro-vibrational bands is consistent with Table~\ref{table:transitions}. Table~\ref{table:A} provides the Einstein coefficients ($A$) averaged over all P- and R-branch rotational lines included in HITRAN for a given ro-vibrational band. Note that the model uses the actual $A$ values for each line; the averaged values are presented here for reference only. Additionally, the model includes only those lines where the rotational quantum numbers $J$ for both the upper and lower levels do not exceed 59.
+
+
+\begin{table}
+\caption{Numbers of P- and R-branch rotational lines in HITRAN2020 database}
+\label{table:HITRAN}
+\centering
+\begin{tabular}{lrrrrrrrrrrrr}
+\hline 
+Band \# & 626 & 727 & 828 & 636 & 737 & 838 & 627 & 628 & 728 & 637 & 638 & 738 \\
+\hline 
+\multicolumn{13}{c}{\textbf{Regular bands}}                                     \\
+0       & 99  & 24  & 57  & 87  & 0*  & 10* & 152 & 165 & 93  & 119 & 135 & 0*  \\
+1       & 103 & 68  & 65  & 87  & 0*  & 28* & 159 & 175 & 110 & 119 & 139 & 0*  \\
+\multicolumn{13}{c}{\textbf{Hot bands}}                                         \\
+2e      & 89  & 0   & 30* & 75  & 0   & 0   & 124 & 140 & 0   & 75  & 101 & 0   \\
+2f      & 89  & 0   & 29* & 76  & 0   & 0   & 123 & 139 & 0   & 75  & 101 & 0   \\
+3e      & 92  & 0   & 44  & 77  & 0   & 0   & 133 & 149 & 44  & 79  & 107 & 0   \\
+3f      & 92  & 0   & 44  & 76  & 0   & 0   & 133 & 149 & 44  & 79  & 107 & 0   \\
+\multicolumn{13}{c}{\textbf{Sequence bands}}                                    \\
+4       & 66  & 0   & 0*  & 44  & 0   & 0   & 0   & 13* & 0   & 0   & 0   & 0   \\
+5       & 68  & 0   & 0*  & 41  & 0   & 0   & 0   & 60  & 0   & 0   & 0   & 0   \\
+\multicolumn{13}{c}{\textbf{4-\SI{}{\micro\meter} bands}}                       \\
+6       & 113 & 129 & 83  & 103 & 68  & 65  & 189 & 201 & 142 & 159 & 173 & 109 \\
+7       & 115 & 134 & 85  & 103 & 78  & 67  & 191 & 203 & 147 & 163 & 177 & 115 \\
+8e      & 111 & 127 & 81  & 101 & 72  & 48  & 185 & 197 & 138 & 157 & 171 & 109 \\
+8f      & 112 & 126 & 82  & 101 & 73  & 48  & 185 & 198 & 149 & 157 & 171 & 109 \\
+\hline 
+\end{tabular}
+\end{table}
+
+\begin{table}
+\caption{Einstein coefficients $A$ of laser transitions, \SI{}{\second^{-1}} (averaged over all P and R lines).}
+\label{table:A}
+\centering
+%\small
+\begin{tabular}{lcccccccccccc}
+\hline
+Band \# & 626   & 727 & 828 & 636 & 737 & 838 & 627 & 628 & 728 & 637 & 638 & 738 \\
+\hline
+\multicolumn{13}{c}{\textbf{Regular bands}}                                     \\
+0  & 0.173 & 0.146 & 0.105 & 0.195 & [0.18] & 0.151 & 0.160 & 0.137 & 0.125 & 0.188 & 0.169 & [0.16] \\
+1  & 0.232 & 0.292 & 0.353 & 0.115 & [0.17] & 0.215 & 0.263 & 0.298 & 0.327 & 0.137 & 0.165 & [0.19] \\
+\multicolumn{13}{c}{\textbf{Hot bands}}                                         \\
+2e & 0.162 & - & 0.119 & 0.167 & - & - & 0.154 & 0.140 & - & 0.162 & 0.150 & - \\
+2f & 0.161 & - & 0.118 & 0.166 & - & - & 0.154 & 0.139 & - & 0.162 & 0.150 & - \\
+3e & 0.223 & - & 0.315 & 0.127 & - & - & 0.245 & 0.271 & 0.294 & 0.144 & 0.164 & - \\
+3f & 0.225 & - & 0.317 & 0.128 & - & - & 0.246 & 0.272 & 0.295 & 0.144 & 0.164 & - \\
+\multicolumn{13}{c}{\textbf{Sequence bands}}                                    \\
+4  & 0.391 & - & [0.2] & 0.422 & - & - & - & 0.310 & - & - & - & - \\
+5  & 0.420 & - & [0.7] & 0.200 & - & - & - & 0.543 & - & - & - & - \\
+\multicolumn{13}{c}{\textbf{4-\SI{}{\micro\meter} bands}}                       \\
+6  & 196   & 195 & 188 & 176 & 173 & 167 & 196 & 193 & 192 & 175 & 172 & 171 \\
+7  & 197   & 195 & 186 & 178 & 174 & 168 & 196 & 192 & 191 & 177 & 174 & 172 \\
+8e & 196   & 191 & 186 & 176 & 170 & 162 & 194 & 191 & 189 & 174 & 171 & 167 \\
+8f & 197   & 191 & 186 & 176 & 170 & 163 & 194 & 191 & 189 & 174 & 171 & 167 \\
+\hline
+\end{tabular}
+\end{table}
+
+The model considers only P- and R-branch transitions. Although HITRAN includes Q-branch transitions for some bands in certain cases, their contribution to amplification is negligible due to their intensities being at least two orders of magnitude lower than those of the P- and R-branches.
+
+Zeros in Table~\ref{table:HITRAN} indicate that no rotational lines for a given ro-vibrational bands are present in HITRAN. Additionally, for some critical transitions, the number of included lines is very low (e.g., the first regular band for the 838 isotopologue has only 10 listed P- and R-branch lines combined). To address these critical gaps, we use the following approach:
+
+\begin{enumerate}
+    \item Calculate the frequencies of missing transitions using the molecular constants obtained via the fitting procedure described later in this Appendix.
+    \item When adding additional lines to a band that already has some listed in HITRAN, assign the average Einstein coefficient ($A$) of the existing lines to the added transitions.
+    \item If no rotational lines for a given band are listed in HITRAN, roughly estimate the likely $A$ coefficient by interpolating data from other isotopologues and ro-vibrational bands.
+\end{enumerate}
+
+In cases where estimated lines are included in the \textbf{\texttt{co2amp}} distribution as separate \texttt{.par} files, an asterisk is placed in the corresponding field of Table~\ref{table:HITRAN}, and the estimated $A$ coefficient is shown in Table~\ref{table:A} in square brackets. Users can remove these additional \texttt{.par} files from the \texttt{hitran\_data} folder to exclude them from calculations or add new \texttt{.par} files at their discretion. Care should be taken to avoid duplication of rotational lines across multiple \texttt{.par} files.
+
+
+
+\section*{Fitting procedure}
+
+Molecular constants of vibrational levels that can be used to calculate transition frequencies of ro-vibrational lines, including those not listed in the HITRAN database, can be often obtained by fitting the frequencies of the listed transitions. We have developed a fitting procedure that enabled finding molecular constants for nearly all vibratrional levels of all \ce{CO2} isotopologues included in the \textbf{\texttt{co2amp}} model. The fitting procedure is described in the hollowing section following by the list of the molecular constants obtained using this procedure for all the isotopolagues.
+
+
+The fitting procedure is performed using the \texttt{hitran\_ExtractAndFit.py} script. The fitting formula is as follows:
+\begin{equation}
+F(v,j) = G_v + B_v j(j+1) - D_v [j(j+1)]^2 + H_v [j(j+1)]^3 + L_v [j(j+1)]^4
+\end{equation}
+
+
+
+\begin{table}[h!]
+\caption{Fitting procedure using HITRAN data.}
+\label{table:fitting_procedure}
+\centering
+\begin{tabular}{|c|p{4.2cm}|p{4.2cm}|p{4.2cm}|}
+\hline
+\textbf{Step} & \textbf{Obtain molecular constants for levels:} & \textbf{using HITRAN frequencies of these transitions:} & \textbf{with these fitting parameters fixed:} \\ \hline
+1 & 
+\begin{tabular}[c]{@{}l@{}}
+$00^00$ \\
+$10^01$
+\end{tabular}
+& $00^01 \rightarrow 00^00 (e)$ & $G(\text{lower level}) = 0$ \\ \hline
+2 &
+\begin{tabular}[c]{@{}l@{}}
+$10^01(1)$ \\
+$10^01(2)$
+\end{tabular}
+& 
+\begin{tabular}[c]{@{}l@{}}
+$10^01(1) \rightarrow 00^00 (e)$ \\
+$10^01(2) \rightarrow 00^00 (e)$
+\end{tabular} 
+& All lower-level parameters \\ \hline
+3 &
+\begin{tabular}[c]{@{}l@{}}
+$01^{1e}0$ \\
+~\&~$G(01^{1f}0) = G(01^{1e}0)$
+\end{tabular}
+& $ 01^10 \rightarrow 00^00 (e)$ & All lower-level parameters \\ \hline
+4 &
+\begin{tabular}[c]{@{}l@{}}
+$02^{2e}0$ \\
+~\&~$G(02^{2f}0) = G(02^{2e}0)$
+\end{tabular}
+& $02^20 \rightarrow 01^10 (e)$ & All lower-level parameters \\ \hline
+5 & $01^{1e}1$ & $01^11 \rightarrow 01^10 (e)$ & All lower-level parameters \\ \hline
+6 &
+\begin{tabular}[c]{@{}l@{}}
+$01^{1f}0$ \\
+$02^{2f}0$
+\end{tabular}
+& $02^20 \rightarrow 01^10 (f)$ & 
+\begin{tabular}[c]{@{}l@{}}
+$G(\text{upper level})$ \\
+$G(\text{lower level})$
+\end{tabular} \\ \hline
+7 & $01^{1f}1$ & $01^11 \rightarrow 01^10 (f)$ & All lower-level parameters \\ \hline
+8 & 
+\begin{tabular}[c]{@{}l@{}}
+$02^{2f}1$\\
+$03^{3f}0$\\
+$11^{1f}0(1)$\\
+$11^{1f}0(2)$
+\end{tabular} 
+& 
+\begin{tabular}[c]{@{}l@{}}
+$02^21 \rightarrow 02^20 (f)$ \\
+$03^30 \rightarrow 02^20 (f)$ \\
+$11^10(1) \rightarrow 02^20 (f)$ \\
+$11^10(2) \rightarrow 02^20 (f)$
+\end{tabular} 
+& All lower-level parameters \\ \hline
+9 & 
+\begin{tabular}[c]{@{}l@{}}
+$02^{2e}1$\\
+$03^{3e}0$\\
+$11^{1e}0(1)$\\
+$11^{1e}0(2)$
+\end{tabular} 
+& 
+\begin{tabular}[c]{@{}l@{}}
+$02^21 \rightarrow 02^20 (e)$ \\
+$03^30 \rightarrow 02^20 (e)$ \\
+$11^10(1) \rightarrow 02^20 (e)$ \\
+$11^10(2) \rightarrow 02^20 (e)$
+\end{tabular} 
+& All lower-level parameters \\ \hline
+10 & $00^02$ & $00^02 \rightarrow 00^01 (e)$ & All lower-level parameters \\ \hline
+11 &
+\begin{tabular}[c]{@{}l@{}}
+$10^00(1)$\\
+$10^00(2)$\\
+\end{tabular}
+ & 
+\begin{tabular}[c]{@{}l@{}}
+$10^01(1) \rightarrow 10^00(1) (e)$ \\
+$10^01(2) \rightarrow 10^00(2) (e)$
+\end{tabular} 
+& All upper-level parameters \\ \hline
+\end{tabular}
+\end{table}
+
+
+
+\section*{Lists of molecular constants}
+
+Tables \ref{table:constants_626} through \ref{table:constants_738} present the molecular constants for the twelve isotopologues of \ce{CO2} supported by the \textbf{\texttt{co2amp}} model. These constants were derived by fitting HITRAN2020 data using the procedure described earlier in this Appendix.
+
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{626} isotopologue of \ce{CO2} (co2amp \#: ‘0’; HITRAN ID: ‘1’).}
+\label{table:constants_626}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.169847e+10 & 3.997874e+03 & 3.422140e-04 & 1.833945e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 2.000755e+13 & 1.171107e+10 & 4.056805e+03 & 4.613985e-04 & 1.687720e-09 \\ \hline
+ & $01^{1f}0$ & 2.000755e+13 & 1.172952e+10 & 4.079350e+03 & 4.030478e-04 & 4.238366e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 7.042553e+13 & 1.160620e+10 & 3.987269e+03 & 3.645313e-04 & 2.353858e-09 \\ \hline
+\multicolumn{6}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.161676e+13 & 1.169758e+10 & 3.452278e+03 & 6.858418e-03 & -6.367059e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 1.083102e+14 & 1.161705e+10 & 4.722355e+03 & 6.514604e-03 & -1.655007e-08 \\ \hline
+3 & $02^{2e}0$ & 4.002624e+13 & 1.174187e+10 & 4.114234e+03 & -1.219793e-02 & 9.123448e-08 \\ \hline
+4 & $02^{2f}0$ & 4.002624e+13 & 1.174187e+10 & 4.137902e+03 & 5.025296e-04 & 4.783869e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 9.005802e+13 & 1.161974e+10 & 4.041027e+03 & 5.619003e-04 & 3.543866e-09 \\ \hline
+6 & $01^{1f}1$ & 9.005802e+13 & 1.163765e+10 & 4.069479e+03 & 4.446209e-04 & 5.071835e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.226257e+13 & 1.170419e+10 & 3.769087e+03 & 1.800030e-03 & 8.158086e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.793400e+13 & 1.171424e+10 & 4.477417e+03 & 2.843734e-03 & 5.894220e-09 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.226257e+13 & 1.173189e+10 & 3.632993e+03 & 2.079957e-03 & -4.705525e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.793400e+13 & 1.174257e+10 & 4.685703e+03 & 3.061140e-03 & 2.754524e-08 \\ \hline
+11 & $03^{3e}0$ & 6.005580e+13 & 1.176322e+10 & 4.200887e+03 & -4.188810e-03 & -2.044073e-08 \\ \hline
+12 & $03^{3f}0$ & 6.005581e+13 & 1.176321e+10 & 4.199437e+03 & -3.650476e-03 & 3.794673e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.401028e+14 & 1.151401e+10 & 3.977393e+03 & 3.520213e-04 & 4.404983e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.113664e+14 & 1.160387e+10 & 3.431869e+03 & 6.923863e-03 & -6.121059e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.083102e+14 & 1.161705e+10 & 4.722355e+03 & 6.514604e-03 & -1.655007e-08 \\ \hline
+16 & $02^{2e}1$ & 1.097022e+14 & 1.165102e+10 & 4.072805e+03 & -1.153052e-02 & 9.005439e-08 \\ \hline
+17 & $02^{2f}1$ & 1.097022e+14 & 1.165102e+10 & 4.120733e+03 & 6.447142e-04 & 9.308838e-09 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{727} isotopologue of \ce{CO2} (co2amp \#: ‘1’; HITRAN ID: ‘9’).}
+\label{table:constants_727}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.100821e+10 & 3.540269e+03 & 3.045913e-04 & 2.200121e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.984824e+13 & 1.102072e+10 & 3.592409e+03 & 3.534507e-04 & 6.968897e-09 \\ \hline
+ & $01^{1f}0$ & 1.984824e+13 & 1.103721e+10 & 3.627170e+03 & 5.884566e-03 & -6.150162e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.986942e+13 & 1.092154e+10 & 3.531384e+03 & 3.248925e-04 & 2.290272e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.091988e+13 & 1.101834e+10 & 3.050116e+03 & 3.440943e-03 & -2.829718e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.772097e+13 & 1.100609e+10 & 4.068545e+03 & 5.636968e-03 & 2.606318e-08 \\ \hline
+3 & $02^{2e}0$ & 3.970844e+13 & 1.104948e+10 & 3.748356e+03 & -8.317792e-03 & 4.797954e-08 \\ \hline
+4 & $02^{2f}0$ & 3.970844e+13 & 1.104948e+10 & 3.666397e+03 & 1.880498e-03 & -1.824074e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.934676e+13 & 1.093484e+10 & 3.579202e+03 & 2.866502e-04 & 1.957388e-08 \\ \hline
+6 & $01^{1f}1$ & 8.934676e+13 & 1.095089e+10 & 3.615057e+03 & 4.650449e-03 & -4.939190e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.140119e+13 & 1.102176e+10 & 3.331424e+03 & -5.173688e-03 & 2.091981e-06 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.696820e+13 & 1.101815e+10 & 3.931319e+03 & 3.100101e-03 & -1.395438e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.140119e+13 & 1.104810e+10 & 3.230829e+03 & 1.803753e-03 & -1.022061e-07 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.696820e+13 & 1.104180e+10 & 4.104803e+03 & 1.163940e-02 & -2.660330e-06 \\ \hline
+11 & $03^{3e}0$ & 5.958039e+13 & 1.106979e+10 & 3.758888e+03 & -2.332341e-03 & -1.689152e-07 \\ \hline
+12 & $03^{3f}0$ & 5.958039e+13 & 1.106979e+10 & 3.760631e+03 & -6.395446e-04 & -2.032602e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.389995e+14 & 1.083494e+10 & 3.536112e+03 & 1.197349e-02 & -3.265901e-06 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.101047e+14 & 1.093044e+10 & 3.019817e+03 & 2.825733e-03 & 1.634035e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.069801e+14 & 1.092190e+10 & 4.097907e+03 & 5.878832e-03 & 1.522123e-08 \\ \hline
+16 & $02^{2e}1$ & 1.088366e+14 & 1.096402e+10 & 3.709288e+03 & -8.065366e-03 & 7.193800e-08 \\ \hline
+17 & $02^{2f}1$ & 1.088366e+14 & 1.096402e+10 & 3.650702e+03 & 1.054827e-03 & -6.412082e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{828} isotopologue of \ce{CO2} (co2amp \#: ‘2’; HITRAN ID: ‘7’).}
+\label{table:constants_828}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.039731e+10 & 3.159169e+03 & 4.731420e-04 & -8.574308e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.970621e+13 & 1.040967e+10 & 3.208038e+03 & 5.553249e-04 & -8.713116e-09 \\ \hline
+ & $01^{1f}0$ & 1.970621e+13 & 1.042447e+10 & 3.217114e+03 & -5.350701e-04 & 6.086616e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.937342e+13 & 1.031556e+10 & 3.151903e+03 & 4.829303e-04 & -8.466869e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.038480e+13 & 1.041490e+10 & 2.770578e+03 & 3.122068e-03 & -6.107233e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.688419e+13 & 1.038853e+10 & 3.519518e+03 & 4.940659e-03 & -4.420393e-08 \\ \hline
+3 & $02^{2e}0$ & 3.942513e+13 & 1.043663e+10 & 3.411526e+03 & -6.330581e-03 & 7.740561e-08 \\ \hline
+4 & $02^{2f}0$ & 3.942513e+13 & 1.043663e+10 & 3.267584e+03 & -9.697851e-05 & 3.691415e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.871241e+13 & 1.032862e+10 & 3.198300e+03 & 6.116848e-04 & -7.437619e-09 \\ \hline
+6 & $01^{1f}1$ & 8.871241e+13 & 1.034305e+10 & 3.211021e+03 & -4.142739e-04 & 5.457863e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.069384e+13 & 1.041665e+10 & 2.996559e+03 & 1.464180e-03 & 5.957494e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.602234e+13 & 1.040290e+10 & 3.470006e+03 & 2.545506e-03 & -2.768221e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.069384e+13 & 1.044155e+10 & 2.915684e+03 & -8.769903e-04 & 1.246696e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.602234e+13 & 1.042292e+10 & 3.587647e+03 & 3.198738e-03 & -4.725434e-08 \\ \hline
+11 & $03^{3e}0$ & 5.915649e+13 & 1.045597e+10 & 3.380122e+03 & -2.659957e-03 & -6.784026e-09 \\ \hline
+12 & $03^{3f}0$ & 5.915649e+13 & 1.045598e+10 & 3.377600e+03 & -1.972042e-03 & 6.128165e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.380154e+14 & 1.023388e+10 & 3.142644e+03 & -4.160245e-04 & 9.296848e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.090664e+14 & 1.033240e+10 & 2.746883e+03 & 2.603971e-03 & -4.874926e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.056829e+14 & 1.030862e+10 & 3.547531e+03 & 5.301334e-03 & -4.288713e-08 \\ \hline
+16 & $02^{2e}1$ & 1.080647e+14 & 1.035596e+10 & 3.377649e+03 & -5.964667e-03 & 6.909073e-08 \\ \hline
+17 & $02^{2f}1$ & 1.080647e+14 & 1.035596e+10 & 3.257854e+03 & 1.036638e-04 & 3.029389e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{636} isotopologue of \ce{CO2} (co2amp \#: ‘3’; HITRAN ID: ‘2’).}
+\label{table:constants_636}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.169902e+10 & 3.996787e+03 & 4.870281e-04 & -2.688092e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.944089e+13 & 1.171021e+10 & 4.053157e+03 & 5.984974e-04 & -2.608336e-09 \\ \hline
+ & $01^{1f}0$ & 1.944089e+13 & 1.172919e+10 & 4.071961e+03 & 7.921901e-05 & 1.905386e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.845722e+13 & 1.161017e+10 & 3.985398e+03 & 5.208250e-04 & -2.085314e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.107342e+13 & 1.168345e+10 & 3.606041e+03 & 6.533067e-03 & 6.119090e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.794852e+13 & 1.171937e+10 & 4.749446e+03 & 8.650202e-03 & -1.005383e-07 \\ \hline
+3 & $02^{2e}0$ & 3.889102e+13 & 1.174016e+10 & 3.907318e+03 & -1.328696e-02 & 2.913526e-08 \\ \hline
+4 & $02^{2f}0$ & 3.889102e+13 & 1.174015e+10 & 4.128991e+03 & 3.050528e-04 & 1.409386e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.754654e+13 & 1.162234e+10 & 4.034971e+03 & 7.067286e-04 & 5.524693e-10 \\ \hline
+6 & $01^{1f}1$ & 8.754654e+13 & 1.164072e+10 & 4.061159e+03 & 1.502934e-04 & 1.930438e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.107053e+13 & 1.171940e+10 & 3.695536e+03 & 3.427727e-03 & 3.216981e-10 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.685676e+13 & 1.175251e+10 & 4.683189e+03 & 1.249661e-03 & 5.682444e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.107053e+13 & 1.169343e+10 & 3.824401e+03 & 2.561340e-03 & 4.579441e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.685676e+13 & 1.172081e+10 & 4.494696e+03 & 4.454015e-03 & -5.659966e-08 \\ \hline
+11 & $03^{3e}0$ & 5.835015e+13 & 1.176039e+10 & 4.114817e+03 & -5.167970e-03 & 2.030431e-08 \\ \hline
+12 & $03^{3f}0$ & 5.835015e+13 & 1.176037e+10 & 4.109583e+03 & -3.908309e-03 & -1.314619e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.362121e+14 & 1.152137e+10 & 3.975073e+03 & 5.727161e-04 & -3.125152e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.089119e+14 & 1.159370e+10 & 3.598631e+03 & 6.594981e-03 & 6.086349e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.057589e+14 & 1.163304e+10 & 4.733620e+03 & 8.757636e-03 & -1.066724e-07 \\ \hline
+16 & $02^{2e}1$ & 1.066456e+14 & 1.165276e+10 & 3.872393e+03 & -1.296110e-02 & 4.841050e-08 \\ \hline
+17 & $02^{2f}1$ & 1.066456e+14 & 1.165275e+10 & 4.108754e+03 & 4.999532e-04 & 1.939811e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{737} isotopologue of \ce{CO2} (co2amp \#: ‘4’; HITRAN ID: ‘B’).}
+\label{table:constants_737}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.100873e+10 & 3.526660e+03 & -3.776171e-03 & 7.450271e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.927670e+13 & 1.101991e+10 & 3.574795e+03 & -3.546434e-03 & 7.182690e-07 \\ \hline
+ & $01^{1f}0$ & 1.927670e+13 & 1.103691e+10 & 3.665475e+03 & 6.416756e-02 & -2.107236e-05 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.788379e+13 & 1.092526e+10 & 3.517266e+03 & -3.940367e-03 & 7.836869e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.020974e+13 & 1.100435e+10 & 3.055858e+03 & -1.278980e-02 & 5.779730e-06 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.729090e+13 & 1.101899e+10 & 4.153649e+03 & -4.931876e-03 & 2.465591e-06 \\ \hline
+3 & $02^{2e}0$ & 3.856347e+13 & 1.104786e+10 & 3.591065e+03 & -1.405369e-02 & 9.337185e-07 \\ \hline
+4 & $02^{2f}0$ & 3.856347e+13 & 1.104785e+10 & 3.647374e+03 & 7.979279e-03 & -4.985772e-06 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.681306e+13 & 1.093728e+10 & 3.564038e+03 & -1.798705e-03 & 3.896102e-07 \\ \hline
+6 & $01^{1f}1$ & 8.681307e+13 & 1.095377e+10 & 3.610054e+03 & 2.793970e-02 & -1.262047e-05 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $-$ & - & - & - & - & - \\ \hline
+8 & $-$ & - & - & - & - & - \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $-$ & - & - & - & - & - \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.074725e+14 & 1.091963e+10 & 3.056680e+03 & 1.270003e-03 & 7.400413e-07 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.045617e+14 & 1.093815e+10 & 4.160861e+03 & -1.042790e-03 & 1.220240e-06 \\ \hline
+16 & $02^{2e}1$ & 1.057530e+14 & 1.096565e+10 & 3.563570e+03 & -7.599727e-03 & -8.775706e-07 \\ \hline
+17 & $02^{2f}1$ & 1.057530e+14 & 1.096564e+10 & 3.626319e+03 & 7.721920e-05 & -2.054072e-06 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{838} isotopologue of \ce{CO2} (co2amp \#: ‘5’; HITRAN ID: ‘0’).}
+\label{table:constants_838}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.039780e+10 & 3.154063e+03 & 1.402651e-05 & 1.428556e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.913019e+13 & 1.040897e+10 & 3.198383e+03 & 9.342027e-06 & 2.176834e-08 \\ \hline
+ & $01^{1f}0$ & 1.913019e+13 & 1.042416e+10 & 3.213009e+03 & -1.120423e-03 & 1.665888e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.737208e+13 & 1.031909e+10 & 3.146124e+03 & -4.247794e-05 & 1.873665e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 3.953352e+13 & 1.040346e+10 & 2.716362e+03 & 2.823526e-03 & 2.282443e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.658622e+13 & 1.039897e+10 & 3.655001e+03 & 4.770731e-03 & 6.161621e-09 \\ \hline
+3 & $02^{2e}0$ & 3.827120e+13 & 1.043513e+10 & 3.303245e+03 & -7.568352e-03 & 5.104746e-08 \\ \hline
+4 & $02^{2f}0$ & 3.827120e+13 & 1.043513e+10 & 3.260995e+03 & 1.063659e-04 & 4.317807e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.615853e+13 & 1.033097e+10 & 3.187081e+03 & -1.626456e-04 & 4.082526e-08 \\ \hline
+6 & $01^{1f}1$ & 8.615853e+13 & 1.034577e+10 & 3.208362e+03 & -4.474011e-04 & 1.082095e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 5.926637e+13 & 1.040754e+10 & 2.988158e+03 & 1.539636e-02 & -4.566861e-06 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.514265e+13 & 1.040849e+10 & 3.506383e+03 & 1.763155e-03 & 3.816660e-07 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 5.926637e+13 & 1.043130e+10 & 2.866227e+03 & -5.732561e-03 & 2.293647e-06 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.514265e+13 & 1.043085e+10 & 3.662187e+03 & 5.008245e-03 & -9.262836e-07 \\ \hline
+11 & $03^{3e}0$ & 5.742282e+13 & 1.045349e+10 & 3.326196e+03 & -5.079115e-03 & 4.246875e-07 \\ \hline
+12 & $03^{3f}0$ & 5.742282e+13 & 1.045349e+10 & 3.328606e+03 & -3.564036e-03 & 3.126050e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.340587e+14 & 1.024044e+10 & 3.135498e+03 & -3.190897e-03 & 9.014456e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.062772e+14 & 1.032355e+10 & 2.696401e+03 & 2.969989e-03 & -4.648862e-09 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.033808e+14 & 1.032260e+10 & 3.675030e+03 & 4.691872e-03 & 1.168720e-08 \\ \hline
+16 & $02^{2e}1$ & 1.049562e+14 & 1.035750e+10 & 3.270427e+03 & -7.862088e-03 & 1.806708e-07 \\ \hline
+17 & $02^{2f}1$ & 1.049562e+14 & 1.035750e+10 & 3.246181e+03 & -2.511702e-03 & 6.130943e-07 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{627} isotopologue of \ce{CO2} (co2amp \#: ‘6’; HITRAN ID: ‘4’).}
+\label{table:constants_627}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.135055e+10 & 3.764163e+03 & 3.773335e-04 & -2.267907e-10 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.992806e+13 & 1.136310e+10 & 3.819162e+03 & 4.927354e-04 & -7.306791e-10 \\ \hline
+ & $01^{1f}0$ & 1.992806e+13 & 1.138055e+10 & 3.840989e+03 & 4.181522e-04 & 4.480501e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 7.015184e+13 & 1.126112e+10 & 3.754512e+03 & 3.800540e-04 & 7.603355e-10 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.125222e+13 & 1.135549e+10 & 3.232958e+03 & 4.720317e-03 & -3.837020e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.814223e+13 & 1.135312e+10 & 4.389746e+03 & 6.724376e-03 & -3.068154e-08 \\ \hline
+3 & $02^{2e}0$ & 3.986768e+13 & 1.139287e+10 & 3.934794e+03 & -9.909214e-03 & 6.663958e-08 \\ \hline
+4 & $02^{2f}0$ & 3.986768e+13 & 1.139288e+10 & 3.897079e+03 & 7.344429e-04 & -6.369967e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.970696e+13 & 1.127453e+10 & 3.805655e+03 & 6.043847e-04 & -8.459386e-10 \\ \hline
+6 & $01^{1f}1$ & 8.970696e+13 & 1.129150e+10 & 3.832299e+03 & 4.570792e-04 & 4.722654e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.182016e+13 & 1.136035e+10 & 3.543847e+03 & 1.791605e-03 & 7.110069e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.746100e+13 & 1.136325e+10 & 4.200221e+03 & 2.729130e-03 & 1.251955e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.182016e+13 & 1.138743e+10 & 3.423918e+03 & 1.346351e-03 & -5.173594e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.746100e+13 & 1.138916e+10 & 4.389403e+03 & 3.714234e-03 & -3.819197e-09 \\ \hline
+11 & $03^{3e}0$ & 5.981858e+13 & 1.141368e+10 & 3.976029e+03 & -3.743588e-03 & -9.046605e-09 \\ \hline
+12 & $03^{3f}0$ & 3.986768e+13 & 1.139288e+10 & 3.897079e+03 & 7.344429e-04 & -6.369967e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.395595e+14 & 1.117175e+10 & 3.745298e+03 & 2.985246e-04 & 8.302926e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.107240e+14 & 1.126467e+10 & 3.207000e+03 & 4.689076e-03 & -4.032129e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.076636e+14 & 1.126646e+10 & 4.412595e+03 & 6.541735e-03 & -2.007530e-08 \\ \hline
+16 & $02^{2e}1$ & 1.092742e+14 & 1.130474e+10 & 3.894968e+03 & -9.392562e-03 & 6.599009e-08 \\ \hline
+17 & $02^{2f}1$ & 1.092742e+14 & 1.130475e+10 & 3.882272e+03 & 8.200398e-04 & -1.312426e-09 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{628} isotopologue of \ce{CO2} (co2amp \#: ‘7’; HITRAN ID: ‘3’).}
+\label{table:constants_628}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.103789e+10 & 3.560050e+03 & 3.143585e-04 & 9.557979e-10 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.985746e+13 & 1.105040e+10 & 3.611888e+03 & 4.003987e-04 & 1.513565e-09 \\ \hline
+ & $01^{1f}0$ & 1.985746e+13 & 1.106696e+10 & 3.634829e+03 & 9.810914e-04 & -2.596685e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.991497e+13 & 1.095102e+10 & 3.551154e+03 & 3.301286e-04 & 1.277276e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.094694e+13 & 1.104772e+10 & 3.068769e+03 & 4.181464e-03 & -6.010828e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.775661e+13 & 1.103600e+10 & 4.097679e+03 & 6.254021e-03 & -3.379214e-08 \\ \hline
+3 & $02^{2e}0$ & 3.972688e+13 & 1.107923e+10 & 3.762843e+03 & -9.097657e-03 & 9.381927e-08 \\ \hline
+4 & $02^{2f}0$ & 3.972688e+13 & 1.107924e+10 & 3.683947e+03 & 7.201636e-04 & -9.670807e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.940144e+13 & 1.096433e+10 & 3.599364e+03 & 4.851830e-04 & 1.735324e-09 \\ \hline
+6 & $01^{1f}1$ & 8.940144e+13 & 1.098045e+10 & 3.626504e+03 & 9.647165e-04 & -2.332943e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.143764e+13 & 1.105119e+10 & 3.355164e+03 & 1.438697e-03 & 7.934392e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.701264e+13 & 1.104793e+10 & 3.951529e+03 & 2.304154e-03 & 1.895828e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.143764e+13 & 1.107763e+10 & 3.245377e+03 & 7.480496e-04 & -4.772488e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.701264e+13 & 1.107176e+10 & 4.121874e+03 & 3.558591e-03 & 3.813976e-09 \\ \hline
+11 & $03^{3e}0$ & 5.960795e+13 & 1.109957e+10 & 3.774488e+03 & -3.377326e-03 & -1.980484e-08 \\ \hline
+12 & $03^{3f}0$ & 5.960795e+13 & 1.109958e+10 & 3.776461e+03 & -2.225695e-03 & 2.389924e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.390888e+14 & 1.086421e+10 & 3.542835e+03 & 3.316297e-04 & 2.579492e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.101777e+14 & 1.095961e+10 & 3.039141e+03 & 3.836002e-03 & -5.429492e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.070601e+14 & 1.095164e+10 & 4.126369e+03 & 6.312306e-03 & -2.519441e-08 \\ \hline
+16 & $02^{2e}1$ & 1.089005e+14 & 1.099359e+10 & 3.724561e+03 & -8.569755e-03 & 8.574433e-08 \\ \hline
+17 & $02^{2f}1$ & 1.089005e+14 & 1.099360e+10 & 3.670639e+03 & 8.021495e-04 & -6.665057e-09 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{728} isotopologue of \ce{CO2} (co2amp \#: ‘8’; HITRAN ID: ‘8’).}
+\label{table:constants_728}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.070053e+10 & 3.341861e+03 & 3.051059e-06 & 1.717260e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.977734e+13 & 1.071297e+10 & 3.391254e+03 & 8.829789e-05 & 1.750289e-08 \\ \hline
+ & $01^{1f}0$ & 1.977734e+13 & 1.072860e+10 & 3.414083e+03 & 1.304750e-03 & -7.837745e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.962484e+13 & 1.061635e+10 & 3.333954e+03 & -3.189537e-05 & 2.042003e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.064148e+13 & 1.071477e+10 & 2.900403e+03 & 2.662506e-03 & -1.209968e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.731199e+13 & 1.069471e+10 & 3.783607e+03 & 5.256232e-03 & -2.006028e-08 \\ \hline
+3 & $02^{2e}0$ & 3.956702e+13 & 1.074082e+10 & 3.575078e+03 & -7.624378e-03 & 8.632104e-08 \\ \hline
+4 & $02^{2f}0$ & 3.956702e+13 & 1.074082e+10 & 3.458161e+03 & 1.629631e-04 & 1.887195e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.903315e+13 & 1.062954e+10 & 3.380817e+03 & 2.479090e-04 & 8.621822e-09 \\ \hline
+6 & $01^{1f}1$ & 8.903315e+13 & 1.064476e+10 & 3.406456e+03 & 1.127887e-03 & -6.298039e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.103891e+13 & 1.071717e+10 & 3.152678e+03 & -5.122530e-04 & 3.356267e-07 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.650260e+13 & 1.070814e+10 & 3.688354e+03 & 6.767040e-04 & 2.755581e-07 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.103890e+13 & 1.074282e+10 & 3.063909e+03 & -8.519336e-04 & 7.049229e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.650260e+13 & 1.072988e+10 & 3.835517e+03 & 4.248794e-03 & -1.883085e-07 \\ \hline
+11 & $03^{3e}0$ & 5.936887e+13 & 1.076064e+10 & 3.561005e+03 & -3.067349e-03 & -1.281520e-08 \\ \hline
+12 & $03^{3f}0$ & 5.936887e+13 & 1.076064e+10 & 3.560716e+03 & -2.282685e-03 & 6.394468e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.385140e+14 & 1.053223e+10 & 3.322526e+03 & -2.172402e-03 & 3.512198e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.095778e+14 & 1.062959e+10 & 2.871511e+03 & 1.961680e-03 & 1.966607e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.063448e+14 & 1.061270e+10 & 3.813989e+03 & 5.427167e-03 & -6.930661e-09 \\ \hline
+16 & $02^{2e}1$ & 1.084544e+14 & 1.065778e+10 & 3.540689e+03 & -6.829286e-03 & 4.079148e-08 \\ \hline
+17 & $02^{2f}1$ & 1.084544e+14 & 1.065778e+10 & 3.446796e+03 & 1.626387e-04 & 2.879651e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{637} isotopologue of \ce{CO2} (co2amp \#: ‘9’; HITRAN ID: ‘6’).}
+\label{table:constants_637}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.135090e+10 & 3.751993e+03 & 3.295724e-04 & 1.848790e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.935898e+13 & 1.136209e+10 & 3.800997e+03 & 4.291947e-04 & 2.279936e-09 \\ \hline
+ & $01^{1f}0$ & 1.935898e+13 & 1.138006e+10 & 3.823285e+03 & -1.422896e-03 & 1.410492e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.817541e+13 & 1.126478e+10 & 3.741138e+03 & 3.569578e-04 & 2.398138e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.062495e+13 & 1.134084e+10 & 3.315706e+03 & 5.995566e-03 & 3.738754e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.763366e+13 & 1.136629e+10 & 4.447889e+03 & 6.800443e-03 & -5.898947e-08 \\ \hline
+3 & $02^{2e}0$ & 3.872764e+13 & 1.139104e+10 & 3.749358e+03 & -1.150982e-02 & 3.312430e-08 \\ \hline
+4 & $02^{2f}0$ & 3.872764e+13 & 1.139104e+10 & 3.876044e+03 & -4.694316e-04 & 8.018623e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.718494e+13 & 1.127687e+10 & 3.784144e+03 & 4.888290e-04 & 7.118700e-09 \\ \hline
+6 & $01^{1f}1$ & 8.718494e+13 & 1.129431e+10 & 3.814201e+03 & -1.115188e-03 & 1.231015e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.056383e+13 & 1.134948e+10 & 3.562716e+03 & 2.237169e-03 & 6.106637e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.643763e+13 & 1.136969e+10 & 4.206447e+03 & 3.610740e-03 & -3.390843e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.056383e+13 & 1.137491e+10 & 3.437890e+03 & 1.728200e-03 & 8.184400e-08 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.643763e+13 & 1.139879e+10 & 4.410018e+03 & 1.128607e-03 & 9.918617e-08 \\ \hline
+11 & $03^{3e}0$ & 5.810565e+13 & 1.141078e+10 & 3.893156e+03 & -4.778181e-03 & 4.420741e-08 \\ \hline
+12 & $03^{3f}0$ & 5.810565e+13 & 1.141078e+10 & 3.889556e+03 & -4.281835e-03 & 7.159137e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.356526e+14 & 1.117871e+10 & 3.730558e+03 & 1.169536e-04 & 3.754630e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.081816e+14 & 1.125361e+10 & 3.307496e+03 & 6.136004e-03 & 3.642407e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.051784e+14 & 1.128278e+10 & 4.439767e+03 & 6.739638e-03 & -6.389357e-08 \\ \hline
+16 & $02^{2e}1$ & 1.062047e+14 & 1.130627e+10 & 3.712975e+03 & -1.118484e-02 & 4.803879e-08 \\ \hline
+17 & $02^{2f}1$ & 1.062047e+14 & 1.130627e+10 & 3.858128e+03 & -2.815269e-04 & 8.076280e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{638} isotopologue of \ce{CO2} (co2amp \#: ‘10’; HITRAN ID: ‘5’).}
+\label{table:constants_638}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.103782e+10 & 3.558680e+03 & 5.050129e-04 & -6.840577e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.928621e+13 & 1.104901e+10 & 3.609360e+03 & 6.153830e-04 & -7.852508e-09 \\ \hline
+ & $01^{1f}0$ & 1.928621e+13 & 1.106606e+10 & 3.632513e+03 & 1.386175e-03 & -6.096041e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.793212e+13 & 1.095417e+10 & 3.549653e+03 & 5.217531e-04 & -6.604860e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 4.024045e+13 & 1.103310e+10 & 3.099093e+03 & 5.432427e-03 & 6.773242e-09 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.732115e+13 & 1.104839e+10 & 4.198794e+03 & 5.926794e-03 & -3.889335e-08 \\ \hline
+3 & $02^{2e}0$ & 3.858248e+13 & 1.107703e+10 & 3.620566e+03 & -9.533108e-03 & 1.183483e-08 \\ \hline
+4 & $02^{2f}0$ & 3.858248e+13 & 1.107703e+10 & 3.679687e+03 & 8.777259e-04 & -2.403959e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.687084e+13 & 1.096620e+10 & 3.596410e+03 & 6.854043e-04 & -7.012776e-09 \\ \hline
+6 & $01^{1f}1$ & 8.687084e+13 & 1.098276e+10 & 3.623708e+03 & 1.307980e-03 & -5.402701e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 6.012168e+13 & 1.104022e+10 & 3.368027e+03 & 2.333566e-03 & 2.874298e-08 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.603843e+13 & 1.105382e+10 & 3.987058e+03 & 3.137187e-03 & -2.701216e-08 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 6.012168e+13 & 1.106516e+10 & 3.244822e+03 & 2.015959e-03 & 3.883712e-09 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.603843e+13 & 1.108061e+10 & 4.164942e+03 & 2.403481e-03 & 1.688037e-08 \\ \hline
+11 & $03^{3e}0$ & 5.788854e+13 & 1.109632e+10 & 3.717367e+03 & -3.447207e-03 & -1.350229e-08 \\ \hline
+12 & $03^{3f}0$ & 5.788854e+13 & 1.109632e+10 & 3.717197e+03 & -2.449162e-03 & -2.160185e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & 1.351688e+14 & 1.087058e+10 & 3.540893e+03 & 4.097846e-04 & 6.751723e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.075520e+14 & 1.094820e+10 & 3.088172e+03 & 5.606105e-03 & 2.224787e-09 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.046394e+14 & 1.096735e+10 & 4.202689e+03 & 5.662843e-03 & -3.725155e-08 \\ \hline
+16 & $02^{2e}1$ & 1.058201e+14 & 1.099464e+10 & 3.587035e+03 & -9.133817e-03 & 1.742922e-08 \\ \hline
+17 & $02^{2f}1$ & 1.058201e+14 & 1.099464e+10 & 3.665833e+03 & 9.675907e-04 & -2.057591e-08 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[h!]
+\caption{Molecular constants for the \textit{738} isotopologue of \ce{CO2} (co2amp \#: ‘11’; HITRAN ID: ‘A’).}
+\label{table:constants_738}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\#} & \textbf{Level} & \textbf{G (Hz)} & \textbf{B (Hz)} & \textbf{D (Hz)} & \textbf{H (Hz)} & \textbf{L (Hz)} \\ \hline
+\multicolumn{7}{|c|}{\textbf{Ground state}} \\ \hline
+ & $00^00$ & 0.000000e+00 & 1.070090e+10 & 3.336429e+03 & 2.117267e-05 & 1.442116e-08 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 0}} \\ \hline
+ & $01^{1e}0$ & 1.920360e+13 & 1.071209e+10 & 3.381662e+03 & 8.482200e-05 & 1.817743e-08 \\ \hline
+ & $01^{1f}0$ & 1.920360e+13 & 1.072816e+10 & 3.386497e+03 & -9.613146e-03 & 1.621095e-06 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 1}} \\ \hline
+0 & $0^001$ & 6.763179e+13 & 1.061985e+10 & 3.328566e+03 & 1.629353e-04 & 5.193608e-09 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 0 + 0 2 0}} \\ \hline
+1 & $[10^00, 02^00]_{I}$ & 3.985595e+13 & 1.070175e+10 & 2.874895e+03 & 3.264921e-03 & 8.185136e-08 \\ \hline
+2 & $[10^00, 02^00]_{II}$ & 3.695121e+13 & 1.070641e+10 & 3.908353e+03 & 4.339276e-03 & 1.249170e-07 \\ \hline
+3 & $02^{2e}0$ & 3.841755e+13 & 1.073915e+10 & 3.451459e+03 & -7.855086e-03 & -7.391810e-08 \\ \hline
+4 & $02^{2f}0$ & 3.841755e+13 & 1.073916e+10 & 3.447316e+03 & -2.504127e-03 & 5.800843e-07 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 1 1}} \\ \hline
+5 & $01^{1e}1$ & 8.648984e+13 & 1.063181e+10 & 3.370067e+03 & 2.561471e-04 & 7.953695e-09 \\ \hline
+6 & $01^{1f}1$ & 8.648984e+13 & 1.064745e+10 & 3.391076e+03 & -4.829163e-03 & 1.064912e-06 \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 1 0 + 0 3 0}} \\ \hline
+7 & $[11^{1e}0, 03^{1e}0]_{I}$ & 5.966249e+13 & 1.070722e+10 & 3.139798e+03 & -1.015316e-02 & 8.152701e-06 \\ \hline
+8 & $[11^{1e}0, 03^{1e}0]_{II}$ & 5.557934e+13 & 1.071403e+10 & 3.720610e+03 & -8.357787e-03 & 6.860969e-06 \\ \hline
+9 & $[11^{1f}0, 03^{1f}0]_{I}$ & 5.966249e+13 & 1.073160e+10 & 3.018549e+03 & -3.048363e-02 & 1.589723e-05 \\ \hline
+10 & $[11^{1f}0, 03^{1f}0]_{II}$ & 5.557934e+13 & 1.073849e+10 & 3.879536e+03 & -2.175305e-02 & 1.118141e-05 \\ \hline
+11 & $03^{3e}0$ & 5.764160e+13 & 1.075797e+10 & 3.515123e+03 & 5.574211e-03 & -2.726061e-06 \\ \hline
+12 & $03^{3f}0$ & 5.764160e+13 & 1.075798e+10 & 3.515890e+03 & 6.458410e-03 & -3.125042e-06 \\ \hline
+\multicolumn{7}{|c|}{\textbf{0 0 2}} \\ \hline
+13 & $0^002$ & - & - & - & - & - \\ \hline
+\multicolumn{7}{|c|}{\textbf{1 0 1 + 0 2 1}} \\ \hline
+14 & $[10^01, 02^01]_{I}$ & 1.068645e+14 & 1.061939e+10 & 2.859092e+03 & 3.538311e-03 & 5.370825e-08 \\ \hline
+15 & $[10^01, 02^01]_{II}$ & 1.039876e+14 & 1.062791e+10 & 3.922476e+03 & 5.014599e-03 & -1.272138e-08 \\ \hline
+16 & $02^{2e}1$ & 1.053588e+14 & 1.065927e+10 & 3.418964e+03 & -7.045723e-03 & -1.394816e-07 \\ \hline
+17 & $02^{2f}1$ & 1.053588e+14 & 1.065928e+10 & 3.437025e+03 & -1.081578e-03 & 3.478069e-07 \\ \hline
+\end{tabular}
+\end{table}

@@ -100,17 +100,17 @@ private:
     double q2_b, q3_b, q4_b, qT_b, time_b;
     // ------- GAS MIXTURE -------
     double p_CO2, p_N2, p_He;
-    double p_626, p_628, p_828, p_636, p_638, p_838;
+    double p_626, p_727, p_828, p_636, p_737, p_838, p_627, p_628, p_728, p_637, p_638, p_738;
     double T0;
     // ------- SPECTROSCOPY -------
     // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...59
-    double nop[6][18][60];        // normalized populations
-    std::vector<double> v[6];     // transition frequencies, Hz
-    std::vector<double> sigma[6]; // transition cross-sections, m^2
-    std::vector<int> vl_up[6];    // upper vibrational level of the transition (see initialization for numbering)
-    std::vector<int> vl_lo[6];    // lower vibrational level of the transition
-    std::vector<int> j_up[6];     // rotational quantum number of the upper level of the transition
-    std::vector<int> j_lo[6];     // rotational quantum number of the lower level of the transition
+    double nop[12][18][60];        // normalized populations
+    std::vector<double> v[12];     // transition frequencies, Hz
+    std::vector<double> sigma[12]; // transition cross-sections, m^2
+    std::vector<int> vl_up[12];    // upper vibrational level of the transition (see initialization for numbering)
+    std::vector<int> vl_lo[12];    // lower vibrational level of the transition
+    std::vector<int> j_up[12];     // rotational quantum number of the upper level of the transition
+    std::vector<int> j_lo[12];     // rotational quantum number of the lower level of the transition
 
     // ------- BOLTZMANN -------
     int b0;

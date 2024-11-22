@@ -99,12 +99,6 @@ A::A(std::string id)
         pump_sigma = std::stod(value); // m^2
         Debug(2, "pump_sigma (abs. cross-section) = " + toExpString(pump_wl) + " m^2");
 
-        /*if(!YamlGetValue(&value, yaml, "pump_fluence"))
-        {
-            configuration_error = true;
-            return;
-        }
-        pump_fluence = std::stod(value); // J/m^2*/
 
         // Pumping pulse profile: time(s) Intensity(W/m^2)
         if(!YamlGetData(&pumping_pulse_time, yaml, "pumping_pulse", 0)
@@ -113,112 +107,169 @@ A::A(std::string id)
             configuration_error = true;
             return;
         }
-        Debug(2, "Pumping pulse profile [Time(s) Intensity(W/m^2))] (only displayed if debug level >= 3)");
-        if(debug_level >= 3)
+        Debug(2, "Pumping pulse profile [Time(s) Intensity(W/m^2))]");
+        if(debug_level >= 2)
+        {
             for(int i=0; i<pumping_pulse_time.size(); i++)
+            {
                 std::cout << toExpString(pumping_pulse_time[i]) <<  " "
-                << toExpString(pumping_pulse_intensity[i])
-                << std::endl;
+                << toExpString(pumping_pulse_intensity[i]) << std::endl;
+            }
+        }
     }
 
     // ------- GAS MIXTURE -------
+
+    // defaults
     p_626 = 0;
-    p_628 = 0;
+    p_727 = 0;
     p_828 = 0;
     p_636 = 0;
-    p_638 = 0;
+    p_737 = 0;
     p_838 = 0;
+    p_627 = 0;
+    p_628 = 0;
+    p_728 = 0;
+    p_637 = 0;
+    p_638 = 0;
+    p_738 = 0;
     p_CO2 = 0;
+    double O16 = 1; // Oxygen-16 content (0..1)
+    double O17 = 0; // Oxygen-17 content (0..1)
     double O18 = 0; // Oxygen-18 content (0..1)
+    double C12 = 1; // Carbon-12 content (0..1)
     double C13 = 0; // Carbon-13 content (0..1)
 
-    if(YamlGetValue(&value, yaml, "p_CO2"))
+    if(YamlGetValue(&value, yaml, "p_CO2", false))
     {
         p_CO2 = std::stod(value);
         Debug(2, "p_CO2 = " + std::to_string(p_CO2) + " bar");
+        Debug(2, "Because p_CO2 is specified, partial pressures of isotopologues will be");
+        Debug(2, "calculated at statistical equilibrium for specified isotope content");
 
-        if(!YamlGetValue(&value, yaml, "O18"))
+        // Check if content of rare isotopes provided
+        if(YamlGetValue(&value, yaml, "O17", false))
         {
-            configuration_error = true;
-            return;
+            O17 = std::stod(value);
         }
-        O18 = std::stod(value);
+
+        if(YamlGetValue(&value, yaml, "O18", false))
+        {
+            O18 = std::stod(value);
+        }
+
+        if(YamlGetValue(&value, yaml, "C13", false))
+        {
+            C13 = std::stod(value);
+        }
+
+        // Check if content of natural isotopes provided. If not - calculate as a balance
+        if(YamlGetValue(&value, yaml, "O16", false))
+        {
+            O16 = std::stod(value);
+        }
+        else
+        {
+            O16 = 1 - (O17 + O18);
+        }
+
+        if(YamlGetValue(&value, yaml, "C12", false))
+        {
+            C12 = std::stod(value);
+        }
+        else
+        {
+            C12 = 1 - C13;
+        }
+
+        Debug(2, "O16 = " + std::to_string(O16) + " (" + std::to_string(O16*100) + " %)");
+        Debug(2, "O17 = " + std::to_string(O17) + " (" + std::to_string(O17*100) + " %)");
         Debug(2, "O18 = " + std::to_string(O18) + " (" + std::to_string(O18*100) + " %)");
-
-        if(!YamlGetValue(&value, yaml, "C13"))
-        {
-            configuration_error = true;
-            return;
-        }
-        C13 = std::stod(value);
+        Debug(2, "C12 = " + std::to_string(C12) + " (" + std::to_string(C12*100) + " %)");
         Debug(2, "C13 = " + std::to_string(C13) + " (" + std::to_string(C13*100) + " %)");
 
-        p_626 = p_CO2 * pow(1-O18,2) * (1-C13);
-        p_628 = p_CO2 * 2*(1-O18)*O18 * (1-C13);
-        p_828 = p_CO2 * pow(O18,2) * (1-C13);
-        p_636 = p_CO2 * pow(1-O18,2) * C13;
-        p_638 = p_CO2 * 2*(1-O18)*O18 * C13;
-        p_838 = p_CO2 * pow(O18,2) * C13;
+        p_626 =    p_CO2 * O16 * C12 * O16;
+        p_727 =    p_CO2 * O17 * C12 * O17;
+        p_828 =    p_CO2 * O18 * C12 * O18;
+        p_636 =    p_CO2 * O16 * C13 * O16;
+        p_737 =    p_CO2 * O17 * C13 * O17;
+        p_838 =    p_CO2 * O18 * C13 * O18;
+        p_627 = 2* p_CO2 * O16 * C12 * O17;
+        p_628 = 2* p_CO2 * O16 * C12 * O18;
+        p_728 = 2* p_CO2 * O17 * C12 * O18;
+        p_637 = 2* p_CO2 * O16 * C13 * O17;
+        p_638 = 2* p_CO2 * O16 * C13 * O18;
+        p_738 = 2* p_CO2 * O17 * C13 * O18;
         Debug(2, "Isotopic composition (calculated for statistical equilibrium):");
     }
     else
     {
-        std::cout << "Let's check if pressures of six CO2 isotopologues provided...\n";
+        Debug(2, "Because p_CO2 is NOT specified, partial pressures of isotopologues will be");
+        Debug(2, "read from the configuration (or set to zero if not specified)");
 
-        if(!YamlGetValue(&value, yaml, "p_626"))
+        if(YamlGetValue(&value, yaml, "p_626", false))
         {
-            configuration_error = true;
-            return;
+            p_626 = std::stod(value);
         }
-        p_626 = std::stod(value);
+        if(YamlGetValue(&value, yaml, "p_727", false))
+        {
+            p_727 = std::stod(value);
+        }
 
-        if(!YamlGetValue(&value, yaml, "p_628"))
+        if(YamlGetValue(&value, yaml, "p_828", false))
         {
-            configuration_error = true;
-            return;
+            p_828 = std::stod(value);
         }
-        p_628 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_828"))
+        if(YamlGetValue(&value, yaml, "p_636", false))
         {
-            configuration_error = true;
-            return;
+            p_636 = std::stod(value);
         }
-        p_828 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_636"))
+        if(YamlGetValue(&value, yaml, "p_737", false))
         {
-            configuration_error = true;
-            return;
+            p_737 = std::stod(value);
         }
-        p_636 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_638"))
+        if(YamlGetValue(&value, yaml, "p_838", false))
         {
-            configuration_error = true;
-            return;
+            p_838 = std::stod(value);
         }
-        p_638 = std::stod(value);
 
-        if(!YamlGetValue(&value, yaml, "p_838"))
+        if(YamlGetValue(&value, yaml, "p_627", false))
         {
-            configuration_error = true;
-            return;
+            p_627 = std::stod(value);
         }
-        p_838 = std::stod(value);
+
+        if(YamlGetValue(&value, yaml, "p_628", false))
+        {
+            p_628 = std::stod(value);
+        }
+
+        if(YamlGetValue(&value, yaml, "p_728", false))
+        {
+            p_728 = std::stod(value);
+        }
+
+        if(YamlGetValue(&value, yaml, "p_637", false))
+        {
+            p_637 = std::stod(value);
+        }
+
+        if(YamlGetValue(&value, yaml, "p_638", false))
+        {
+            p_638 = std::stod(value);
+        }
+
+        if(YamlGetValue(&value, yaml, "p_738", false))
+        {
+            p_738 = std::stod(value);
+        }
 
         // Total CO2 pressure, bar
-        p_CO2 = p_626+p_628+p_828+p_636+p_638+p_838;
-        Debug(2, "p_CO2 = " + std::to_string(p_CO2) + " bar");
-        Debug(2, "(Calculated as a sum of isotopologues):");
+        p_CO2 = p_626+p_727+p_828+p_636+p_737+p_838+p_627+p_628+p_728+p_637+p_638+p_738;
+        Debug(2, "(p_CO2 is calculated as a sum of isotopologues)");
     }
-
-    Debug(2, "p_626 = " + std::to_string(p_626) + " bar");
-    Debug(2, "p_628 = " + std::to_string(p_628) + " bar");
-    Debug(2, "p_828 = " + std::to_string(p_828) + " bar");
-    Debug(2, "p_636 = " + std::to_string(p_636) + " bar");
-    Debug(2, "p_638 = " + std::to_string(p_638) + " bar");
-    Debug(2, "p_636 = " + std::to_string(p_838) + " bar");
 
     if(!YamlGetValue(&value, yaml, "p_N2"))
     {
@@ -226,7 +277,6 @@ A::A(std::string id)
         return;
     }
     p_N2 = std::stod(value);
-    Debug(2, "p_N2 = " + std::to_string(p_N2) + " bar");
 
     if(!YamlGetValue(&value, yaml, "p_He"))
     {
@@ -234,7 +284,26 @@ A::A(std::string id)
         return;
     }
     p_He = std::stod(value);
-    Debug(2, "p_He = " + std::to_string(p_He) + " bar");
+
+    Debug(1, id + " gas composition:");
+    if(debug_level>=1)
+    {
+        std::cout << "  p_CO2 = " + std::to_string(p_CO2) + " bar\n" ;
+        if(p_626>0) std::cout << "    p_626 = " + std::to_string(p_626) + " bar\n" ;
+        if(p_727>0) std::cout << "    p_727 = " + std::to_string(p_727) + " bar\n" ;
+        if(p_828>0) std::cout << "    p_828 = " + std::to_string(p_828) + " bar\n" ;
+        if(p_636>0) std::cout << "    p_636 = " + std::to_string(p_636) + " bar\n" ;
+        if(p_737>0) std::cout << "    p_737 = " + std::to_string(p_737) + " bar\n" ;
+        if(p_838>0) std::cout << "    p_838 = " + std::to_string(p_838) + " bar\n" ;
+        if(p_627>0) std::cout << "    p_627 = " + std::to_string(p_627) + " bar\n" ;
+        if(p_628>0) std::cout << "    p_628 = " + std::to_string(p_628) + " bar\n" ;
+        if(p_728>0) std::cout << "    p_728 = " + std::to_string(p_728) + " bar\n" ;
+        if(p_637>0) std::cout << "    p_637 = " + std::to_string(p_637) + " bar\n" ;
+        if(p_638>0) std::cout << "    p_638 = " + std::to_string(p_638) + " bar\n" ;
+        if(p_738>0) std::cout << "    p_738 = " + std::to_string(p_738) + " bar\n" ;
+        std::cout << "  p_N2 = " + std::to_string(p_N2) + " bar\n" ;
+        std::cout << "  p_He = " + std::to_string(p_He) + " bar\n" ;
+    }
 
     if(!YamlGetValue(&value, yaml, "T0"))
     {
@@ -242,7 +311,7 @@ A::A(std::string id)
         return;
     }
     T0 = std::stod(value);
-    Debug(2, "T0 = " + std::to_string(T0) + " K");
+    Debug(1, "T0 = " + std::to_string(T0) + " K");
 
     if(p_CO2+p_N2+p_He <=0)
     {
@@ -251,76 +320,70 @@ A::A(std::string id)
     }
 
     // ------- BANDS TO CONSIDER -------
+
+    // defaults
     band_reg = true;
     band_seq = true;
     band_hot = true;
     band_4um = false;
 
-    if(!YamlGetValue(&value, yaml, "band_reg"))
+    if(YamlGetValue(&value, yaml, "band_reg", false))
     {
-        configuration_error = true;
-        return;
+        if(value!="true" && value!="false")
+        {
+            configuration_error = true;
+            std::cout << "ERROR: Wrong \'band_reg\' parameter (must be \"true\" or \"false\")\n";
+            return;
+        }
+        band_reg = value=="true" ? true : false;
     }
-    if(value!="true" && value!="false")
-    {
-        configuration_error = true;
-        std::cout << "ERROR: Wrong \'band_reg\' parameter (must be \"true\" or \"false\")\n";
-        return;
-    }
-    if(value=="false")
-        band_reg = false;
 
-    if(!YamlGetValue(&value, yaml, "band_seq"))
+    if(YamlGetValue(&value, yaml, "band_seq", false))
     {
-        configuration_error = true;
-        return;
+        if(value!="true" && value!="false")
+        {
+            configuration_error = true;
+            std::cout << "ERROR: Wrong \'band_seq\' parameter (must be \"true\" or \"false\")\n";
+            return;
+        }
+        band_seq = value=="true" ? true : false;
     }
-    if(value!="true" && value!="false")
-    {
-        configuration_error = true;
-        std::cout << "ERROR: Wrong \'band_seq\' parameter (must be \"true\" or \"false\")\n";
-        return;
-    }
-    if(value=="false")
-        band_seq = false;
 
-    if(!YamlGetValue(&value, yaml, "band_hot"))
+    if(YamlGetValue(&value, yaml, "band_hot", false))
     {
-        configuration_error = true;
-        return;
+        if(value!="true" && value!="false")
+        {
+            configuration_error = true;
+            std::cout << "ERROR: Wrong \'band_hot\' parameter (must be \"true\" or \"false\")\n";
+            return;
+        }
+        band_hot = value=="true" ? true : false;
     }
-    if(value!="true" && value!="false")
-    {
-        configuration_error = true;
-        std::cout << "ERROR: Wrong \'band_hot\' parameter (must be \"true\" or \"false\")\n";
-        return;
-    }
-    if(value=="false")
-        band_hot = false;
 
-    if(!YamlGetValue(&value, yaml, "band_4um"))
+    if(YamlGetValue(&value, yaml, "band_4um", false))
     {
-        value = false;
+        if(value!="true" && value!="false")
+        {
+            configuration_error = true;
+            std::cout << "ERROR: Wrong \'band_4um\' parameter (must be \"true\" or \"false\")\n";
+            return;
+        }
+        band_4um = value=="true" ? true : false;
     }
-    else if(value!="true" && value!="false")
-    {
-        configuration_error = true;
-        std::cout << "ERROR: Wrong \'band_4um\' parameter (must be \"true\" or \"false\")\n";
-        return;
-    }
-    if(value=="true")
-        band_4um = true;
 
-    Debug(2, "Bands included in calculations:");
-    std::string truefalse;
-    truefalse = (band_reg ? +"true" : +"false");
-    Debug(2, "band_reg: " + truefalse);
-    truefalse = (band_seq ? +"true" : +"false");
-    Debug(2, "band_seq: " + truefalse);
-    truefalse = (band_hot ? +"true" : +"false");
-    Debug(2, "band_hot: " + truefalse);
-    truefalse = (band_4um ? +"true" : +"false");
-    Debug(2, "band_4um: " + truefalse);
+    Debug(1, id + " bands to consider:");
+    if(debug_level>=1)
+    {
+        std::string truefalse;
+        truefalse = (band_reg ? +"true" : +"false");
+        std::cout << "  band_reg: " + truefalse + "\n" ;
+        truefalse = (band_seq ? +"true" : +"false");
+        std::cout << "  band_seq: " + truefalse + "\n" ;
+        truefalse = (band_hot ? +"true" : +"false");
+        std::cout << "  band_hot: " + truefalse + "\n" ;
+        truefalse = (band_4um ? +"true" : +"false");
+        std::cout << "  band_4um: " + truefalse + "\n" ;
+    }
 
     // ------- MISC INITIALISATIONS -------
     // allocate memory

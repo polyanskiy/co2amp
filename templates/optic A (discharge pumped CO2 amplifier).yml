@@ -1,46 +1,50 @@
 # Configuration YAML file, type A
 # - Discahrge pumped active medium -
-# template v.2020-05-25
+# template v.2024-11-21
 
-# Semi-diameter of the limiting aperture, m
+# Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
 
-# Length of active medium, m
+# Length of active medium (m)
 L: 1
 
 # GAS COMPOSITION
-# N2 and He partial pressures, bar
-p_N2:  0.25
-p_He:  8
-# CO2 partial pressure and isotopic composition:
-# either provide total CO2 pressure and relative
-# content of 18O and 13O (in this case statistical
-# equilibrium is assumed), or specify pressures (bar)
-# of 626, 628, 828, 636, 638 and 838 isotopologues
+# N2 and He partial pressures (bar)
+p_N2: 0.25
+p_He: 8
+# CO2 partial pressure and isotopic composition
+# Option 1: CO2 pressure (bar) and isotopic content of O and C (0...1)
+# default: [C13]: 0; [C12]: balance
+#          [O17]: 0; [O18]:0; [O16]: balance
+# isotopologue pressures are calculated automatically for statistical equilibrium
 p_CO2: 0.5
-O18:   0.43
-C13:   0
+O17: 0
+O18: 0.43
+C13: 0
+# Option 2:  Pressures (bar) of isotopologues
+# (626, 727, 828, 636, 737, 838, 627, 628, 728, 637, 638, 738)
+# default: 0 bar for all isotopologues
 #p_626: 0.162
 #p_628: 0.245
 #p_828: 0.093
-#p_636: 0
-#p_638: 0
-#p_838: 0
 
-# Temperature, K
-T0:    300
+# Temperature (K)
+T0: 300
 
 # Bands included in calculations
-band_reg: true
+# default: band_reg: true
+#          band_seq: true
+#          band_hot: true
+#          band_4um: false
 band_seq: true
 band_hot: true
 
 # Pumping type (discharge/optical)
 pumping: discharge
 ############ if pumping == discharge ############
-# Discharge volume, m^3
+# Discharge volume (m^3)
 Vd: 8.5e-3
-# Inter-electrode distance, m
+# Inter-electrode distance (m)
 D:  85e-3
 # discharge profile (s A V)
 discharge: |
