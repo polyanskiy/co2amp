@@ -103,8 +103,8 @@ private:
     double p_626, p_727, p_828, p_636, p_737, p_838, p_627, p_628, p_728, p_637, p_638, p_738;
     double T0;
     // ------- SPECTROSCOPY -------
-    // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...59
-    double nop[12][18][60];        // normalized populations
+    // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...79
+    double nop[12][18][80];        // normalized populations
     std::vector<double> v[12];     // transition frequencies, Hz
     std::vector<double> sigma[12]; // transition cross-sections, m^2
     std::vector<int> vl_up[12];    // upper vibrational level of the transition (see initialization for numbering)

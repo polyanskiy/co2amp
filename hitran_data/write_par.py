@@ -1,14 +1,14 @@
 
 # ================================== INPUT ====================================
 
-output_filename = "estimate_828_band_2f.par"
+output_filename = "estimate_628_band_5.par"
 
-iso_id = '7'  # Isotopologue id
+iso_id = '3'  # Isotopologue id
 # 626: 1, 727: 9, 828: 7, 636: 2, 737: B, 838: 0
 # 627: 4, 628: 3, 728: 8, 637: 6, 638: 5, 738: A
 
 
-A_value = "1.180E-01"  # Einstein A coefficient
+A_value = "5.430E-01"  # Einstein A coefficient
 
 
 # Vibrational levels and symmetry
@@ -19,23 +19,23 @@ A_value = "1.180E-01"  # Einstein A coefficient
 #symmetry = 'e'
 
 #hot. (bands 2 & 3 - depending on last digits in V_lo_up and V_lo)
-V_up = ' 0 1 1 11'
-V_lo = ' 1 1 1 01'
-symmetry = 'f'
+#V_up = ' 0 1 1 11'
+#V_lo = ' 1 1 1 01'
+#symmetry = 'f'
 
 #seq. (bands 4 & 5 - depending on last digit in V_lo)
-#V_up = ' 0 0 0 21'
-#V_lo = ' 1 0 0 11'
-#symmetry = 'e'
+V_up = ' 0 0 0 21'
+V_lo = ' 1 0 0 12'
+symmetry = 'e'
 
 
 
 
 #Molecular constants of vibrational levels
 
-mc_up = "8.871241e+13 1.034305e+10 3.211021e+03 -4.142739e-04 5.457863e-08"
+mc_up = "1.390888e+14 1.086421e+10 3.542835e+03 3.316297e-04 2.579492e-09"
 
-mc_lo = "6.069384e+13 1.044155e+10 2.915684e+03 -8.769903e-04 1.246696e-08"
+mc_lo = "1.070601e+14 1.095164e+10 4.126369e+03 6.312306e-03 -2.519441e-08"
 
 # =============================================================================
 
@@ -87,7 +87,7 @@ def is_allowed_transition(J_up, J_lo, l_up, l_lo, parity_up, parity_lo):
 # Create and write .par file
 with open(output_filename, 'w') as f:
     for branch in ['P', 'R']:
-        for J in range(0, 101):
+        for J in range(0, 99):
             if branch == 'P':
                 J_lo = J
                 J_up = J_lo - 1

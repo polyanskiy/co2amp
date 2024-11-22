@@ -59,7 +59,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         int vl; // vibrational level number
         int j;  // rotational quantum number
         double Nvib[12][18], Nvib0[12][18];             // Population densities of vibrational lelvels (actual and equilibrium)
-        double Nrot[12][18][60];                       // Population densities of rotational lelvels (actual)
+        double Nrot[12][18][80];                       // Population densities of rotational lelvels (actual)
         std::vector<double> Dn[12];                    // Population inversions (rotational transitions)
         std::vector<std::complex<double>> rho[12];     // Polarizations
         std::complex<double> E_in;                    // input field (before ampliifcation)
@@ -109,7 +109,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             for(vl=0; vl<18; ++vl)
             {
                 Nvib[i][vl] = Nvib0[i][vl]; // initial population densities of vibrational levels
-                for(j=0; j<60; ++j)
+                for(j=0; j<80; ++j)
                     Nrot[i][vl][j] = nop[i][vl][j] * Nvib[i][vl]; // initial population densities of rotational sub-levels
             }
 
@@ -185,7 +185,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 // ROTATIONAL REFILL (half-step 1)
                 for(vl=0; vl<18; ++vl)
                 {
-                    for(j=0; j<60; ++j)
+                    for(j=0; j<80; ++j)
                     {
                         Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1-exp_tauR);
                     }
@@ -209,7 +209,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 // ROTATIONAL REFILL (half-step 2)
                 for(vl=0; vl<18; vl++)
                 {
-                    for(j=0; j<60; ++j)
+                    for(j=0; j<80; ++j)
                     {
                         Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1.0-exp_tauR);
                     }

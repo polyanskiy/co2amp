@@ -170,7 +170,7 @@ void A::AmplificationBand(void)
                 continue;
 
             // vibrational bands
-            // Don't add data to the arrays yet (must make sure the rotational numbers of both levels are within 0...59 range
+            // Don't add data to the arrays yet (must make sure the rotational numbers of both levels are within 0...79 range
             std::string Vup_id = line.substr(73, 9);   // upper vibrational level e.g. " 0 1 1 11"
             std::string Vlo_id = line.substr(88, 9);   // lower vibrational level e.g. " 1 1 1 01"
             std::string band_map[9]=
@@ -206,7 +206,7 @@ void A::AmplificationBand(void)
             if( !band_4um && (band == 6 || band == 7 || band == 8) )
                 continue;
 
-            // Do final checks (rotational numbers of involved levels are 0...59)
+            // Do final checks (rotational numbers of involved levels are 0...79)
             // and start adding data to the arrays defining transitions
             // j_up, j_lo, vl_up, vl_lo
 
@@ -217,20 +217,20 @@ void A::AmplificationBand(void)
             switch(pqr)
             {
                 case 'P':
-                    if(J>59 || J<1)
+                    if(J>79 || J<1)
                         continue;
                     j_lo[i].push_back(J);
                     j_up[i].push_back(J-1);
                     break;
                 case 'R':
-                    if(J>58)
+                    if(J>78)
                         continue;
                     j_lo[i].push_back(J);
                     j_up[i].push_back(J+1);
                     break;
                 case 'Q':
                     continue; // ignore Q branch
-                    /*if(J>59)
+                    /*if(J>79)
                         continue;
                     j_lo[i].push_back(J);
                     j_up[i].push_back(J);*/
@@ -341,7 +341,7 @@ void A::AmplificationBand(void)
             char symmetry[18] = {'e',   'e',   'e',   'e',   'f',   'e',   'f',   'e',   'e',   'f',   'f',   'e',   'f',   'e',   'e',   'e',   'e',   'f'  };
 
             //general expression for energy distribution between rotational sub-levels
-            for(int j=0; j<60; ++j)
+            for(int j=0; j<80; ++j)
             {
                 nop[i][vl][j] = h*B[i][vl]/(k*T0) * (2*j+1) * exp(-h*B[i][vl]/(k*T0)*j*(j+1));
             }
@@ -356,21 +356,21 @@ void A::AmplificationBand(void)
             {
                 if( (parity[vl]=='g' && symmetry[vl]=='e') || (parity[vl]=='u' && symmetry[vl]=='f') ) // only even J's populated
                 {
-                    for(int j=1; j<60; j+=2)
+                    for(int j=1; j<80; j+=2)
                     {
                         nop[i][vl][j] = 0; // odd J's not populated
                     }
                 } // only odd J's populated
                 else
                 {
-                    for(int j=0; j<60; j+=2)
+                    for(int j=0; j<80; j+=2)
                     {
                         nop[i][vl][j] = 0; // even J's not populated
                     }
                 }
 
                 // double sub-level's population to keep total polulation of vibrational level
-                for(int j=0; j<60; ++j)
+                for(int j=0; j<80; ++j)
                 {
                     nop[i][vl][j] *= 2;
                 }
