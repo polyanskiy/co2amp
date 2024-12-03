@@ -194,25 +194,31 @@ void A::CalculateQ(void)
     for(k=1; k<16; k++)
         z2[k] = 1e16 * Y2 * u2[k] * w2[k] / E_over_N / v;
 
+    // N2
     q4 = 0;
     for(k=1; k<9; k++)
         q4 += z2[k];
 
+    // 000 -> 001
     q3 = z1[7];
 
+    // 000 -> 010: z1[1]
+    // 000 -> (100+020): z1[2]
+    // 000 -> (0n0+n00): z1[3]...z1[6]
     q2 = 0;
     for(k=1; k<7; k++)
         q2 += z1[k];
 
     qT = zt + zr;
 
+    // electron excitation and ionization
     double qEI = 0;
     for(k=9; k<16; k++)
         qEI += z2[k];
     for(k=8; k<11; k++)
         qEI += z1[k];
 
-    // Fine-tune Q's (q => 0)
+    // Fine-tune Q's (q >= 0)
     if(q2<0)
         q2 = 0;
     if(q3<0)

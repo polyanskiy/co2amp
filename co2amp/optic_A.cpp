@@ -121,19 +121,10 @@ A::A(std::string id)
     // ------- GAS MIXTURE -------
 
     // defaults
-    p_626 = 0;
-    p_727 = 0;
-    p_828 = 0;
-    p_636 = 0;
-    p_737 = 0;
-    p_838 = 0;
-    p_627 = 0;
-    p_628 = 0;
-    p_728 = 0;
-    p_637 = 0;
-    p_638 = 0;
-    p_738 = 0;
-    p_CO2 = 0;
+    for(int i=0; i<12; i++)
+    {
+        p_iso[i] = 0;
+    }
     double O16 = 1; // Oxygen-16 content (0..1)
     double O17 = 0; // Oxygen-17 content (0..1)
     double O18 = 0; // Oxygen-18 content (0..1)
@@ -188,18 +179,18 @@ A::A(std::string id)
         Debug(2, "C12 = " + std::to_string(C12) + " (" + std::to_string(C12*100) + " %)");
         Debug(2, "C13 = " + std::to_string(C13) + " (" + std::to_string(C13*100) + " %)");
 
-        p_626 =    p_CO2 * O16 * C12 * O16;
-        p_727 =    p_CO2 * O17 * C12 * O17;
-        p_828 =    p_CO2 * O18 * C12 * O18;
-        p_636 =    p_CO2 * O16 * C13 * O16;
-        p_737 =    p_CO2 * O17 * C13 * O17;
-        p_838 =    p_CO2 * O18 * C13 * O18;
-        p_627 = 2* p_CO2 * O16 * C12 * O17;
-        p_628 = 2* p_CO2 * O16 * C12 * O18;
-        p_728 = 2* p_CO2 * O17 * C12 * O18;
-        p_637 = 2* p_CO2 * O16 * C13 * O17;
-        p_638 = 2* p_CO2 * O16 * C13 * O18;
-        p_738 = 2* p_CO2 * O17 * C13 * O18;
+        p_iso[0]  =    p_CO2 * O16 * C12 * O16;
+        p_iso[1]  =    p_CO2 * O17 * C12 * O17;
+        p_iso[2]  =    p_CO2 * O18 * C12 * O18;
+        p_iso[3]  =    p_CO2 * O16 * C13 * O16;
+        p_iso[4]  =    p_CO2 * O17 * C13 * O17;
+        p_iso[5]  =    p_CO2 * O18 * C13 * O18;
+        p_iso[6]  = 2* p_CO2 * O16 * C12 * O17;
+        p_iso[7]  = 2* p_CO2 * O16 * C12 * O18;
+        p_iso[8]  = 2* p_CO2 * O17 * C12 * O18;
+        p_iso[9]  = 2* p_CO2 * O16 * C13 * O17;
+        p_iso[10] = 2* p_CO2 * O16 * C13 * O18;
+        p_iso[11] = 2* p_CO2 * O17 * C13 * O18;
         Debug(2, "Isotopic composition (calculated for statistical equilibrium):");
     }
     else
@@ -209,65 +200,69 @@ A::A(std::string id)
 
         if(YamlGetValue(&value, yaml, "p_626", false))
         {
-            p_626 = std::stod(value);
+            p_iso[0] = std::stod(value);
         }
         if(YamlGetValue(&value, yaml, "p_727", false))
         {
-            p_727 = std::stod(value);
+            p_iso[1] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_828", false))
         {
-            p_828 = std::stod(value);
+            p_iso[2] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_636", false))
         {
-            p_636 = std::stod(value);
+            p_iso[3] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_737", false))
         {
-            p_737 = std::stod(value);
+            p_iso[4] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_838", false))
         {
-            p_838 = std::stod(value);
+            p_iso[5] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_627", false))
         {
-            p_627 = std::stod(value);
+            p_iso[6] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_628", false))
         {
-            p_628 = std::stod(value);
+            p_iso[7] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_728", false))
         {
-            p_728 = std::stod(value);
+            p_iso[8] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_637", false))
         {
-            p_637 = std::stod(value);
+            p_iso[9] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_638", false))
         {
-            p_638 = std::stod(value);
+            p_iso[10] = std::stod(value);
         }
 
         if(YamlGetValue(&value, yaml, "p_738", false))
         {
-            p_738 = std::stod(value);
+            p_iso[11] = std::stod(value);
         }
 
         // Total CO2 pressure, bar
-        p_CO2 = p_626+p_727+p_828+p_636+p_737+p_838+p_627+p_628+p_728+p_637+p_638+p_738;
+        p_CO2 = 0;
+        for(int i=0; i<12; ++i)
+        {
+            p_CO2 += p_iso[i];
+        }
         Debug(2, "(p_CO2 is calculated as a sum of isotopologues)");
     }
 
@@ -289,18 +284,18 @@ A::A(std::string id)
     if(debug_level>=1)
     {
         std::cout << "  p_CO2 = " + std::to_string(p_CO2) + " bar\n" ;
-        if(p_626>0) std::cout << "    p_626 = " + std::to_string(p_626) + " bar\n" ;
-        if(p_727>0) std::cout << "    p_727 = " + std::to_string(p_727) + " bar\n" ;
-        if(p_828>0) std::cout << "    p_828 = " + std::to_string(p_828) + " bar\n" ;
-        if(p_636>0) std::cout << "    p_636 = " + std::to_string(p_636) + " bar\n" ;
-        if(p_737>0) std::cout << "    p_737 = " + std::to_string(p_737) + " bar\n" ;
-        if(p_838>0) std::cout << "    p_838 = " + std::to_string(p_838) + " bar\n" ;
-        if(p_627>0) std::cout << "    p_627 = " + std::to_string(p_627) + " bar\n" ;
-        if(p_628>0) std::cout << "    p_628 = " + std::to_string(p_628) + " bar\n" ;
-        if(p_728>0) std::cout << "    p_728 = " + std::to_string(p_728) + " bar\n" ;
-        if(p_637>0) std::cout << "    p_637 = " + std::to_string(p_637) + " bar\n" ;
-        if(p_638>0) std::cout << "    p_638 = " + std::to_string(p_638) + " bar\n" ;
-        if(p_738>0) std::cout << "    p_738 = " + std::to_string(p_738) + " bar\n" ;
+        if(p_iso[0]>0)  std::cout << "    p_626 = " + std::to_string(p_iso[0])  + " bar\n" ;
+        if(p_iso[1]>0)  std::cout << "    p_727 = " + std::to_string(p_iso[1])  + " bar\n" ;
+        if(p_iso[2]>0)  std::cout << "    p_828 = " + std::to_string(p_iso[2])  + " bar\n" ;
+        if(p_iso[3]>0)  std::cout << "    p_636 = " + std::to_string(p_iso[3])  + " bar\n" ;
+        if(p_iso[4]>0)  std::cout << "    p_737 = " + std::to_string(p_iso[4])  + " bar\n" ;
+        if(p_iso[5]>0)  std::cout << "    p_838 = " + std::to_string(p_iso[5])  + " bar\n" ;
+        if(p_iso[6]>0)  std::cout << "    p_627 = " + std::to_string(p_iso[6])  + " bar\n" ;
+        if(p_iso[7]>0)  std::cout << "    p_628 = " + std::to_string(p_iso[7])  + " bar\n" ;
+        if(p_iso[8]>0)  std::cout << "    p_728 = " + std::to_string(p_iso[8])  + " bar\n" ;
+        if(p_iso[9]>0)  std::cout << "    p_637 = " + std::to_string(p_iso[9])  + " bar\n" ;
+        if(p_iso[10]>0) std::cout << "    p_638 = " + std::to_string(p_iso[10]) + " bar\n" ;
+        if(p_iso[11]>0) std::cout << "    p_738 = " + std::to_string(p_iso[11]) + " bar\n" ;
         std::cout << "  p_N2 = " + std::to_string(p_N2) + " bar\n" ;
         std::cout << "  p_He = " + std::to_string(p_He) + " bar\n" ;
     }
@@ -386,29 +381,48 @@ A::A(std::string id)
     }
 
     // ------- MISC INITIALISATIONS -------
+
+    // Convert pressures to number densities where needed
+    N_CO2 = 2.7e25*p_CO2;
+    for(int i=0; i<12; ++i)
+    {
+        N_iso[i] = 2.7e25*p_iso[i];
+    }
+
     // allocate memory
     e2 = new double [x0];
     e3 = new double [x0];
     e4 = new double [x0];
     T  = new double [x0];
+
+    for(int i=0; i<12; ++i) // isotopologues
+    {
+        for(int gr=0; gr<6; ++gr) // groups of vib. levels
+        {
+            N_gr[i][gr] = new double[x0];
+        }
+    }
     gainSpectrum  = new double [n0];
 
-    // 1 Fill out spectroscoic arrays &
+
+    // Fill out spectroscoic arrays &
     AmplificationBand();
 
-    // 2 Populations and field initialization
+    // Populations and field initialization
     InitializePopulations();
 
-    // 3 Initial q's
+    // Initial q's
     if(pumping == "discharge")
     {
         Debug(2, "Initializing q's");
-        Boltzmann(0);
+        Boltzmann(0); // initialize q's
         q2_b = q2;
         q3_b = q3;
         q4_b = q4;
         qT_b = qT;
         time_b = 0;
     }
+
+
 
 }

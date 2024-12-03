@@ -81,12 +81,17 @@ public:
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
     double length;
-    // ------- BANDS -------
+    // ------- GAS MIXTURE -------
+    double p_CO2, p_N2, p_He;
+    double p_iso[12];
+    double N_CO2, N_iso[12]; // Number densies of CO2 and its isotopologues, 1/m^3
+    double T0;
+    // ---------- BANDS ----------
     bool band_reg;
     bool band_seq;
     bool band_hot;
     bool band_4um;
-    // ------- PUMPING -------
+    // --------- PUMPING ---------
     std::string pumping; // pumping type ("discharge" or "optical")
     std::vector<double> discharge_time;
     std::vector<double> discharge_voltage;
@@ -98,11 +103,9 @@ private:
     double q2, q3, q4, qT;
     double q2_a, q3_a, q4_a, qT_a, time_a;
     double q2_b, q3_b, q4_b, qT_b, time_b;
-    // ------- GAS MIXTURE -------
-    double p_CO2, p_N2, p_He;
-    double p_626, p_727, p_828, p_636, p_737, p_838, p_627, p_628, p_728, p_637, p_638, p_738;
-    double T0;
-    // ------- SPECTROSCOPY -------
+    double *T, *e2, *e3, *e4;
+    double *N_gr[12][6];// number densities of isotopologues in each group of vibrational levels
+    // ------- SPECTROSCOPY ------
     // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...79
     double nop[12][18][80];        // normalized populations
     std::vector<double> v[12];     // transition frequencies, Hz
@@ -111,8 +114,9 @@ private:
     std::vector<int> vl_lo[12];    // lower vibrational level of the transition
     std::vector<int> j_up[12];     // rotational quantum number of the upper level of the transition
     std::vector<int> j_lo[12];     // rotational quantum number of the lower level of the transition
+    double *gainSpectrum;
 
-    // ------- BOLTZMANN -------
+    // -------- BOLTZMANN --------
     int b0;
     double E_over_N;
     double Y1, Y2, Y3;
@@ -125,9 +129,6 @@ private:
     double u1[11], u2[16];
     double **M;
     double *f;
-    // ------- OUTPUT ARRAYS -------
-    double *T, *e2, *e3, *e4;
-    double *gainSpectrum;
 
     //////////////////////////// optic_A_band.cpp /////////////////////////////
     void AmplificationBand(void);
