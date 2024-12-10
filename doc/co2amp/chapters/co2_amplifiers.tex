@@ -1,162 +1,7 @@
 \chapter{Modeling of processes in \texorpdfstring{\ce{CO2}}{CO2} amplifiers}\label{chapter:models}
 
-\section{Molecular dynamics}
-Simulations of active medium pumping by electric discharge and vibrational relaxation are done following Karlov and Konev  \cite{Karlov-1978}.
 
-\subsection{Pumping by electric discharge}
-Pumping is described by the Boltzmann equation in the following form \cite{Holstein-1946,Nighan-1970}:
-
-\begin{align}\label{eq:boltzmann}
-&- \frac{1}{3} \left(\frac{\mathcal{E}}{\mathcal{N}}\right)^2 \frac{d}{du} \left[u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1}\frac{df(u)}{du} \right] \quad = \nonumber \\
-&\qquad \qquad 1.09 \times 10^{ - 3}\frac{d}{du}\left[ u^2 f(u)\sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right]
-\quad  + \quad \sum\limits_{j = 1,2} {y_j}{C_j} \frac{d}{du}(uf(u))
-\quad  + \quad 6B y_2 \frac{d}{du}\left(uQ(u)f \right)\nonumber \\
-&\qquad \qquad +\quad\sum\limits_j y_j \sum\limits_k (u + u_{jk})Q_{jk} (u + u_{jk})f(u + u_{jk}) \quad  - \quad uf(u)\sum\limits_j y_j \sum\limits_k Q_{jk}(u)
-\end{align}
-where the left part describes the energy of electrons in the electric field, the first component of the sum of the right part represents energy transfer via elastic collisions between electrons and molecules, the second and third components describe collisions with molecular rotation excitation, and the two last components relate to inelastic collisions with transfer of the energy $u_{jk}$ into vibrational and electronic excitations and ionization.
-
-Electron energy $u$ is expressed in eV;
-
-Ratio of the electric field to the full molecular density, $\mathcal{E}/\mathcal{N}$, is expressed in units of $10^{-16}$~V·cm$^2$;
-
-$y_j$ are the relative molecule concentrations ($j=1$ corresponds to \ce{CO2}, $j=2$ to N$_2$ and $j=3$ to He);
-
-$M_1=44$, $M_2=28$, $M_3=4$ are the molar masses;
-
-$C_1 = 8.2 \times 10^{-4}$ eV·Å$^2$ \cite{Hake-1967};
-
-$C_2 = 5.06 \times 10^{-4}$ eV·Å$^2$ \cite{Frost-1962};
-
-$B = 2.5 \times 10^{-4}$ eV is the N$_2$ rotational constant.
-
-Numerical values of the cross-sections $Q$ and the transferred energies $u_{jk}$ are summarized in Appendix \ref{appendix:crossections} 
-
-Equation \ref{eq:boltzmann} is solved numerically using the tridiagonal matrix algorithm. Distribution function $f(u)$ is then used in the following calculations.
-
-The rate constant $\omega_{jk}$, and the electron drift speeds $v_d$ are defined as:
-
-\begin{equation}\label{eq:omega_jk}
-\omega _{jk}\left[\frac{\rm{cm}^3}{\text{s}} \right] = 5.93 \times 10^{-9}\int\limits_0^\infty u Q_{jk}(u)f(u)du
-\end{equation}
-     
-\begin{equation}\label{eq:v_d}
-v_d \left[ \frac{\text{cm}}{\text{s}} \right] =  - 5.93 \times 10^7 \left( \frac{1}{3}\frac{\mathcal{E}}{\mathcal{N}} \right)\frac{df(u)}{du} \int\limits_0^\infty u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1} du
-\end{equation}
-
-The fraction of electron energy transmitted via inelastic processes is defined as
-
-\begin{equation}\label{eq:z_jk}
-z_{jk} = 10^{16} \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}   
-\end{equation}
-
-The fraction of electron energy transmitted to translations and rotations are the following:
-
-\begin{equation}\label{eq:z_t}
-z_t = 5.93 \times 10^7 \frac{1.09 \times 10^{-3} \int\limits_0^\infty u^2 \left( \sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right)f(u)du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}
-\end{equation}
-
-\begin{equation}\label{eq:z_r}
-z_r = 5.93 \times 10^7 \frac{\sum\limits_{j=1,2} y_j C_j \int\limits_0^\infty uf(u)du + 6 y_2 B \int\limits_0^\infty u Q(u) f(u) du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d} 
-\end{equation}
-
-Finally, the distribution of the excitation energy is calculated using the following expressions:
-
-$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to \ce{CO2} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
-
-$q_3 = z_{17}$ - fraction of energy transferred to \ce{CO2} asymmetric stretch mode ($\nu_3$);
-
-$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to \ce{N2} vibrations;
-
-$q_T = z_t + z_r$ - fraction of energy transferred to translation and rotation;
-
-$q_{ei} = \sum\limits_{k=9}^{15} z_{2k}  + \sum\limits_{k=8}^{10} z_{1k}$ - fraction of energy spent on excitation of electronic levels and ionization.
-
-
-
-\subsection{Pumping and vibrational relaxation dynamics}
-A 3-temperature model is used for describing the vibrational dynamics of the active medium of \ce{CO2} amplifiers. In this model, the following temperatures are used to describe the distribution of the energy between molecular vibrations:
-
-$T_2$ – vibrational temperature of $\nu_1$ and $\nu_2$ vibrations of \ce{CO2};
-
-$T_3$ – vibrational temperature of the $\nu_3$ vibration of \ce{CO2};
-
-$T_4$ – vibrational temperature of \ce{N2}.
-
-Vibrational temperatures are related to the average numbers of quanta $e_x$ in the corresponding vibrations as follows:
-
-\begin{equation}\label{eq:e}
-\begin{aligned}
-&{e_2} = \frac{2}{\exp(960/{T_2})-1}\\
-&{e_3} = \frac{1}{\exp(3380/{T_3})-1}\\
-&{e_4} = \frac{1}{\exp(3350/{T_4})-1} 
-\end{aligned}
-\end{equation}
-"2" in the first equation is due to 2-fold degeneracy of the energy levels of the bend vibration.
-
-The dynamics of pumping/relaxation is described by the following equations
-
-\begin{equation}\label{eq:dedt}
-\begin{aligned}
-&\frac{d e_4}{dt} = p_{e4} - r_a (e_4 - e_3)\\
-&\frac{d e_3}{dt} = p_{e3} + r_c(e_4 - e_3) - r_3 f_3\\
-&\frac{d e_2}{dt} = f_2 \left( p_{e2} + 3 r_3 f_3 - r_2 (e_2 - e_{2T}) \right)
-\end{aligned}
-\end{equation}
-where
-\begin{equation}\label{eq:dedt_rates}
-\begin{aligned}
-&p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t);\quad p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t);\quad p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t);\\
-&f_2 = \frac{2(1+e_2)^2}{2+6e_2+3{e_2}^2};\quad f_3 = e_3(1+e_2/2)^3 - (1+e_3)(e_2/2)^3 \exp(- 500/T);\\
-&r_a = kny_1;\quad r_c = kny_2;\quad r_2 = k_2n;\quad r_3 = k_3n;\\
-&k_2 = \sum\limits_{i=1}^3 y_i k_{2i};\quad k_3 = \sum\limits_{i=1}^3 y_i k_{3i};\\
-&n = 273 \frac{p[\text{bar}]}{T_0[\text{K}]};\\
-&e_{2T} = \frac{2}{\exp(960/T)-1}
-\end{aligned}
-\end{equation}
-where $W(t)$ is the discharge power density measured in {kW/cm$^3$} , $p_e$ is measured in \si{\micro\second^{-1}}, and the constants $k$ are calculated using the following expressions \cite{Biryukov-1974,Taylor-1969}:
-
-\begin{equation}
-\begin{aligned}
-&k = 240 / T^{1/2};\\
-&k_{31} = A(t)\exp(4.138 + 7.945x - 631.24x^2 + 2239x^3);\\
-&k_{32} = A(t)\exp(-1.863 + 213.3x - 2796.2x^2 + 9001.9x^3);\\
-&k_{33} = A(t)\exp(-3.276 + 291.4x - 3831.8x^2 + 12688x^3);\\
-&k_{21} = 1.16 \times 10^3 \exp(-59.3x);\\
-&k_{22} = 8.55 \times 10^2 \exp(-69x);\\
-&k_{23} = 1.3 \times 10^3 \exp(-40.6x)
-\end{aligned}
-\end{equation}
-where $x=T^{-1/3}$, $A(t)=(T/273)(1+e_{2T}/2)^{-3}$, and temperature $T$ is expressed in K.
-
-Finally, the dynamics of the gas temperature is described by the following equation:
-
-\begin{equation}\label{eq:dTdt}
-\frac{dT}{dt} = \frac{y_1}{C_V}(500r_3f_3 + 960r_2(e_2-e_{2T})) + 2.7\frac{W(t)q_T}{nC_V},
-\end{equation}
-where $C_V = 2.5(y_1+y_2) + 1.5y_3$.
-
-
-\subsection{Optical pumping}
-In the case of optical pumping population dynamics is modelled with equations \ref{eq:e}--\ref{eq:dTdt} with the exception of the expressions for excitation rates in Eq.~\ref{eq:dedt_rates} that are replaced by
-
-\begin{equation}\label{eq:dedt_rates_optical}
-\begin{aligned}
-&p_{e4} = 0;\\
-&p_{e3} = \Phi \sigma;\\
-&p_{e2} = \left\{
-  \begin{array}{>{\displaystyle}l>{\displaystyle}l}
-  0             & direct~excitation~of~(00^01)~at~\sim4.3~{\mu}m\\
-  2 \Phi \sigma & excitation~via~(10^01, 02^01)~at~\sim2.8~{\mu}m\\
-  4 \Phi \sigma & excitation~via~(20^01, 12^01, 04^01)~at~\sim2.0~{\mu}m
-  \end{array}
-  \right.
-\end{aligned}
-\end{equation}
-where $\Phi$ is the flux of the pumping photons (number of photons per $\text{m}^2$ per second), and $\sigma$ is the absorption cross-section. Equations \ref{eq:dedt_rates_optical} imply that each pumping photon delivers one quantum of energy to the upper laser level, and zero, two or four quanta to the lower level, depending on the pumping transition.
-
-
-\section{Amplification}
-
+\section{Basics of the molecular spectroscopy of \ce{CO2}}
 
 \subsection{Isotopologues of \ce{CO2} and their nomenclature}
 
@@ -207,23 +52,23 @@ Table \ref{table:levels} lists the vibrational levels included in the model. The
 \textbf{\#} & \textbf{Level} & \textbf{Parity} & \textbf{Weight} & \textbf{Description} \\
 \hline
 \noalign{\vspace{1.5ex}}
-\multicolumn{5}{c}{\boldmath{$0\,0\,1$}} \\
+\multicolumn{5}{c}{\boldmath{$0\,0\,1$} (Group 0)} \\
 [1.5ex]
 0  & $0\,0^{0}1$  & $u$ & 1   & Upper level of regular bands \\
 [1.5ex]
-\multicolumn{5}{c}{\boldmath{$1\,0\,0 + 0\,2\,0$}} \\
+\multicolumn{5}{c}{\boldmath{$1\,0\,0 + 0\,2\,0$} (Group 1)} \\
 [1.5ex]
 1  & $[1\,0^{0}0,\,0\,2^{0}0]_{I}$  & $g$ & 1/3 & 1, 2: lower levels of regular bands \\
 2  & $[1\,0^{0}0,\,0\,2^{0}0]_{II}$  & $g$ & 1/3 & 1, 2, 3, 4: lower levels of 4\,µm bands \\
 3  & $0\,2^{2e}0$  & $g$ & 1/6 & \\
 4  & $0\,2^{2f}0$  & $g$ & 1/6 & \\
 [1.5ex]
-\multicolumn{5}{c}{\boldmath{$0\,1\,1$}} \\
+\multicolumn{5}{c}{\boldmath{$0\,1\,1$} (Group 2)} \\
 [1.5ex]
 5  & $0\,1^{1e}1$  & $g$ & 1/2 & Upper levels of hot bands \\
 6  & $0\,1^{1f}1$  & $g$ & 1/2 & \\
 [1.5ex]
-\multicolumn{5}{c}{\boldmath{$1\,1\,0 + 0\,3\,0$}} \\
+\multicolumn{5}{c}{\boldmath{$1\,1\,0 + 0\,3\,0$} (Group 3)} \\
 [1.5ex]
 7  & $[1\,1^{1e}0,\,0\,3^{1e}0]_{I}$  & $u$ & 3/16 & 7, 8, 9, 10: lower levels of hot bands \\
 8  & $[1\,1^{1e}0,\,0\,3^{1e}0]_{II}$  & $u$ & 3/16 & 11, 12: not currently included in the  \\
@@ -232,11 +77,11 @@ Table \ref{table:levels} lists the vibrational levels included in the model. The
 11 & $0\,3^{3e}0$  & $u$ & 1/8 & \\
 12 & $0\,3^{3f}0$  & $u$ & 1/8 & \\
 [1.5ex]
-\multicolumn{5}{c}{\boldmath{$0\,0\,2$}} \\
+\multicolumn{5}{c}{\boldmath{$0\,0\,2$} (Group 4)} \\
 [1.5ex]
 13 & $0\,0^{0}2$  & $g$ & $1$   & Upper level of sequence bands \\
 [1.5ex]
-\multicolumn{5}{c}{\boldmath{$1\,0\,1 + 0\,2\,1$}} \\
+\multicolumn{5}{c}{\boldmath{$1\,0\,1 + 0\,2\,1$} (Group 5)} \\
 [1.5ex]
 14 & $[1\,0^{0}1,\,0\,2^{0}1]_{I}$  & $u$ & 1/3 & 14, 15: lower levels of sequence bands \\
 15 & $[1\,0^{0}1,\,0\,2^{0}1]_{II}$  & $u$ & 1/3 & 14, 15, 16, 17: upper levels of 4\,µm bands \\
@@ -289,7 +134,7 @@ Please note that support for the 4-\SI{}{\micro\meter} transitions is experiment
 
 \subsubsection{Statistical weights of vibrational levels}
 
-We assume a simple statistical distribution of the population among the levels in each group to assign a weight coefficient to each level. To demonstrate the procedure for calculating the weights, let's consider the group including levels \#1, \#2, \#3, and \#4.
+We assume a simple statistical distribution of the population among the levels in each group to assign a weight coefficient to each level. To demonstrate the procedure for calculating the weights, let's consider the Group 1 including levels \#1, \#2, \#3, and \#4.
 
 We start from the normal mode populations; there are two modes involved:
 
@@ -311,32 +156,6 @@ This approach ensures that the total population is conserved, and the weights as
 
 
 
-\subsubsection{Populations of vibrational levels in thermal equilibrium}
-
-In the approximation used in the \textbf{\texttt{co2amp}} model, the processes of pumping and vibrational relaxation are slow compared to the duration of the pulse. Thus, only the stimulated transitions contribute to the change of the populations of vibrational levels during the pulse.
-
-In the fast time-frame associated with the pulse there is no equilibrium in the vibrational energy distribution, and a proper population dynamics rather than the temperature model must be used. Thus, during the amplification, population of each rotational-vibrational level is considered independently. After the pulse leaves the active medium, the energy distribution within each vibrational mode becomes normalized quickly, and can be described by the temperature model again.
-
-An important simplification used in the model is the assumption that vibrational temperatures $T_2$ and $T_3$ are the same for all \ce{CO2} isotopologues. This assumption can be justified by the relatively small energy mismatch between vibrational levels of different isotopic species of the same molecule, and thus, fast inter-molecular V-V energy exchange. However, this assumption may not hold if the time-delay between two consecutive passes of a pulse through the amplifier is short compared to the relaxation times of intra-mode and inter-isotopic vibrational energy.
-
-
-Initial populations of vibrational levels are calculated for each isotopologue and for each band by first calculating the total populations of the groups of levels defined in Table~\ref{table:levels} using the following equations \ref{eq:Boltzman} and then applying the corresponding weights coefficients from the Table.
-
-\begin{equation}\label{eq:Boltzman}
-\begin{aligned}
-N_{0\,0\,1}           &=   \frac{N}{\mathcal{Q}} \exp\left(\frac{-3380}{T_3}\right)\\
-N_{1\,0\,0 + 0\,2\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(\frac{-2\times 960}{T_2}\right)\\
-N_{0\,1\,1}           &=   \frac{N}{\mathcal{Q}} \exp\left(\frac{-960}{T_2}\right) \exp\left(\frac{-3380}{T_3}\right)\\
-N_{1\,1\,0 + 0\,3\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(\frac{-3\times 960}{T_2}\right)\\
-N_{0\,0\,2}           &=   \frac{N}{\mathcal{Q}} \exp\left(\frac{-2\times 3380}{T_3}\right)\\
-N_{1\,0\,1 + 0\,2\,1} &= 2 \frac{N}{\mathcal{Q}} \exp\left(\frac{-2\times 960}{T_2}\right) \exp\left(\frac{-3380}{T_3}\right)
-\end{aligned}
-\end{equation}
-
-where $N$ is the density of \ce{CO2} molecules, and $\mathcal{Q}$ the partition function \cite{Witteman-1987}:
-\begin{equation}
-\frac{1}{\mathcal{Q}} = \left(1-\exp\left(\frac{-1920}{T_2}\right)\right) \times \left(1-\exp\left(\frac{-3380}{T_3}\right)\right) \times \left(1-\exp\left(\frac{-960}{T_2}\right)\right)^2
-\end{equation}
 
 
 
@@ -418,8 +237,237 @@ Note that all \texttt{.par} files in the \texttt{hitran\_data} folder are scanne
 
 
 
-\subsection{Modeling the amplification}
-Amplification is simulated in the fast time-frame moving with the pulse using the following equations that also take into account rotational relaxation \cite{Feldman-1973,Volkin-1979}:
+\section{Molecular dynamics}
+
+\subsection{Time frames}
+
+Two time frames are employed in the \textbf{\texttt{co2amp}} models to simulate processes that typically occur at rates differing by orders of magnitude:
+
+\begin{itemize}
+    \item \textbf{Lab time frame:} This time frame is used to describe relatively slow processes, such as the dynamics of active medium pumping and vibrational relaxation. A typical time step for the lab time frame is on the order of a nanosecond.
+    \item \textbf{Pulse time frame:} This is a fast time frame that moves with the laser pulse. It forms part of the spatio-temporal calculation grid used to represent the pulse. The temporal grid must be sufficiently dense to accurately capture the pulse's temporal structure and wide enough to ensure an appropriate spectral resolution. Processes such as pulse amplification and rotational relaxation are computed within the pulse time frame.
+\end{itemize}
+
+
+
+
+\subsection{Temperature model}
+
+A 3-temperature model is used to describe the vibrational dynamics of the active medium in \ce{CO2} amplifiers. In this model, the following temperatures represent the distribution of energy among molecular vibrations:
+
+\begin{itemize}
+    \item $T_2$: Vibrational temperature of the $\nu_1$ and $\nu_2$ modes of \ce{CO2}.
+    \item $T_3$: Vibrational temperature of the $\nu_3$ mode of \ce{CO2}.
+    \item $T_4$: Vibrational temperature of \ce{N2}.
+\end{itemize}
+
+The temperature model adopted in \textbf{\texttt{co2amp}} relates the average number of quanta in each vibrational mode of the \ce{CO2} molecule to a mode temperature, as described by the first two equations in~\ref{eq:e}. The temperatures of the $\nu_1$ and $\nu_2$ modes, coupled by Fermi resonance, are considered equal, and thus only $T_2$ is used to describe both modes.
+
+Vibrational temperatures are related to the average number of quanta $e_x$ in the corresponding vibrations as follows:
+
+\begin{equation}\label{eq:e}
+\begin{aligned}
+e_2 &= \frac{2}{\exp\left(\frac{960}{T_2}\right)-1}, \\
+e_3 &= \frac{1}{\exp\left(\frac{3380}{T_3}\right)-1}, \\
+e_4 &= \frac{1}{\exp\left(\frac{3350}{T_4}\right)-1}.
+\end{aligned}
+\end{equation}
+
+The factor of 2 in the first equation accounts for the two-fold degeneracy of the energy levels of the bending vibration.
+
+In thermal equilibrium, the vibrational energy distribution follows the Boltzmann distribution. For the groups of vibrational levels defined in Table~\ref{table:levels}, this distribution is expressed as:
+
+\begin{equation}\label{eq:Boltzman}
+\begin{aligned}
+N_{0\,0\,1}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{3380}{T_3}\right), \\
+N_{1\,0\,0 + 0\,2\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{T_2}\right), \\
+N_{0\,1\,1}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right), \\
+N_{1\,1\,0 + 0\,3\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{3 \times 960}{T_2}\right), \\
+N_{0\,0\,2}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 3380}{T_3}\right), \\
+N_{1\,0\,1 + 0\,2\,1} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right).
+\end{aligned}
+\end{equation}
+
+Here, $N$ is the density of \ce{CO2} molecules, and $\mathcal{Q}$ is the partition function~\cite{Witteman-1987}:
+
+\begin{equation}
+\frac{1}{\mathcal{Q}} = \left(1-\exp\left(-\frac{1920}{T_2}\right)\right) \cdot \left(1-\exp\left(-\frac{3380}{T_3}\right)\right) \cdot \left(1-\exp\left(-\frac{960}{T_2}\right)\right)^2.
+\end{equation}
+
+The intramode vibrational energy thermalization process is typically very fast. However, if the partial pressure of \ce{CO2} is very low or if the active medium pumping is driven by a very short optical pulse, the finite thermalization time must be considered. The thermalization time, $\tau_V$, for vibrational relaxation of the ($10^01$, $02^01$) levels is adopted from~\cite{Finzi-1975}:
+
+\begin{equation}\label{eq:tauV}
+\tau_V [\text{s}] = \frac{10^{-6}}{750 \cdot (3.9 P_{\ce{CO2}})},
+\end{equation}
+
+where the pressure $P_{\ce{CO2}}$ is measured in bars. Note that, since intra-mode vibrational energy thermalization involves collisional energy transfer between \ce{CO2} molecules, the thermalization time does not depend on the partial pressures of other gases, such as \ce{He} and \ce{N2}.
+
+During pumping and amplification, the populations of vibrational levels are treated independently for each \ce{CO2} isotopologue. Thermalization is then accounted for on the "slow" lab time frame. Due to the lack of data on inter-isotopologue vibrational energy transfer rates and to simplify calculations, the same relaxation time, $\tau_V$, is used for both inter-mode and intra-isotopologue thermalization.
+
+It is assumed that the vibrational temperatures $T_2$ and $T_3$ are identical for all \ce{CO2} isotopologues. This assumption is justified by the small energy mismatch between vibrational levels of different isotopic species, allowing rapid inter-molecular V-V energy exchange.
+
+In the \textbf{\texttt{co2amp}} model, pumping and vibrational relaxation processes are slow compared to the duration of the laser pulse. Therefore, only stimulated transitions contribute to population changes during the pulse.
+
+Rotational sub-level populations are also subject to thermalization. However, the corresponding thermalization time, $\tau_R$, depends on collisions with all components of the active medium, not just \ce{CO2}. This time can be fast and comparable to the pulse duration, so $\tau_R$ is included in the pulse time frame calculations modeling pulse amplification, as described Section~\ref{section:amplification}
+
+
+
+
+
+\subsection{Pumping by electric discharge}
+
+Simulations of active medium pumping by electric discharge are conducted following the approach described by Karlov and Konev~\cite{Karlov-1978}.
+
+Pumping is modeled using the Boltzmann equation in the following form~\cite{Holstein-1946, Nighan-1970}:
+
+\begin{align}\label{eq:boltzmann}
+&- \frac{1}{3} \left(\frac{\mathcal{E}}{\mathcal{N}}\right)^2 \frac{d}{du} \left[u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1}\frac{df(u)}{du} \right] \quad = \nonumber \\
+&\qquad \qquad 1.09 \times 10^{ - 3}\frac{d}{du}\left[ u^2 f(u)\sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right]
+\quad  + \quad \sum\limits_{j = 1,2} {y_j}{C_j} \frac{d}{du}(uf(u))
+\quad  + \quad 6B y_2 \frac{d}{du}\left(uQ(u)f \right)\nonumber \\
+&\qquad \qquad +\quad\sum\limits_j y_j \sum\limits_k (u + u_{jk})Q_{jk} (u + u_{jk})f(u + u_{jk}) \quad  - \quad uf(u)\sum\limits_j y_j \sum\limits_k Q_{jk}(u)
+\end{align}
+where the terms represent the following:
+\begin{itemize}
+    \item The left-hand side describes the energy of electrons in the electric field.
+    \item The first term on the right-hand side represents energy transfer via elastic collisions between electrons and molecules.
+    \item The second and third terms describe collisions involving rotational excitation of molecules.
+    \item The last two terms account for inelastic collisions that transfer energy $u_{jk}$ into vibrational and electronic excitations, as well as ionization.
+\end{itemize}
+Here:
+\begin{itemize}
+    \item Electron energy $u$ is expressed in electronvolts (eV).
+    \item The ratio of the electric field to the full molecular density, $\mathcal{E}/\mathcal{N}$, is expressed in units of $10^{-16}$~V·cm$^2$.
+    \item $y_j$ are the relative molecule concentrations ($j=1$ corresponds to \ce{CO2}, $j=2$ to N$_2$ and $j=3$ to He);
+    \item $M_1=44$, $M_2=28$, $M_3=4$ are the molar masses;
+    \item $C_1 = 8.2 \times 10^{-4}$ eV·Å$^2$ \cite{Hake-1967};
+    \item $C_2 = 5.06 \times 10^{-4}$ eV·Å$^2$ \cite{Frost-1962};
+    \item $B = 2.5 \times 10^{-4}$ eV is the N$_2$ rotational constant.
+    \item Numerical values of the cross-sections $Q$ and the transferred energies $u_{jk}$ are summarized in Appendix \ref{appendix:crossections} 
+\end{itemize}
+
+Equation \ref{eq:boltzmann} is solved numerically using the tridiagonal matrix algorithm. Distribution function $f(u)$ is then used in the following calculations.
+
+The rate constant $\omega_{jk}$, and the electron drift speeds $v_d$ are defined as:
+
+\begin{equation}\label{eq:omega_jk}
+\omega _{jk}\left[\frac{\rm{cm}^3}{\text{s}} \right] = 5.93 \times 10^{-9}\int\limits_0^\infty u Q_{jk}(u)f(u)du
+\end{equation}
+     
+\begin{equation}\label{eq:v_d}
+v_d \left[ \frac{\text{cm}}{\text{s}} \right] =  - 5.93 \times 10^7 \left( \frac{1}{3}\frac{\mathcal{E}}{\mathcal{N}} \right)\frac{df(u)}{du} \int\limits_0^\infty u \left( \sum\limits_j y_j Q_{mj}(u) \right)^{-1} du
+\end{equation}
+
+The fraction of electron energy transmitted via inelastic processes is defined as
+
+\begin{equation}\label{eq:z_jk}
+z_{jk} = 10^{16} \frac{y_j u_{jk} \omega _{jk}} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}   
+\end{equation}
+
+The fraction of electron energy transmitted to translations and rotations are the following:
+
+\begin{equation}\label{eq:z_t}
+z_t = 5.93 \times 10^7 \frac{1.09 \times 10^{-3} \int\limits_0^\infty u^2 \left( \sum\limits_j \frac{y_j}{M_j} Q_{mj}(u) \right)f(u)du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d}
+\end{equation}
+
+\begin{equation}\label{eq:z_r}
+z_r = 5.93 \times 10^7 \frac{\sum\limits_{j=1,2} y_j C_j \int\limits_0^\infty uf(u)du + 6 y_2 B \int\limits_0^\infty u Q(u) f(u) du} {\left( \frac{\mathcal{E}}{\mathcal{N}} \right) v_d} 
+\end{equation}
+
+The distribution of the excitation energy is calculated using the following expressions:
+
+$q_2 = \sum\limits_{k=1}^6 z_{1k}$ - fraction of energy transferred to \ce{CO2} symmetric stretch ($\nu_1$) and bending ($\nu_2$) modes;
+
+$q_3 = z_{17}$ - fraction of energy transferred to \ce{CO2} asymmetric stretch mode ($\nu_3$);
+
+$q_4 = \sum\limits_{k=1}^8 z_{2k}$ - fraction of energy transferred to \ce{N2} vibrations;
+
+$q_T = z_t + z_r$ - fraction of energy transferred to translation and rotation;
+
+$q_{ei} = \sum\limits_{k=9}^{15} z_{2k}  + \sum\limits_{k=8}^{10} z_{1k}$ - fraction of energy spent on excitation of electronic levels and ionization.
+
+Finally, we can calculate the pumping rates for each of the vibrational modes considered in the model:
+
+\begin{equation}\label{eq:pumping_rates_discharge}
+\begin{aligned}
+&p_{e4} = 0.8\times 10^{-3} \frac{q_4}{n y_2} W(t),\\
+&p_{e3} = 0.8\times 10^{-3}\frac{q_3}{n y_1} W(t),\\
+&p_{e2} = 2.8\times 10^{-3}\frac{q_2}{n y_1} W(t),
+\end{aligned}
+\end{equation}
+where $W(t)$ is the discharge power density measured in \si{\kilo\watt\per\cm^3} and $n = 273 \frac{p[\text{bar}]}{T_0[\text{K}]}$ is the total concentration of gas molecules in the active medium.
+
+
+\subsection{Optical Pumping}
+
+For optical pumping, the pumping rates are calculated using the following expressions:
+
+\begin{equation}\label{eq:pumping_rates_optical}
+\begin{aligned}
+&p_{e4} = 0, \\
+&p_{e3} = \Phi \sigma, \\
+&p_{e2} = \begin{cases} 
+  0             & \text{direct excitation of } (00^01) \text{ at } \sim 4.3~\mu\text{m}, \\
+  2 \Phi \sigma & \text{excitation via } (10^01, 02^01) \text{ at } \sim 2.8~\mu\text{m}, \\
+  4 \Phi \sigma & \text{excitation via } (20^01, 12^01, 04^01) \text{ at } \sim 2.0~\mu\text{m}.
+\end{cases}
+\end{aligned}
+\end{equation}
+
+Here, $\Phi$ is the flux of the pumping photons (number of photons per $\text{m}^2$ per second), and $\sigma$ is the absorption cross-section. 
+
+Equation~\ref{eq:pumping_rates_optical} indicates that each pumping photon delivers one quantum of energy to the upper laser level, and either zero, two, or four quanta to the lower level, depending on the pumping transition.
+
+
+\subsection{Pumping and vibrational relaxation dynamics}
+
+The dynamics of pumping and vibrational relaxation are modeled in the lab time frame and are described by the following equations:
+
+\begin{equation}\label{eq:dedt}
+\begin{aligned}
+\frac{d e_4}{dt} &= p_{e4} - r_a (e_4 - e_3), \\
+\frac{d e_3}{dt} &= p_{e3} + r_c(e_4 - e_3) - r_3 f_3, \\
+\frac{d e_2}{dt} &= f_2 \left( p_{e2} + 3 r_3 f_3 - r_2 (e_2 - e_{2T}) \right),
+\end{aligned}
+\end{equation}
+where
+\begin{equation}\label{eq:dedt_rates}
+\begin{aligned}
+&f_2 = \frac{2(1+e_2)^2}{2+6e_2+3{e_2}^2};\quad f_3 = e_3(1+e_2/2)^3 - (1+e_3)(e_2/2)^3 \exp(- 500/T);\\
+&r_a = kny_1;\quad r_c = kny_2;\quad r_2 = k_2n;\quad r_3 = k_3n;\\
+&k_2 = \sum\limits_{i=1}^3 y_i k_{2i};\quad k_3 = \sum\limits_{i=1}^3 y_i k_{3i};\\
+&e_{2T} = \frac{2}{\exp(960/T)-1}
+\end{aligned}
+\end{equation}
+
+Here, $p_e$ is measured in \si{\micro\second^{-1}}, and the constants $k$ are calculated using the following expressions~\cite{Biryukov-1974, Taylor-1969}:
+
+\begin{equation}
+\begin{aligned}
+&k = 240 / T^{1/2};\\
+&k_{31} = A(t)\exp(4.138 + 7.945x - 631.24x^2 + 2239x^3);\\
+&k_{32} = A(t)\exp(-1.863 + 213.3x - 2796.2x^2 + 9001.9x^3);\\
+&k_{33} = A(t)\exp(-3.276 + 291.4x - 3831.8x^2 + 12688x^3);\\
+&k_{21} = 1.16 \times 10^3 \exp(-59.3x);\\
+&k_{22} = 8.55 \times 10^2 \exp(-69x);\\
+&k_{23} = 1.3 \times 10^3 \exp(-40.6x)
+\end{aligned}
+\end{equation}
+
+where \( x=T^{-1/3} \), \( A(t)=(T/273)(1+e_{2T}/2)^{-3} \), and the temperature \( T \) is expressed in kelvins (K).
+
+Finally, the dynamics of the gas temperature are described by the following equation:
+
+\begin{equation}\label{eq:dTdt}
+\frac{dT}{dt} = \frac{y_1}{C_V}(500r_3f_3 + 960r_2(e_2-e_{2T})) + 2.7\frac{W(t)q_T}{nC_V},
+\end{equation}
+where \( C_V = 2.5(y_1+y_2) + 1.5y_3 \).
+
+
+
+\section{Amplification}\label{section:amplification}
+
+Amplification is simulated in the pulse time frame using the following equations, which also account for rotational relaxation~\cite{Feldman-1973, Volkin-1979}:
 
 \begin{equation}\label{eq:amplification}
 \begin{aligned}
@@ -470,8 +518,8 @@ I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] |E|^2
 Dephasing and relaxation times are defined by the following equations:
 \begin{equation}\label{eq:relaxation}
 \begin{aligned}
-&\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})}\\
-&\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (1.3P_{CO2}+1.2P_{N2}+0.6P_{He})}
+&\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})},\\
+&\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (1.3P_{CO2}+1.2P_{N2}+0.6P_{He})},
 \end{aligned}
 \end{equation}
 where pressure $P$ is measured in bars.
@@ -485,7 +533,6 @@ The change in population due to stimulated transitions is calculated for each vi
 \frac{d}{dt} N_L &= -2 \sum_{j} \left( \rho_J E^* + \text{c.c.} \right),
 \end{aligned}
 \end{equation}
-
 where the summation is over all rotational transitions originating from ($N_U$) or ending at ($N_L$) the corresponding vibrational level.
 
 In the next step, we calculate the overall change in the $\nu_2$ and $\nu_3$ quanta, denoted as $\Delta N_{\nu_2}$ and $\Delta N_{\nu_3}$, respectively. This is done by summing the population changes of all levels for all isotopologues, multiplying each by the number of corresponding quanta in the given level. In this calculation, we consider each $\nu_1$ quantum as equivalent to two $\nu_2$ quanta, an approximation based on the assumption of equal $T_1$ and $T_2$ temperatures due to Fermi coupling.
@@ -498,13 +545,11 @@ The changes in the average quantum numbers in the vibrational modes due to stimu
 \Delta e_2 &= \frac{\Delta N_{\nu_2}}{N} \times \frac{e'_2}{2 e'_1 + e'_2},
 \end{aligned}
 \end{equation}
-
 where the last factor in the second equation accounts for the equilibrium energy distribution between the coupled symmetric stretch ($\nu_1$) and bending ($\nu_2$) vibrations. Here, $e'_1$ and $e'_2$ are the equilibrium average quantum numbers given by:
 
 \[
 e'_1 = \frac{1}{\exp\left( \frac{1920}{T_2} \right) - 1}, \quad e'_2 = \frac{2}{\exp\left( \frac{960}{T_2} \right) - 1},
 \]
-
 and $T_2$ is the vibrational temperature before the propagation of the pulse.
 
 New vibrational temperatures are then calculated with Eq.~\ref{eq:e}.
