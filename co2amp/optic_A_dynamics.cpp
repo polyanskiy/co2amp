@@ -79,22 +79,35 @@ void A::InternalDynamics(double time)
     {
         double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
 
-        pump3 = photon_flux * pump_sigma;
+
 
         if(pump_wl>3.5e-6 && pump_wl<=5.0e-6) // direct excitation of (001) level
         {
+            pump3 = photon_flux * pump_sigma;
+            pump2 = 0;
             pump_gr[0] = pump3;
         }
 
         if(pump_wl>2.5e-6 && pump_wl<=3.5e-6) // excitation through combinational vibration (101,021)
         {
+            pump3 = photon_flux * pump_sigma;
             pump2 = 2 * pump3;
             pump_gr[5] = pump3;
         }
 
         if(pump_wl>1.8e-6 && pump_wl<=2.5e-6) // excitation through combinational vibration (201,121,041)
         {
+            pump3 = photon_flux * pump_sigma;
             pump2 = 4 * pump3;
+        }
+
+        if(pump_wl>1.3e-6 && pump_wl<=1.8e-6) // excitation through (003) level
+        {
+            // need to fix later: add group for 3nu3 level: pump_gr[X] = pump3/3
+            // for now assuming each photons exctes 3 molecules to (001)
+            pump3 = 3 * photon_flux * pump_sigma;
+            pump2 = 0;
+            pump_gr[0] = pump3;
         }
 
     }
