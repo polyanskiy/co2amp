@@ -5,15 +5,20 @@ C::C(std::string id)
 {
     this->id = id;
     type = "C";
-    yaml = id + ".yml";
+    yaml_path = id + ".yml";
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -22,7 +27,7 @@ C::C(std::string id)
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // Chirp
-    if(!YamlGetValue(&value, yaml, "chirp"))
+    if(!YamlGetValue(&value, &yaml_content, "chirp"))
     {
         configuration_error = true;
         return;
@@ -34,7 +39,7 @@ C::C(std::string id)
 
     if(chirp == "LINEAR")
     {
-        if(!YamlGetValue(&value, yaml, "c"))
+        if(!YamlGetValue(&value, &yaml_content, "c"))
         {
             configuration_error = true;
             return;
@@ -50,7 +55,7 @@ C::C(std::string id)
     {
         std::vector<double> nu;
         std::vector<double> chrp;
-        if(!YamlGetData(&nu, yaml, "form", 0) || !YamlGetData(&chrp, yaml, "form", 1))
+        if(!YamlGetData(&nu, &yaml_content, "form", 0) || !YamlGetData(&chrp, &yaml_content, "form", 1))
         {
             configuration_error = true;
             return;
@@ -58,7 +63,7 @@ C::C(std::string id)
         Debug(2, "Chirpyness profile [Frequency(Hz) Chirpyness(Hz/s)] (only displayed if debug level >= 3)");
         if(debug_level >= 3)
             for(int i=0; i<nu.size(); i++)
-                std::cout << toExpString(nu[i]) <<  " " << toExpString(chrp[i]) << std::endl;
+                std::cout << "  " << toExpString(nu[i]) << " " << toExpString(chrp[i]) << std::endl;
 
         for(int n=0; n<n0; n++)
             Chirpyness[n] = Interpolate(&nu, &chrp, v0+Dv*(n-n0/2));
@@ -67,7 +72,7 @@ C::C(std::string id)
     }
 
     // not supproted chirp type
-    std::cout << "ERROR: wrong \'chirp\' in config file (must be LINEAR or FREEFORM)\'" << yaml << "\'" << std::endl;
+    std::cout << "ERROR: wrong \'chirp\' in config file (must be LINEAR or FREEFORM)\'" << yaml_path << "\'" << std::endl;
     configuration_error = true;
 }
 

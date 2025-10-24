@@ -5,14 +5,19 @@ P::P(std::string id)
 {
     this->id = id;
     type = "P";
-    yaml = id + ".yml";
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
+    yaml_path = id + ".yml";
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;

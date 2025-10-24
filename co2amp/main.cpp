@@ -28,7 +28,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-03-10";
+    std::string version = "2025-10-23";
 
     std::clock_t stopwatch = std::clock();
 
@@ -119,7 +119,7 @@ void Calculations()
         printf("\nDischarge energy (withing %f us) = %f J\n", t_lim, Epump);
     }*/
 
-    std::cout << "CALCULATION\n";
+    std::cout << "*** CALCULATION ***\n";
 
     for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
     {
@@ -139,7 +139,8 @@ void Calculations()
                         pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
                     // 2: Save pulse parameters at plane location (before interaction!!!)
                     StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
-                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
+                    //UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
+                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time_of_arival);
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne
                         planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time);
@@ -186,6 +187,7 @@ void Debug(int level, std::string str)
         return;
     if(flag_status_or_debug) //if last displayed message is status
         std::cout << std::endl;
-    std::cout << "DEBUG (level " << level << "): " << str << std::endl << std::flush;
+    //std::cout << "DEBUG (level " << level << "): " << str << std::endl << std::flush;
+    std::cout << str << std::endl << std::flush;
     flag_status_or_debug = false;
 }

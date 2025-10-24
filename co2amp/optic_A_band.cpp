@@ -33,45 +33,61 @@ void A::AmplificationBand(void)
 
 
     //  Vibrational levels
-    //  ---------------------------------------------------------------------------
-    // | vl |  level    | parity | weight |              description               |
-    // |---------------------------------------------------------------------------|
-    // |                                   0 0 1                                   |
-    // |                                                                           |
-    // |  0 | 00^01(1)e |   u    |   1    | upper level of regular band            |
-    // |---------------------------------------------------------------------------|
-    // |                               1 0 0 + 0 2 0                               |
-    // |                                                                           |
-    // |  1 | 10^00(1)e |   g    |  1/3   | 1,2:     lower levels of reg bands     |
-    // |  2 | 10^00(2)e |   g    |  1/3   | 1,2,3,4: lower levels of 4um bands     |
-    // |  3 | 02^20(1)e |   g    |  1/6   |                                        |
-    // |  4 | 02^20(1)f |   g    |  1/6   | 1 & 2: mixed [10^00, 02^00] levels     |
-    // |---------------------------------------------------------------------------|
-    // |                                   0 1 1                                   |
-    // |                                                                           |
-    // |  5 | 01^11(1)e |   u    |  1/2   | upper levels of hot bands              |
-    // |  6 | 01^11(1)f |   u    |  1/2   |                                        |
-    // |---------------------------------------------------------------------------|
-    // |                               1 1 0 + 0 3 0                               |
-    // |                                                                           |
-    // |  7 | 11^10(1)e |   u    |  3/16  | 7,8,9,10: lower levels of hot bands    |
-    // |  8 | 11^10(2)e |   u    |  3/16  | 11,12: not currently included in       |
-    // |  9 | 11^10(1)f |   u    |  3/16  |        the amplification model         |
-    // | 10 | 11^10(2)f |   u    |  3/16  |                                        |
-    // | 11 | 03^30(1)e |   u    |  1/8   | 7 & 8:  mixed [11^10e, 03^10e] levels  |
-    // | 12 | 03^30(1)f |   u    |  1/8   | 9 & 10: mixed [11^10f, 03^10f] levels  |
-    // |---------------------------------------------------------------------------|
-    // |                                   0 0 2                                   |
-    // |                                                                           |
-    // | 13 | 00^02(1)e |   g    |   1    | upper level of sequence band           |
-    // |---------------------------------------------------------------------------|
-    // |                               1 0 1 + 0 2 1                               |
-    // |                                                                           |
-    // | 14 | 10^01(1)e |   u    |  1/3   | 14,15:       lower levels of seq bands |
-    // | 15 | 10^01(2)e |   u    |  1/3   | 14,15,16,17: upper levels of 4um bands |
-    // | 16 | 02^21(1)e |   u    |  1/6   |                                        |
-    // | 17 | 02^21(1)f |   u    |  1/6   | 14 & 15: mixed [10^01, 02^01] levels   |
-    //  ---------------------------------------------------------------------------
+    //  --------------------------------------------------------------------------------
+    // | gr | vl |  level    | parity | weight |              description               |
+    // |--------------------------------------------------------------------------------|
+    // |                                     0 0 1                                      |
+    // |                                                                                |
+    // |  0 |  0 | 00^01(1)e |   u    |   1    | upper level of regular band            |
+    // |--------------------------------------------------------------------------------|
+    // |                                 1 0 0 + 0 2 0                                  |
+    // |                                                                                |
+    // |  1 |  1 | 10^00(1)e |   g    |  1/3   | 1,2:     lower levels of reg bands     |
+    // |    |  2 | 10^00(2)e |   g    |  1/3   | 1,2,3,4: lower levels of 4um bands     |
+    // |    |  3 | 02^20(1)e |   g    |  1/6   |                                        |
+    // |    |  4 | 02^20(1)f |   g    |  1/6   | 1 & 2: mixed [10^00, 02^00] levels     |
+    // |--------------------------------------------------------------------------------|
+    // |                                     0 1 1                                      |
+    // |                                                                                |
+    // |  2 |  5 | 01^11(1)e |   u    |  1/2   | upper levels of hot bands              |
+    // |    |  6 | 01^11(1)f |   u    |  1/2   |                                        |
+    // |--------------------------------------------------------------------------------|
+    // |                                 1 1 0 + 0 3 0                                  |
+    // |                                                                                |
+    // |  3 |  7 | 11^10(1)e |   u    |  3/16  | 7,8,9,10: lower levels of hot bands    |
+    // |    |  8 | 11^10(2)e |   u    |  3/16  | 11,12: not currently included in       |
+    // |    |  9 | 11^10(1)f |   u    |  3/16  |        the amplification model         |
+    // |    | 10 | 11^10(2)f |   u    |  3/16  |                                        |
+    // |    | 11 | 03^30(1)e |   u    |  1/8   | 7 & 8:  mixed [11^10e, 03^10e] levels  |
+    // |    | 12 | 03^30(1)f |   u    |  1/8   | 9 & 10: mixed [11^10f, 03^10f] levels  |
+    // |--------------------------------------------------------------------------------|
+    // |                                     0 0 2                                      |
+    // |                                                                                |
+    // |  4 | 13 | 00^02(1)e |   g    |   1    | upper level of sequence band           |
+    // |--------------------------------------------------------------------------------|
+    // |                                 1 0 1 + 0 2 1                                  |
+    // |                                                                                |
+    // |  5 | 14 | 10^01(1)e |   u    |  1/3   | 14,15:       lower levels of seq bands |
+    // |    | 15 | 10^01(2)e |   u    |  1/3   | 14,15,16,17: upper levels of 4um bands |
+    // |    | 16 | 02^21(1)e |   u    |  1/6   |                                        |
+    // |    | 17 | 02^21(1)f |   u    |  1/6   | 14 & 15: mixed [10^01, 02^01] levels   |
+    // |--------------------------------------------------------------------------------|
+    // |                                     0 1 2                                      |
+    // |                                                                                |
+    // |  6 |    |           |        |        | Levels and transitions to be added     |
+    // |--------------------------------------------------------------------------------|
+    // |                                 1 1 1 + 0 3 1                                  |
+    // |                                                                                |
+    // |  7 |                                    Levels and transitions to be added     |
+    // |--------------------------------------------------------------------------------|
+    // |                                     0 0 3                                      |
+    // |                                                                                |
+    // |  8 |                                    Levels and transitions to be added     |
+    // |--------------------------------------------------------------------------------|
+    // |                                 1 0 2 + 0 2 2                                  |
+    // |                                                                                |
+    // |  9 |                                    Levels and transitions to be added     |
+    //  --------------------------------------------------------------------------------
 
     // Vibrational transitions ("bands" in HITRAN terminology)
     //  -----------------------------------------------------------
@@ -132,7 +148,8 @@ void A::AmplificationBand(void)
     for (const auto& fileName : parFiles)
     {
 
-        Debug(2, "Reading par file " + fileName + "...");
+        Debug(2, "Reading HITRAN file \'" + fileName + "\' (use debug level 3 to display transitions)...");
+        Debug(3, "Transitions to be included in calculations:");
 
         std::ifstream infile(fileName);
 
@@ -167,6 +184,9 @@ void A::AmplificationBand(void)
                 }
             }
             if(i == 12) // no match found => not one of the supported isotopologues
+                continue;
+
+            if(N_iso[i]==0.0) // skip zero-content isotopologues
                 continue;
 
             // vibrational bands
@@ -206,14 +226,21 @@ void A::AmplificationBand(void)
             if( !band_4um && (band == 6 || band == 7 || band == 8) )
                 continue;
 
-            // Do final checks (rotational numbers of involved levels are 0...79)
-            // and start adding data to the arrays defining transitions
-            // j_up, j_lo, vl_up, vl_lo
-
+            // Read rotational level info and calculate transition frequency
             int J = std::stoi(line.substr(118, 3));    // Rotational J number (lower level)
             char pqr = line[117];                      // Rotational brunch ('P', 'Q' or 'R')
             char ef = line[121];                       // 'e' or 'f' sublevel
+            double wn = std::stod(line.substr(3, 12)); // Transition wavenumber 1/cm
+            double v_Hz = wn*c*100;                    // Transition frequency v[Hz] = v[1/cm] * c[cm/s]
 
+            // Ignore transitions centered outside of the calculation window defined by the pulse_time grid
+            double Dv = 1.0/(t_max-t_min);   // frequency step, Hz
+            if(v_Hz<v0-Dv*n0/2 || v_Hz>v0+Dv*n0/2)
+                continue;
+
+            // Do final checks (rotational numbers of involved levels are 0...79)
+            // and start adding data to the arrays defining transitions
+            // j_up, j_lo, vl_up, vl_lo
             switch(pqr)
             {
                 case 'P':
@@ -237,6 +264,10 @@ void A::AmplificationBand(void)
                     break;
             }
 
+            // Transition frequency (only add to array after checking that J's are within the intended range)
+            v[i].push_back(v_Hz);
+
+            // Associate vibrational levels with the transition
             switch(band)
             {
                 case 0: // reg 10 um
@@ -301,30 +332,23 @@ void A::AmplificationBand(void)
                     break;
             }
 
-            // Transition frequencies, Hz
-            double wn = std::stod(line.substr(3, 12)); // Transition wavenumber (1/cm)
-            v[i].push_back(wn*c*100); // v[Hz] = v[1/cm] * c[cm/s]
-            // alternative: calculate transition frequencies from molecular constants (will need to define V[i][band])
-            // double Bup = B[i][vl_up[i].back()];
-            // double Blo = B[i][vl_lo[i].back()];
-            // double Jup = j_up[i].back();
-            // double Jlo = j_lo[i].back();
-            // v[i].push_back(V[i][band] + Bup*Jup*(Jup[i]+1) - Blo*Jlo*(Jlo+1));
-
-
             // Transition cross-sections, m^2
             double A = std::stod(line.substr(25, 10)); // Einstein coefficient A (1/s)
 
             sigma[i].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma) ); // wn*100: 1/cm -> 1/m
 
-            if(J==20)
+            //if(J==20)
+            if(debug_level >= 3)
             {
-                Debug(2, "Isot: " + isotopologue[i] +
-                            "; Band:" + Vup_id + " ->" + Vlo_id + " " + std::string(1,pqr) + std::to_string(J) + std::string(1,ef) +
-                            "; freq = " + std::to_string(v[i].back()/1e12) + " THz" +
-                            "; A = " + std::to_string(A) + " 1/s");
+                std::cout << "  "
+                          << "Isot: " << isotopologue[i] << "; "
+                          << "Band:" << Vup_id << " ->" << Vlo_id << " " << std::string(1,pqr) << std::to_string(J) << std::string(1,ef) << "; "
+                          << "freq = " << std::to_string(v[i].back()/1e12) << " THz; "
+                          << "A = " + std::to_string(A) + " 1/s"
+                          << std::endl;
             }
         }
+        Debug(2, "Finished reading file");
     }
 
 

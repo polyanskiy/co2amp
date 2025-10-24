@@ -5,14 +5,19 @@ M::M(std::string id)
 {
     this->id = id;
     type = "M";
-    yaml = id + ".yml";
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
+    yaml_path = id + ".yml";
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -21,7 +26,7 @@ M::M(std::string id)
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // material
-    if(!YamlGetValue(&value, yaml, "material"))
+    if(!YamlGetValue(&value, &yaml_content, "material"))
     {
         configuration_error = true;
         return;
@@ -55,7 +60,7 @@ M::M(std::string id)
     Debug(2, "material = " + material);
 
     // thickness
-    if(!YamlGetValue(&value, yaml, "thickness"))
+    if(!YamlGetValue(&value, &yaml_content, "thickness"))
     {
         configuration_error = true;
         return;
@@ -67,7 +72,7 @@ M::M(std::string id)
     humidity = 50;
     if(material == "air")
     {
-        if(!YamlGetValue(&value, yaml, "humidity", false))
+        if(!YamlGetValue(&value, &yaml_content, "humidity", false))
             std::cout << id << ": Using default humidity (50%)\n";
         else
             humidity = std::stod(value);
@@ -78,7 +83,7 @@ M::M(std::string id)
     tilt = 0;
     if(material != "air")
     {
-        if(!YamlGetValue(&value, yaml, "tilt", false))
+        if(!YamlGetValue(&value, &yaml_content, "tilt", false))
             std::cout << "Using default tilt (no tilt)\n";
         else
             tilt = std::stod(value);
@@ -88,14 +93,14 @@ M::M(std::string id)
 
     // n2
     n2 = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "n2", false))
+    if(YamlGetValue(&value, &yaml_content, "n2", false))
     {
         n2 = std::stod(value);
         std::cout << id << ": Custom n2 = " << value << " m^2/W\n";
     }
 
     /*n4 = 0;
-    if(YamlGetValue(&value, yaml, "n4", false))
+    if(YamlGetValue(&value, &yaml_content, "n4", false))
     {
         n4 = std::stod(value);
         std::cout << id << ": n4 = " << value << " m^4/W^2\n";
@@ -103,7 +108,7 @@ M::M(std::string id)
 
     /*// Band gap
     Eg = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "Eg", false))
+    if(YamlGetValue(&value, &yaml_content, "Eg", false))
     {
         Eg = std::stod(value);
         std::cout << id << ": Custom Eg = " << value << " J\n";
@@ -111,7 +116,7 @@ M::M(std::string id)
 
     // Linear absorption in valence band
     alpha0 = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "alpha0", false))
+    if(YamlGetValue(&value, &yaml_content, "alpha0", false))
     {
         alpha0 = std::stod(value);
         std::cout << id << ": Custom linear absorption coefficient alpha0 = " << value << " 1/m\n";
@@ -120,7 +125,7 @@ M::M(std::string id)
     /*
     // Multiphoton absorption order
     chi = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "chi", false))
+    if(YamlGetValue(&value, &yaml_content, "chi", false))
     {
         chi = std::stod(value);
         std::cout << id << ": Custom multiphoton absorption order chi = " << value << "\n";
@@ -128,7 +133,7 @@ M::M(std::string id)
 
     // Multiphoton absorption (jump over band gap)
     alpha1 = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "alpha1", false))
+    if(YamlGetValue(&value, &yaml_content, "alpha1", false))
     {
         alpha1 = std::stod(value);
         std::cout << id << ": Custom multiphoton absorption coefficient alpha1 = " << value << " m^(2-1/chi)/W\n";
@@ -136,7 +141,7 @@ M::M(std::string id)
 
     // Free-carrier absorption
     alpha2 = nan(""); //set to NAN
-    if(YamlGetValue(&value, yaml, "alpha2", false))
+    if(YamlGetValue(&value, &yaml_content, "alpha2", false))
     {
         alpha2 = std::stod(value);
         std::cout << id << ": Custom free-carrier absorption coefficient alpha2 = " << value << " m^2/J\n";
@@ -145,7 +150,7 @@ M::M(std::string id)
 
     // number of slices
     slices = 1;
-    if(!YamlGetValue(&value, yaml, "slices", false))
+    if(!YamlGetValue(&value, &yaml_content, "slices", false))
         std::cout << "Using default # of slices (1)\n";
     else
         slices = std::stod(value);

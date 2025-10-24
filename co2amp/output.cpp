@@ -63,7 +63,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     file = fopen((basename+"_power.dat").c_str(), "w");
     fprintf(file, "#Data format:  time[s] power[W]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%e\t%e\n", (t_min + Dt*(0.5+n)), Power[n]);
+        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), Power[n]);
     fclose(file);
 
     // Write energy file
@@ -122,7 +122,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     for(int n=0; n<n0; n++)
     {
         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-        fprintf(file, "%e\t%e\n", v0+Dv*(n-n0/2), average_spectrum[n1]);
+        fprintf(file, "%.8E\t%e\n", v0+Dv*(n-n0/2), average_spectrum[n1]);
     }
     fclose(file);
 

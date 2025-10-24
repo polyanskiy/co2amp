@@ -8,14 +8,19 @@ L::L(std::string id)
 {
     this->id = id;
     type = "L";
-    yaml = id + ".yml";
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
+    yaml_path = id + ".yml";
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -24,7 +29,7 @@ L::L(std::string id)
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // F
-    if(!YamlGetValue(&value, yaml, "F"))
+    if(!YamlGetValue(&value, &yaml_content, "F"))
     {
         configuration_error = true;
         return;

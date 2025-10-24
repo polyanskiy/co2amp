@@ -5,15 +5,20 @@ S::S(std::string id)
 {
     this->id = id;
     type = "S";
-    yaml = id + ".yml";
+    yaml_path = id + ".yml";
     double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -22,7 +27,7 @@ S::S(std::string id)
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // filter type
-    if(!YamlGetValue(&value, yaml, "filter"))
+    if(!YamlGetValue(&value, &yaml_content, "filter"))
     {
         configuration_error = true;
         return;
@@ -34,7 +39,7 @@ S::S(std::string id)
 
     if(filter == "HIGHPASS")
     {
-        if(!YamlGetValue(&value, yaml, "cutoff"))
+        if(!YamlGetValue(&value, &yaml_content, "cutoff"))
         {
             configuration_error = true;
             return;
@@ -49,7 +54,7 @@ S::S(std::string id)
     }
 
     if(filter == "LOWPASS"){
-        if(!YamlGetValue(&value, yaml, "cutoff"))
+        if(!YamlGetValue(&value, &yaml_content, "cutoff"))
         {
             configuration_error = true;
             return;
@@ -64,7 +69,7 @@ S::S(std::string id)
     }
 
     if(filter == "BANDPASS"){
-        if(!YamlGetValue(&value, yaml, "cutoff_lo"))
+        if(!YamlGetValue(&value, &yaml_content, "cutoff_lo"))
         {
             configuration_error = true;
             return;
@@ -72,7 +77,7 @@ S::S(std::string id)
         double cutoff_lo = std::stod(value);
         Debug(2, "cutoff_lo = " + toExpString(cutoff_lo) + " Hz");
 
-        if(!YamlGetValue(&value, yaml, "cutoff_hi"))
+        if(!YamlGetValue(&value, &yaml_content, "cutoff_hi"))
         {
             configuration_error = true;
             return;
@@ -90,15 +95,16 @@ S::S(std::string id)
     {
         std::vector<double> nu;
         std::vector<double> transm;
-        if(!YamlGetData(&nu, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1))
+        if(!YamlGetData(&nu, &yaml_content, "form", 0) || !YamlGetData(&transm, &yaml_content, "form", 1))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Transmittance profile [Frequency(Hz) Transmittance(-)] (only displayed if debug level >= 3)");
+        Debug(2, "Transmittance profile loaded (use debug level 3 to display)");
+        Debug(2, "Transmittance profile [Frequency(Hz) Transmittance(-)]");
         if(debug_level >= 3)
             for(int i=0; i<nu.size(); i++)
-                std::cout << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;
+                std::cout << "  " << toExpString(nu[i]) <<  " " << toExpString(transm[i]) << std::endl;
 
         for(int n=0; n<n0; n++)
             Transmittance[n] = Interpolate(&nu, &transm, v0+Dv*(n-n0/2));
@@ -107,7 +113,7 @@ S::S(std::string id)
     }
 
     // not a supproted "filter"
-    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml << "\'" << std::endl;
+    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml_path << "\'" << std::endl;
     configuration_error = true;
 }
 

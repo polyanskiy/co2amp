@@ -73,7 +73,8 @@ void MainWindow::Plot()
     svg_fig3->setHidden(optic_type != "A" && optic_type != "C" && optic_type != "S");
     svg_fig4->setHidden(false);
     svg_fig5->setHidden(false);
-    svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
+    //svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
+    svg_fig6->setHidden(optic_type != "A" && optic_type != "F");
     svg_fig7->setHidden(optic_type != "A");
     svg_fig8->setHidden(optic_type != "A");
     svg_fig9->setHidden(optic_type != "A");
@@ -520,7 +521,7 @@ void MainWindow::Plot()
         proc5->waitForFinished();
     }
 
-    if(optic_type == "P")
+    /*if(optic_type == "P")
     {
         // GnuPlot script: Phase
         plot_n = 0;
@@ -557,7 +558,7 @@ void MainWindow::Plot()
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_phase.gp"));
         proc5->waitForFinished();
-    }
+    }*/
 
     proc1->waitForFinished();
     proc2->waitForFinished();
@@ -588,8 +589,8 @@ void MainWindow::Plot()
         svg_fig3->load(QString("fig_transmittance.svg"));
     if(optic_type == "F") // spatial filter
         svg_fig6->load(QString("fig_transmittance.svg"));
-    if(optic_type == "P") // probe, show phase
-        svg_fig6->load(QString("fig_phase.svg"));
+    //if(optic_type == "P") // probe, show phase
+    //    svg_fig6->load(QString("fig_phase.svg"));
 
     ////////////////////////////////// Update flags and controls ///////////////////////////////////
     Update();

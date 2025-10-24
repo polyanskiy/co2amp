@@ -5,14 +5,19 @@ F::F(std::string id)
 {  
     this->id = id;
     type = "F";
-    yaml = id + ".yml";
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
+    yaml_path = id + ".yml";
     std::string value="";
 
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia) - note the difference between the user interface- and internal- notation
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -22,7 +27,7 @@ F::F(std::string id)
     double Dr = r_max/x0;
 
     // filter type
-    if(!YamlGetValue(&value, yaml, "filter"))
+    if(!YamlGetValue(&value, &yaml_content, "filter"))
     {
         configuration_error = true;
         return;
@@ -34,7 +39,7 @@ F::F(std::string id)
 
     if(filter == "ND")
     {
-        if(!YamlGetValue(&value, yaml, "T"))
+        if(!YamlGetValue(&value, &yaml_content, "T"))
         {
             configuration_error = true;
             return;
@@ -50,7 +55,7 @@ F::F(std::string id)
     // APERTURE is useful when we don't want to resample the beam (keep semiDia)
     if(filter == "APERTURE")
     {
-        if(!YamlGetValue(&value, yaml, "R"))
+        if(!YamlGetValue(&value, &yaml_content, "R"))
         {
             configuration_error = true;
             return;
@@ -65,7 +70,7 @@ F::F(std::string id)
 
     if(filter == "MASK")
     {
-        if(!YamlGetValue(&value, yaml, "R"))
+        if(!YamlGetValue(&value, &yaml_content, "R"))
         {
             configuration_error = true;
             return;
@@ -80,7 +85,7 @@ F::F(std::string id)
 
     if(filter == "SIN")
     {
-        if(!YamlGetValue(&value, yaml, "R"))
+        if(!YamlGetValue(&value, &yaml_content, "R"))
         {
             configuration_error = true;
             return;
@@ -89,7 +94,7 @@ F::F(std::string id)
         Debug(2, "R = " + toExpString(R) + " m");
 
         double w = r_max-R;
-        if(YamlGetValue(&value, yaml, "w"))
+        if(YamlGetValue(&value, &yaml_content, "w"))
             w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
 
@@ -114,14 +119,14 @@ F::F(std::string id)
 
     if(filter == "GAUSS")
     {
-        if(!YamlGetValue(&value, yaml, "R"))
+        if(!YamlGetValue(&value, &yaml_content, "R"))
         {
             configuration_error = true;
             return;
         }
         double R = std::stod(value);
         Debug(2, "R = " + toExpString(R) + " m");
-        if(!YamlGetValue(&value, yaml, "w"))
+        if(!YamlGetValue(&value, &yaml_content, "w"))
         {
             configuration_error = true;
             return;
@@ -138,15 +143,16 @@ F::F(std::string id)
     {
         std::vector<double> pos;
         std::vector<double> transm;
-        if(!YamlGetData(&pos, yaml, "form", 0) || !YamlGetData(&transm, yaml, "form", 1))
+        if(!YamlGetData(&pos, &yaml_content, "form", 0) || !YamlGetData(&transm, &yaml_content, "form", 1))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Transmittance profile [Radial coordinate(m) Transmittance(-)] (only displayed if debug level >= 3)");
+        Debug(2, "Transmittance profile loaded (use debug level 3 to display)");
+        Debug(3, "Transmittance profile [Radial coordinate(m) Transmittance(-)] (only displayed if debug level >= 3)");
         if(debug_level >= 3)
             for(int i=0; i<pos.size(); i++)
-                std::cout << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
+                std::cout << "  " << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
         for(int x=0; x<x0; x++)
                 Transmittance[x] = Interpolate(&pos, &transm, Dr*(0.5+x));
         WriteTransmittanceFile();
@@ -154,7 +160,7 @@ F::F(std::string id)
     }
 
     // not a supproted "filter"
-    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml << "\'" << std::endl;
+    std::cout << "ERROR: wrong \'filter\' in config file \'" << yaml_path << "\'" << std::endl;
     configuration_error = true;
 }
 

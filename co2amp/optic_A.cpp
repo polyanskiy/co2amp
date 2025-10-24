@@ -5,14 +5,21 @@ A::A(std::string id)
 {
     this->id = id;
     type = "A";
-    yaml = id + ".yml";
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml + "\'");
-
+    yaml_path = id + ".yml";
     std::string value="";
 
+    Debug(1, "*** AMPLIFIER SECTION \'" + id + "\' ***");
+
+    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     // r_max (semiDia)
-    if(!YamlGetValue(&value, yaml, "semiDia"))
+    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
         return;
@@ -21,7 +28,7 @@ A::A(std::string id)
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
 
     // Length (L)
-    if(!YamlGetValue(&value, yaml, "L"))
+    if(!YamlGetValue(&value, &yaml_content, "L"))
     {
         configuration_error = true;
         return;
@@ -32,13 +39,13 @@ A::A(std::string id)
 
     // ------- PUMPING -------
     // pumping type (must be "discharge" or "optical")
-    if(!YamlGetValue(&value, yaml, "pumping"))
+    if(!YamlGetValue(&value, &yaml_content, "pumping"))
     {
         configuration_error = true;
         return;
     }
     pumping = value;
-    Debug(2, "pumping = " + pumping);
+    Debug(1, "pumping = " + pumping);
     if(pumping != "discharge" && pumping != "optical")
     {
         configuration_error = true;
@@ -48,7 +55,7 @@ A::A(std::string id)
 
     if(pumping == "discharge")
     {
-        if(!YamlGetValue(&value, yaml, "Vd"))
+        if(!YamlGetValue(&value, &yaml_content, "Vd"))
         {
             configuration_error = true;
             return;
@@ -56,7 +63,7 @@ A::A(std::string id)
         Vd = std::stod(value);
         Debug(2, "Vd (discharge volume) = " + toExpString(Vd) + " m^3");
 
-        if(!YamlGetValue(&value, yaml, "D"))
+        if(!YamlGetValue(&value, &yaml_content, "D"))
         {
             configuration_error = true;
             return;
@@ -65,55 +72,73 @@ A::A(std::string id)
         Debug(2, "D (inter-electrode diatance) = " + toExpString(D) + " m");
 
         // Discharge profile: time(s) Current(A) Voltage(V)
-        if(!YamlGetData(&discharge_time, yaml, "discharge", 0)
-                || !YamlGetData(&discharge_current, yaml, "discharge", 1)
-                || !YamlGetData(&discharge_voltage, yaml, "discharge", 2))
+        if(!YamlGetData(&discharge_time, &yaml_content, "discharge", 0)
+                || !YamlGetData(&discharge_current, &yaml_content, "discharge", 1)
+                || !YamlGetData(&discharge_voltage, &yaml_content, "discharge", 2))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Discharge profile [Time(s) Current(A) Voltage(V)] (only displayed if debug level >= 3)");
+        Debug(2, "Discharge profile loaded (use debug level 3 to display)");
+        Debug(3, "Discharge profile [Time(s) Current(A) Voltage(V)]");
         if(debug_level >= 3)
             for(int i=0; i<discharge_time.size(); i++)
-                std::cout << toExpString(discharge_time[i]) <<  " "
-                << toExpString(discharge_current[i]) <<  " "
-                << toExpString(discharge_voltage[i])
-                << std::endl;
+                std::cout << "  "
+                          << toExpString(discharge_time[i]) <<  " "
+                          << toExpString(discharge_current[i]) <<  " "
+                          << toExpString(discharge_voltage[i])
+                          << std::endl;
     }
 
     if(pumping == "optical")
     {
-        if(!YamlGetValue(&value, yaml, "pump_wl"))
+        if(!YamlGetValue(&value, &yaml_content, "pump_level"))
+        {
+            configuration_error = true;
+            return;
+        }
+        pump_level = value;
+        Debug(1, "pump_level = " + pump_level);
+        if(pump_level != "001" && pump_level != "021" && pump_level != "041" && pump_level != "002" && pump_level != "003")
+        {
+            configuration_error = true;
+            std::cout << "ERROR: Wrong \'pump_level\' parameter (must be \"001\", \"021\", \"041\", \"002\", or \"003\")\n";
+            return;
+        }
+
+        if(!YamlGetValue(&value, &yaml_content, "pump_wl"))
         {
             configuration_error = true;
             return;
         }
         pump_wl = std::stod(value); // m
-        Debug(2, "pump_wl (wavelength) = " + toExpString(pump_wl) + " m");
+        Debug(2, "pump_wl (optical pumping wavelength) = " + toExpString(pump_wl) + " m");
 
-        if(!YamlGetValue(&value, yaml, "pump_sigma"))
+        if(!YamlGetValue(&value, &yaml_content, "pump_sigma"))
         {
             configuration_error = true;
             return;
         }
         pump_sigma = std::stod(value); // m^2
-        Debug(2, "pump_sigma (abs. cross-section) = " + toExpString(pump_wl) + " m^2");
+        Debug(2, "pump_sigma (optical pumping absorption cross-section) = " + toExpString(pump_sigma) + " m^2");
 
-
-        // Pumping pulse profile: time(s) Intensity(W/m^2)
-        if(!YamlGetData(&pumping_pulse_time, yaml, "pumping_pulse", 0)
-                || !YamlGetData(&pumping_pulse_intensity, yaml, "pumping_pulse", 1))
+        // Optical pumping pulse: Time(s) Intensity(W/m^2)
+        if(!YamlGetData(&pump_pulse_time, &yaml_content, "pump_pulse", 0)
+                || !YamlGetData(&pump_pulse_intensity, &yaml_content, "pump_pulse", 1))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Pumping pulse profile [Time(s) Intensity(W/m^2))]");
-        if(debug_level >= 2)
+        Debug(2, "Optical pumping pulse loaded (use debug level 3 to display)");
+        Debug(3, "Optical pumping pulse [Time(s) Intensity(W/m^2))]");
+        if(debug_level >= 3)
         {
-            for(int i=0; i<pumping_pulse_time.size(); i++)
+            for(int i=0; i<pump_pulse_time.size(); i++)
             {
-                std::cout << toExpString(pumping_pulse_time[i]) <<  " "
-                << toExpString(pumping_pulse_intensity[i]) << std::endl;
+                std::cout << "  "
+                          << toExpString(pump_pulse_time[i]) <<  " "
+                          << toExpString(pump_pulse_intensity[i])
+                          << std::endl;
             }
         }
     }
@@ -131,7 +156,7 @@ A::A(std::string id)
     double C12 = 1; // Carbon-12 content (0..1)
     double C13 = 0; // Carbon-13 content (0..1)
 
-    if(YamlGetValue(&value, yaml, "p_CO2", false))
+    if(YamlGetValue(&value, &yaml_content, "p_CO2", false))
     {
         p_CO2 = std::stod(value);
         Debug(2, "p_CO2 = " + std::to_string(p_CO2) + " bar");
@@ -139,23 +164,23 @@ A::A(std::string id)
         Debug(2, "calculated at statistical equilibrium for specified isotope content");
 
         // Check if content of rare isotopes provided
-        if(YamlGetValue(&value, yaml, "O17", false))
+        if(YamlGetValue(&value, &yaml_content, "O17", false))
         {
             O17 = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "O18", false))
+        if(YamlGetValue(&value, &yaml_content, "O18", false))
         {
             O18 = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "C13", false))
+        if(YamlGetValue(&value, &yaml_content, "C13", false))
         {
             C13 = std::stod(value);
         }
 
         // Check if content of natural isotopes provided. If not - calculate as a balance
-        if(YamlGetValue(&value, yaml, "O16", false))
+        if(YamlGetValue(&value, &yaml_content, "O16", false))
         {
             O16 = std::stod(value);
         }
@@ -164,7 +189,7 @@ A::A(std::string id)
             O16 = 1 - (O17 + O18);
         }
 
-        if(YamlGetValue(&value, yaml, "C12", false))
+        if(YamlGetValue(&value, &yaml_content, "C12", false))
         {
             C12 = std::stod(value);
         }
@@ -198,61 +223,62 @@ A::A(std::string id)
         Debug(2, "Because p_CO2 is NOT specified, partial pressures of isotopologues will be");
         Debug(2, "read from the configuration (or set to zero if not specified)");
 
-        if(YamlGetValue(&value, yaml, "p_626", false))
+        if(YamlGetValue(&value, &yaml_content, "p_626", false))
         {
             p_iso[0] = std::stod(value);
         }
-        if(YamlGetValue(&value, yaml, "p_727", false))
+
+        if(YamlGetValue(&value, &yaml_content, "p_727", false))
         {
             p_iso[1] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_828", false))
+        if(YamlGetValue(&value, &yaml_content, "p_828", false))
         {
             p_iso[2] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_636", false))
+        if(YamlGetValue(&value, &yaml_content, "p_636", false))
         {
             p_iso[3] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_737", false))
+        if(YamlGetValue(&value, &yaml_content, "p_737", false))
         {
             p_iso[4] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_838", false))
+        if(YamlGetValue(&value, &yaml_content, "p_838", false))
         {
             p_iso[5] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_627", false))
+        if(YamlGetValue(&value, &yaml_content, "p_627", false))
         {
             p_iso[6] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_628", false))
+        if(YamlGetValue(&value, &yaml_content, "p_628", false))
         {
             p_iso[7] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_728", false))
+        if(YamlGetValue(&value, &yaml_content, "p_728", false))
         {
             p_iso[8] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_637", false))
+        if(YamlGetValue(&value, &yaml_content, "p_637", false))
         {
             p_iso[9] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_638", false))
+        if(YamlGetValue(&value, &yaml_content, "p_638", false))
         {
             p_iso[10] = std::stod(value);
         }
 
-        if(YamlGetValue(&value, yaml, "p_738", false))
+        if(YamlGetValue(&value, &yaml_content, "p_738", false))
         {
             p_iso[11] = std::stod(value);
         }
@@ -266,21 +292,21 @@ A::A(std::string id)
         Debug(2, "(p_CO2 is calculated as a sum of isotopologues)");
     }
 
-    if(!YamlGetValue(&value, yaml, "p_N2"))
+    if(!YamlGetValue(&value, &yaml_content, "p_N2"))
     {
         configuration_error = true;
         return;
     }
     p_N2 = std::stod(value);
 
-    if(!YamlGetValue(&value, yaml, "p_He"))
+    if(!YamlGetValue(&value, &yaml_content, "p_He"))
     {
         configuration_error = true;
         return;
     }
     p_He = std::stod(value);
 
-    Debug(1, id + " gas composition:");
+    Debug(1, "Gas composition:");
     if(debug_level>=1)
     {
         std::cout << "  p_CO2 = " + std::to_string(p_CO2) + " bar\n" ;
@@ -300,13 +326,13 @@ A::A(std::string id)
         std::cout << "  p_He = " + std::to_string(p_He) + " bar\n" ;
     }
 
-    if(!YamlGetValue(&value, yaml, "T0"))
+    if(!YamlGetValue(&value, &yaml_content, "T0"))
     {
         configuration_error = true;
         return;
     }
     T0 = std::stod(value);
-    Debug(1, "T0 = " + std::to_string(T0) + " K");
+    Debug(2, "T0 = " + std::to_string(T0) + " K");
 
     if(p_CO2+p_N2+p_He <=0)
     {
@@ -322,7 +348,7 @@ A::A(std::string id)
     band_hot = true;
     band_4um = false;
 
-    if(YamlGetValue(&value, yaml, "band_reg", false))
+    if(YamlGetValue(&value, &yaml_content, "band_reg", false))
     {
         if(value!="true" && value!="false")
         {
@@ -333,7 +359,7 @@ A::A(std::string id)
         band_reg = value=="true" ? true : false;
     }
 
-    if(YamlGetValue(&value, yaml, "band_seq", false))
+    if(YamlGetValue(&value, &yaml_content, "band_seq", false))
     {
         if(value!="true" && value!="false")
         {
@@ -344,7 +370,7 @@ A::A(std::string id)
         band_seq = value=="true" ? true : false;
     }
 
-    if(YamlGetValue(&value, yaml, "band_hot", false))
+    if(YamlGetValue(&value, &yaml_content, "band_hot", false))
     {
         if(value!="true" && value!="false")
         {
@@ -355,7 +381,7 @@ A::A(std::string id)
         band_hot = value=="true" ? true : false;
     }
 
-    if(YamlGetValue(&value, yaml, "band_4um", false))
+    if(YamlGetValue(&value, &yaml_content, "band_4um", false))
     {
         if(value!="true" && value!="false")
         {
@@ -366,7 +392,7 @@ A::A(std::string id)
         band_4um = value=="true" ? true : false;
     }
 
-    Debug(1, id + " bands to consider:");
+    Debug(1, "Bands to consider:");
     if(debug_level>=1)
     {
         std::string truefalse;
@@ -397,7 +423,7 @@ A::A(std::string id)
 
     for(int i=0; i<12; ++i) // isotopologues
     {
-        for(int gr=0; gr<6; ++gr) // groups of vib. levels
+        for(int gr=0; gr<10; ++gr) // groups of vib. levels
         {
             N_gr[i][gr] = new double[x0];
         }

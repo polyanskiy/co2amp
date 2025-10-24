@@ -17,16 +17,16 @@ void A::InternalDynamics(double time)
     double f2, f3;
     double cv;
     double pump2, pump3, pump4; // vib. modes
-    double pump_gr[6];          // groups of vib levels (partial alternative to "modes" model)
+    double pump_gr[10];          // groups of vib levels (partial alternative to "modes" model)
     double D_e2, D_e3, D_e4;
 
-    double N = 273.0*(p_CO2+p_N2+p_He)/T0;
+    double N = 273*(p_CO2+p_N2+p_He)/T0;
 
     // Thermalization time for semi-population model
     // k = 3.9e6 (s torr)^{-1}   [Finzi & Moore 1975 - https://doi.org/10.1063/1.431678]
     double tauV = 1 / (3.9e6*750*p_CO2); // intra-mode vibrational thermalization time
-    // Pre-calculate re-usable expressios to accelerate computations
-    double exp_tauV = exp(-time_tick/tauV); //
+    // Pre-calculate re-usable expressions to accelerate computations
+    double exp_tauV = exp(-time_tick/tauV);
 
     // Relative concentrations: y1: CO2, y2: N2, y3: He
     double y1 = p_CO2/(p_CO2+p_N2+p_He);
@@ -38,7 +38,7 @@ void A::InternalDynamics(double time)
     pump2 = 0;
     pump3 = 0;
     pump4 = 0;
-    for(int gr=0; gr<6; ++gr)
+    for(int gr=0; gr<10; ++gr)
     {
         pump_gr[gr] = 0;
     }
@@ -71,43 +71,69 @@ void A::InternalDynamics(double time)
         pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
         pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
         pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
-
-        // assume nu3 excitation goes to (001) and nu2 goes to (010)
-        pump_gr[0] = pump3;
     }
+
     if(pumping == "optical")
     {
-        double photon_flux = PumpingPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
+        double photon_flux = PumpPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
 
 
 
-        if(pump_wl>3.5e-6 && pump_wl<=5.0e-6) // direct excitation of (001) level
+        //if(pump_wl>3.5e-6 && pump_wl<=5.0e-6)
+        if(pump_level == "001") // direct excitation of (001) level @ ~4.3 um
         {
             pump3 = photon_flux * pump_sigma;
             pump2 = 0;
             pump_gr[0] = pump3;
         }
 
-        if(pump_wl>2.5e-6 && pump_wl<=3.5e-6) // excitation through combinational vibration (101,021)
+        //if(pump_wl>2.5e-6 && pump_wl<=3.5e-6)
+        if(pump_level == "021") // excitation through combinational vibration (101,021) @ ~2.8 um
         {
             pump3 = photon_flux * pump_sigma;
             pump2 = 2 * pump3;
             pump_gr[5] = pump3;
         }
 
-        if(pump_wl>1.8e-6 && pump_wl<=2.5e-6) // excitation through combinational vibration (201,121,041)
+        if(pump_level == "041") // excitation through combinational vibration (201,121,041) @ ~2.0 um
+                                // ! excitation level is not directly involved in any laser transition
+                                //   and thus not associated with a "group" of levels
         {
             pump3 = photon_flux * pump_sigma;
             pump2 = 4 * pump3;
         }
 
-        if(pump_wl>1.3e-6 && pump_wl<=1.8e-6) // excitation through (003) level
+        if(pump_level == "002") // excitation through 2nd overtone level @ ~2.2 um
+                                // ! only possible for non-symmetric molecules
         {
-            // need to fix later: add group for 3nu3 level: pump_gr[X] = pump3/3
-            // for now assuming each photons exctes 3 molecules to (001)
+            pump3 = 2*photon_flux * pump_sigma;
+            pump2 = 0;
+            pump_gr[4] = pump3;
+        }
+
+        /*if(pump_wl>1.8e-6 && pump_wl<=2.5e-6)
+        {
+            if(!pump_2nu3) // excitation through combinational vibration (201,121,041)
+            {
+                pump3 = photon_flux * pump_sigma;
+                pump2 = 4 * pump3;
+                // excitation level is not directly involved in laser transition
+                // and thus not associated with a "group" of levels
+            }
+            else  // overtone excitation through (002) level - only possible for non-symmetric molecules
+            {
+                pump3 = 2*photon_flux * pump_sigma;
+                pump2 = 0;
+                pump_gr[4] = pump3;
+            }
+        }*/
+
+        //if(pump_wl>1.3e-6 && pump_wl<=1.8e-6)
+        if(pump_level == "003") // excitation through 3rd overtone level @ ~1.4 um
+        {
             pump3 = 3 * photon_flux * pump_sigma;
             pump2 = 0;
-            pump_gr[0] = pump3;
+            pump_gr[8] = pump3;
         }
 
     }
@@ -137,21 +163,21 @@ void A::InternalDynamics(double time)
             X = pow(T[x],-1.0/3);
 
             // Collisional relaxation rates, 1/s
-            K = 240.0/pow(T[x],0.5) * 1e6;
+            K = 240/pow(T[x],0.5) * 1e6;
             K31 = A * exp(4.138+7.945 *X-631.24*X*X+2239.0 *X*X*X) * 1e6;
             K32 = A * exp(-1.863+213.3*X-2796.2*X*X+9001.9 *X*X*X) * 1e6;
             K33 = A * exp(-3.276+291.4*X-3831.8*X*X+12688.0*X*X*X) * 1e6;
-            K21 = 1160.0 * exp(-59.3*X) * 1e6;
-            K22 = 855.0  * exp(-69.0*X) * 1e6;
-            K23 = 1300.0 * exp(-40.6*X) * 1e6;
+            K21 = 1160 * exp(-59.3*X) * 1e6;
+            K22 = 855  * exp(-69.0*X) * 1e6;
+            K23 = 1300 * exp(-40.6*X) * 1e6;
 
             ra = K*N*y1;
             rc = K*N*y2;
             r2 = N*(y1*K21 + y2*K22 + y3*K23);
             r3 = N*(y1*K31 + y2*K32 + y3*K33) ;
 
-            f2 = 2.0 * pow (1.0+e2[x],2) / (2.0+6.0*e2[x]+3.0*pow(e2[x],2));
-            f3 = e3[x]*pow(1+e2[x]/2.0,3) - (1.0+e3[x])*pow(e2[x]/2.0,3)*exp(-500.0/T[x]);
+            f2 = 2 * pow(1+e2[x],2) / (2+6*e2[x]+3*pow(e2[x],2));
+            f3 = e3[x]*pow(1+e2[x]/2,3) - (1+e3[x])*pow(e2[x]/2,3)*exp(-500/T[x]);
 
             // pumping and collisional relaxation
             D_e2 = 0;
@@ -170,15 +196,20 @@ void A::InternalDynamics(double time)
             e3[x] += D_e3;
             e4[x] += D_e4;
 
-            // Assuming that only two groups are pumped directly (others - via thermalization)
+            // In our model four three groups can be pumped directly in case of optical pumping
+            // In othr cases, pump energy first goes to corresponding vibrational modes
+            // and then re-distibutes between levels through intramode thermalization
             for(int i=0; i<12; ++i)
             {
-                N_gr[i][0][x] += N_iso[i] * pump_gr[0] * time_tick;
-                N_gr[i][5][x] += N_iso[i] * pump_gr[5] * time_tick;
+                N_gr[i][0][x] += N_iso[i] * pump_gr[0] * time_tick; // 4.3 um
+                N_gr[i][4][x] += N_iso[i] * pump_gr[4] * time_tick; // 2nd overtone of nu3 (non-symmetric molecules)
+                N_gr[i][5][x] += N_iso[i] * pump_gr[5] * time_tick; // 2.8 um
+                N_gr[i][8][x] += N_iso[i] * pump_gr[7] * time_tick; // 1.4 um
+                // No group for 2 um pumping: corresponding levels are not involved in any laser transitions (?)
             }
 
             cv = 2.5*(y1+y2) + 1.5*y3;
-            T[x] += ( y1/cv * (500.0*r3*f3 + 960.0*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT/N/cv ) * time_tick;
+            T[x] += ( y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT/N/cv ) * time_tick;
         }
         else
         {
@@ -189,7 +220,9 @@ void A::InternalDynamics(double time)
             for(int i=0; i<12; ++i)
             {
                 N_gr[i][0][x] = N_gr[i][0][0];
+                N_gr[i][4][x] = N_gr[i][4][0];
                 N_gr[i][5][x] = N_gr[i][5][0];
+                N_gr[i][8][x] = N_gr[i][8][0];
             }
         }
 
@@ -199,25 +232,38 @@ void A::InternalDynamics(double time)
         double Q = 1 / ( (1-exp(-1920/Temp2))*pow(1-exp(-960/Temp2),2)*(1-exp(-3380/Temp3)) ); // partition function
         double N_gr0; // population of a group of vibrational levels in thermal equilibrium
 
+        // Intra-mode thermalization
         for(int i=0; i<12; ++i)
         {
-            N_gr0 =     N_iso[i]*exp(-3380/Temp3)/Q;                  // 001
+            N_gr0 =     N_iso[i]*exp(-3380/Temp3)/Q;                    // 001
             N_gr[i][0][x] += (N_gr0 - N_gr[i][0][x]) * (1-exp_tauV);
 
-            N_gr0 = 2 * N_iso[i]*exp(-2*960/Temp2)/Q;                 // 100 + 020
+            N_gr0 = 2 * N_iso[i]*exp(-2*960/Temp2)/Q;                   // 100 + 020
             N_gr[i][1][x] += (N_gr0 - N_gr[i][1][x]) * (1-exp_tauV);
 
-            N_gr0 =     N_iso[i]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;  // 011
+            N_gr0 =     N_iso[i]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;    // 011
             N_gr[i][2][x] += (N_gr0 - N_gr[i][2][x]) * (1-exp_tauV);
 
-            N_gr0 = 2 * N_iso[i]*exp(-3*960/Temp2)/Q;                 // 110 + 030
+            N_gr0 = 2 * N_iso[i]*exp(-3*960/Temp2)/Q;                   // 110 + 030
             N_gr[i][3][x] += (N_gr0 - N_gr[i][3][x]) * (1-exp_tauV);
 
-            N_gr0 =     N_iso[i]*exp(-2*3380/Temp3)/Q;                // 002
+            N_gr0 =     N_iso[i]*exp(-2*3380/Temp3)/Q;                  // 002
             N_gr[i][4][x] += (N_gr0 - N_gr[i][4][x]) * (1-exp_tauV);
 
-            N_gr0 = 2 * N_iso[i]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;// 101 + 021
+            N_gr0 = 2 * N_iso[i]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;  // 101 + 021
             N_gr[i][5][x] += (N_gr0 - N_gr[i][5][x]) * (1-exp_tauV);
+
+            N_gr0 =     N_iso[i]*exp(-960/Temp2)*exp(-2*3380/Temp3)/Q;  // 012
+            N_gr[i][6][x] += (N_gr0 - N_gr[i][6][x]) * (1-exp_tauV);
+
+            N_gr0 = 2 * N_iso[i]*exp(-3*960/Temp2)*exp(-3380/Temp3)/Q;  // 111 + 031
+            N_gr[i][7][x] += (N_gr0 - N_gr[i][7][x]) * (1-exp_tauV);
+
+            N_gr0 =     N_iso[i]*exp(-3*3380/Temp3)/Q;                  // 003
+            N_gr[i][8][x] += (N_gr0 - N_gr[i][8][x]) * (1-exp_tauV);
+
+            N_gr0 = 2 * N_iso[i]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;// 102 + 022
+            N_gr[i][9][x] += (N_gr0 - N_gr[i][9][x]) * (1-exp_tauV);
         }
     }
 
@@ -237,9 +283,9 @@ double A::Voltage(double time)
 }
 
 
-double A::PumpingPulseIntensity(double time)
+double A::PumpPulseIntensity(double time)
 {
-    return Interpolate(&pumping_pulse_time, &pumping_pulse_intensity, time);
+    return Interpolate(&pump_pulse_time, &pump_pulse_intensity, time);
 }
 
 
@@ -270,25 +316,29 @@ void A::InitializePopulations()
     for(int x=0; x<=x0-1; x++)
     {
         T[x] = T0;
-        e4[x] = 1.0/(exp(3350.0/T0)-1.0);
-        e2[x] = 2.0/(exp(960.0/T0)-1.0);
-        e3[x] = 1.0/(exp(3380.0/T0)-1.0);
+        e4[x] = 1/(exp(3350/T0)-1);
+        e2[x] = 2/(exp(960/T0)-1);
+        e3[x] = 1/(exp(3380/T0)-1);
 
         for(int i=0; i<12; ++i)
         {
-            N_gr[i][0][x] =     N_iso[i]*exp(-3380/T0)/Q;               // 001
-            N_gr[i][1][x] = 2 * N_iso[i]*exp(-2*960/T0)/Q;              // 100 + 020
-            N_gr[i][2][x] =     N_iso[i]*exp(-960/T0)*exp(-3380/T0)/Q;  // 011
-            N_gr[i][3][x] = 2 * N_iso[i]*exp(-3*960/T0)/Q;              // 110 + 030
-            N_gr[i][4][x] =     N_iso[i]*exp(-2*3380/T0)/Q;             // 002
-            N_gr[i][5][x] = 2 * N_iso[i]*exp(-2*960/T0)*exp(-3380/T0)/Q;// 101 + 021
+            N_gr[i][0][x] =     N_iso[i]*exp(-3380/T0)/Q;                 // 001
+            N_gr[i][1][x] = 2 * N_iso[i]*exp(-2*960/T0)/Q;                // 100 + 020
+            N_gr[i][2][x] =     N_iso[i]*exp(-960/T0)*exp(-3380/T0)/Q;    // 011
+            N_gr[i][3][x] = 2 * N_iso[i]*exp(-3*960/T0)/Q;                // 110 + 030
+            N_gr[i][4][x] =     N_iso[i]*exp(-2*3380/T0)/Q;               // 002
+            N_gr[i][5][x] = 2 * N_iso[i]*exp(-2*960/T0)*exp(-3380/T0)/Q;  // 101 + 021
+            N_gr[i][6][x] =     N_iso[i]*exp(-4*960/T0)*exp(-3380/T0)/Q;  // 012
+            N_gr[i][7][x] = 2 * N_iso[i]*exp(-3*960/T0)*exp(-3380/T0)/Q;  // 111 + 031
+            N_gr[i][8][x] =     N_iso[i]*exp(-3*3380/T0)/Q;               // 003
+            N_gr[i][9][x] = 2 * N_iso[i]*exp(-2*960/T0)*exp(-2*3380/T0)/Q;// 102 + 022
         }
     }
 }
 
 double A::e2e(double T)
 {
-  return 2.0/(exp(960.0/T)-1.0);
+  return 2/(exp(960/T)-1);
 }
 
 
@@ -358,12 +408,12 @@ void A::UpdateDynamicsFiles(double time)
         //////////////////////// Discharge ////////////////////////
         if(time==0)
         {
-            file = fopen((id+"_pumping_pulse.dat").c_str(), "w");
+            file = fopen((id+"_pump_pulse.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] intensity[W/m^2]\n");
         }
         else
-            file = fopen((id+"_pumping_pulse.dat").c_str(), "a");
-        fprintf(file, "%e\t%e\n", time, PumpingPulseIntensity(time));
+            file = fopen((id+"_pump_pulse.dat").c_str(), "a");
+        fprintf(file, "%e\t%e\n", time, PumpPulseIntensity(time));
         fclose(file);
     }
 

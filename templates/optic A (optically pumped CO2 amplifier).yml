@@ -1,6 +1,6 @@
 # Configuration YAML file, type A
 # - Optically pumped active medium -
-# template v.2024-11-21
+# template v.2025-10-23
 
 # Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
@@ -42,12 +42,14 @@ band_hot: true
 # Pumping type (discharge/optical)
 pumping: optical
 ############ if pumping == optical ############
-# Pump wavelength (m)
+# Optical pumping energy level (001/021/041/002/003)
+pump_level: 021
+# Optical pumping wavelength (m)
 pump_wl: 2.68e-6
-# Absorption cross-section (m^2)
+# Optical pumping sbsorption cross-section (m^2)
 pump_sigma: 4e-24
-# Pump pulse profile (s W/m^2)
-pumping_pulse: |
+# Optical pumping pulse profile (s W/m^2)
+pump_pulse: |
     0.000E+00 8.586E+05
     6.103E-09 1.663E+06
     1.221E-08 3.155E+06

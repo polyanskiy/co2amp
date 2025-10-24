@@ -41,26 +41,31 @@ std::string toString(double num)
 }
 
 
-bool YamlGetValue(std::string *value, std::string path, std::string key, bool required)
+bool YamlReadFile(std::string path, std::string *yaml_file_content)
 {
-    std::string str, file_content_str;
     std::ifstream in;
-    std::istringstream iss;
-
     in = std::ifstream(path, std::ios::in);
     if(in)
     {
-        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        *yaml_file_content = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
+        Debug(3, path + " content:\n-------\n" + *yaml_file_content + "\n-------");
     }
     else
     {
         std::cout << "Error reading YAML file \'" + path + "\'\n";
         return false;
     }
-    Debug(3, path + " content:\n" + file_content_str);
+    return true;
+}
 
-    iss = std::istringstream(file_content_str);
+
+bool YamlGetValue(std::string *value, std::string *yaml_file_content, std::string key, bool required)
+{
+    std::string str;
+    std::istringstream iss;
+
+    iss = std::istringstream(*yaml_file_content);
     while(std::getline(iss, str))
     {
         std::size_t found = 1;
@@ -75,38 +80,24 @@ bool YamlGetValue(std::string *value, std::string path, std::string key, bool re
                 *value = match[1];
             else
                 value->erase(remove_if(value->begin(), value->end(), isspace), value->end()); // remove spaces
-            Debug(3, key + ": " + *value);
+            Debug(3, key + ": " + *value + " (as read from file) interpreting...");
             return true;
         }
     }
 
     if(required)
-        std::cout << "Key \"" + key + "\" not found in YAML file \'" + path + "\'\n";
+        std::cout << "Key \"" + key + "\" not found in YAML file\n";
 
     return false;
 }
 
 
-bool YamlGetData(std::vector<double> *data, std::string path, std::string key, int column_n)
+bool YamlGetData(std::vector<double> *data, std::string *yaml_file_content, std::string key, int column_n)
 {
-    std::string str, str2, str3, file_content_str;
-    std::ifstream in;
+    std::string str, str2, str3;
     std::istringstream iss, iss2;
 
-    in = std::ifstream(path, std::ios::in);
-    if(in)
-    {
-        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-        in.close();
-    }
-    else
-    {
-        std::cout << "Error reading YAML file \'" + path + "\'\n";
-        return false;
-    }
-    Debug(3, path + " content:\n" + file_content_str);
-
-    iss = std::istringstream(file_content_str);
+    iss = std::istringstream(*yaml_file_content);
     while(std::getline(iss, str))
     {
         std::size_t found = 1;
@@ -126,7 +117,7 @@ bool YamlGetData(std::vector<double> *data, std::string path, std::string key, i
         }
     }
 
-    std::cout << "Key \"" + key + "\" not found in YAML file \'" + path + "\'\n";
+    std::cout << "Key \"" + key + "\" not found in YAML file\n";
     return false;
 }
 

@@ -3,7 +3,7 @@
 Pulse::Pulse(std::string id)
 {
     this->id = id;
-    yaml = id + ".yml";
+    yaml_path = id + ".yml";
     // cannot initialize pulse here: need process optics and layout (planes) first:
     // Dr of input plane (first optic in the layout) needed
     // Use Initialize() instead.
@@ -16,27 +16,33 @@ Pulse::Pulse(std::string id)
 
 void Pulse::Initialize()
 {
-    Debug(2, "Creating pulse from file \'" + yaml + "\'");
-
     double Dt = (t_max-t_min)/n0;
     std::string value="";
 
+    Debug(2, "Creating pulse from file \'" + yaml_path + "\'");
+
+    if(!YamlReadFile(yaml_path, &yaml_content))
+    {
+        configuration_error = true;
+        return;
+    }
+
     //---------------- Parameters that must be present in any case ---------------------
-    if(!YamlGetValue(&value, yaml, "t_in")){
+    if(!YamlGetValue(&value, &yaml_content, "t_in")){
         configuration_error = true;
         return;
     }
     time_in = std::stod(value);
     Debug(2, "t_in = " + toExpString(time_in) + " s");
 
-    /*if(!YamlGetValue(&value, yaml, "file"))
+    /*if(!YamlGetValue(&value, &yaml_content, "file"))
     {
         configuration_error = true;
         return;
     }*/
 
     //================================== From file ======================================
-    if(YamlGetValue(&value, yaml, "file", false))
+    if(YamlGetValue(&value, &yaml_content, "file", false))
     {
     //if(value!="null")
     //{
@@ -56,7 +62,7 @@ void Pulse::Initialize()
     //================================ Not from file ====================================
 
     //---------------------------- Basic pulse parameters -------------------------------
-    if(!YamlGetValue(&value, yaml, "E"))
+    if(!YamlGetValue(&value, &yaml_content, "E"))
     {
         configuration_error = true;
         return;
@@ -64,7 +70,7 @@ void Pulse::Initialize()
     E0 = std::stod(value);
     Debug(2, "E = " + toExpString(E0) + " J");
 
-    if(!YamlGetValue(&value, yaml, "freq"))
+    if(!YamlGetValue(&value, &yaml_content, "freq"))
     {
         configuration_error = true;
         return;
@@ -73,7 +79,7 @@ void Pulse::Initialize()
     Debug(2, "freq = " + toExpString(vc) + " Hz");
 
     //----------------------------- Beam spatial profile --------------------------------
-    if(!YamlGetValue(&value, yaml, "beam"))
+    if(!YamlGetValue(&value, &yaml_content, "beam"))
     {
         configuration_error = true;
         return;
@@ -85,7 +91,7 @@ void Pulse::Initialize()
     double Dr = planes[0]->optic->r_max/x0; // input plane (first optic in the layout)
     if(beam == "GAUSS" || beam == "SUPERGAUSS4" || beam == "SUPERGAUSS6" || beam == "SUPERGAUSS8" || beam == "SUPERGAUSS10" || beam == "FLATTOP")
     {
-        if(!YamlGetValue(&value, yaml, "w"))
+        if(!YamlGetValue(&value, &yaml_content, "w"))
         {
             configuration_error = true;
             return;
@@ -115,12 +121,13 @@ void Pulse::Initialize()
     {
         std::vector<double> r;
         std::vector<double> A;
-        if(!YamlGetData(&r, yaml, "beam_form", 0) || !YamlGetData(&A, yaml, "beam_form", 1))
+        if(!YamlGetData(&r, &yaml_content, "beam_form", 0) || !YamlGetData(&A, &yaml_content, "beam_form", 1))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Beam profile [r(m) amplitude(a.u)] (only displayed if debug level >= 3)");
+        Debug(2, "Beam profile loaded (use debug level 3 to display)");
+        Debug(3, "Beam profile [r(m) amplitude(a.u)]");
         if(debug_level >= 3)
             for(int i=0; i<r.size(); i++)
                 std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
@@ -129,12 +136,12 @@ void Pulse::Initialize()
     }
     else
     {
-        std::cout << "ERROR: wrong \'beam\' in config file \'" << yaml << "\'" << std::endl;
+        std::cout << "ERROR: wrong \'beam\' in config file \'" << yaml_path << "\'" << std::endl;
         configuration_error = true;
     }
 
     //---------------------------- Pulse temporal profile -------------------------------
-    if(!YamlGetValue(&value, yaml, "pulse"))
+    if(!YamlGetValue(&value, &yaml_content, "pulse"))
     {
         configuration_error = true;
         return;
@@ -145,7 +152,7 @@ void Pulse::Initialize()
     double *PulseProfile = new double[n0];
     if(pulse == "GAUSS" || pulse == "FLATTOP")
     {
-        if(!YamlGetValue(&value, yaml, "fwhm"))
+        if(!YamlGetValue(&value, &yaml_content, "fwhm"))
         {
             configuration_error = true;
             return;
@@ -166,12 +173,13 @@ void Pulse::Initialize()
     {
         std::vector<double> t;
         std::vector<double> A;
-        if(!YamlGetData(&t, yaml, "pulse_form", 0) || !YamlGetData(&A, yaml, "pulse_form", 1))
+        if(!YamlGetData(&t, &yaml_content, "pulse_form", 0) || !YamlGetData(&A, &yaml_content, "pulse_form", 1))
         {
             configuration_error = true;
             return;
         }
-        Debug(2, "Pulse profile [t(s) amplitude(a.u)] (only displayed if debug level >= 3)");
+        Debug(2, "Pulse profile loaded (use debug level 3 to display)");
+        Debug(3, "Pulse profile [t(s) amplitude(a.u)]");
         if(debug_level >= 3)
             for(int i=0; i<t.size(); i++)
                 std::cout << toExpString(t[i]) <<  " " << toExpString(A[i]) << std::endl;
@@ -180,7 +188,7 @@ void Pulse::Initialize()
     }
     else
     {
-        std::cout << "ERROR: wrong \'pulse\' in config file \'" << yaml << "\'" << std::endl;
+        std::cout << "ERROR: wrong \'pulse\' in config file \'" << yaml_path << "\'" << std::endl;
         configuration_error = true;
     }
 

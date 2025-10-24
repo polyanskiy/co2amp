@@ -26,13 +26,14 @@ class Plane; // forward-declaration
 class Pulse
 {
 public:
-    Pulse(std::string yaml);
+    Pulse(std::string yaml_path);
     void Initialize(void);
     void Propagate(Plane *from, Plane *to, double time);
     void SavePulse(void); // HDF5 .pulse file
     void SaveBeam(void); // Zemax beam file (.zbf) and ASCII (.asc) beam profile
     std::string id;
-    std::string yaml;
+    std::string yaml_path;    // path to configuration file
+    std::string yaml_content; // content of configuration file
     int number;
     double vc;
     double time_in;
@@ -52,7 +53,8 @@ public:
 
     std::string type;
     std::string id;
-    std::string yaml;         // path to configuration file
+    std::string yaml_path;    // path to configuration file
+    std::string yaml_content; // content of configuration file
     int number;               // number of the optic in the optics list
     double r_max;             // m
 };
@@ -76,7 +78,7 @@ public:
 class A: public Optic // Amplifier section
 {
 public:
-    A(std::string yaml);
+    A(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
@@ -96,15 +98,22 @@ private:
     std::vector<double> discharge_time;
     std::vector<double> discharge_voltage;
     std::vector<double> discharge_current;
-    std::vector<double> pumping_pulse_time;
-    std::vector<double> pumping_pulse_intensity;
+    std::vector<double> pump_pulse_time;
+    std::vector<double> pump_pulse_intensity;
     double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
-    double pump_wl, pump_sigma;//, pump_fluence; // optical pumping parameters
+    std::string pump_level; // energy level for optical pumping
+                            // "001": direct pumping @ ~4.3 um
+                            // "021": combination (101+021) vibration @ ~2.8 um
+                            // "002": overtone pumping @ ~2.2 um (only possible for non-symmetric molecules like 628
+                            // "041": combination (201+121+041) vibration @ ~ 2.0 um
+                            // "003" overtone pumping @ ~1.4 um
+    double pump_wl, pump_sigma; // optical pumping parameters
+    //bool pump_2nu3; // 'true' if pumped through 2nd overtone (overwise, pump level is defined by pump_wl)
     double q2, q3, q4, qT;
     double q2_a, q3_a, q4_a, qT_a, time_a;
     double q2_b, q3_b, q4_b, qT_b, time_b;
     double *T, *e2, *e3, *e4;
-    double *N_gr[12][6];// number densities of isotopologues in each group of vibrational levels
+    double *N_gr[12][10];// number densities of isotopologues in each group of vibrational levels
     // ------- SPECTROSCOPY ------
     // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...79
     double nop[12][18][80];        // normalized populations
@@ -136,7 +145,7 @@ private:
     /////////////////////////// optic_A_dynamics.cpp //////////////////////////
     double Current(double);
     double Voltage(double);
-    double PumpingPulseIntensity(double);
+    double PumpPulseIntensity(double);
     double e2e(double);
     void InitializePopulations(void);
     double VibrationalTemperatures(int x, int mode);
@@ -162,7 +171,7 @@ private:
 class C: public Optic // Chirp (Stretcher/Compressor)
 {
 public:
-    C(std::string yaml);
+    C(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
@@ -174,7 +183,7 @@ private:
 class L: public Optic // Lens
 {
 public:
-    L(std::string yaml);
+    L(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
     double F; // focal length, m
@@ -184,7 +193,7 @@ public:
 class M: public Optic // Matter (window, air)
 {
 public:
-    M(std::string yaml);
+    M(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
@@ -222,7 +231,7 @@ private:
 class F: public Optic // Spatial (ND) filter
 {
 public:
-    F(std::string yaml);
+    F(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
@@ -234,7 +243,7 @@ private:
 class P: public Optic // Probe
 {
 public:
-    P(std::string yaml);
+    P(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 };
@@ -243,7 +252,7 @@ public:
 class S: public Optic // Spectral filter
 {
 public:
-    S(std::string yaml);
+    S(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
@@ -289,8 +298,9 @@ void Debug(int level, std::string str);
 /////////////////////////// misc.cpp /////////////////////////////
 Optic* FindOpticByID(std::string str);
 bool is_number(std::string);
-bool YamlGetValue(std::string *value, std::string path, std::string key, bool required=true);
-bool YamlGetData(std::vector<double> *data, std::string path, std::string key, int column_n);
+bool YamlReadFile(std::string path, std::string *yaml_file_content);
+bool YamlGetValue(std::string *value, std::string *yaml_file_content, std::string key, bool required=true);
+bool YamlGetData(std::vector<double> *data, std::string *yaml_file_content, std::string key, int column_n);
 double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 std::string toString(int num);

@@ -77,11 +77,11 @@ std::string ReadCommandLine(int argc, char **argv)
 bool ReadConfigFiles(std::string path)
 {
     std::string str, file_content_str, key, value;
-    std::ifstream in;
+    //std::ifstream in;
     std::istringstream iss, iss2;
 
-    Debug(2, "Interpreting configuration file list \'" + path + "\'");
-    in = std::ifstream(path, std::ios::in);
+    Debug(2, "Reading configuration file list \'" + path + "\'");
+    /*in = std::ifstream(path, std::ios::in);
     if(in)
     {
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
@@ -91,7 +91,17 @@ bool ReadConfigFiles(std::string path)
         std::cout << "Error reading configuration file list \"" + path + "\"\n";
         return false;
     }
-    Debug(3, path + " content:\n" + file_content_str);
+    Debug(3, path + " content:\n-------\n" + file_content_str + "\n-------");*/
+
+    //std::string file_content_str="";
+
+    if(!YamlReadFile(path, &file_content_str))
+    {
+        std::cout << "Error reading configuration file list \"" + path + "\"\n";
+        configuration_error = true;
+        return false;
+    }
+
 
     std::string id="";
     std::string type="";
@@ -167,30 +177,26 @@ bool ReadConfigFiles(std::string path)
 
 bool ReadLayoutConfigFile(std::string path)
 {
-    std::string str, file_content_str, key, value;
-    std::ifstream in;
+    std::string str, yaml_file_content, key, value;
     std::istringstream iss, iss2;
     std::string go = "";
     int times = -1;
     int plane_n = -1;
     int prop_n;
 
-    Debug(2, "Interpreting layout configuration file \'" + path +"\'");
-    in = std::ifstream(path, std::ios::in);
-    if(in)
+    Debug(1, "*** LAYOUT ***");
+
+    Debug(2, "Reading layout configuration file \'" + path +"\'");
+
+    if(!YamlReadFile(path, &yaml_file_content))
     {
-        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-        in.close();
-    }
-    else
-    {
-        std::cout << "Error reading layout file \'" + path + "\'\n";
+        std::cout << "Error reading layout configuration file \"" + path + "\"\n";
+        configuration_error = true;
         return false;
     }
-    Debug(3, path + " content:\n" + file_content_str);
 
     Debug(2, "Creating layout form file \'" + path + "\'");
-    iss = std::istringstream(file_content_str);
+    iss = std::istringstream(yaml_file_content);
     bool flag_gotimesfound = false;
     while(std::getline(iss, str))
     {
@@ -282,7 +288,6 @@ bool ReadLayoutConfigFile(std::string path)
     }
 
     // Print full layout for debugging
-    Debug(1, "LAYOUT:");
     if(debug_level>=1)
     {
         for(plane_n=0; plane_n<planes.size(); plane_n++)
