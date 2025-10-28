@@ -65,6 +65,7 @@ void MainWindow::Update()
     label_v_max->setText(QString::number(lineEdit_v0->text().toDouble() + 0.5/delta_t));
     tmp_precision_t = comboBox_precision_t->currentIndex();
     tmp_precision_r = comboBox_precision_r->currentIndex();
+    tmp_save_interval = spinBox_save_interval->value();
     groupBox_grid->setDisabled(flag_calculating);
 
     ////////////////////////////// CALCULATION PARAMETERS ///////////////////////////////

@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         bool flag_plot_postponed;
         bool always_ok_to_invalidate;
         QShortcut *F6;
-        int tmp_precision_t, tmp_precision_r, tmp_method;
+        int tmp_precision_t, tmp_precision_r, tmp_save_interval, tmp_method;
 
     private:
         YamlHighlighter *highlighter;
@@ -130,6 +130,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindowClass
         void on_lineEdit_t_min_textEdited(QString);
         void on_lineEdit_t_max_textEdited(QString);
         void on_lineEdit_time_tick_textEdited(QString);
+        void on_spinBox_save_interval_valueChanged(int);
         void on_comboBox_precision_t_activated(int);
         void on_comboBox_precision_r_activated(int);
         void on_comboBox_method_activated(int);

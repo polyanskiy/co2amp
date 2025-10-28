@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20250904_setup.exe"
+OutFile "co2amp_v.20251028_setup.exe"
 Unicode True
 
 ;Default install path

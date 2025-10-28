@@ -14,7 +14,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
     double gamma = 1 / T2;   // Lorentzian HWHM (for gain spectrum calculation)
-    double tauV = 1 / (3.9e6*750*p_CO2); // intra-mode vibrational thermalization time
+    //double tauV = 1 / (3.9e6*750*p_CO2); // intra-mode vibrational thermalization time
 
     // number of ro-vibrational transitions extracted from HITRAN files
     int n_transitions[12];
@@ -25,7 +25,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
     // Pre-calculate re-usable expressios to accelerate computations
     double exp_tauR = exp(-Dt/tauR/2); // half-step
-    double exp_tauV = exp(-Dt/tauV/2); // half-step
+    //double exp_tauV = exp(-Dt/tauV/2); // half-step
     double exp_T2 = exp(-Dt/T2/2); // half-step
     std::vector<std::complex<double>> exp_phase[12]; // half-step
     for(int i=0; i<12; i++)
@@ -54,7 +54,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
         }
         int i;  // isotopologue  number 0 - 626; 1 - 727; 2 - 828; 3 - 636; 4 - 737; 5 - 838; 6 - 627; 7 - 628; 8 - 728; 9 - 636; 10 - 637; 11 - 738
-        int gr; // group number (of of vigrational levels) 0...5
+        int gr; // group number (of of vigrational levels) 0...9
         int vl; // vibrational level number
         int j;  // rotational quantum number
         int tr; // transition number
@@ -199,7 +199,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 {
                     for(j=0; j<80; ++j)
                     {
-                        Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1.0-exp_tauR);
+                        Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1-exp_tauR);
                     }
                 }
             }

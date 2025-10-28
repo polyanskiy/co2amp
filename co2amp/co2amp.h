@@ -95,12 +95,17 @@ private:
     bool band_4um;
     // --------- PUMPING ---------
     std::string pumping; // pumping type ("discharge" or "optical")
+    // for discharge
     std::vector<double> discharge_time;
     std::vector<double> discharge_voltage;
     std::vector<double> discharge_current;
+    double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
+    double q2, q3, q4, qT;
+    double q2_a, q3_a, q4_a, qT_a, time_a;
+    double q2_b, q3_b, q4_b, qT_b, time_b;
+    // for optical
     std::vector<double> pump_pulse_time;
     std::vector<double> pump_pulse_intensity;
-    double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
     std::string pump_level; // energy level for optical pumping
                             // "001": direct pumping @ ~4.3 um
                             // "021": combination (101+021) vibration @ ~2.8 um
@@ -108,14 +113,10 @@ private:
                             // "041": combination (201+121+041) vibration @ ~ 2.0 um
                             // "003" overtone pumping @ ~1.4 um
     double pump_wl, pump_sigma; // optical pumping parameters
-    //bool pump_2nu3; // 'true' if pumped through 2nd overtone (overwise, pump level is defined by pump_wl)
-    double q2, q3, q4, qT;
-    double q2_a, q3_a, q4_a, qT_a, time_a;
-    double q2_b, q3_b, q4_b, qT_b, time_b;
+    // ------- SPECTROSCOPY, TEMPERATURES, POPULATIONS ------
+    // 12 isotopologues, 10 level groups, 18 vibrational levels, rotational levels with J = 0...79
     double *T, *e2, *e3, *e4;
     double *N_gr[12][10];// number densities of isotopologues in each group of vibrational levels
-    // ------- SPECTROSCOPY ------
-    // 6 isotopologues, 16 vibrational levels, rotational levels with J = 0...79
     double nop[12][18][80];        // normalized populations
     std::vector<double> v[12];     // transition frequencies, Hz
     std::vector<double> sigma[12]; // transition cross-sections, m^2
@@ -262,7 +263,7 @@ private:
 
 
 
-//////////////////////////////////////// GLOGAL STUFF ////////////////////////////////////////
+//////////////////////////////////////// GLOBAL STUFF ////////////////////////////////////////
 
 // --------------------------------------- VARIABLES -----------------------------------------
 
@@ -275,6 +276,7 @@ extern double v0;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
 extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
+extern int save_interval;         // # of ticks between data entries in dynamics files
 // ----------- DEBUGGING -----------
 extern int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug

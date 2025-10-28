@@ -98,6 +98,28 @@ void MainWindow::on_lineEdit_time_tick_textEdited(QString)
 }
 
 
+void MainWindow::on_spinBox_save_interval_valueChanged(int i)
+{
+    if(i == tmp_save_interval)
+        return;
+
+    if(CalcResultsExist())
+    {
+        if(OkToInvalidate())
+            InvalidateResults();
+        else
+        {
+            spinBox_save_interval->blockSignals(true);
+            spinBox_save_interval->setValue(tmp_save_interval);
+            spinBox_save_interval->blockSignals(false);
+            return;
+        }
+    }
+    flag_project_modified = true;
+    Update();
+}
+
+
 void MainWindow::on_comboBox_precision_t_activated(int i)
 {
     if(i == tmp_precision_t)

@@ -3,15 +3,16 @@
 std::string ReadCommandLine(int argc, char **argv)
 {       
     // CALCULATION ARGUMeNTS
-    v0 = -1;         // Center frequency, Hz
-    x0 = -1;         // # of bins in radial coordinate grid
-    n0 = -1;         // # of bins in time & frequency grids
-    t_min = -1;      // Pulse time calculation limit, s
-    t_max = -1;      // Pulse shift from 0, s
-    time_tick = -1;  // Time step for main (slow) time, s
-    method = 1;      // Fresnell diffraction with cylindrical symmetry
-    debug_level = 1; // Only the debugging info relevant for user
-    search_dir = ""; // Additional directory for HDF5 pulse files
+    v0 = -1;           // Center frequency, Hz
+    x0 = -1;           // # of bins in radial coordinate grid
+    n0 = -1;           // # of bins in time & frequency grids
+    t_min = -1;        // Pulse time calculation limit, s
+    t_max = -1;        // Pulse shift from 0, s
+    time_tick = -1;    // Time step for main (slow) time, s
+    save_interval = 1; // # of ticks between data entries in dynamics files
+    method = 1;        // Fresnell diffraction with cylindrical symmetry
+    debug_level = 1;   // Only the debugging info relevant for user
+    search_dir = "";   // Additional directory for HDF5 pulse files
 
     //Read command line
     int count = 0;
@@ -56,8 +57,10 @@ std::string ReadCommandLine(int argc, char **argv)
             count = count | 32;
         }
         // Optional parameters
-        if (!strcmp(argv[i], "-method")) // -optional-
-           method = atoi(argv[i+1]);
+        if (!strcmp(argv[i], "-save_interval"))
+            save_interval = atof(argv[i+1]);
+        if (!strcmp(argv[i], "-method"))
+            method = atoi(argv[i+1]);
         if (!strcmp(argv[i], "-debug"))
             debug_level = atoi(argv[i+1]);
         if (!strcmp(argv[i], "-search_dir"))

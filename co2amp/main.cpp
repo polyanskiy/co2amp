@@ -13,6 +13,7 @@ double v0;                 // central frequency of the calculation grid
 double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
+int save_interval;         // # of ticks between data entries in dynamics files
 // ---- CALCULATION PARAMETERS -----
 int method;                // propagation method
                            // 0: no propagation 1: Fresnel 2: Rayleigh-Sommerfeld
@@ -28,7 +29,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-10-23";
+    std::string version = "2025-10-28";
 
     std::clock_t stopwatch = std::clock();
 
@@ -123,7 +124,8 @@ void Calculations()
 
     for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
     {
-        #pragma omp parallel for// multithreaded
+        //#pragma omp parallel for// multithreaded
+        // (can't go parallel here to avoid nesting: using multithreads inside InternalDynamics functions)
         for(int optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 
@@ -135,7 +137,7 @@ void Calculations()
                 if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival)
                 {
                     // 1: Propagate beam to(!) this plane
-                    if(plane_n != 0) // propagate to(!) this palne
+                    if(plane_n != 0)
                         pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
                     // 2: Save pulse parameters at plane location (before interaction!!!)
                     StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");

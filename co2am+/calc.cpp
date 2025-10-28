@@ -9,15 +9,16 @@ void MainWindow::Calculate()
     BeforeProcessStarted(); //prepare everything
 
     QStringList arguments;
-    arguments << "-v0"        << lineEdit_v0->text();
-    arguments << "-n0"        << comboBox_precision_t->currentText();
-    arguments << "-x0"        << comboBox_precision_r->currentText();
-    arguments << "-t_min"     << lineEdit_t_min->text();
-    arguments << "-t_max"     << lineEdit_t_max->text();
-    arguments << "-time_tick" << lineEdit_time_tick->text();
-    arguments << "-method"    << QString::number(comboBox_method->currentIndex());
-    arguments << "-search_dir"<< def_dir;
-    arguments << "-debug" << spinBox_debug_level->text();
+    arguments << "-v0"            << lineEdit_v0->text();
+    arguments << "-n0"            << comboBox_precision_t->currentText();
+    arguments << "-x0"            << comboBox_precision_r->currentText();
+    arguments << "-t_min"         << lineEdit_t_min->text();
+    arguments << "-t_max"         << lineEdit_t_max->text();
+    arguments << "-time_tick"     << lineEdit_time_tick->text();
+    arguments << "-save_interval" << spinBox_save_interval->text();
+    arguments << "-method"        << QString::number(comboBox_method->currentIndex());
+    arguments << "-search_dir"    << def_dir;
+    arguments << "-debug"         << spinBox_debug_level->text();
 
     //////////////////// Starting The Process ////////////////////
     process = new QProcess(this); 
