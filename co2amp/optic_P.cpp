@@ -24,6 +24,7 @@ P::P(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
+    Dr = r_max/x0;
 }
 
 

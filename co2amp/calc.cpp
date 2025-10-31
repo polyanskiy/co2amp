@@ -6,7 +6,6 @@ void FFT(std::complex<double> *in, std::complex<double> *out) // in: field, out:
     FFTCore(in, out, false);
 
     // Normalize output
-    double Dt = (t_max-t_min)/n0;
     for(int n=0; n<n0; n++)
         out[n] *= Dt;
 }
@@ -18,7 +17,6 @@ void IFFT(std::complex<double> *in, std::complex<double> *out) // in: spectrum, 
     FFTCore(in, out, true);
 
     // Normalize output
-    double Dv = 1.0/(t_max-t_min);
     for(int n=0; n<n0; n++)
         out[n] *= Dv;
 }

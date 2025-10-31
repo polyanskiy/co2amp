@@ -73,8 +73,8 @@ void MainWindow::Plot()
     svg_fig3->setHidden(optic_type != "A" && optic_type != "C" && optic_type != "S");
     svg_fig4->setHidden(false);
     svg_fig5->setHidden(false);
-    //svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
-    svg_fig6->setHidden(optic_type != "A" && optic_type != "F");
+    svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
+    //svg_fig6->setHidden(optic_type != "A" && optic_type != "F");
     svg_fig7->setHidden(optic_type != "A");
     svg_fig8->setHidden(optic_type != "A");
     svg_fig9->setHidden(optic_type != "A");
@@ -471,18 +471,18 @@ void MainWindow::Plot()
 
     if(optic_type == "C")
     {
-        // GnuPlot script: Chirpyness (chirper)
-        file.setFileName("script_chirpyness.gp");
+        // GnuPlot script: Chirp rate (chirper)
+        file.setFileName("script_chirp.gp");
         file.open(QFile::WriteOnly | QFile::Truncate);
         out << common_file_head
-            << "set output \"fig_chirpyness.svg\"\n"
+            << "set output \"fig_chirp.svg\"\n"
             << "set xlabel \"" << frequency_xlabel << "\"\n"
             << "set xrange [" << v_min << ":" << v_max << "]\n"
-            << "set ylabel \"Chirpyness, Hz/s\"\n"
-            << "plot \"" << optic_id << "_chirpyness.dat\"" << frequency_using << ":($2) with lines notitle\n";
+            << "set ylabel \"Chirp rate, Hz/s\"\n"
+            << "plot \"" << optic_id << "_chirp.dat\"" << frequency_using << ":($2) with lines notitle\n";
         file.close();
         QProcess *proc5 = new QProcess(this);
-        proc5->start(path_to_gnuplot, QStringList("script_chirpyness.gp"));
+        proc5->start(path_to_gnuplot, QStringList("script_chirp.gp"));
         proc5->waitForFinished();
     }
 
@@ -521,7 +521,7 @@ void MainWindow::Plot()
         proc5->waitForFinished();
     }
 
-    /*if(optic_type == "P")
+    if(optic_type == "P")
     {
         // GnuPlot script: Phase
         plot_n = 0;
@@ -531,8 +531,8 @@ void MainWindow::Plot()
             << "set output \"fig_phase.svg\"\n"
             << "set xlabel \"Time (" << t_unit << ")\"\n"
             << "set xrange [" << t_min << ":" << t_max << "]\n"
-            << "set ylabel \"Phase (rad)\"\n"
-            << "set yrange [-3.15:3.15]\n";
+            << "set ylabel \"Phase (rad)\"\n";
+            //<< "set yrange [-3.15:3.15]\n";
         for(int i=0; i<=9; i++)
         {
             pass_n = PassNumber(i);
@@ -558,7 +558,7 @@ void MainWindow::Plot()
         QProcess *proc5 = new QProcess(this);
         proc5->start(path_to_gnuplot, QStringList("script_phase.gp"));
         proc5->waitForFinished();
-    }*/
+    }
 
     proc1->waitForFinished();
     proc2->waitForFinished();
@@ -584,13 +584,13 @@ void MainWindow::Plot()
             svg_fig9->load(QString("fig_q.svg"));
     } 
     if(optic_type == "C") // chirper
-        svg_fig3->load(QString("fig_chirpyness.svg"));
+        svg_fig3->load(QString("fig_chirp.svg"));
     if(optic_type == "S") // spectral filter
         svg_fig3->load(QString("fig_transmittance.svg"));
     if(optic_type == "F") // spatial filter
         svg_fig6->load(QString("fig_transmittance.svg"));
-    //if(optic_type == "P") // probe, show phase
-    //    svg_fig6->load(QString("fig_phase.svg"));
+    if(optic_type == "P") // probe, show phase
+        svg_fig6->load(QString("fig_phase.svg"));
 
     ////////////////////////////////// Update flags and controls ///////////////////////////////////
     Update();

@@ -17,6 +17,9 @@
 #include <unordered_map>
 #include <string>
 
+//#include <H5Cpp.h>
+//using namespace H5;
+
 #define I std::complex<double>(0,1)
 
 
@@ -37,7 +40,7 @@ public:
     int number;
     double vc;
     double time_in;
-    std::complex<double> **E; // field array
+    std::vector<std::complex<double>> E; // field array
 private:
     double E0;
     bool LoadPulse(std::string);
@@ -56,7 +59,8 @@ public:
     std::string yaml_path;    // path to configuration file
     std::string yaml_content; // content of configuration file
     int number;               // number of the optic in the optics list
-    double r_max;             // m
+    double r_max;             // semi-diameter
+    double Dr;                // raddial coordinate step
 };
 
 
@@ -82,11 +86,17 @@ public:
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
+    // -------- CONSTANTS --------
+    static constexpr int NumIso = 12; // Number of isotopologues
+    static constexpr int NumGrp = 10; // Groups of vibrational levels (for Boltzman distribution calculations)
+    static constexpr int NumVib = 18; // Vibrational levels
+    static constexpr int NumRot = 80; // Rotational sub-levels with J = 0...79
+    // -------- GEOMETRY ---------
     double length;
     // ------- GAS MIXTURE -------
     double p_CO2, p_N2, p_He;
-    double p_iso[12];
-    double N_CO2, N_iso[12]; // Number densies of CO2 and its isotopologues, 1/m^3
+    double p_iso[NumIso];
+    double N_CO2, N_iso[NumIso]; // Number densies of CO2 and its isotopologues, 1/m^3
     double T0;
     // ---------- BANDS ----------
     bool band_reg;
@@ -114,31 +124,44 @@ private:
                             // "003" overtone pumping @ ~1.4 um
     double pump_wl, pump_sigma; // optical pumping parameters
     // ------- SPECTROSCOPY, TEMPERATURES, POPULATIONS ------
-    // 12 isotopologues, 10 level groups, 18 vibrational levels, rotational levels with J = 0...79
-    double *T, *e2, *e3, *e4;
-    double *N_gr[12][10];// number densities of isotopologues in each group of vibrational levels
-    double nop[12][18][80];        // normalized populations
-    std::vector<double> v[12];     // transition frequencies, Hz
-    std::vector<double> sigma[12]; // transition cross-sections, m^2
-    std::vector<int> vl_up[12];    // upper vibrational level of the transition (see initialization for numbering)
-    std::vector<int> vl_lo[12];    // lower vibrational level of the transition
-    std::vector<int> j_up[12];     // rotational quantum number of the upper level of the transition
-    std::vector<int> j_lo[12];     // rotational quantum number of the lower level of the transition
-    double *gainSpectrum;
+
+    std::vector<double> T, e2, e3, e4;
+    std::vector<double> N_gr[NumIso][NumGrp]; // number densities of isotopologues in each group of vibrational levels
+    double nop[NumIso][NumVib][NumRot];       // normalized populations
+
+    //double *N_rot[NumIso][NumVib][NumRot];
+    //double *N_vib[NumIso][NumVib];
+
+    std::vector<double> v[NumIso];     // transition frequencies, Hz
+    std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
+    std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
+    std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
+    std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition
+    std::vector<int> j_lo[NumIso];     // rotational quantum number of the lower level of the transition
+    //double *gainSpectrum;
+    std::vector<double> gainSpectrum;
 
     // -------- BOLTZMANN --------
-    int b0;
+    static constexpr int b0 = 1024; // Number of points in calculations
+    //int b0;
     double E_over_N;
     double Y1, Y2, Y3;
     double Du;
     double M1, M2, M3, C1, C2, B;
-    double *u;
+    /*double *u;
     double *Q;
     double *Qm1, *Qm2, *Qm3;
     double **Q1, **Q2;
     double u1[11], u2[16];
     double **M;
-    double *f;
+    double *f;*/
+    double u[b0];
+    double Q[b0];
+    double Qm1[b0], Qm2[b0], Qm3[b0];
+    double Q1[11][b0], Q2[16][b0];
+    double u1[11], u2[16];
+    double M[b0][b0];
+    double f[b0];
 
     //////////////////////////// optic_A_band.cpp /////////////////////////////
     void AmplificationBand(void);
@@ -158,8 +181,8 @@ private:
 
     /////////////////////////// optic_A_boltzmann.cpp ///////////////////////////
     void Boltzmann(double);
-    void AllocateMemoryBoltzmann(void);
-    void FreeMemoryBoltzmann(void);
+    //void AllocateMemoryBoltzmann(void);
+    //void FreeMemoryBoltzmann(void);
     void WriteEquations(void);
     void SolveEquations(void);
     void CalculateQ(void);
@@ -176,8 +199,8 @@ public:
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
 private:
-    double *Chirpyness; // Chirpiness array (Hz/s)
-    void WriteChirpynessFile();
+    std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
+    void WriteChirpFile();
 };
 
 
@@ -277,6 +300,12 @@ extern double t_min, t_max;       // pulse (fast) time limits
 extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
 extern int save_interval;         // # of ticks between data entries in dynamics files
+// --- CALCULATED GRID PARAMETERS --
+// *** Be very careful not to confuse limits and values in the outer bins of the grid ***
+// t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
+// v[0] = v_min+0.5*Dv;   v[n] = v_min+(n+0.5)*Dv;   v[n0-1] = v_min+(n0-0.5)*Dv = v_max-0.5*Dv
+extern double v_min;// v_max;     // frequency domain limits
+extern double Dt, Dv;             // time and frequency steps
 // ----------- DEBUGGING -----------
 extern int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug

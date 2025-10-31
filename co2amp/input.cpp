@@ -69,9 +69,18 @@ std::string ReadCommandLine(int argc, char **argv)
     
     Debug(1, debug_str);
 
-    if(count == 63) //1+2+4+6+8+16+32 <=> all required calculation parameters provided
-        return "calc_arguments";
+    /*Dt = (t_max-t_min)/n0;
+    Dv = 1.0/(t_max-t_min);
+    v_min = v0 - 0.5/Dt;*/
 
+    if(count == 63) //1+2+4+6+8+16+32 <=> all required calculation parameters provided
+    {
+        Dt = (t_max-t_min)/n0;
+        Dv = 1.0/(t_max-t_min);
+        v_min = v0 - 0.5/Dt;
+        //v_max = v0 + 0.5/Dt;
+        return "calc_arguments";
+    }
 
     return ""; // something is missing from the command line
 }
@@ -149,7 +158,7 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add optic numbers to all optics
-    for(int optic_n=0; optic_n<optics.size(); optic_n++)
+    for(size_t optic_n=0; optic_n<optics.size(); optic_n++)
         optics[optic_n]->number =optic_n;
 
     // When all optics created, create layout...
@@ -157,7 +166,7 @@ bool ReadConfigFiles(std::string path)
         return false;
 
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
-    for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+    for(size_t pulse_n=0; pulse_n<pulses.size(); pulse_n++)
     {
         pulses[pulse_n]->number = pulse_n;
         pulses[pulse_n]->Initialize();
@@ -171,7 +180,7 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add plane numbers to all layout planes
-    for(int plane_n=0; plane_n<planes.size(); plane_n++)
+    for(size_t plane_n=0; plane_n<planes.size(); plane_n++)
         planes[plane_n]->number =plane_n;
 
     return true;

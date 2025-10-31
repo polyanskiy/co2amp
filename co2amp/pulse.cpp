@@ -4,19 +4,17 @@ Pulse::Pulse(std::string id)
 {
     this->id = id;
     yaml_path = id + ".yml";
+
+    E.resize(x0*n0); // use 1D vector to store a 2D array [x0]X[n0]
+
     // cannot initialize pulse here: need process optics and layout (planes) first:
     // Dr of input plane (first optic in the layout) needed
     // Use Initialize() instead.
-
-    E = new std::complex<double>* [x0];
-    for(int x=0; x<x0; x++)
-        E[x] = new std::complex<double>[n0];
 }
 
 
 void Pulse::Initialize()
 {
-    double Dt = (t_max-t_min)/n0;
     std::string value="";
 
     Debug(2, "Creating pulse from file \'" + yaml_path + "\'");
@@ -55,7 +53,7 @@ void Pulse::Initialize()
         // and central frequency of the calculation grid (v0)
         for(int x=0; x<x0; x++)
             for(int n=0; n<n0; n++)
-                E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+                E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
         return;
     }
 
@@ -87,8 +85,8 @@ void Pulse::Initialize()
     std::string beam = value;
     Debug(2, "beam = " + beam);
 
-    double *BeamProfile = new double[x0];
-    double Dr = planes[0]->optic->r_max/x0; // input plane (first optic in the layout)
+    std::vector<double> BeamProfile(x0);
+    double Dr = planes[0]->optic->Dr; // input plane (first optic in the layout)
     if(beam == "GAUSS" || beam == "SUPERGAUSS4" || beam == "SUPERGAUSS6" || beam == "SUPERGAUSS8" || beam == "SUPERGAUSS10" || beam == "FLATTOP")
     {
         if(!YamlGetValue(&value, &yaml_content, "w"))
@@ -129,7 +127,7 @@ void Pulse::Initialize()
         Debug(2, "Beam profile loaded (use debug level 3 to display)");
         Debug(3, "Beam profile [r(m) amplitude(a.u)]");
         if(debug_level >= 3)
-            for(int i=0; i<r.size(); i++)
+            for(size_t i=0; i<r.size(); i++)
                 std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
         for(int x=0; x<x0; x++)
             BeamProfile[x] = sqrt(Interpolate(&r, &A, Dr*(0.5+x)));
@@ -149,7 +147,7 @@ void Pulse::Initialize()
     std::string pulse = value;
     Debug(2, "pulse = " + pulse);
 
-    double *PulseProfile = new double[n0];
+    std::vector<double> PulseProfile(n0);
     if(pulse == "GAUSS" || pulse == "FLATTOP")
     {
         if(!YamlGetValue(&value, &yaml_content, "fwhm"))
@@ -181,7 +179,7 @@ void Pulse::Initialize()
         Debug(2, "Pulse profile loaded (use debug level 3 to display)");
         Debug(3, "Pulse profile [t(s) amplitude(a.u)]");
         if(debug_level >= 3)
-            for(int i=0; i<t.size(); i++)
+            for(size_t i=0; i<t.size(); i++)
                 std::cout << toExpString(t[i]) <<  " " << toExpString(A[i]) << std::endl;
         for(int n=0; n<n0; n++)
             PulseProfile[n] = sqrt(Interpolate(&t, &A, t_min+Dt*(0.5+n)));
@@ -199,27 +197,27 @@ void Pulse::Initialize()
     // Create 2D array
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E[x][n] = BeamProfile[x]*PulseProfile[n];
+            E[n0*x+n] = BeamProfile[x]*PulseProfile[n];
 
     // frequency shift between central frequency of the pulse (vc)
     // and central frequency of the calculation grid (v0)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E[x][n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+            E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     // Normalize intensity
     double Energy = 0;
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
             Energy += 2.0 * h * vc
-                    * pow(abs(E[x][n]),2)
+                    * pow(abs(E[n0*x+n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
     double af = sqrt(E0/Energy);
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
-            E[x][n] *= af;
+            E[n0*x+n] *= af;
 }
 
 
@@ -228,7 +226,6 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     double z   = from->space;
     double Dr1 = from->optic->r_max/x0;
     double Dr2 = to  ->optic->r_max/x0;
-    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
     int count=0;
 
     if(z==0 && Dr1==Dr2)  //nothing to be done
@@ -237,10 +234,8 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     StatusDisplay(this, from, time, "propagation...");
 
     // Create temporary field arrays
-    std::complex<double> **E1;
-    E1 = new std::complex<double>*[x0];
-    for(int x=0; x<x0; x++)
-        E1[x] = new std::complex<double>[n0];
+    std::vector<std::complex<double>> E1(x0*n0);
+
     Debug(2, "propagation: temporary field arrays created");
 
     if( z==0 || method==0 ) // no propagation - only change calculation grid step
@@ -249,8 +244,8 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
         {
             for(int n=0; n<n0; n++)
             {
-                E1[x][n] = E[x][n];
-                E[x][n] = 0;
+                E1[n0*x+n] = E[n0*x+n];
+                E[n0*x+n] = 0;
             }
         }
         Debug(2, "propagation: arrays initialized");
@@ -272,7 +267,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             double a = r/Dr1 - (x1+0.5);
 
             for(int n=0; n<n0; n++)
-                E[x][n] = E1[x1][n]*(1-a) + E1[x2][n]*a;
+                E[n0*x+n] = E1[n0*x1+n]*(1-a) + E1[n0*x2+n]*a;
         }
     }
 
@@ -280,9 +275,9 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     {
         for(int x=0; x<x0; x++)
         {
-            FFT(E[x], E1[x]); // time -> frequency domain
+            FFT(&E[x*n0], &E1[x*n0]); // time -> frequency domain
             for(int n=0; n<n0; n++)
-                E[x][n] = 0;
+                E[n0*x+n] = 0;
         }
 
         #pragma omp parallel for
@@ -309,10 +304,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     r1 = Dr1*(0.5+x1);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v0+Dv*(n-n0/2));
+                        lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                        E[x2][n1] += E1[x1][n1]
+                        E[x2*n0+n1] += E1[n0*x1+n1]
                                 * 2.0*M_PI*r1*Dr1
                                 * exp(I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
                                 / (I*lambda*z)
@@ -335,7 +330,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v0+Dv*(n-n0/2));
+                        lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
                         tmp = 0;
                         for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
@@ -345,7 +340,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                         }
                         tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                        E[x2][n1] +=  E1[x1][n1] * tmp;
+                        E[n0*x2+n1] +=  E1[n0*x1+n1] * tmp;
                     }
                 }
             }
@@ -364,7 +359,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                     R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
                     for(int n=0; n<n0; n++)
                     {
-                        lambda = c/(v0+Dv*(n-n0/2));
+                        lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
                         tmp = 0;
                         for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
@@ -374,7 +369,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                         }
                         tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                        E[x2][n1] +=  E1[x1][n1] * tmp;
+                        E[n0*x2+n1] +=  E1[n0*x1+n1] * tmp;
                     }
                 }
             }*/
@@ -382,20 +377,15 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
         for(int x=0; x<x0; x++)
         {
-            IFFT(E[x], E1[x]); // frequency -> time domain
+            IFFT(&E[n0*x], &E1[n0*x]);
             for(int n=0; n<n0; n++)
-                E[x][n] = E1[x][n];
+                E[n0*x+n] = E1[n0*x+n];
         }
 
         Debug(2, "propagation: diffraction integral calculations done");
     }
 
     Debug(2, "propagation: all done");
-
-    // delete temporary array
-    for(int x=0; x<x0; x++)
-        delete[] E1[x];
-    delete[] E1;
 
     Debug(2, "propagation: temporary field array deleted");
 }
@@ -405,69 +395,38 @@ void Pulse::SavePulse()
 {
     StatusDisplay(nullptr, nullptr, -1, "saving output pulse " + this->id + "...");
 
-    double Dt = (t_max-t_min)/n0;
+    std::vector<double> re(x0*n0);
+    std::vector<double> im(x0*n0);
 
-    // see dynamic array example
-    // https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/h5_writedyn.c
-    double **re = new double* [x0];
-    double **im = new double* [x0];
+    std::vector<std::complex<double>> E1(x0*n0);
 
-    re[0] = new double[x0*n0];
-    im[0] = new double[x0*n0];
-
-    for (int x=1; x<x0; x++){
-        re[x] = re[0]+x*n0;
-        im[x] = im[0]+x*n0;
-    }
-
-    std::complex<double> **E1;
-    E1 = new std::complex<double>* [x0];
-    for(int x=0; x<x0; x++)
-        E1[x] = new std::complex<double>[n0];
     // reverse frequency shift between central frequency of the pulse (vc)
     // and central frequency of the calculation grig (v0)
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            E1[x][n] = E[x][n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+            E1[n0*x+n] = E[n0*x+n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
+    for(int i=0; i<x0*n0; i++)
+    {
+        re[i] = E1[i].real();
+        im[i] = E1[i].imag();
+    }
 
-    for(int x=0; x<x0; x++)
-        for(int n=0; n<n0; n++){
-            re[x][n] = real(E1[x][n]);
-            im[x][n] = imag(E1[x][n]);
-        }
+    hsize_t dims[] = {(hsize_t)x0,(hsize_t)n0};
 
     hid_t file = H5Fcreate((id+".pulse").c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    hsize_t dims[2];
-    dims[0] = x0;
-    dims[1] = n0;
 
     H5Gcreate(file, "pulse", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-    H5LTmake_dataset (file, "pulse/re", 2, dims, H5T_NATIVE_DOUBLE, &re[0][0]);
-    H5LTmake_dataset (file, "pulse/im", 2, dims, H5T_NATIVE_DOUBLE, &im[0][0]);
+    H5LTmake_dataset (file, "pulse/re", 2, dims, H5T_NATIVE_DOUBLE, re.data());
+    H5LTmake_dataset (file, "pulse/im", 2, dims, H5T_NATIVE_DOUBLE, im.data());
 
-    double dbl[1];
-    dbl[0] = planes[planes.size()-1]->optic->r_max; // last optic in the layout
-    H5LTset_attribute_double(file, "pulse", "r_max", dbl, 1);
-    dbl[0] = t_min;
-    H5LTset_attribute_double(file, "pulse", "t_min", dbl, 1);
-    dbl[0] = t_max;
-    H5LTset_attribute_double(file, "pulse", "t_max", dbl, 1);
-    dbl[0] = vc;
-    H5LTset_attribute_double(file, "pulse", "freq", dbl, 1);
+    H5LTset_attribute_double(file, "pulse", "r_max", &planes[planes.size()-1]->optic->r_max, 1);
+    H5LTset_attribute_double(file, "pulse", "t_min", &t_min, 1);
+    H5LTset_attribute_double(file, "pulse", "t_max", &t_max, 1);
+    H5LTset_attribute_double(file, "pulse", "freq", &vc, 1);
 
     H5Fclose(file);
-
-    // ----------------------------- REMOVE TEMPORARY ARRAYS ----------------------------
-    delete[] re[0];
-    delete[] im[0];
-    delete[] re;
-    delete[] im;
-
-    for(int x=0; x<x0; x++)
-        delete[] E1[x];
-    delete[] E1;
 }
 
 
@@ -487,16 +446,13 @@ bool Pulse::LoadPulse(std::string filename)
     }
 
     // ------------------------------ READ ATTRIBUTES -----------------------------------
-    double dbl[1];
-    hid_t status1 = H5LTget_attribute_double(file, "pulse", "r_max", dbl);
-    double r_max1 = dbl[0];
-    hid_t status2 = H5LTget_attribute_double(file, "pulse", "t_min", dbl);
-    double t_min1 = dbl[0];
-    hid_t status3 = H5LTget_attribute_double(file, "pulse", "t_max", dbl);
-    double t_max1 = dbl[0];
-    hid_t status4 = H5LTget_attribute_double(file, "pulse", "freq", dbl);
-    vc = dbl[0];
-    if(status1<0 || status2<0 || status3<0 || status4<0)
+    double r_max1, t_min1, t_max1;
+    int status=0;
+    status += H5LTget_attribute_double(file, "pulse", "r_max", &r_max1);
+    status += H5LTget_attribute_double(file, "pulse", "t_min", &t_min1);
+    status += H5LTget_attribute_double(file, "pulse", "t_max", &t_max1);
+    status += H5LTget_attribute_double(file, "pulse", "freq", &vc);
+    if(status<0) // function returns -1 for failure, 0 for success
     {
         std::cout << "ERROR: Cannot read pulse attributes from file \'" << filename << "\'\n";
         return false;
@@ -514,68 +470,69 @@ bool Pulse::LoadPulse(std::string filename)
     H5Sget_simple_extent_dims(H5Dget_space(dataset_re), dims, NULL);
     int x01 = dims[0];
     int n01 = dims[1];
-    Debug(2, "Size of input arrays (time x coord): " + std::to_string(x01)
-          + " x " + std::to_string(n01));
+    Debug(2, "Size of input arrays (time x coord): " + std::to_string(n01)
+          + " x " + std::to_string(x01));
 
-    // --------------------------- PREPARE OUTPUT ARRRAYS -------------------------------
-    // see dynamic array example
-    // https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/h5_readdyn.c
-    double **re = new double* [x01];
-    double **im = new double* [x01];
-
-    re[0] = new double[x01*n01];
-    im[0] = new double[x01*n01];
-
-    for (int x=1; x<x01; x++)
-    {
-        re[x] = re[0]+x*n01;
-        im[x] = im[0]+x*n01;
-    }
+    // ------------------------------ PREPARE  ARRRAYS ----------------------------------
+    std::vector<double> re(x01*n01);
+    std::vector<double> im(x01*n01);
+    std::vector<std::complex<double>> E1(x01*n01);
 
     // ------------------------------- READ PULSE DATA ----------------------------------
-    status1 = H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &re[0][0]);
-    status2 = H5Dread(dataset_im, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &im[0][0]);
+    status += H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, re.data());
+    status += H5Dread(dataset_im, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, im.data());
 
-    if(status1<0 || status2<0)
+    if(status<0)
     {
         std::cout << "ERROR: Cannot read field data from file \'" << filename << "\'\n";
+        H5Dclose(dataset_re);
+        H5Dclose(dataset_im);
+        H5Fclose(file);
         return false;
     }
 
-    std::complex<double> **E1;
-    E1 = new std::complex<double>* [x01];
-    for(int x=0; x<x01; x++)
-        E1[x] = new std::complex<double>[n01];
+    for(int i=0; i<x01*n01; i++)
+    {
+        E1[i] = re[i] + I*im[i];
+    }
 
-    for(int x=0; x<x01; x++)
-        for(int n=0; n<n01; n++)
-            E1[x][n] = re[x][n] + I*im[x][n];
-
-    // --------------------- CLOSE RESOURCES, REMOVE OUTPUT ARRAYS ----------------------
+    // -------------------------------- CLOSE RESOURCES ---------------------------------
     H5Dclose(dataset_re);
     H5Dclose(dataset_im);
     H5Fclose(file);
 
-    delete[] re[0];
-    delete[] im[0];
-    delete[] re;
-    delete[] im;
-
     // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
-    double Dr = planes[0]->optic->r_max/x0;
-    double Dt = (t_max-t_min)/n0;
-    double Dr1 = r_max1/x01;
-    double Dt1 = (t_max1-t_min1)/n01;
+    //double Dr = planes[0]->optic->Dr;
+    double r_max = planes[0]->optic->r_max;
+    //double Dr1 = r_max1/x01;
+    //double Dt1 = (t_max1-t_min1)/n01;
 
-    #pragma omp parallel for
+    if(n01!=n0 || x01!=x0)
+    {
+        std::cout << "Calculation grid mismatch between loaded pulse and current grid\n";
+        return false;
+    }
+    if(abs(r_max1-r_max) > 1e-15)
+    {
+        std::cout << "Semi diameter mismatch between input beam and first optic in the system\n";
+        return false;
+    }
+    if(abs(t_min1-t_min) > 1e-15 || abs(t_max1-t_max) > 1e-15)
+    {
+        std::cout << "Time range mismatch between loaded pulse and current grid\n";
+        return false;
+    }
+
+    /*#pragma omp parallel for
     for(int x=0; x<x0; x++)
     {
         double r = Dr*(0.5+x);
-        for(int n=0; n<n0; n++){
+        for(int n=0; n<n0; n++)
+        {
             double t = t_min + Dt*(0.5+n);
             if(r>r_max1 || t<t_min1 || t>t_max1)
             {
-                E[x][n] = 0;
+                E[n0*x+n] = 0;
             }
             else
             {
@@ -586,22 +543,21 @@ bool Pulse::LoadPulse(std::string filename)
 
                 if(x1<0) x1=0;
                 if(n1<0) n1=0;
+                if(x1>=x01) x1=x01-1;
+                if(n1>=n01) n1=n01-1;
+                if(x2<0) x2=0;
+                if(n2<0) n2=0;
                 if(x2>=x01) x2=x01-1;
                 if(n2>=n01) n2=n01-1;
                 double a = r/Dr1 - (x1+0.5);
                 double b = (t-t_min1)/Dt1 - (n1+0.5);
-                E[x][n] = E1[x1][n1] * (1-a) * (1-b)
-                        + E1[x2][n1] * a     * (1-b)
-                        + E1[x1][n2] * (1-a) * b
-                        + E1[x2][n2] * a     * b;
+                E[n0*x+n] = E1[n01*x1+n1] * (1-a) * (1-b)
+                        + E1[n01*x2+n1] * a     * (1-b)
+                        + E1[n01*x1+n2] * (1-a) * b
+                        + E1[n01*x2+n2] * a     * b;
             }
         }
-    }
-
-    // ----------------------------- REMOVE TEMPORARY ARRAY -----------------------------
-    for(int x=0; x<x01; x++)
-        delete[] E1[x];
-    delete[] E1;
+    }*/
 
     // ------------------------------------ SUCCESS! ------------------------------------
     Debug(2, "Pulse read from file done!");
@@ -614,7 +570,7 @@ void Pulse::SaveBeam()
     StatusDisplay(nullptr, nullptr, -1, "saving beam profile for pulse " + this->id + "...");
 
     // use field at pulse time moment closest to t=0
-    /*double Dt = (t_max-t_min)/n0;
+    /*
     int n_zerotime = 0;
     double zerotime = t_min+Dt*0.5;
     for(int n=0; n<n0; n++)
@@ -629,24 +585,23 @@ void Pulse::SaveBeam()
     Debug(2, "zerotime = " + toExpString(n_zerotime));
     Debug(2, "n = " + toString(n_zerotime));*/
 
-    double Dr = planes[planes.size()-1]->optic->r_max / x0; // last optic in the layout
+    double Dr = planes[planes.size()-1]->optic->Dr; // last optic in the layout
 
-
-    double *Fluence = new double[x0];
+    /*double *Fluence = new double[x0];
     for(int x=0; x<x0; x++)
-        Fluence[x] = 0;
+        Fluence[x] = 0;*/
+    std::vector<double> Fluence(x0);
 
     double Fmax = 0;
     for(int x=0; x<x0; x++)
     {
         for(int n=0; n<n0; n++)
-            Fluence[x] += pow(abs(E[x][n]),2); // a.u.
+            Fluence[x] += pow(abs(E[n0*x+n]),2); // a.u.
         if(Fluence[x] > Fmax)
             Fmax = Fluence[x];
     }
     for(int x=0; x<x0; x++)
         Fluence[x] /= Fmax; // a.u. normalized
-
 
 
     // ZBF: Using example C program from C:\Users\username\Documents\Zemax\POP\BEAMFILES
@@ -668,8 +623,8 @@ void Pulse::SaveBeam()
     ficl = 0.0; //  unused for this ZBF
 
     /* now make the beam */
-    //cax = (double *) malloc(sizeof(double)*2*nx*ny);
-    double *cax = new double[2*nx*ny];
+    //double *cax = new double[2*nx*ny];
+    std::vector<double> cax(2*nx*ny);
 
     k = 0;
     for (j = 0; j < ny; j++)
@@ -749,7 +704,8 @@ void Pulse::SaveBeam()
     fwrite(&x, sizeof(double), 1, out);
 
     /* now the beam itself */
-    fwrite(cax, sizeof(double), nx*ny*2, out);
+    //fwrite(cax, sizeof(double), nx*ny*2, out);
+    fwrite(cax.data(), sizeof(double), nx*ny*2, out);
 
     fclose(out);
 
@@ -769,6 +725,6 @@ void Pulse::SaveBeam()
     }
     fclose(out);
 
-    delete[] cax;
-    delete[] Fluence;
+    //delete[] cax;
+    //delete[] Fluence;
 }

@@ -26,6 +26,7 @@ A::A(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
+    Dr = r_max/x0;
 
     // Length (L)
     if(!YamlGetValue(&value, &yaml_content, "L"))
@@ -82,7 +83,7 @@ A::A(std::string id)
         Debug(2, "Discharge profile loaded (use debug level 3 to display)");
         Debug(3, "Discharge profile [Time(s) Current(A) Voltage(V)]");
         if(debug_level >= 3)
-            for(int i=0; i<discharge_time.size(); i++)
+            for(size_t i=0; i<discharge_time.size(); i++)
                 std::cout << "  "
                           << toExpString(discharge_time[i]) <<  " "
                           << toExpString(discharge_current[i]) <<  " "
@@ -133,7 +134,7 @@ A::A(std::string id)
         Debug(3, "Optical pumping pulse [Time(s) Intensity(W/m^2))]");
         if(debug_level >= 3)
         {
-            for(int i=0; i<pump_pulse_time.size(); i++)
+            for(size_t i=0; i<pump_pulse_time.size(); i++)
             {
                 std::cout << "  "
                           << toExpString(pump_pulse_time[i]) <<  " "
@@ -146,7 +147,7 @@ A::A(std::string id)
     // ------- GAS MIXTURE -------
 
     // defaults
-    for(int i=0; i<12; i++)
+    for(int i=0; i<NumIso; i++)
     {
         p_iso[i] = 0;
     }
@@ -285,7 +286,7 @@ A::A(std::string id)
 
         // Total CO2 pressure, bar
         p_CO2 = 0;
-        for(int i=0; i<12; ++i)
+        for(int i=0; i<NumIso; ++i)
         {
             p_CO2 += p_iso[i];
         }
@@ -410,26 +411,36 @@ A::A(std::string id)
 
     // Convert pressures to number densities where needed
     N_CO2 = 2.7e25*p_CO2;
-    for(int i=0; i<12; ++i)
+    for(int i=0; i<NumIso; ++i)
     {
         N_iso[i] = 2.7e25*p_iso[i];
     }
 
     // allocate memory
-    e2 = new double [x0];
+    /*e2 = new double [x0];
     e3 = new double [x0];
     e4 = new double [x0];
-    T  = new double [x0];
+    T  = new double [x0];*/
+    e2.resize(x0);
+    e3.resize(x0);
+    e4.resize(x0);
+    T.resize(x0);
 
-    for(int i=0; i<12; ++i) // isotopologues
+    for(int i=0; i<NumIso; ++i) // isotopologues
     {
-        for(int gr=0; gr<10; ++gr) // groups of vib. levels
+        for(int gr=0; gr<NumGrp; ++gr) // groups of vib. levels
         {
-            N_gr[i][gr] = new double[x0];
+            //N_gr[i][gr] = new double[x0];
+            N_gr[i][gr].resize(x0);
         }
+        /*for(int gr=0; gr<10; ++gr) // groups of vib. levels
+        {
+            N_vib[i][gr] = new double[x0];
+        }*/
     }
-    gainSpectrum  = new double [n0];
 
+    //gainSpectrum  = new double [n0];
+    gainSpectrum.resize(n0);
 
     // Fill out spectroscoic arrays &
     AmplificationBand();
@@ -442,13 +453,11 @@ A::A(std::string id)
     {
         Debug(2, "Initializing q's");
         Boltzmann(0); // initialize q's
+        time_b = 0;
         q2_b = q2;
         q3_b = q3;
         q4_b = q4;
         qT_b = qT;
-        time_b = 0;
     }
-
-
 
 }

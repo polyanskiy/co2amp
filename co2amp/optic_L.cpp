@@ -27,6 +27,7 @@ L::L(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
+    Dr = r_max/x0;
 
     // F
     if(!YamlGetValue(&value, &yaml_content, "F"))
@@ -53,9 +54,6 @@ void L::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     Debug(2, "Interaction with lens, F = " + toExpString(F) + " m");
     StatusDisplay(pulse, plane, time, "lens...");
 
-    double Dr = r_max/x0;
-    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-
     #pragma omp parallel for
     for(int x=0; x<x0; x++)
     {
@@ -69,17 +67,15 @@ void L::PulseInteraction(Pulse *pulse, Plane* plane, double time)
         {*/
             // frequency domain
             double k_wave;
-            std::complex<double> *E1;
-            E1 = new std::complex<double>[n0];
-            FFT(pulse->E[x], E1);
+            std::vector<std::complex<double>> E1(n0);
+            FFT(&pulse->E[n0*x], E1.data());
             for(int n=0; n<n0; n++)
             {
-                k_wave=2.0*M_PI*(v0+Dv*(n-n0/2))/c;
+                k_wave=2.0*M_PI*(v_min+Dv*(0.5+n))/c;
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(-I*k_wave*pow(Dr*(0.5+x),2)/(2.0*F));
             }
-            IFFT(E1, pulse->E[x]);
-            delete[] E1;
+            IFFT(E1.data(), &pulse->E[n0*x]);
         //}
     }
 }

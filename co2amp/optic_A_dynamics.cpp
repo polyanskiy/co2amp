@@ -36,24 +36,27 @@ void A::InternalDynamics(double time)
     double pump4 = 0;
 
     // pumping of groups of vibrational levels
-    double pump_gr[10];
-    for(int gr=0; gr<10; ++gr)
-    {
-        pump_gr[gr] = 0;
-    }
+    double pump_gr[NumGrp] = {}; // initialized with zeros
 
     if(pumping == "discharge")
     {
         // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
+        // 'Slow' calculations of discharge energy deposition coefficients q
+        // are done for time_a and time_b separated by 25ns step.
+        // time_a is before the current calculation time and time_b is after
+        // Linear interpolation is used to approximate energy deposition in any time between time_a and time_b
+        // When time moves to after time_b, time_b is moved forward by 25 ns and time_a becomes time_b
+        // q's are then calculated for the new time_b
         double step = 25e-9;
-        if(time-time_tick/2<=time_b && time+time_tick/2>time_b)
+        if(time >= time_b) // MUST be called at time==0 !!!
         {
+            //std::cout << std::endl;
             q2_a = q2_b;
             q3_a = q3_b;
             q4_a = q4_b;
             qT_a = qT_b;
             time_a = time_b;
-            time_b = time+step;
+            time_b += step;
             Boltzmann(time_b);
             q2_b = q2;
             q3_b = q3;
@@ -184,7 +187,7 @@ void A::InternalDynamics(double time)
         // In our model 3 groups can be pumped directly in case of optical pumping
         // In othr cases, pump energy first goes to corresponding vibrational modes
         // and then re-distibutes between levels through intramode thermalization
-        for(int i=0; i<12; ++i)
+        for(int i=0; i<NumIso; ++i)
         {
             N_gr[i][0][x] += N_iso[i] * pump_gr[0] * time_tick; // 4.3 um - 001
             N_gr[i][4][x] += N_iso[i] * pump_gr[4] * time_tick; // 2.2 um - 002 (non-symmetric molecules only)
@@ -202,7 +205,7 @@ void A::InternalDynamics(double time)
         double N_gr0; // population of a group of vibrational levels in thermal equilibrium
 
         // Intra-mode thermalization
-        for(int i=0; i<12; ++i)
+        for(int i=0; i<NumIso; ++i)
         {
             N_gr0 =     N_iso[i]*exp(-3380/Temp3)/Q;                    // 001
             N_gr[i][0][x] += (N_gr0 - N_gr[i][0][x]) * (1-exp_tauV);
@@ -285,7 +288,7 @@ void A::InitializePopulations()
 {
     double Q = 1 / ( (1-exp(-1920/T0))*pow(1-exp(-960/T0),2)*(1-exp(-3380/T0)) ); // partition function
 
-    for(int x=0; x<=x0-1; x++)
+    for(int x=0; x<x0; ++x)
     {
         T[x] = T0;
         e4[x] = 1/(exp(3350/T0)-1);

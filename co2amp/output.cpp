@@ -6,15 +6,14 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     int pulse_n = pulse->number;
     int plane_n = plane->number;
     int optic_n = plane->optic->number;
-    double *Fluence = new double[x0];
-    double *Power = new double[n0];
+    std::vector<double> Fluence(x0);
+    std::vector<double> Power(n0);
     double Energy;
-    double Dt = (t_max-t_min)/n0;     // pulse time step, s
-    double Dv = 1.0/(t_max-t_min);    // frequency step, Hz
-    double Dr = plane->optic->r_max/x0;
+    double Dr = plane->optic->Dr;
     FILE *file;
 
-    std::complex<double> **E = pulse->E;
+    //std::complex<double> **E = pulse->E;
+    auto& E = pulse->E;
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
@@ -30,15 +29,15 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         for(int n=0; n<n0; n++)
         {
             Energy += 2.0 * h * pulse->vc
-                    * pow(abs(E[x][n]),2)
+                    * pow(abs(E[n0*x+n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
             Power[n] += 2.0 * h * pulse->vc
-                    * pow(abs(E[x][n]),2)
+                    * pow(abs(E[n0*x+n]),2)
                     * M_PI*pow(Dr,2)*(2*x+1);
 
-            Fluence[x] += 2.0 * h * pulse->vc * pow(abs(E[x][n]),2) * Dt; // J/m2
+            Fluence[x] += 2.0 * h * pulse->vc * pow(abs(E[n0*x+n]),2) * Dt; // J/m2
         }
     }
 
@@ -78,10 +77,8 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
-    double *average_spectrum;
-    average_spectrum = new double[n0];
-    std::complex<double> *spectrum;
-    spectrum = new std::complex<double>[n0];
+    std::vector<double> average_spectrum(n0);
+    std::vector<std::complex<double>> spectrum(n0);
 
     for(int n=0; n<n0; n++)
         average_spectrum[n] = 0;
@@ -95,7 +92,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     //#pragma omp parallel for shared(average_spectrum)// multithreaded
     for(int x=0; x<x0; x++)
     {
-        FFT(E[x], spectrum);
+        FFT(&E[n0*x], spectrum.data());
         for(int n=0; n<n0; n++)
             average_spectrum[n] += pow(abs(spectrum[n]), 2) * (2*x+1); //(2*x+1) is proportional to ring area:
     }                                                                  //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
@@ -111,33 +108,84 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     // convert spectrum to absolute units (J/Hz)
     double integrated_spectrum = 0;
     for(int n=0; n<n0; n++)
+    {
         integrated_spectrum += average_spectrum[n];
+    }
     for(int n=0; n<n0; n++)
-            average_spectrum[n] *= Energy/integrated_spectrum/Dv;
+    {
+        average_spectrum[n] *= Energy/integrated_spectrum/Dv;
+    }
 
     // Write spectrum file
     file = fopen((basename+"_spectrum.dat").c_str(), "w");
-    //fprintf(file, "#Data format: frequency[Hz] intensity[au]\n");
     fprintf(file, "#Data format: frequency[Hz] spectral_energy_density[J/Hz]\n");
     for(int n=0; n<n0; n++)
     {
         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-        fprintf(file, "%.8E\t%e\n", v0+Dv*(n-n0/2), average_spectrum[n1]);
+        fprintf(file, "%.8E\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n1]);
     }
     fclose(file);
 
 
     ////////////////////////////////////// Phase //////////////////////////////////////////////
-    double *phase;
-    phase = new double[n0];
+    std::vector<double> phase(n0);
 
     // Phase in the center of the beam!
+    /*for(int n=0; n<n0; n++)
+    {
+        if(abs(E[n])<1000) // remove noise
+        {
+            phase[n] = 0;
+        }
+        else
+        {
+            phase[n] = arg(E[n]);
+        }
+    }*/
+
+    // Unwrap the phase in the following (not limit to +/- Pi)
+    double phase_step;
+    phase[0] = 0;
+    for(int n=1; n<n0; n++)
+    {
+        // zero intensity
+        if(abs(E[n])<100000)
+        {
+            phase[n] = 0;
+            continue;
+        }
+
+        phase_step = arg(E[n]) - arg(E[n-1]);
+
+        phase[n] = phase[n-1] + phase_step;
+        if(phase_step < -M_PI)
+        {
+            phase[n] += 2*M_PI;
+        }
+
+        if(phase_step > M_PI)
+        {
+            phase[n] -= 2*M_PI;
+        }
+    }
+
+    // Phase relative to central time point
+    //double phase0;
+    double offset;
+    if(t_min<-Dt && t_max>Dt)
+    {
+        //phase0 = phase[-t_min/Dt];
+        offset = phase[-t_min/Dt] - arg(E[-t_min/Dt]);
+    }
+    else
+    {
+        //phase0 = phase[n0/2];
+        offset = phase[n0/2] - arg(E[n0/2]);
+    }
     for(int n=0; n<n0; n++)
     {
-        if(abs(E[0][n])<1000) // remove noise
-            phase[n] = 0;
-        else
-            phase[n] = arg(E[0][n]);
+        //phase[n] -= phase0;
+        phase[n] -= offset;
     }
 
     // Write phase file
@@ -147,12 +195,4 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         fprintf(file, "%e\t%e\n", t_min+Dt*(0.5+n), phase[n]);
     fclose(file);
 
-
-    ////////////////////////////////////// Free memory //////////////////////////////////////////////
-
-    delete[] Power;
-    delete[] Fluence;
-    delete[] average_spectrum;
-    delete[] spectrum;
-    delete[] phase;
 }

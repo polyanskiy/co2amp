@@ -21,8 +21,8 @@ void A::Boltzmann(double time)
     C2 = 5.06e-4;
     B = 2.5e-4;
 
-    b0 = 1024;
-    AllocateMemoryBoltzmann();
+    //b0 = 1024;
+    //AllocateMemoryBoltzmann();
 
     ////////////////////////// Stage 1: coarse net //////////////////////
     u_lim = 1000;
@@ -47,7 +47,7 @@ void A::Boltzmann(double time)
     SolveEquations();
     CalculateQ();
     //Save_f(); //test Boltzmann solver
-    FreeMemoryBoltzmann();
+    //FreeMemoryBoltzmann();
 }
 
 
@@ -475,7 +475,7 @@ void A::Save_f()
 }
 
 
-void A::AllocateMemoryBoltzmann(void)
+/*void A::AllocateMemoryBoltzmann(void)
 {
     u = new double [b0];
 
@@ -524,4 +524,4 @@ void A::FreeMemoryBoltzmann(void)
     delete[] M;
 
     delete[] f;
-}
+}*/

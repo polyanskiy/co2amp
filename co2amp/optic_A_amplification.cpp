@@ -8,17 +8,14 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     Debug(2, "Amplification");
     StatusDisplay(pulse, plane, time, "amplification...");
 
-    double Dt = (t_max-t_min)/n0;  // pulse time step, s
-    double Dv = 1/(t_max-t_min);   // frequency step, Hz
-
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
     double gamma = 1 / T2;   // Lorentzian HWHM (for gain spectrum calculation)
     //double tauV = 1 / (3.9e6*750*p_CO2); // intra-mode vibrational thermalization time
 
     // number of ro-vibrational transitions extracted from HITRAN files
-    int n_transitions[12];
-    for(int i=0; i<12; ++i)
+    int n_transitions[NumIso];
+    for(int i=0; i<NumIso; ++i)
     {
         n_transitions[i] = v[i].size();
     }
@@ -27,8 +24,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     double exp_tauR = exp(-Dt/tauR/2); // half-step
     //double exp_tauV = exp(-Dt/tauV/2); // half-step
     double exp_T2 = exp(-Dt/T2/2); // half-step
-    std::vector<std::complex<double>> exp_phase[12]; // half-step
-    for(int i=0; i<12; i++)
+    std::vector<std::complex<double>> exp_phase[NumIso]; // half-step
+    for(int i=0; i<NumIso; i++)
     {
         for(int tr=0; tr<n_transitions[i]; ++tr)
         {
@@ -39,6 +36,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
     // initialize/clear gain spectrum array
     for(int n=0; n<n0; n++)
         gainSpectrum[n] = 0;
+    //std::fill(gainSpectrum.begin(), gainSpectrum.end(), 0.0);
 
     // ====================== AMPLIFICATIOIN ======================
     int count = 0;
@@ -58,15 +56,15 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         int vl; // vibrational level number
         int j;  // rotational quantum number
         int tr; // transition number
-        double Nvib[12][18], Nvib0[12][18];           // Population densities of vibrational lelvels (actual and equilibrium)
-        double Nrot[12][18][80];                      // Population densities of rotational lelvels (actual)
-        std::vector<double> Dn[12];                   // Population inversions (rotational transitions)
-        std::vector<std::complex<double>> rho[12];    // Polarizations
+        double Nvib[NumIso][NumVib], Nvib0[NumIso][NumVib]; // Population densities of vibrational lelvels (actual and equilibrium)
+        double Nrot[NumIso][NumVib][NumRot];              // Population densities of rotational lelvels (actual)
+        std::vector<double> Dn[NumIso];                   // Population inversions (rotational transitions)
+        std::vector<std::complex<double>> rho[NumIso];    // Polarizations
         std::complex<double> E_in;                    // input field (before ampliifcation)
         double delta;                                 // change in population difference
 
         // Initial populations and polarizations
-        for(i=0; i<12; i++)
+        for(i=0; i<NumIso; i++)
         {
             // 001 (Group 0)
             Nvib0[i][0]  = N_gr[i][0][x];          // upper reg
@@ -93,10 +91,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             Nvib0[i][16] = N_gr[i][5][x] / 6;      //                  upper 4um
             Nvib0[i][17] = N_gr[i][5][x] / 6;      //                  upper 4um
 
-            for(vl=0; vl<18; ++vl)
+            for(vl=0; vl<NumVib; ++vl)
             {
                 Nvib[i][vl] = Nvib0[i][vl]; // initial population densities of vibrational levels
-                for(j=0; j<80; ++j)
+                for(j=0; j<NumRot; ++j)
                 {
                     Nrot[i][vl][j] = nop[i][vl][j] * Nvib[i][vl]; // initial population densities of rotational sub-levels
                 }
@@ -113,9 +111,9 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
         for(int n=0; n<n0; n++)
         {
             // shift center frequency to pulse->vc
-            pulse->E[x][n] *= exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+            pulse->E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
             // population inversions
-            for(i=0; i<12; i++) // for each isotopologue
+            for(i=0; i<NumIso; i++) // for each isotopologue
             {
                 if(N_iso[i]==0.0) continue;
                 for(tr=0; tr<n_transitions[i]; ++tr)
@@ -127,7 +125,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             // gain spectrum
             if(x==0 && n==0) // in the beam center(!) before amplification
             {
-                for(i=0; i<12; i++)
+                for(i=0; i<NumIso; i++)
                 {
                     if(N_iso[i]==0.0)
                         continue;
@@ -145,8 +143,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // Eq 1 (field) & Eq 2 (polarization)
-            E_in = pulse->E[x][n];
-            for(i=0; i<12; i++)
+            E_in = pulse->E[n0*x+n];
+            for(i=0; i<NumIso; i++)
             {
                 if(N_iso[i]==0)
                     continue;
@@ -160,20 +158,20 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                     rho[i][tr] *= exp_phase[i][tr]; // phase relaxation (half-step 2)
                     rho[i][tr] *= exp_T2; // relaxation (half-step 2)
                     // Eq 1
-                    pulse->E[x][n] -= rho[i][tr] * length;
+                    pulse->E[n0*x+n] -= rho[i][tr] * length;
                 }
             }
 
             // Eq 3 (populations)
-            for(i=0; i<12; i++)
+            for(i=0; i<NumIso; i++)
             {
                 if(N_iso[i]==0.0)
                     continue;
 
                 // ROTATIONAL REFILL (half-step 1)
-                for(vl=0; vl<18; ++vl)
+                for(vl=0; vl<NumVib; ++vl)
                 {
-                    for(j=0; j<80; ++j)
+                    for(j=0; j<NumRot; ++j)
                     {
                         Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1-exp_tauR);
                     }
@@ -182,8 +180,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 // STIMULATED TRANSITIONS (full step)
                 for(tr=0; tr<n_transitions[i]; ++tr)
                 {
-                    delta = 4 * real(rho[i][tr]*conj((E_in+pulse->E[x][n])/2.0)) * Dt;
-                    // NOTE: E_in+pulse->E[x][n])/2.0 is the average field (before and after amplification)
+                    delta = 4 * real(rho[i][tr]*conj((E_in+pulse->E[n0*x+n])/2.0)) * Dt;
+                    // NOTE: E_in+pulse->E[n0*x+n])/2.0 is the average field (before and after amplification)
 
                     // upper level
                     Nvib[i][vl_up[i][tr]] += delta;
@@ -195,9 +193,9 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                 }
 
                 // ROTATIONAL REFILL (half-step 2)
-                for(vl=0; vl<18; vl++)
+                for(vl=0; vl<NumVib; vl++)
                 {
-                    for(j=0; j<80; ++j)
+                    for(j=0; j<NumRot; ++j)
                     {
                         Nrot[i][vl][j] += (nop[i][vl][j]*Nvib[i][vl] - Nrot[i][vl][j]) * (1-exp_tauR);
                     }
@@ -205,21 +203,22 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
             }
 
             // shift center frequency back to v0 (center of the calculation grid)
-            pulse->E[x][n] *= exp(I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+            pulse->E[n0*x+n] *= exp(I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
         }
 
         double DeltaN_nu3 = 0; // change of number of nu_3 quanta
         double DeltaN_nu2 = 0; // change of number of nu_2 quanta (+ double the change of nu_1 quanta)
-        double DeltaN_gr[12][10]; // change of populations of groups of vibrational levels
+        double DeltaN_gr[NumIso][NumGrp] ={}; // change of populations of groups of vibrational levels
 
-        for(i=0; i<12; i++)
+        for(i=0; i<NumIso; i++)
         {
-            if(N_iso[i]==0.0) continue;
+            if(N_iso[i]==0.0)
+                continue;
 
-            for(gr=0; gr<10; ++gr)
+            /*for(gr=0; gr<NumGrp; ++gr)
             {
                 DeltaN_gr[i][gr] = 0;
-            }
+            }*/
 
             // change of populations of groups of vibrational levels
             // each isotopologue counted separately:
@@ -243,7 +242,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
                                Nvib[i][16] - Nvib0[i][16]  + // 02^21(1)e
                                Nvib[i][17] - Nvib0[i][17];   // 02^21(1)f
 
-            for(gr=0; gr<10; ++gr)
+            for(gr=0; gr<NumGrp; ++gr)
             {
                 N_gr[i][gr][x] += DeltaN_gr[i][gr];
             }
@@ -274,7 +273,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time)
 
 void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     FILE *file;
-    double Dv = 1/(t_max-t_min);    // frequency step, Hz
 
     int pass = 0;
     for(int i=0; i<plane->number; i++)
@@ -288,7 +286,7 @@ void A::SaveGainSpectrum(Pulse *pulse, Plane *plane){
     file = fopen((basename+"_gain.dat").c_str(), "w");
     fprintf(file, "#Data format: frequency[Hz] gain[m^-1 = %%/cm]\n");
     for(int n=0; n<n0; n++)
-        fprintf(file, "%.8E\t%e\n", v0+Dv*(n-n0/2), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
+        fprintf(file, "%.8E\t%e\n", v_min+Dv*(0.5+n), gainSpectrum[n]); //frequency in Hz, gain in m-1 (<=> %/cm)
 
     fclose(file);
 }

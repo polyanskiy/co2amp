@@ -14,6 +14,12 @@ double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
 int save_interval;         // # of ticks between data entries in dynamics files
+// --- CALCULATED GRID PARAMETERS --
+// *** Be very careful not to confuse limits and values in the outer bins of the grid ***
+// t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
+// v[0] = v_min+0.5*Dv;   v[n] = v_min+(n+0.5)*Dv;   v[n0-1] = v_min+(n0-0.5)*Dv = v_max-0.5*Dv
+double v_min;// v_max;     // frequency domain limits
+double Dt, Dv;             // time and frequency steps
 // ---- CALCULATION PARAMETERS -----
 int method;                // propagation method
                            // 0: no propagation 1: Fresnel 2: Rayleigh-Sommerfeld
@@ -29,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-10-28";
+    std::string version = "2025-10-31-b";
 
     std::clock_t stopwatch = std::clock();
 
@@ -72,7 +78,7 @@ int main(int argc, char **argv)
     Calculations(); // Main program !!!
 
     // Save pulses at the output
-    for(int i=0; i<pulses.size(); i++)
+    for(size_t i=0; i<pulses.size(); i++)
     {
         pulses[i]->SavePulse();
         pulses[i]->SaveBeam();
@@ -122,16 +128,24 @@ void Calculations()
 
     std::cout << "*** CALCULATION ***\n";
 
-    for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
+    //for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
+    int nsteps = llround( (pulses.back()->time_in + planes.back()->time_from_first_plane) / time_tick ) + 1;
+    //double time = 0;
+    for (int i = 0; i <= nsteps; ++i)
     {
+        double time = i * time_tick;
+
+        /*if(i!=0)
+            time+=time_tick;*/
+
         //#pragma omp parallel for// multithreaded
         // (can't go parallel here to avoid nesting: using multithreads inside InternalDynamics functions)
-        for(int optic_n=0; optic_n<optics.size(); optic_n++)
+        for(size_t optic_n=0; optic_n<optics.size(); optic_n++)
             optics[optic_n]->InternalDynamics(time);
 
-        for(int plane_n=0; plane_n<planes.size(); plane_n++)
+        for(size_t plane_n=0; plane_n<planes.size(); plane_n++)
         {
-            for(int pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+            for(size_t pulse_n=0; pulse_n<pulses.size(); pulse_n++)
             {
                 double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_in;
                 if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival)

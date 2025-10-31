@@ -115,7 +115,7 @@ void A::AmplificationBand(void)
     // Rotational constants B, Hz
     // B[i][vl]
     // source: fit of HITRAN data
-    double B[12][18] = {
+    double B[NumIso][NumVib] = {
     // vl:  0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17
         {1.16E+10, 1.17E+10, 1.16E+10, 1.17E+10, 1.17E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.17E+10, 1.18E+10, 1.18E+10, 1.15E+10, 1.16E+10, 1.16E+10, 1.17E+10, 1.17E+10}, //626
         {1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.09E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.10E+10, 1.11E+10, 1.11E+10, 1.09E+10, 1.09E+10, 1.09E+10, 1.10E+10, 1.10E+10}, //727
@@ -176,14 +176,14 @@ void A::AmplificationBand(void)
             // Isotopologue code in HITRAN
             char isot_id = line[2];
             int i; // isotopologue number in co2amp
-            for (i=0; i<12; ++i)
+            for (i=0; i<NumIso; ++i)
             {
                 if (isot_map[i] == isot_id)
                 {
                     break; // exit the loop if a match is found
                 }
             }
-            if(i == 12) // no match found => not one of the supported isotopologues
+            if(i == NumIso) // no match found => not one of the supported isotopologues
                 continue;
 
             if(N_iso[i]==0.0) // skip zero-content isotopologues
@@ -354,18 +354,18 @@ void A::AmplificationBand(void)
 
     // Normalized populations of rotational sublevels
     // nop[i][vl][j]
-    for(int i=0; i<12; ++i)
+    for(int i=0; i<NumIso; ++i)
     {
-        for(int vl=0; vl<18; ++vl)
+        for(int vl=0; vl<NumVib; ++vl)
         {
             // Chsrcteristics of vibraitonal levels
-            //                vl: 0      1      2      3      4      5      6      7      8      9     10     11     12     13     14     15     16     17
-            int l[18]         = { 0,     0,     0,     2,     2,     1,     1,     1,     1,     1,    1,     3,     3,     0,     0,     0,     2,     2    };
-            char parity[18]   = {'u',   'g',   'g',   'g',   'g',   'g',   'g',   'u',   'u',   'u',   'u',   'u',   'u',   'g',   'u',   'u',   'u',   'u'  };
-            char symmetry[18] = {'e',   'e',   'e',   'e',   'f',   'e',   'f',   'e',   'e',   'f',   'f',   'e',   'f',   'e',   'e',   'e',   'e',   'f'  };
+            //              vl: 0      1      2      3      4      5      6      7      8      9     10     11     12     13     14     15     16     17
+            int l[]         = { 0,     0,     0,     2,     2,     1,     1,     1,     1,     1,    1,     3,     3,     0,     0,     0,     2,     2    };
+            char parity[]   = {'u',   'g',   'g',   'g',   'g',   'g',   'g',   'u',   'u',   'u',   'u',   'u',   'u',   'g',   'u',   'u',   'u',   'u'  };
+            char symmetry[] = {'e',   'e',   'e',   'e',   'f',   'e',   'f',   'e',   'e',   'f',   'f',   'e',   'f',   'e',   'e',   'e',   'e',   'f'  };
 
             //general expression for energy distribution between rotational sub-levels
-            for(int j=0; j<80; ++j)
+            for(int j=0; j<NumRot; ++j)
             {
                 nop[i][vl][j] = h*B[i][vl]/(k*T0) * (2*j+1) * exp(-h*B[i][vl]/(k*T0)*j*(j+1));
             }
@@ -380,21 +380,21 @@ void A::AmplificationBand(void)
             {
                 if( (parity[vl]=='g' && symmetry[vl]=='e') || (parity[vl]=='u' && symmetry[vl]=='f') ) // only even J's populated
                 {
-                    for(int j=1; j<80; j+=2)
+                    for(int j=1; j<NumRot; j+=2)
                     {
                         nop[i][vl][j] = 0; // odd J's not populated
                     }
                 } // only odd J's populated
                 else
                 {
-                    for(int j=0; j<80; j+=2)
+                    for(int j=0; j<NumRot; j+=2)
                     {
                         nop[i][vl][j] = 0; // even J's not populated
                     }
                 }
 
                 // double sub-level's population to keep total polulation of vibrational level
-                for(int j=0; j<80; ++j)
+                for(int j=0; j<NumRot; ++j)
                 {
                     nop[i][vl][j] *= 2;
                 }

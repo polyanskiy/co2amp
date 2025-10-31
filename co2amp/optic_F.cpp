@@ -24,7 +24,7 @@ F::F(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    double Dr = r_max/x0;
+    Dr = r_max/x0;
 
     // filter type
     if(!YamlGetValue(&value, &yaml_content, "filter"))
@@ -151,10 +151,16 @@ F::F(std::string id)
         Debug(2, "Transmittance profile loaded (use debug level 3 to display)");
         Debug(3, "Transmittance profile [Radial coordinate(m) Transmittance(-)] (only displayed if debug level >= 3)");
         if(debug_level >= 3)
-            for(int i=0; i<pos.size(); i++)
+        {
+            for(size_t i=0; i<pos.size(); i++)
+            {
                 std::cout << "  " << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
+            }
+        }
         for(int x=0; x<x0; x++)
+        {
                 Transmittance[x] = Interpolate(&pos, &transm, Dr*(0.5+x));
+        }
         WriteTransmittanceFile();
         return;
     }
@@ -178,14 +184,12 @@ void F::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
     for(int x=0; x<x0; x++)
         for(int n=0; n<n0; n++)
-            pulse->E[x][n] *=  sqrt(Transmittance[x]);
+            pulse->E[n0*x+n] *=  sqrt(Transmittance[x]);
 }
 
 
 void F::WriteTransmittanceFile()
 {
-    double Dr = r_max/x0;
-
     FILE *file;
 
     file = fopen((id+"_transmittance.dat").c_str(), "w");

@@ -24,6 +24,7 @@ M::M(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
+    Dr = r_max/x0;
 
     // material
     if(!YamlGetValue(&value, &yaml_content, "material"))
@@ -177,10 +178,10 @@ void M::InternalDynamics(double)
     /*if(!strcmp(material,"Ge") || !strcmp(material,"Ge-Brewster"))
     {
         for(n=0; n<n0; n++){
-            intensity = 2.0 * h * vc * pow(cabs(E[pulse][x][n]), 2); // W/m2
+            intensity = 2.0 * h * vc * pow(cabs(E[pulse][n0*x+n]), 2); // W/m2
             intensity *= tilt_factor; // reduced intensity in tilted windows
             alpha[x] += 4e-26*pow(intensity,3)*Dt;// BEST!!!
-            E[pulse][x][n] *= sqrt( exp(-1.0*alpha[x]*thickness) );
+            E[pulse][n0*x+n] *= sqrt( exp(-1.0*alpha[x]*thickness) );
         }
     }*/
 }
@@ -190,9 +191,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 {
     Debug(2, "Interaction with a material");
     StatusDisplay(pulse, plane, time, "material...");
-
-    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
-    //double Dt = (t_max-t_min)/n0;  // pulse time step, s
 
     // account for tilt
     // tilt = angle of incidence  (radians) - "Theta1"
@@ -232,13 +230,13 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
         }
 
-        double intensity, chirpyness, shift, v;
+        double intensity, chirp, shift, v;
         /*
         double alphaNL;
         double integral; // proportional to the number of created free carriers
         */
 
-        std::complex<double> *E1; //field in frequency domaine
+        //std::complex<double> *E1; //field in frequency domaine
 
 
         // find time position (n) of peak intensity
@@ -247,7 +245,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             //double peak_intensity = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = pow(abs(pulse->E[x][n]), 2); // arb. units
+                intensity = pow(abs(pulse->E[n0*x+n]), 2); // arb. units
                 if(intensity > peak_intensity)
                 {
                     peak_intensity = intensity;
@@ -267,17 +265,17 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
+                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 
                 // nonlinear refraction
                 shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
-                pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
+                pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
 
                 /*
                 // nonlinear absorption
                 alphaNL = pow(alpha1*intensity,chi) + integral;
-                pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
+                pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
                 //integral += alphaNL*intensity*Dt;
                 integral += pow(alpha2*intensity,chi)*Dt;
                 */
@@ -288,37 +286,35 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             }
 
             // linear dispersion and absorption (full thickness of the slice)
-            E1 = new std::complex<double>[n0];
-            FFT(pulse->E[x], E1);
+            std::vector<std::complex<double>> E1(n0);
+            FFT(&pulse->E[n0*x], E1.data());
             shift = 0;
             for(int n=0; n<n0; n++)
             {
-                v = v0 + Dv*(n-n0/2);
-                //chirpyness = -c/th / (RefractiveIndex(v+Dv/2)-RefractiveIndex(v-Dv/2));// " * Dv " omitted
-                chirpyness = c/th / (GroupIndex(v0+Dv/2)-GroupIndex(v0-Dv/2));// " * Dv " omitted
-                shift += (v-pulse->vc) / chirpyness; // " * Dv " omitted
+                v = v_min+Dv*(0.5+n);
+                chirp = c/th / (GroupIndex(v0+Dv/2)-GroupIndex(v0-Dv/2));// " * Dv " omitted
+                shift += (v-pulse->vc) / chirp; // " * Dv " omitted
                 int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                 E1[n1] *= exp(I*2.0*M_PI*shift); // refraction
                 E1[n1] *= sqrt(exp(-AbsorptionCoefficient(v)*th)); //linear absorption
             }
-            IFFT(E1, pulse->E[x]);
-            delete[] E1;
+            IFFT(E1.data(), &pulse->E[n0*x]);
 
             // nonlinear refraction [and absorption] Step 2 (half-thickness of the slice)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[x][n]), 2); // W/m2
+                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 
                 // nonlinear refraction
                 shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
-                pulse->E[x][n] *= exp(I*2.0*M_PI*shift);
+                pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
 
                 /*
                 // nonlinear absorption
                 alphaNL = pow(alpha1*intensity,chi) + integral;
-                pulse->E[x][n] *= sqrt(exp(-alphaNL*th/2.0));
+                pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
                 //integral += alphaNL*intensity*Dt;
                 integral += pow(alpha2*intensity,chi)*Dt;
                 */
@@ -506,7 +502,6 @@ double M::RefractiveIndex(double nu)
 
 double M::GroupIndex(double nu)
 {
-    double Dv = 1.0/(t_max-t_min); // frequency step, Hz
     return RefractiveIndex(nu) + nu * (RefractiveIndex(nu+Dv/2)-RefractiveIndex(nu-Dv/2)) / Dv;
 }
 

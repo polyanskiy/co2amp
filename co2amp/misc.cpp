@@ -133,7 +133,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x)
     if(x >= (*X)[X->size()-1])
         return (*Y)[Y->size()-1];
 
-    for(int i=0; i<X->size()-1; i++)
+    for(size_t i=0; i<X->size()-1; i++)
     {
         if(x >= (*X)[i] && x < (*X)[i+1])
             return (*Y)[i] + ((*Y)[i+1]-(*Y)[i]) * (x-(*X)[i])/((*X)[i+1]-(*X)[i]);
