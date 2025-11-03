@@ -29,15 +29,15 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
         for(int n=0; n<n0; n++)
         {
             Energy += 2.0 * h * pulse->vc
-                    * pow(abs(E[n0*x+n]),2)
+                    * std::norm(E[n0*x+n])
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
             Power[n] += 2.0 * h * pulse->vc
-                    * pow(abs(E[n0*x+n]),2)
+                    * std::norm(E[n0*x+n])
                     * M_PI*pow(Dr,2)*(2*x+1);
 
-            Fluence[x] += 2.0 * h * pulse->vc * pow(abs(E[n0*x+n]),2) * Dt; // J/m2
+            Fluence[x] += 2.0 * h * pulse->vc * std::norm(E[n0*x+n]) * Dt; // J/m^2
         }
     }
 
@@ -94,8 +94,12 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     {
         FFT(&E[n0*x], spectrum.data());
         for(int n=0; n<n0; n++)
-            average_spectrum[n] += pow(abs(spectrum[n]), 2) * (2*x+1); //(2*x+1) is proportional to ring area:
-    }                                                                  //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+        {
+            average_spectrum[n] += std::norm(spectrum[n]) * (2*x+1);    // norm() returns the squared magnitude
+                                                                        //(2*x+1) is proportional to ring area:
+                                                                        //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+        }
+    }
 
     // spectrum normalization
     /*double max_int=0;
@@ -128,35 +132,22 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 
 
     ////////////////////////////////////// Phase //////////////////////////////////////////////
-    std::vector<double> phase(n0);
 
     // Phase in the center of the beam!
-    /*for(int n=0; n<n0; n++)
-    {
-        if(abs(E[n])<1000) // remove noise
-        {
-            phase[n] = 0;
-        }
-        else
-        {
-            phase[n] = arg(E[n]);
-        }
-    }*/
+    std::vector<double> phase(n0);
 
     // Unwrap the phase in the following (not limit to +/- Pi)
     double Emax = 0;
     for(int n=0; n<n0; n++)
     {
-        if(abs(E[n])>Emax)
-        {
-            Emax = abs(E[n]);
-        }
+        Emax = std::max(Emax, std::abs(E[n]));
     }
+
     double phase_step;
     phase[0] = 0;
     for(int n=1; n<n0; n++)
     {
-        if(abs(E[n]) < 1e-5*Emax)
+        if(std::abs(E[n])/Emax < 1e-4) // remove noise
         {
             phase_step = 0;
         }

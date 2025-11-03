@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20251028_setup.exe"
+OutFile "co2amp_v.20251103_setup.exe"
 Unicode True
 
 ;Default install path
@@ -76,8 +76,8 @@ Section "Section_01" Sec01
   File "C:\Qt\Tools\mingw1310_64\bin\libstdc++-6.dll"
   File "C:\Qt\Tools\mingw1310_64\bin\libwinpthread-1.dll"
   ;HDF5
-  File "C:\Program Files\HDF_Group\HDF5\1.14.5\bin\hdf5.dll"
-  File "C:\Program Files\HDF_Group\HDF5\1.14.5\bin\hdf5_hl.dll"
+  File "C:\Program Files\HDF_Group\HDF5\1.14.6\bin\hdf5.dll"
+  File "C:\Program Files\HDF_Group\HDF5\1.14.6\bin\hdf5_hl.dll"
   ;Platforms
   SetOutPath "$INSTDIR\platforms"
   File "C:\Qt\6.8.0\mingw_64\plugins\platforms\qwindows.dll"

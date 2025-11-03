@@ -66,7 +66,6 @@ C::C(std::string id)
                 std::cout << "  " << toExpString(nu[i]) << " " << toExpString(chrp[i]) << std::endl;
 
         for(int n=0; n<n0; n++)
-            //Chirp[n] = Interpolate(&nu, &chrp, v_min+Dv*(0.5+n));
             Chirp[n] = Interpolate(&nu, &chrp, v_min+Dv*(0.5+n));
         WriteChirpFile();
         return;
@@ -95,16 +94,16 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
 
         // this can be used with any chirp profile
         double v;
-        double shift = 0;
+        double phase_shift = 0;
         int n1;
         std::vector<std::complex<double>> E1(n0); // field in frequency domain
         FFT(&pulse->E[n0*x], E1.data());
         for(int n=0; n<n0; n++)
         {
             v = v_min+Dv*(0.5+n);
-            shift += (v-pulse->vc) / Chirp[n] * Dv;
+            phase_shift += 2*M_PI*(v-pulse->vc) / Chirp[n] * Dv;
             n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
-            E1[n1] *= exp(I*2.0*M_PI*shift);
+            E1[n1] *= exp(I*phase_shift);
         }
         IFFT(E1.data(), &pulse->E[n0*x]);
 

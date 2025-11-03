@@ -33,24 +33,17 @@ void Pulse::Initialize()
     time_in = std::stod(value);
     Debug(2, "t_in = " + toExpString(time_in) + " s");
 
-    /*if(!YamlGetValue(&value, &yaml_content, "file"))
-    {
-        configuration_error = true;
-        return;
-    }*/
 
     //================================== From file ======================================
     if(YamlGetValue(&value, &yaml_content, "file", false))
     {
-    //if(value!="null")
-    //{
         if(!LoadPulse(value))
         {
             configuration_error = true;
             return;
         }
-        // frequency shift between central frequency of the pulse (vc)
-        // and central frequency of the calculation grid (v0)
+        // frequency shift between the central frequency of the pulse (vc)
+        // and the central frequency of the calculation grid (v0)
         for(int x=0; x<x0; x++)
             for(int n=0; n<n0; n++)
                 E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
@@ -210,7 +203,7 @@ void Pulse::Initialize()
     for(int n=0; n<n0; n++)
         for(int x=0; x<x0; x++)
             Energy += 2.0 * h * vc
-                    * pow(abs(E[n0*x+n]),2)
+                    * std::norm(E[n0*x+n]) // norm() returns the squared magnitude
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
@@ -476,7 +469,7 @@ bool Pulse::LoadPulse(std::string filename)
     // ------------------------------ PREPARE  ARRRAYS ----------------------------------
     std::vector<double> re(x01*n01);
     std::vector<double> im(x01*n01);
-    std::vector<std::complex<double>> E1(x01*n01);
+    //std::vector<std::complex<double>> E1(x01*n01);
 
     // ------------------------------- READ PULSE DATA ----------------------------------
     status += H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, re.data());
@@ -491,37 +484,48 @@ bool Pulse::LoadPulse(std::string filename)
         return false;
     }
 
-    for(int i=0; i<x01*n01; i++)
+    /*for(int i=0; i<x01*n01; i++)
     {
         E1[i] = re[i] + I*im[i];
-    }
+    }*/
 
     // -------------------------------- CLOSE RESOURCES ---------------------------------
     H5Dclose(dataset_re);
     H5Dclose(dataset_im);
     H5Fclose(file);
 
-    // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
-    //double Dr = planes[0]->optic->Dr;
+    // ---------------------------- CHECK FOR GRID MISMATCH -----------------------------
     double r_max = planes[0]->optic->r_max;
-    //double Dr1 = r_max1/x01;
-    //double Dt1 = (t_max1-t_min1)/n01;
 
     if(n01!=n0 || x01!=x0)
     {
-        std::cout << "Calculation grid mismatch between loaded pulse and current grid\n";
+        std::cout << "Calculation grid mismatch between input pulse and calculation grid\n";
+        std::cout << n01 << " x " << x01 << " vs. " << n0 << " x " << x0  << ", respectively\n";
         return false;
     }
-    if(abs(r_max1-r_max) > 1e-15)
+    if(std::abs(std::abs(r_max1/r_max)-1) > 1e-6)
     {
-        std::cout << "Semi diameter mismatch between input beam and first optic in the system\n";
+        std::cout << "Semidiameter mismatch between input beam and first optic in the system\n";
+        std::cout << r_max1 << " vs. " << r_max << ", respectively\n";
         return false;
     }
-    if(abs(t_min1-t_min) > 1e-15 || abs(t_max1-t_max) > 1e-15)
+    if(std::abs(std::abs(t_min1/t_min)-1) > 1e-6 || std::abs(std::abs(t_max1/t_max)-1) > 1e-6)
     {
-        std::cout << "Time range mismatch between loaded pulse and current grid\n";
+        std::cout << "Time range mismatch between input pulse and calculation grid\n";
+        std::cout << t_min1 << "..." << t_max1 << " vs. " << t_min << "..." << t_max  << ", respectively\n";
         return false;
     }
+
+
+    // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
+    for(int i=0; i<x01*n01; i++)
+    {
+        E[i] = re[i] + I*im[i];
+    }
+
+    //double Dr = planes[0]->optic->Dr;
+    //double Dr1 = r_max1/x01;
+    //double Dt1 = (t_max1-t_min1)/n01;
 
     /*#pragma omp parallel for
     for(int x=0; x<x0; x++)
@@ -587,16 +591,13 @@ void Pulse::SaveBeam()
 
     double Dr = planes[planes.size()-1]->optic->Dr; // last optic in the layout
 
-    /*double *Fluence = new double[x0];
-    for(int x=0; x<x0; x++)
-        Fluence[x] = 0;*/
     std::vector<double> Fluence(x0);
 
     double Fmax = 0;
     for(int x=0; x<x0; x++)
     {
         for(int n=0; n<n0; n++)
-            Fluence[x] += pow(abs(E[n0*x+n]),2); // a.u.
+            Fluence[x] += std::norm(E[n0*x+n]); // a.u.; norm() returns the squared magnitude
         if(Fluence[x] > Fmax)
             Fmax = Fluence[x];
     }
@@ -623,7 +624,6 @@ void Pulse::SaveBeam()
     ficl = 0.0; //  unused for this ZBF
 
     /* now make the beam */
-    //double *cax = new double[2*nx*ny];
     std::vector<double> cax(2*nx*ny);
 
     k = 0;
@@ -724,7 +724,4 @@ void Pulse::SaveBeam()
         fprintf(out, "\n");
     }
     fclose(out);
-
-    //delete[] cax;
-    //delete[] Fluence;
 }

@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-10-31-b";
+    std::string version = "2025-11-03";
 
     std::clock_t stopwatch = std::clock();
 

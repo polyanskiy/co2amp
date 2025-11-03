@@ -245,7 +245,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             //double peak_intensity = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = pow(abs(pulse->E[n0*x+n]), 2); // arb. units
+                //intensity = pow(abs(pulse->E[n0*x+n]), 2); // arb. units
+                intensity = std::norm(pulse->E[n0*x+n]); // arb. units
                 if(intensity > peak_intensity)
                 {
                     peak_intensity = intensity;
@@ -265,7 +266,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
+                //intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
+                intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 
                 // nonlinear refraction
@@ -304,7 +306,8 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
+                //intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
+                intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 
                 // nonlinear refraction
