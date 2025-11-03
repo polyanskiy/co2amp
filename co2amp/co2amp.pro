@@ -31,7 +31,7 @@ QMAKE_LFLAGS += -fopenmp
 
 
 win32 {
-INCLUDEPATH += "C:\\Program Files\\HDF_Group\\HDF5\\1.14.5\\include"
-LIBS += "C:\\Program Files\\HDF_Group\\HDF5\\1.14.5\\lib\\hdf5.lib"
-LIBS += "C:\\Program Files\\HDF_Group\\HDF5\\1.14.5\\lib\\hdf5_hl.lib"
+INCLUDEPATH += "C:\\Program Files\\HDF_Group\\HDF5\\1.14.6\\include"
+LIBS += "C:\\Program Files\\HDF_Group\\HDF5\\1.14.6\\lib\\hdf5.lib" \
+    "C:\\Program Files\\HDF_Group\\HDF5\\1.14.6\\lib\\hdf5_hl.lib"
 }

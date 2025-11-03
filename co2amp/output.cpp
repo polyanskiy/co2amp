@@ -144,18 +144,26 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }*/
 
     // Unwrap the phase in the following (not limit to +/- Pi)
+    double Emax = 0;
+    for(int n=0; n<n0; n++)
+    {
+        if(abs(E[n])>Emax)
+        {
+            Emax = abs(E[n]);
+        }
+    }
     double phase_step;
     phase[0] = 0;
     for(int n=1; n<n0; n++)
     {
-        // zero intensity
-        if(abs(E[n])<100000)
+        if(abs(E[n]) < 1e-5*Emax)
         {
-            phase[n] = 0;
-            continue;
+            phase_step = 0;
         }
-
-        phase_step = arg(E[n]) - arg(E[n-1]);
+        else
+        {
+            phase_step = arg(E[n]) - arg(E[n-1]);
+        }
 
         phase[n] = phase[n-1] + phase_step;
         if(phase_step < -M_PI)
@@ -170,21 +178,17 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }
 
     // Phase relative to central time point
-    //double phase0;
     double offset;
     if(t_min<-Dt && t_max>Dt)
     {
-        //phase0 = phase[-t_min/Dt];
         offset = phase[-t_min/Dt] - arg(E[-t_min/Dt]);
     }
     else
     {
-        //phase0 = phase[n0/2];
         offset = phase[n0/2] - arg(E[n0/2]);
     }
     for(int n=0; n<n0; n++)
     {
-        //phase[n] -= phase0;
         phase[n] -= offset;
     }
 
