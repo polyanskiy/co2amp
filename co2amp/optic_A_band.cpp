@@ -7,7 +7,7 @@ void A::AmplificationBand(void)
 
     //  Isotopologue numbers
     //  -------------------------------
-    // | i  | isotopologue | HITRAN ID |
+    // | is | isotopologue | HITRAN ID |
     // |----|--------------|-----------|
     // | 0  |     626      |     1     |
     // | 1  |     727      |     9     |
@@ -107,13 +107,13 @@ void A::AmplificationBand(void)
     // |    |                      |   17 -> 4  (f)  | "           |
     //  -----------------------------------------------------------
 
-    double k = 1.3806488e-23;                                         // Boltzmann's constant, J/K
-    double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He));  // transition dipole dephasing time, s
+    double k = 1.3806488e-23;                                        // Boltzmann's constant, J/K
+    double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.73*p_N2+0.64*p_He));  // transition dipole dephasing time, s
     double gamma = 1 / T2;   // Lorentzian HWHM
 
 
     // Rotational constants B, Hz
-    // B[i][vl]
+    // B[is][vl]
     // source: fit of HITRAN data
     double B[NumIso][NumVib] = {
     // vl:  0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17
@@ -175,18 +175,18 @@ void A::AmplificationBand(void)
 
             // Isotopologue code in HITRAN
             char isot_id = line[2];
-            int i; // isotopologue number in co2amp
-            for (i=0; i<NumIso; ++i)
+            int is; // isotopologue number in co2amp
+            for (is=0; is<NumIso; ++is)
             {
-                if (isot_map[i] == isot_id)
+                if (isot_map[is] == isot_id)
                 {
                     break; // exit the loop if a match is found
                 }
             }
-            if(i == NumIso) // no match found => not one of the supported isotopologues
+            if(is == NumIso) // no match found => not one of the supported isotopologues
                 continue;
 
-            if(N_iso[i]==0.0) // skip zero-content isotopologues
+            if(N_iso[is]==0.0) // skip zero-content isotopologues
                 continue;
 
             // vibrational bands
@@ -246,88 +246,88 @@ void A::AmplificationBand(void)
                 case 'P':
                     if(J>79 || J<1)
                         continue;
-                    j_lo[i].push_back(J);
-                    j_up[i].push_back(J-1);
+                    j_lo[is].push_back(J);
+                    j_up[is].push_back(J-1);
                     break;
                 case 'R':
                     if(J>78)
                         continue;
-                    j_lo[i].push_back(J);
-                    j_up[i].push_back(J+1);
+                    j_lo[is].push_back(J);
+                    j_up[is].push_back(J+1);
                     break;
                 case 'Q':
                     continue; // ignore Q branch
                     /*if(J>79)
                         continue;
-                    j_lo[i].push_back(J);
-                    j_up[i].push_back(J);*/
+                    j_lo[is].push_back(J);
+                    j_up[is].push_back(J);*/
                     break;
             }
 
             // Transition frequency (only add to array after checking that J's are within the intended range)
-            v[i].push_back(v_Hz);
+            v[is].push_back(v_Hz);
 
             // Associate vibrational levels with the transition
             switch(band)
             {
                 case 0: // reg 10 um
-                    vl_up[i].push_back(0);
-                    vl_lo[i].push_back(1);
+                    vl_up[is].push_back(0);
+                    vl_lo[is].push_back(1);
                     break;
                 case 1: // reg 9 um
-                    vl_up[i].push_back(0);
-                    vl_lo[i].push_back(2);
+                    vl_up[is].push_back(0);
+                    vl_lo[is].push_back(2);
                     break;
                 case 2: // hot 10 um
                     if(ef == 'e')
                     {
-                        vl_up[i].push_back(5);
-                        vl_lo[i].push_back(7);
+                        vl_up[is].push_back(5);
+                        vl_lo[is].push_back(7);
                     }
                     else //f
                     {
-                        vl_up[i].push_back(6);
-                        vl_lo[i].push_back(9);
+                        vl_up[is].push_back(6);
+                        vl_lo[is].push_back(9);
                     }
                     break;
                 case 3: // hot 9 um
                     if(ef == 'e')
                     {
-                        vl_up[i].push_back(5);
-                        vl_lo[i].push_back(8);
+                        vl_up[is].push_back(5);
+                        vl_lo[is].push_back(8);
                     }
                     else //f
                     {
-                        vl_up[i].push_back(6);
-                        vl_lo[i].push_back(10);
+                        vl_up[is].push_back(6);
+                        vl_lo[is].push_back(10);
                     }
                     break;
                 case 4: // seq 10 um
-                    vl_up[i].push_back(13);
-                    vl_lo[i].push_back(14);
+                    vl_up[is].push_back(13);
+                    vl_lo[is].push_back(14);
                     break;
                 case 5: // seq 9 um
-                    vl_up[i].push_back(13);
-                    vl_lo[i].push_back(15);
+                    vl_up[is].push_back(13);
+                    vl_lo[is].push_back(15);
                     break;
                 case 6: // 4um-1
-                    vl_up[i].push_back(14);
-                    vl_lo[i].push_back(1);
+                    vl_up[is].push_back(14);
+                    vl_lo[is].push_back(1);
                     break;
                 case 7: // 4um-2
-                    vl_up[i].push_back(15);
-                    vl_lo[i].push_back(2);
+                    vl_up[is].push_back(15);
+                    vl_lo[is].push_back(2);
                     break;
                 case 8: // 4um-3
                     if(ef == 'e')
                     {
-                        vl_up[i].push_back(16);
-                        vl_lo[i].push_back(3);
+                        vl_up[is].push_back(16);
+                        vl_lo[is].push_back(3);
                     }
                     else //f
                     {
-                        vl_up[i].push_back(17);
-                        vl_lo[i].push_back(4);
+                        vl_up[is].push_back(17);
+                        vl_lo[is].push_back(4);
                     }
                     break;
             }
@@ -335,15 +335,15 @@ void A::AmplificationBand(void)
             // Transition cross-sections, m^2
             double A = std::stod(line.substr(25, 10)); // Einstein coefficient A (1/s)
 
-            sigma[i].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma) ); // wn*100: 1/cm -> 1/m
+            sigma[is].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma) ); // wn*100: 1/cm -> 1/m
 
             //if(J==20)
             if(debug_level >= 3)
             {
                 std::cout << "  "
-                          << "Isot: " << isotopologue[i] << "; "
+                          << "Isot: " << isotopologue[is] << "; "
                           << "Band:" << Vup_id << " ->" << Vlo_id << " " << std::string(1,pqr) << std::to_string(J) << std::string(1,ef) << "; "
-                          << "freq = " << std::to_string(v[i].back()/1e12) << " THz; "
+                          << "freq = " << std::to_string(v[is].back()/1e12) << " THz; "
                           << "A = " + std::to_string(A) + " 1/s"
                           << std::endl;
             }
@@ -352,9 +352,9 @@ void A::AmplificationBand(void)
     }
 
 
-    // Normalized populations of rotational sublevels
-    // nop[i][vl][j]
-    for(int i=0; i<NumIso; ++i)
+    // Fractional populations of rotational sublevels
+    // f_rot[is][vl][j]
+    for(int is=0; is<NumIso; ++is)
     {
         for(int vl=0; vl<NumVib; ++vl)
         {
@@ -367,36 +367,36 @@ void A::AmplificationBand(void)
             //general expression for energy distribution between rotational sub-levels
             for(int j=0; j<NumRot; ++j)
             {
-                nop[i][vl][j] = h*B[i][vl]/(k*T0) * (2*j+1) * exp(-h*B[i][vl]/(k*T0)*j*(j+1));
+                f_rot[is][vl][j] = h*B[is][vl]/(k*T0) * (2*j+1) * exp(-h*B[is][vl]/(k*T0)*j*(j+1));
             }
 
             // vibrational levels with J<l are not populated
             for(int j=0; j<l[vl]; ++j)
             {
-                nop[i][vl][j] = 0;
+                f_rot[is][vl][j] = 0;
             }
 
-            if(i<6) // symmetric molecules (626, 727, 828, 636, 737, 838) have forbidden rottational sub-levels
+            if(is<6) // symmetric molecules (626, 727, 828, 636, 737, 838) have forbidden rottational sub-levels
             {
                 if( (parity[vl]=='g' && symmetry[vl]=='e') || (parity[vl]=='u' && symmetry[vl]=='f') ) // only even J's populated
                 {
                     for(int j=1; j<NumRot; j+=2)
                     {
-                        nop[i][vl][j] = 0; // odd J's not populated
+                        f_rot[is][vl][j] = 0; // odd J's not populated
                     }
                 } // only odd J's populated
                 else
                 {
                     for(int j=0; j<NumRot; j+=2)
                     {
-                        nop[i][vl][j] = 0; // even J's not populated
+                        f_rot[is][vl][j] = 0; // even J's not populated
                     }
                 }
 
                 // double sub-level's population to keep total polulation of vibrational level
                 for(int j=0; j<NumRot; ++j)
                 {
-                    nop[i][vl][j] *= 2;
+                    f_rot[is][vl][j] *= 2;
                 }
             }
         }

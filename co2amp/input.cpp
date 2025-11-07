@@ -69,10 +69,6 @@ std::string ReadCommandLine(int argc, char **argv)
     
     Debug(1, debug_str);
 
-    /*Dt = (t_max-t_min)/n0;
-    Dv = 1.0/(t_max-t_min);
-    v_min = v0 - 0.5/Dt;*/
-
     if(count == 63) //1+2+4+6+8+16+32 <=> all required calculation parameters provided
     {
         Dt = (t_max-t_min)/n0;
@@ -113,7 +109,6 @@ bool ReadConfigFiles(std::string path)
         configuration_error = true;
         return false;
     }
-
 
     std::string id="";
     std::string type="";
@@ -158,21 +153,21 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add optic numbers to all optics
-    for(size_t optic_n=0; optic_n<optics.size(); optic_n++)
-        optics[optic_n]->number =optic_n;
+    for(size_t i=0; i<optics.size(); i++)
+        optics[i]->number = i;
 
     // When all optics created, create layout...
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
     // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
-    for(size_t pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+    for(size_t i=0; i<pulses.size(); ++i)
     {
-        pulses[pulse_n]->number = pulse_n;
-        pulses[pulse_n]->Initialize();
+        pulses[i]->number = i;
+        pulses[i]->Initialize();
         if(configuration_error)
             return false;
-        if(pulse_n>0 && pulses[pulse_n]->time_in < pulses[pulse_n-1]->time_in)
+        if(i>0 && pulses[i]->time_in < pulses[i-1]->time_in)
         {
             std::cout << "Arrange pulses in order of injection (smaller \'t_inj\' first)!\n";
             return false;
@@ -180,8 +175,8 @@ bool ReadConfigFiles(std::string path)
     }
 
     // add plane numbers to all layout planes
-    for(size_t plane_n=0; plane_n<planes.size(); plane_n++)
-        planes[plane_n]->number =plane_n;
+    for(size_t i=0; i<planes.size(); ++i)
+        planes[i]->number = i;
 
     return true;
 }
@@ -302,35 +297,49 @@ bool ReadLayoutConfigFile(std::string path)
     // Print full layout for debugging
     if(debug_level>=1)
     {
-        for(plane_n=0; plane_n<planes.size(); plane_n++)
+        for(size_t i=0; i<planes.size(); i++)
         {
-            std::cout << planes[plane_n]->optic->id;
-            if(plane_n != planes.size()-1)
+            std::cout << planes[i]->optic->id;
+            if(i != planes.size()-1)
                 std::cout << ">>" ;
-            if(planes[plane_n]->space != 0)
-                std::cout << std::to_string(planes[plane_n]->space) << ">>";
+            if(planes[i]->space != 0)
+                std::cout << std::to_string(planes[i]->space) << ">>";
         }
         std::cout << "\n";
     }
 
-    if(planes[planes.size()-1]->optic->type != "P")
+    if(planes.back()->optic->type != "P")
     {
         std::cout << "Layout error: last plane must be optic type \'P\' (probe)\n";
         return false;
     }
 
-    if(planes[planes.size()-1]->space != 0)
+    if(planes.back()->space != 0)
     {
         std::cout << "Layout error: there should be no space after the last plane\n";
         return false;
     }
 
+    for(size_t i=0; i<planes.size(); ++i)
+    {
+        if(planes[i]->optic->type=="A" && planes[i]->space < (t_max-t_min)*c )
+        {
+            if(planes[i+1]->optic->type != "A")
+            {
+                std::cout << "Layout error: Distance after amplifier optic \"" << planes[i]->optic->id << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m)\n";
+                return false;
+            }
+            std::cout << "Warning: Distance between amplifier sections \"" << planes[i]->optic->id << "\" and " << planes[i+1]->optic->id << "\" is less than pulse time range (" << (t_max-t_min)*c << " m)\n";
+            std::cout << "         pulse at \"" << planes[i+1]->optic->id << "\" will not be saved for corresponding pass\n";
+        }
+    }
+
     // calculate layout plane's "time" (distance from first surface in seconds)
     double time = 0;
-    for(plane_n=0; plane_n<planes.size(); plane_n++)
+    for(size_t i=0; i<planes.size(); ++i)
     {
-        planes[plane_n]->time_from_first_plane = time;
-        time += planes[plane_n]->space / c;
+        planes[i]->time_from_first_plane = time;
+        time += planes[i]->space / c;
     }
 
     return true;

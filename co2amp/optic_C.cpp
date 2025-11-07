@@ -83,13 +83,16 @@ void C::InternalDynamics(double)
 }
 
 
-void C::PulseInteraction(Pulse *pulse, Plane* plane, double time)
+void C::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
 {
+    if(n_min!=0)
+        return;
+
     Debug(2, "Interaction with chirper");
     StatusDisplay(pulse, plane, time, "chirping/de-chirping...");
 
     #pragma omp parallel for // mulithread
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
     {
 
         // this can be used with any chirp profile

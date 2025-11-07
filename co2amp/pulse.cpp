@@ -42,11 +42,13 @@ void Pulse::Initialize()
             configuration_error = true;
             return;
         }
+        /* --moved to LoadPulse()--
         // frequency shift between the central frequency of the pulse (vc)
         // and the central frequency of the calculation grid (v0)
-        for(int x=0; x<x0; x++)
-            for(int n=0; n<n0; n++)
+        for(int x=0; x<x0; ++x)
+            for(int n=0; n<n0; ++n)
                 E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+        */
         return;
     }
 
@@ -90,22 +92,22 @@ void Pulse::Initialize()
         double w0 = std::stod(value);
         Debug(2, "w = " + toExpString(w0) + " m");
         if(beam == "GAUSS")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 2));
         if(beam == "SUPERGAUSS4")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 4));
         if(beam == "SUPERGAUSS6")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 6));
         if(beam == "SUPERGAUSS8")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 8));
         if(beam == "SUPERGAUSS10")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 BeamProfile[x] = exp(-pow(Dr*(0.5+x)/w0, 10));
         if(beam == "FLATTOP")
-            for(int x=0; x<x0; x++)
+            for(int x=0; x<x0; ++x)
                 Dr*(0.5+x)<=w0 ? BeamProfile[x]=1 : BeamProfile[x]=0;
     }
     else if(beam == "FREEFORM")
@@ -122,7 +124,7 @@ void Pulse::Initialize()
         if(debug_level >= 3)
             for(size_t i=0; i<r.size(); i++)
                 std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             BeamProfile[x] = sqrt(Interpolate(&r, &A, Dr*(0.5+x)));
     }
     else
@@ -153,11 +155,11 @@ void Pulse::Initialize()
         if(pulse == "GAUSS")
         {
             double tau = fwhm/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
                 PulseProfile[n] = exp(-pow((t_min+Dt*(0.5+n))/tau, 2));
         }
         if(pulse == "FLATTOP")
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
                 std::abs(t_min+Dt*(0.5+n))<=fwhm ? PulseProfile[n]=1 : PulseProfile[n]=0;
     }
     else if(pulse == "FREEFORM")
@@ -174,7 +176,7 @@ void Pulse::Initialize()
         if(debug_level >= 3)
             for(size_t i=0; i<t.size(); i++)
                 std::cout << toExpString(t[i]) <<  " " << toExpString(A[i]) << std::endl;
-        for(int n=0; n<n0; n++)
+        for(int n=0; n<n0; ++n)
             PulseProfile[n] = sqrt(Interpolate(&t, &A, t_min+Dt*(0.5+n)));
     }
     else
@@ -188,28 +190,28 @@ void Pulse::Initialize()
     Debug(2, "Initializing field array for pulse \'" + this->id + "\'");
 
     // Create 2D array
-    for(int x=0; x<x0; x++)
-        for(int n=0; n<n0; n++)
+    for(int x=0; x<x0; ++x)
+        for(int n=0; n<n0; ++n)
             E[n0*x+n] = BeamProfile[x]*PulseProfile[n];
 
     // frequency shift between central frequency of the pulse (vc)
     // and central frequency of the calculation grid (v0)
-    for(int x=0; x<x0; x++)
-        for(int n=0; n<n0; n++)
+    for(int x=0; x<x0; ++x)
+        for(int n=0; n<n0; ++n)
             E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     // Normalize intensity
     double Energy = 0;
-    for(int n=0; n<n0; n++)
-        for(int x=0; x<x0; x++)
+    for(int n=0; n<n0; ++n)
+        for(int x=0; x<x0; ++x)
             Energy += 2.0 * h * vc
                     * std::norm(E[n0*x+n]) // norm() returns the squared magnitude
                     * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
     double af = sqrt(E0/Energy);
-    for(int n=0; n<n0; n++)
-        for(int x=0; x<x0; x++)
+    for(int n=0; n<n0; ++n)
+        for(int x=0; x<x0; ++x)
             E[n0*x+n] *= af;
 }
 
@@ -233,9 +235,9 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
     if( z==0 || method==0 ) // no propagation - only change calculation grid step
     {
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
             {
                 E1[n0*x+n] = E[n0*x+n];
                 E[n0*x+n] = 0;
@@ -244,7 +246,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
         Debug(2, "propagation: arrays initialized");
 
         #pragma omp parallel for
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
             double r = Dr2*(0.5+x);
 
@@ -259,17 +261,17 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
             double a = r/Dr1 - (x1+0.5);
 
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
                 E[n0*x+n] = E1[n0*x1+n]*(1-a) + E1[n0*x2+n]*a;
         }
     }
 
     else // diffraction propagation
     {
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
             FFT(&E[x*n0], &E1[x*n0]); // time -> frequency domain
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
                 E[n0*x+n] = 0;
         }
 
@@ -292,10 +294,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             if(method == 1)
             {
                 double lambda, k_wave;
-                for(int x1=0; x1<x0; x1++) // input plane
+                for(int x1=0; x1<x0; ++x1) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
-                    for(int n=0; n<n0; n++)
+                    for(int n=0; n<n0; ++n)
                     {
                         lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
@@ -315,13 +317,13 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                 double lambda, k_wave, R, phi, Dphi;
                 double R2, R2max; // R^2
                 std::complex<double> tmp;
-                for(int x1=0; x1<x0; x1++) // input plane
+                for(int x1=0; x1<x0; ++x1) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     //Dphi = M_PI/ceil(M_PI*(x1+0.5));
                     Dphi = 1/ceil(x1+0.5);
                     R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
-                    for(int n=0; n<n0; n++)
+                    for(int n=0; n<n0; ++n)
                     {
                         lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
@@ -344,13 +346,13 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
                 double lambda, k_wave, R, phi, Dphi;
                 double R2, R2max; // R^2
                 std::complex<double> tmp;
-                for(int x1=0; x1<x0; x1++) // input plane
+                for(int x1=0; x1<x0; ++x1) // input plane
                 {
                     r1 = Dr1*(0.5+x1);
                     //Dphi = 1/ceil(x1*x2/x0 * (from->optic->r_max + to->optic->r_max)/z +0.5);
                     Dphi = 1/ceil(x1 * (from->optic->r_max + to->optic->r_max)/z +0.5);
                     R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
-                    for(int n=0; n<n0; n++)
+                    for(int n=0; n<n0; ++n)
                     {
                         lambda = c/(v_min+Dv*(0.5+n));
                         k_wave = 2.0*M_PI/lambda;
@@ -368,10 +370,10 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             }*/
         }
 
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
             IFFT(&E[n0*x], &E1[n0*x]);
-            for(int n=0; n<n0; n++)
+            for(int n=0; n<n0; ++n)
                 E[n0*x+n] = E1[n0*x+n];
         }
 
@@ -395,8 +397,8 @@ void Pulse::SavePulse()
 
     // reverse frequency shift between central frequency of the pulse (vc)
     // and central frequency of the calculation grig (v0)
-    for(int x=0; x<x0; x++)
-        for(int n=0; n<n0; n++)
+    for(int x=0; x<x0; ++x)
+        for(int n=0; n<n0; ++n)
             E1[n0*x+n] = E[n0*x+n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     for(int i=0; i<x0*n0; i++)
@@ -528,10 +530,10 @@ bool Pulse::LoadPulse(std::string filename)
     //double Dt1 = (t_max1-t_min1)/n01;
 
     /*#pragma omp parallel for
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
     {
         double r = Dr*(0.5+x);
-        for(int n=0; n<n0; n++)
+        for(int n=0; n<n0; ++n)
         {
             double t = t_min + Dt*(0.5+n);
             if(r>r_max1 || t<t_min1 || t>t_max1)
@@ -563,6 +565,12 @@ bool Pulse::LoadPulse(std::string filename)
         }
     }*/
 
+    // frequency shift between the central frequency of the pulse (vc)
+    // and the central frequency of the calculation grid (v0)
+    for(int x=0; x<x0; ++x)
+        for(int n=0; n<n0; ++n)
+            E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+
     // ------------------------------------ SUCCESS! ------------------------------------
     Debug(2, "Pulse read from file done!");
     return true;
@@ -577,7 +585,7 @@ void Pulse::SaveBeam()
     /*
     int n_zerotime = 0;
     double zerotime = t_min+Dt*0.5;
-    for(int n=0; n<n0; n++)
+    for(int n=0; n<n0; ++n)
     {
         double t = t_min+Dt*(0.5+n);
         if(fabs(t)<fabs(zerotime))
@@ -594,14 +602,14 @@ void Pulse::SaveBeam()
     std::vector<double> Fluence(x0);
 
     double Fmax = 0;
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
     {
-        for(int n=0; n<n0; n++)
+        for(int n=0; n<n0; ++n)
             Fluence[x] += std::norm(E[n0*x+n]); // a.u.; norm() returns the squared magnitude
         if(Fluence[x] > Fmax)
             Fmax = Fluence[x];
     }
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
         Fluence[x] /= Fmax; // a.u. normalized
 
 

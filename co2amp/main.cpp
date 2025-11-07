@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-11-03";
+    std::string version = "2025-11-07_b";
 
     std::clock_t stopwatch = std::clock();
 
@@ -128,42 +128,123 @@ void Calculations()
 
     std::cout << "*** CALCULATION ***\n";
 
-    //for(double time=0; time<=(planes[planes.size()-1]->time_from_first_plane + pulses[pulses.size()-1]->time_in + time_tick); time+=time_tick)
-    int nsteps = llround( (pulses.back()->time_in + planes.back()->time_from_first_plane) / time_tick ) + 1;
-    //double time = 0;
-    for (int i = 0; i <= nsteps; ++i)
+    // for this section we will call entire pulse time-frame a "pulse"
+    double pulse_duration = t_max - t_min;
+
+    int n_steps = (pulses.back()->time_in + planes.back()->time_from_first_plane + pulse_duration) / time_tick + 1; //rounding toward 0
+
+    for (int i = 0; i < n_steps; ++i)
     {
         double time = i * time_tick;
 
-        /*if(i!=0)
-            time+=time_tick;*/
-
-        //#pragma omp parallel for// multithreaded
-        // (can't go parallel here to avoid nesting: using multithreads inside InternalDynamics functions)
-        for(size_t optic_n=0; optic_n<optics.size(); optic_n++)
+        // Internal dynamics in the optic
+        for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
             optics[optic_n]->InternalDynamics(time);
 
-        for(size_t plane_n=0; plane_n<planes.size(); plane_n++)
+        for(size_t plane_n=0; plane_n<planes.size(); ++plane_n)
         {
-            for(size_t pulse_n=0; pulse_n<pulses.size(); pulse_n++)
+            for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
+            {
+                int n_min=-1, n_max=-1;
+
+                double t0 = time;             // beginning of time tick
+                double t1 = time + time_tick; // end of the time tick
+
+                // moments (in lab time frame) when the pulse enters and exits the plane
+                double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
+                double t_out = t_in + pulse_duration;
+
+                // be careful with comparisons "<" vs "<=" and ">" vs ">="
+                // everything seems to be tuned up 2025-11-06
+                if(t_in>=t0  &&  t_in<t1  &&  t_out<t1) // entire pulse pasees through during the tick
+                {
+                    n_min = 0;
+                    n_max = n0-1;
+                }
+
+                if(t_in>=t0  &&  t_in<t1  &&  t_out>=t1) // pulse enters during the tick, exits later
+                {
+                    n_min = 0;
+                    n_max = (t1 - t_in) / Dt - 1;
+                }
+
+                if(t_in<t0  &&  t_out>=t1) //pulse enters before the tick and exits after
+                {
+                    n_min = (t0 - t_in) / Dt;
+                    n_max = (t1 - t_in) / Dt - 1;
+                }
+
+                if(t_in<t0  &&  t_out>t0  &&  t_out<t1 ) //pulse enters before the tick and exits during the tick
+                {
+                    n_min = (t0 - t_in) / Dt;
+                    n_max = n0-1;
+                }
+
+
+                if(n_min==0 && n_max>=n_min)
+                {
+                    // 1: Propagate beam to(!) this plane
+                    if(plane_n != 0)
+                        pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
+
+                    // 2: Save pulse parameters at plane location (before interaction!!!)
+                    //    only save if distance from previous amplifier is longer than pulse time frame
+                    if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
+                    {
+                        StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
+                        UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
+                    }
+                }
+                if(n_min>=0 && n_max>=n_min)
+                {
+                    // 3: Do Interaction (amplification etc.)
+                    if(plane_n != planes.size()-1) // interact with this palne
+                    {
+                        if(planes[plane_n]->optic->type=="A")
+                            Debug(3, "plane " + std::to_string(plane_n) + "; n_min=" + std::to_string(n_min) + "; n_max=" + std::to_string(n_max));
+                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time, n_min, n_max);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /*int n_steps = llround( (pulses.back()->time_in + planes.back()->time_from_first_plane + t_max-t_min) / time_tick ) + 1;
+
+    for (int i = 0; i < n_steps; ++i)
+    {
+        double time = i * time_tick;
+
+        for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
+            optics[optic_n]->InternalDynamics(time);
+
+        for(size_t plane_n=0; plane_n<planes.size(); ++plane_n)
+        {
+            for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
                 double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_in;
+
                 if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival)
                 {
                     // 1: Propagate beam to(!) this plane
                     if(plane_n != 0)
                         pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
+
                     // 2: Save pulse parameters at plane location (before interaction!!!)
                     StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
+
                     //UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
                     UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time_of_arival);
+
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne
-                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time);
+                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time, 0, n0-1);
                 }
             }
         }
-    }
+    }*/
+
 }
 
 

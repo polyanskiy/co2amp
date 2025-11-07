@@ -125,13 +125,16 @@ void S::InternalDynamics(double)
 }
 
 
-void S::PulseInteraction(Pulse *pulse, Plane* plane, double time)
+void S::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
 {
+    if(n_min!=0)
+        return;
+
     Debug(2, "Interaction with spectral filter");
     StatusDisplay(pulse, plane, time, "spectral filtering...");
 
     #pragma omp parallel for
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
     {
         std::vector<std::complex<double>> E1(n0);
         FFT(&pulse->E[n0*x], E1.data());

@@ -164,7 +164,7 @@ M::M(std::string id)
     for(int i=0; i<slices; i++)
     {
         excited[i] = new double [x0];
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             excited[i][x] = 0;
     }*/
 
@@ -187,8 +187,11 @@ void M::InternalDynamics(double)
 }
 
 
-void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
+void M::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
 {
+    if(n_min!=0)
+        return;
+
     Debug(2, "Interaction with a material");
     StatusDisplay(pulse, plane, time, "material...");
 
@@ -219,7 +222,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time)
     int count = 0;
     int n_peak = 0;
     #pragma omp parallel for
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
     {
         if(debug_level >= 0)
         {

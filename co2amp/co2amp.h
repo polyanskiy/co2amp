@@ -17,8 +17,6 @@
 #include <unordered_map>
 #include <string>
 
-//#include <H5Cpp.h>
-//using namespace H5;
 
 #define I std::complex<double>(0,1)
 
@@ -52,7 +50,7 @@ class Optic
 public:
     Optic(){}
     virtual void InternalDynamics(double){}
-    virtual void PulseInteraction(Pulse*, Plane*, double){}
+    virtual void PulseInteraction(Pulse*, Plane*, double, int, int){}
 
     std::string type;
     std::string id;
@@ -84,7 +82,7 @@ class A: public Optic // Amplifier section
 public:
     A(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
     // -------- CONSTANTS --------
     static constexpr int NumIso = 12; // Number of isotopologues
@@ -123,11 +121,19 @@ private:
                             // "041": combination (201+121+041) vibration @ ~ 2.0 um
                             // "003" overtone pumping @ ~1.4 um
     double pump_wl, pump_sigma; // optical pumping parameters
+
     // ------- SPECTROSCOPY, TEMPERATURES, POPULATIONS ------
 
     std::vector<double> T, e2, e3, e4;
-    std::vector<double> N_gr[NumIso][NumGrp]; // number densities of isotopologues in each group of vibrational levels
-    double nop[NumIso][NumVib][NumRot];       // normalized populations
+
+    // Population number densities (for each coordinate)
+    std::vector<double> N_grp[NumIso][NumGrp];         // Groups of vibrational levels
+    std::vector<double> N_vib[NumIso][NumVib];         // Vibrational levels
+    std::vector<double> N_rot[NumIso][NumVib][NumRot]; // Rotational levels
+
+    // Fractional populations of rotational sublevels
+    // (normalized Boltzmann distribution)
+    double f_rot[NumIso][NumVib][NumRot];
 
     //double *N_rot[NumIso][NumVib][NumRot];
     //double *N_vib[NumIso][NumVib];
@@ -140,6 +146,7 @@ private:
     std::vector<int> j_lo[NumIso];     // rotational quantum number of the lower level of the transition
     //double *gainSpectrum;
     std::vector<double> gainSpectrum;
+    std::vector<std::complex<double>> rho[NumIso];
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024; // Number of points in calculations
@@ -197,7 +204,7 @@ class C: public Optic // Chirp (Stretcher/Compressor)
 public:
     C(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
     std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
     void WriteChirpFile();
@@ -209,7 +216,7 @@ class L: public Optic // Lens
 public:
     L(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
     double F; // focal length, m
 };
 
@@ -219,7 +226,7 @@ class M: public Optic // Matter (window, air)
 public:
     M(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
     // ------- GENERAL -------
     std::string material;
@@ -257,7 +264,7 @@ class F: public Optic // Spatial (ND) filter
 public:
     F(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -269,7 +276,7 @@ class P: public Optic // Probe
 public:
     P(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 };
 
 
@@ -278,7 +285,7 @@ class S: public Optic // Spectral filter
 public:
     S(std::string yaml_path);
     virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();

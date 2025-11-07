@@ -147,9 +147,9 @@ A::A(std::string id)
     // ------- GAS MIXTURE -------
 
     // defaults
-    for(int i=0; i<NumIso; i++)
+    for(int is=0; is<NumIso; ++is)
     {
-        p_iso[i] = 0;
+        p_iso[is] = 0;
     }
     double O16 = 1; // Oxygen-16 content (0..1)
     double O17 = 0; // Oxygen-17 content (0..1)
@@ -286,9 +286,9 @@ A::A(std::string id)
 
         // Total CO2 pressure, bar
         p_CO2 = 0;
-        for(int i=0; i<NumIso; ++i)
+        for(int is=0; is<NumIso; ++is)
         {
-            p_CO2 += p_iso[i];
+            p_CO2 += p_iso[is];
         }
         Debug(2, "(p_CO2 is calculated as a sum of isotopologues)");
     }
@@ -405,15 +405,16 @@ A::A(std::string id)
         std::cout << "  band_hot: " + truefalse + "\n" ;
         truefalse = (band_4um ? +"true" : +"false");
         std::cout << "  band_4um: " + truefalse + "\n" ;
+        std::cout << std::flush;
     }
 
     // ------- MISC INITIALISATIONS -------
 
     // Convert pressures to number densities where needed
     N_CO2 = 2.7e25*p_CO2;
-    for(int i=0; i<NumIso; ++i)
+    for(int is=0; is<NumIso; ++is)
     {
-        N_iso[i] = 2.7e25*p_iso[i];
+        N_iso[is] = 2.7e25*p_iso[is];
     }
 
     // allocate memory
@@ -426,24 +427,53 @@ A::A(std::string id)
     e4.resize(x0);
     T.resize(x0);
 
-    for(int i=0; i<NumIso; ++i) // isotopologues
+    for(int is=0; is<NumIso; ++is) // isotopologues
     {
         for(int gr=0; gr<NumGrp; ++gr) // groups of vib. levels
         {
-            //N_gr[i][gr] = new double[x0];
-            N_gr[i][gr].resize(x0);
+            N_grp[is][gr].resize(x0);
         }
-        /*for(int gr=0; gr<10; ++gr) // groups of vib. levels
+
+        for(int vl=0; vl<NumVib; ++vl) // vibrational levels
         {
-            N_vib[i][gr] = new double[x0];
-        }*/
+            N_vib[is][vl].resize(x0);
+            for(int j=0; j<NumRot; ++j) // rotational levels
+            {
+                N_rot[is][vl][j].resize(x0);
+            }
+
+        }
+
+
     }
+
 
     //gainSpectrum  = new double [n0];
     gainSpectrum.resize(n0);
 
     // Fill out spectroscoic arrays &
     AmplificationBand();
+
+    // Create polarization arrays (must be called after transitions are counted in AmplificationBand()
+    for(int is=0; is<NumIso; ++is)
+    {
+        int n_tr = v[is].size();
+        rho[is].resize(n_tr*x0);
+    }
+
+    // zero-out all rho arrays
+    for (auto& v : rho)
+    {
+        std::fill(v.begin(), v.end(), 0.0);
+    }
+
+    /*for(int is=0; is<NumIso; ++is)
+    {
+        for(size_t i=0; i<rho[is].size(); ++i)
+        {
+            rho[is][i] = 0;
+        }
+    }*/
 
     // Populations and field initialization
     InitializePopulations();

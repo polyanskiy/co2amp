@@ -46,7 +46,7 @@ F::F(std::string id)
         }
         double T = std::stod(value);
         Debug(2, "T = " + toExpString(T));
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             Transmittance[x] = T;
         WriteTransmittanceFile();
         return;
@@ -62,7 +62,7 @@ F::F(std::string id)
         }
         double R = std::stod(value);
         Debug(2, "R = " + toExpString(R) + " m");
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             Transmittance[x] = Dr*(0.5+x)<=R ? 1 : 0;
         WriteTransmittanceFile();
         return;
@@ -77,7 +77,7 @@ F::F(std::string id)
         }
         double R = std::stod(value);
         Debug(2, "R = " + toExpString(R) + " m");
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             Transmittance[x] = Dr*(0.5+x)<=R ? 0 : 1;
         WriteTransmittanceFile();
         return;
@@ -98,7 +98,7 @@ F::F(std::string id)
             w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
 
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
             //Transmittance[x] = Dr*(0.5+x)<=r_min ? 1 : pow(sin(M_PI*(r_max-Dr*(0.5+x))/(2.0*(r_max-r_min))),2);
             if(Dr*(0.5+x)<=R)
@@ -133,7 +133,7 @@ F::F(std::string id)
         }
         double w = std::stod(value);
         Debug(2, "w = " + toExpString(w) + " m");
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
             Transmittance[x] = Dr*(0.5+x)<=R ? 1 : exp(-2.0*pow((Dr*(0.5+x)-R)/w,2));
         WriteTransmittanceFile();
         return;
@@ -157,7 +157,7 @@ F::F(std::string id)
                 std::cout << "  " << toExpString(pos[i]) <<  " " << toExpString(transm[i]) << std::endl;
             }
         }
-        for(int x=0; x<x0; x++)
+        for(int x=0; x<x0; ++x)
         {
                 Transmittance[x] = Interpolate(&pos, &transm, Dr*(0.5+x));
         }
@@ -177,12 +177,15 @@ void F::InternalDynamics(double)
 }
 
 
-void F::PulseInteraction(Pulse *pulse, Plane* plane, double time)
-{
+void F::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+{    
+    if(n_min!=0)
+        return;
+
     Debug(2, "Interaction with spatial filter");
     StatusDisplay(pulse, plane, time, "spatial filtering...");
 
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
         for(int n=0; n<n0; n++)
             pulse->E[n0*x+n] *=  sqrt(Transmittance[x]);
 }
@@ -194,7 +197,7 @@ void F::WriteTransmittanceFile()
 
     file = fopen((id+"_transmittance.dat").c_str(), "w");
     fprintf(file, "#Data format: r[m] transmittance\n");
-    for(int x=0; x<x0; x++)
+    for(int x=0; x<x0; ++x)
         fprintf(file, "%e\t%e\n", Dr*(0.5+x), Transmittance[x]);
 
     fclose(file);
