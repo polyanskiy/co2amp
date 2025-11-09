@@ -108,7 +108,7 @@ void A::InternalDynamics(double time)
         if(pump_level == "002") // excitation via 2nd overtone level @ ~2.2 um
                                 // ! only possible for non-symmetric molecules
         {
-            pump3 = 2*photon_flux * pump_sigma;
+            pump3 = 2 * photon_flux * pump_sigma;
             pump2 = 0;
             pump_gr[4] = pump3;
         }

@@ -145,16 +145,26 @@ void Calculations()
         {
             for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
-                int n_min=-1, n_max=-1;
+                //int n_min=-1, n_max=-1;
 
-                double t0 = time;             // beginning of time tick
-                double t1 = time + time_tick; // end of the time tick
+                double t0 = time_tick * i;
+                double t1 = time_tick * (i+1);
 
                 // moments (in lab time frame) when the pulse enters and exits the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
-                double t_out = t_in + pulse_duration;
+                //double t_out = t_in + pulse_duration;
 
-                // be careful with comparisons "<" vs "<=" and ">" vs ">="
+                // calculation limits for pulse interaction (mainly amplification)
+                int n_min = std::floor((t0 - t_in) / Dt);
+                int n_max = std::floor((t1 - t_in) / Dt) - 1;
+
+                if(n_min < 0 && n_max >= 0)
+                    n_min = 0;
+
+                if(n_max > n0-1 && n_min <= n0-1)
+                    n_max = n0-1;
+
+                /*// be careful with comparisons "<" vs "<=" and ">" vs ">="
                 // everything seems to be tuned up 2025-11-06
                 if(t_in>=t0  &&  t_in<t1  &&  t_out<t1) // entire pulse pasees through during the tick
                 {
@@ -178,25 +188,28 @@ void Calculations()
                 {
                     n_min = (t0 - t_in) / Dt;
                     n_max = n0-1;
-                }
+                }*/
 
-
-                if(n_min==0 && n_max>=n_min)
+                if(0<=n_min && n_min<n0 && 0<=n_max && n_max<n0)
                 {
-                    // 1: Propagate beam to(!) this plane
-                    if(plane_n != 0)
-                        pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
 
-                    // 2: Save pulse parameters at plane location (before interaction!!!)
-                    //    only save if distance from previous amplifier is longer than pulse time frame
-                    if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
+                    //if(n_min==0 && n_max>=n_min)
+                    if(n_min==0)
                     {
-                        StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
-                        UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
+                        // 1: Propagate beam to(!) this plane
+                        if(plane_n != 0)
+                            pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
+
+                        // 2: Save pulse parameters at plane location (before interaction!!!)
+                        //    only save if distance from previous amplifier is longer than pulse time frame
+                        if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
+                        {
+                            StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
+                            UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
+                        }
                     }
-                }
-                if(n_min>=0 && n_max>=n_min)
-                {
+                //if(n_min>=0 && n_max>=n_min)
+                //{
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne
                     {
