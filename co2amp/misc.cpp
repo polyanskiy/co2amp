@@ -184,10 +184,6 @@ void UnwrapPhase(const std::complex<double>* E, double* phase)
                 chirp += phase_step/(2*M_PI)/(t_min+(0.5+n)*Dt);
                 num_steps += 1;
             }
-
-
-            //av_phase_step += phase_step;
-
         }
     }
 
