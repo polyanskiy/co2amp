@@ -8,8 +8,10 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
     Debug(2, "Amplification");
     StatusDisplay(pulse, plane, time, "amplification...");
 
+    flag_interaction = n_max==n0-1 ? false : true;
+
     double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
-    //double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
+    double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
     double gamma = 1 / T2;   // Lorentzian HWHM (for gain spectrum calculation)
 
     // number of ro-vibrational transitions extracted from HITRAN files
@@ -29,8 +31,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
     }
 
     // Pre-calculate re-usable expressios to accelerate computations
-    //double exp_tauR = exp(-Dt/tauR/2); // half-step
-    double exp_T2 = exp(-Dt/T2/2); // half-step
+    double rot_relax = 1.0 - exp(-Dt/tauR/2);// half-step (rotational relaxation during Dt/2)
+    double exp_T2 = exp(-Dt/T2/2); // half-step (polarization dephasing during Dt/2)
     std::vector<std::complex<double>> exp_phase[NumIso]; // half-step
     for(int is=0; is<NumIso; ++is)
     {
@@ -45,16 +47,16 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
     {
         if(debug_level >= 0)
         {
+            std::string tmp_str = "amplification... time " + std::to_string(n_min) + "-"  + std::to_string(n_max) + "; coord ";
             #pragma omp critical
             {
-                StatusDisplay(pulse, plane, time,
-                          "amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
+                StatusDisplay(pulse, plane, time, tmp_str + std::to_string(++count));
+                          //"amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
         }
 
         double N_vib0[NumIso][NumVib];
-        std::vector<double> Dn[NumIso];                   // Population inversions (rotational transitions)
-        //std::vector<std::complex<double>> rho[NumIso];    // Polarizations
+        std::vector<double> Dn[NumIso];               // Population inversions (rotational transitions)
         std::complex<double> E_in;                    // input field (before ampliifcation)
         double delta;                                 // change in population difference
 
@@ -65,28 +67,26 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
             for(int vl=0; vl<NumVib; ++vl)
                 N_vib0[is][vl] = N_vib[is][vl][x];
 
-            /*
-            for(vl=0; vl<NumVib; ++vl)
+            // Initialize populations of rotational sub-leves
+            if(n_min==0)
             {
-                N_vib[is][vl][x] = N_vib0[is][vl]; // initial population densities of vibrational levels
-                for(j=0; j<NumRot; ++j)
+                for(int vl=0; vl<NumVib; ++vl)
                 {
-                    N_rot[is][vl][j][x] = f_rot[is][vl][j] * N_vib[is][vl][x]; // initial population densities of rotational sub-levels
+                    for(int j=0; j<NumRot; ++j)
+                    {
+                        N_rot[is][vl][j][x] = f_rot[is][vl][j] * N_vib0[is][vl]; // initial population densities of rotational sub-levels
+                    }
                 }
             }
-            */
+
 
             // Initialize transition arrays
             for(int tr=0; tr<num_tr[is]; ++tr)
-            {
-                //rho[is].push_back(0);
                 Dn[is].push_back(0);
-            }
 
         }
 
         // Amplification
-        //for(int n=0; n<n0; n++)
         for(int n=n_min; n<=n_max; ++n)
         {
             // shift center frequency to pulse->vc
@@ -130,18 +130,12 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
                 for(int tr=0; tr<num_tr[is]; ++tr)
                 {
                     // Eq 2
-                    /*rho[is][tr] *= exp_T2; // relaxation (half-step 1)
-                    rho[is][tr] *= exp_phase[is][tr]; // phase relaxation (half-step 1)
-                    rho[is][tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*T2)*Dt; // excitation (full step)
-                    rho[is][tr] *= exp_phase[is][tr]; // phase relaxation (half-step 2)
-                    rho[is][tr] *= exp_T2; // relaxation (half-step 2)*/
                     rho[is][num_tr[is]*x+tr] *= exp_T2; // relaxation (half-step 1)
                     rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 1)
                     rho[is][num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*T2)*Dt; // excitation (full step)
                     rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 2)
                     rho[is][num_tr[is]*x+tr] *= exp_T2; // relaxation (half-step 2)
                     // Eq 1
-                    //pulse->E[n0*x+n] -= rho[is][tr] * length;
                     pulse->E[n0*x+n] -= rho[is][num_tr[is]*x+tr] * length;
                 }
             }
@@ -153,13 +147,13 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
                     continue;
 
                 // ROTATIONAL REFILL (half-step 1)
-                /*for(vl=0; vl<NumVib; ++vl)
+                for(int vl=0; vl<NumVib; ++vl)
                 {
-                    for(j=0; j<NumRot; ++j)
+                    for(int j=0; j<NumRot; ++j)
                     {
-                        N_rot[is][vl][j][x] += (f_rot[is][vl][j]*N_vib[is][vl][x] - N_rot[is][vl][j][x]) * (1-exp_tauR);
+                        N_rot[is][vl][j][x] += (f_rot[is][vl][j]*N_vib[is][vl][x] - N_rot[is][vl][j][x]) * rot_relax;
                     }
-                }*/
+                }
 
                 // STIMULATED TRANSITIONS (full step)
                 for(int tr=0; tr<num_tr[is]; ++tr)
@@ -178,13 +172,13 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
                 }
 
                 // ROTATIONAL REFILL (half-step 2)
-                /*for(vl=0; vl<NumVib; vl++)
+                for(int vl=0; vl<NumVib; vl++)
                 {
-                    for(j=0; j<NumRot; ++j)
+                    for(int j=0; j<NumRot; ++j)
                     {
-                        N_rot[is][vl][j][x] += (f_rot[is][vl][j]*N_vib[is][vl][x] - N_rot[is][vl][j][x]) * (1-exp_tauR);
+                        N_rot[is][vl][j][x] += (f_rot[is][vl][j]*N_vib[is][vl][x] - N_rot[is][vl][j][x]) * rot_relax;
                     }
-                }*/
+                }
             }
 
             // shift center frequency back to v0 (center of the calculation grid)

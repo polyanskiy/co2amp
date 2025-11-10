@@ -136,8 +136,12 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     // Phase in the center of the beam!
     std::vector<double> phase(n0);
 
+    UnwrapPhase(E.data()+n0*0, phase.data()); // 0 is x value in the center
+
     // Unwrap the phase in the following (not limit to +/- Pi)
-    double Emax = 0;
+
+
+    /*double Emax = 0;
     for(int n=0; n<n0; ++n)
     {
         Emax = std::max(Emax, std::abs(E[n]));
@@ -181,7 +185,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     for(int n=0; n<n0; ++n)
     {
         phase[n] -= offset;
-    }
+    }*/
 
     // Write phase file
     file = fopen((basename+"_phase.dat").c_str(), "w");

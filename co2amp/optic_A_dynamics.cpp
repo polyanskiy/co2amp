@@ -6,20 +6,13 @@ void A::InternalDynamics(double time)
     if(p_CO2+p_N2+p_He <= 0)
         return;
 
-    //#pragma omp critical
-    {
-        StatusDisplay(nullptr, nullptr, time, "pumping and relaxation...");
-    }
+    StatusDisplay(nullptr, nullptr, time, "molecular dynamics...");
 
     // Thermalization time for semi-population model
     // k = 3.9e6 (s torr)^{-1}   [Finzi & Moore 1975 - https://doi.org/10.1063/1.431678]
-    double tauV = 1e-6 / (3.9*750*p_CO2);                     // intra-mode vibrational thermalization time
-    double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He)); // rotational thermalization time, s
-    //double tauV = 1e-4 / (3.9*750*p_CO2);                     // intra-mode vibrational thermalization time
-    //double tauR = 1e-5 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He)); // rotational thermalization time, s
+    double tauV = 1e-6 / (3.9*750*p_CO2); // intra-mode vibrational thermalization time
     // Pre-calculate re-usable expressions to accelerate computations
     double vib_relax = 1.0 - exp(-time_tick/tauV);
-    double rot_relax = 1.0 - exp(-time_tick/tauR);
 
     double N = 273*(p_CO2+p_N2+p_He)/T0;
 
@@ -41,6 +34,12 @@ void A::InternalDynamics(double time)
 
     // pumping of groups of vibrational levels
     double pump_gr[NumGrp] = {}; // initialized with zeros
+
+    // populations before interaction
+    std::vector<double> N_vib0[NumIso][NumVib];
+    for (int is = 0; is < NumIso; ++is)
+        for (int vl = 0; vl < NumVib; ++vl)
+            N_vib0[is][vl].resize(x0);
 
     if(pumping == "discharge")
     {
@@ -122,24 +121,6 @@ void A::InternalDynamics(double time)
 
     }
 
-    // time of travel from input plane to first interaction with this AM section
-    double time_from_first_plane = 0;
-    for(Plane* plane : planes)
-    {
-        if(plane->optic->id == id)
-        {
-            time_from_first_plane = plane->time_from_first_plane;
-            break;
-        }
-    }
-
-    // time of arraival of first pulse to this AM section
-    double time_of_first_pulse_arrival = 1e12;
-    for(Pulse* pulse : pulses)
-        if(pulse->time_in + time_from_first_plane < time_of_first_pulse_arrival)
-            time_of_first_pulse_arrival = pulse->time_in + time_from_first_plane;
-
-
     #pragma omp parallel for// multithreaded
     for(int x=0; x<x0; ++x)
     {
@@ -186,6 +167,11 @@ void A::InternalDynamics(double time)
         e3[x] += D_e3;
         e4[x] += D_e4;
 
+        // Remember populations of vibrational levels before pulse interaction
+        for(int is=0; is<NumIso; ++is)
+            for(int vl=0; vl<NumVib; ++vl)
+                N_vib0[is][vl][x] = N_vib[is][vl][x];
+
         // In our model 3 groups can be pumped directly in case of optical pumping
         // In othr cases, pump energy first goes to corresponding vibrational modes
         // and then re-distibutes between levels through intramode thermalization
@@ -206,49 +192,38 @@ void A::InternalDynamics(double time)
         double Q = 1 / ( (1-exp(-1920/Temp2))*pow(1-exp(-960/Temp2),2)*(1-exp(-3380/Temp3)) ); // partition function
         double N_grp0; // population of a group of vibrational levels in thermal equilibrium
 
-
         for(int is=0; is<NumIso; ++is)
         {
             // INTRA-MODE THERMALIZATION
             N_grp0 =     N_iso[is]*exp(-3380/Temp3)/Q;                    // 001
             N_grp[is][0][x] += (N_grp0 - N_grp[is][0][x]) * vib_relax;
-            //N_grp[is][0][x] = N_grp0;
 
             N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)/Q;                   // 100 + 020
             N_grp[is][1][x] += (N_grp0 - N_grp[is][1][x]) * vib_relax;
-            //N_grp[is][1][x] = N_grp0;
 
             N_grp0 =     N_iso[is]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;    // 011
             N_grp[is][2][x] += (N_grp0 - N_grp[is][2][x]) * vib_relax;
-            //N_grp[is][2][x] = N_grp0;
 
             N_grp0 = 2 * N_iso[is]*exp(-3*960/Temp2)/Q;                   // 110 + 030
             N_grp[is][3][x] += (N_grp0 - N_grp[is][3][x]) * vib_relax;
-            //N_grp[is][3][x] = N_grp0;
 
             N_grp0 =     N_iso[is]*exp(-2*3380/Temp3)/Q;                  // 002
             N_grp[is][4][x] += (N_grp0 - N_grp[is][4][x]) * vib_relax;
-            //N_grp[is][4][x] = N_grp0;
 
             N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;  // 101 + 021
             N_grp[is][5][x] += (N_grp0 - N_grp[is][5][x]) * vib_relax;
-            //N_grp[is][5][x] = N_grp0;
 
             N_grp0 =     N_iso[is]*exp(-960/Temp2)*exp(-2*3380/Temp3)/Q;  // 012
             N_grp[is][6][x] += (N_grp0 - N_grp[is][6][x]) * vib_relax;
-            //N_grp[is][6][x] = N_grp0;
 
             N_grp0 = 2 * N_iso[is]*exp(-3*960/Temp2)*exp(-3380/Temp3)/Q;  // 111 + 031
             N_grp[is][7][x] += (N_grp0 - N_grp[is][7][x]) * vib_relax;
-            //N_grp[is][7][x] = N_grp0;
 
             N_grp0 =     N_iso[is]*exp(-3*3380/Temp3)/Q;                  // 003
             N_grp[is][8][x] += (N_grp0 - N_grp[is][8][x]) * vib_relax;
-            //N_grp[is][8][x] = N_grp0;
 
             N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;// 102 + 022
             N_grp[is][9][x] += (N_grp0 - N_grp[is][9][x]) * vib_relax;
-            //N_grp[is][9][x] = N_grp0;
 
 
             // UPDATE VIBRATIONAL LEVELS
@@ -278,28 +253,28 @@ void A::InternalDynamics(double time)
             N_vib[is][17][x] = N_grp[is][5][x] / 6;      //                  upper 4um
 
         }
-
     }
 
-    // ROTATIONAL RELAXATION
-    // parallel loop over (i,vl,j) is much faster than over x here
-    #pragma omp parallel for collapse(3)// schedule(static)
-    for (int is = 0; is < NumIso; ++is)
+    // ROTATIONAL LEVELS
+    // we only care about energy distribution between rotational sub-level during the amplification process
+    // (when a pulse is interacting witht the amplifier section)
+    if(flag_interaction == true)
     {
-        for (int vl = 0; vl < NumVib; ++vl)
+        #pragma omp parallel for collapse(3)// schedule(static)
+        for (int is = 0; is < NumIso; ++is)
         {
-            for (int j = 0; j < NumRot; ++j)
+            for (int vl = 0; vl < NumVib; ++vl)
             {
-                //#pragma omp simd
-                for (int x = 0; x < x0; ++x)
+                for (int j = 0; j < NumRot; ++j)
                 {
-                    N_rot[is][vl][j][x] += (f_rot[is][vl][j]*N_vib[is][vl][x] - N_rot[is][vl][j][x]) * rot_relax;
-                    //N_rot[is][vl][j][x] = f_rot[is][vl][j]*N_vib[is][vl][x];
+                    for (int x = 0; x < x0; ++x)
+                    {
+                        N_rot[is][vl][j][x] += f_rot[is][vl][j]*(N_vib[is][vl][x] - N_vib0[is][vl][x]);
+                    }
                 }
             }
         }
     }
-
 
     if(llround(time / time_tick) % save_interval == 0)
     {

@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-11-07_b";
+    std::string version = "2025-11-10_c";
 
     std::clock_t stopwatch = std::clock();
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
     if (command == "" )
     {
-        std::cout << "Input ERROR: Missing command line argument(s)\n";
+        //std::cout << "Input ERROR: Missing command line argument(s)\n";
         std::cout << "Error in command line. Aborting.\n";
         return EXIT_FAILURE;
     }
@@ -135,7 +135,7 @@ void Calculations()
 
     for (int i = 0; i < n_steps; ++i)
     {
-        double time = i * time_tick;
+        double time = time_tick * i;
 
         // Internal dynamics in the optic
         for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
@@ -145,14 +145,11 @@ void Calculations()
         {
             for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
-                //int n_min=-1, n_max=-1;
-
                 double t0 = time_tick * i;
                 double t1 = time_tick * (i+1);
 
-                // moments (in lab time frame) when the pulse enters and exits the plane
+                // moments (in lab time frame) when the pulse enters the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
-                //double t_out = t_in + pulse_duration;
 
                 // calculation limits for pulse interaction (mainly amplification)
                 int n_min = std::floor((t0 - t_in) / Dt);
@@ -164,36 +161,9 @@ void Calculations()
                 if(n_max > n0-1 && n_min <= n0-1)
                     n_max = n0-1;
 
-                /*// be careful with comparisons "<" vs "<=" and ">" vs ">="
-                // everything seems to be tuned up 2025-11-06
-                if(t_in>=t0  &&  t_in<t1  &&  t_out<t1) // entire pulse pasees through during the tick
-                {
-                    n_min = 0;
-                    n_max = n0-1;
-                }
-
-                if(t_in>=t0  &&  t_in<t1  &&  t_out>=t1) // pulse enters during the tick, exits later
-                {
-                    n_min = 0;
-                    n_max = (t1 - t_in) / Dt - 1;
-                }
-
-                if(t_in<t0  &&  t_out>=t1) //pulse enters before the tick and exits after
-                {
-                    n_min = (t0 - t_in) / Dt;
-                    n_max = (t1 - t_in) / Dt - 1;
-                }
-
-                if(t_in<t0  &&  t_out>t0  &&  t_out<t1 ) //pulse enters before the tick and exits during the tick
-                {
-                    n_min = (t0 - t_in) / Dt;
-                    n_max = n0-1;
-                }*/
 
                 if(0<=n_min && n_min<n0 && 0<=n_max && n_max<n0)
                 {
-
-                    //if(n_min==0 && n_max>=n_min)
                     if(n_min==0)
                     {
                         // 1: Propagate beam to(!) this plane
@@ -208,8 +178,7 @@ void Calculations()
                             UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
                         }
                     }
-                //if(n_min>=0 && n_max>=n_min)
-                //{
+
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne
                     {

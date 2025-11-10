@@ -69,34 +69,42 @@ std::string ReadCommandLine(int argc, char **argv)
     
     Debug(1, debug_str);
 
-    if(count == 63) //1+2+4+6+8+16+32 <=> all required calculation parameters provided
+    if(count != 63) //1+2+4+6+8+16+32 <=> not all required calculation parameters provided
     {
-        Dt = (t_max-t_min)/n0;
-        Dv = 1.0/(t_max-t_min);
-        v_min = v0 - 0.5/Dt;
-        //v_max = v0 + 0.5/Dt;
-        return "calc_arguments";
+        std::cout << "Input ERROR: Missing command line argument(s)\n";
+        return "";
     }
 
-    return ""; // something is missing from the command line
+
+    Dt = (t_max-t_min)/n0;
+    Dv = 1.0/(t_max-t_min);
+    v_min = v0 - 0.5/Dt;
+    //v_max = v0 + 0.5/Dt;
+
+    if(time_tick <= Dt)
+    {
+        std::cout << "Lab time tick must be longer than pulse time step (" << Dt << " s)\n";
+        return "";
+    }
+
+    return "calc_arguments";
 }
 
 
 bool ReadConfigFiles(std::string path)
 {
     std::string str, file_content_str, key, value;
-    //std::ifstream in;
     std::istringstream iss, iss2;
 
     Debug(2, "Reading configuration file list \'" + path + "\'");
-    /*in = std::ifstream(path, std::ios::in);
+    /*std::ifstream in = std::ifstream(path, std::ios::in);
     if(in)
     {
         file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         in.close();
     }
     else{
-        std::cout << "Error reading configuration file list \"" + path + "\"\n";
+        std::cout << "Error reading configuration file list \"" << path << "\"\n";
         return false;
     }
     Debug(3, path + " content:\n-------\n" + file_content_str + "\n-------");*/
@@ -105,7 +113,7 @@ bool ReadConfigFiles(std::string path)
 
     if(!YamlReadFile(path, &file_content_str))
     {
-        std::cout << "Error reading configuration file list \"" + path + "\"\n";
+        std::cout << "Error reading configuration file list \"" << path << "\"\n";
         configuration_error = true;
         return false;
     }
@@ -160,17 +168,25 @@ bool ReadConfigFiles(std::string path)
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
-    // ... and then initialize pulses (Rmin of first layout element needed for 'InitializeE')
+    // ... and then initialize pulses (Rmin of first layout element is needed for 'InitializeE')
     for(size_t i=0; i<pulses.size(); ++i)
     {
         pulses[i]->number = i;
         pulses[i]->Initialize();
         if(configuration_error)
             return false;
-        if(i>0 && pulses[i]->time_in < pulses[i-1]->time_in)
+        if(i>0)
         {
-            std::cout << "Arrange pulses in order of injection (smaller \'t_inj\' first)!\n";
-            return false;
+            if(pulses[i]->time_in < pulses[i-1]->time_in)
+            {
+                std::cout << "Arrange pulses in order of injection (smaller \'t_in\' first)!\n";
+                return false;
+            }
+            if(pulses[i]->time_in - pulses[i-1]->time_in < (t_max-t_min))
+            {
+                std::cout << "Error: Delay between pulses \"" << pulses[i-1]->id << "\" and \"" << pulses[i]->id << "\" must be longer than pulse time range (" << (t_max-t_min) << " s)\n";
+                return false;
+            }
         }
     }
 
@@ -326,10 +342,13 @@ bool ReadLayoutConfigFile(std::string path)
         {
             if(planes[i+1]->optic->type != "A")
             {
-                std::cout << "Layout error: Distance after amplifier optic \"" << planes[i]->optic->id << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m)\n";
+                std::cout << "Layout error: Distance after amplifier optic \"" << planes[i]->optic->id
+                          << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m)\n";
                 return false;
             }
-            std::cout << "Warning: Distance between amplifier sections \"" << planes[i]->optic->id << "\" and " << planes[i+1]->optic->id << "\" is less than pulse time range (" << (t_max-t_min)*c << " m)\n";
+            std::cout << "Warning: Distance between amplifier sections \"" << planes[i]->optic->id
+                      << "\" and " << planes[i+1]->optic->id << "\" is less than pulse time range ("
+                      << (t_max-t_min)*c << " m)\n";
             std::cout << "         pulse at \"" << planes[i+1]->optic->id << "\" will not be saved for corresponding pass\n";
         }
     }

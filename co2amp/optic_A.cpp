@@ -8,6 +8,8 @@ A::A(std::string id)
     yaml_path = id + ".yml";
     std::string value="";
 
+    flag_interaction = false;
+
     Debug(1, "*** AMPLIFIER SECTION \'" + id + "\' ***");
 
     Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
@@ -418,10 +420,6 @@ A::A(std::string id)
     }
 
     // allocate memory
-    /*e2 = new double [x0];
-    e3 = new double [x0];
-    e4 = new double [x0];
-    T  = new double [x0];*/
     e2.resize(x0);
     e3.resize(x0);
     e4.resize(x0);
@@ -443,12 +441,8 @@ A::A(std::string id)
             }
 
         }
-
-
     }
 
-
-    //gainSpectrum  = new double [n0];
     gainSpectrum.resize(n0);
 
     // Fill out spectroscoic arrays &
@@ -466,14 +460,6 @@ A::A(std::string id)
     {
         std::fill(v.begin(), v.end(), 0.0);
     }
-
-    /*for(int is=0; is<NumIso; ++is)
-    {
-        for(size_t i=0; i<rho[is].size(); ++i)
-        {
-            rho[is][i] = 0;
-        }
-    }*/
 
     // Populations and field initialization
     InitializePopulations();

@@ -84,6 +84,8 @@ public:
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
+    // ---------- FLAGS ----------
+    bool flag_interaction; // true if a pulse is interacting with the amplifier section
     // -------- CONSTANTS --------
     static constexpr int NumIso = 12; // Number of isotopologues
     static constexpr int NumGrp = 10; // Groups of vibrational levels (for Boltzman distribution calculations)
@@ -135,16 +137,12 @@ private:
     // (normalized Boltzmann distribution)
     double f_rot[NumIso][NumVib][NumRot];
 
-    //double *N_rot[NumIso][NumVib][NumRot];
-    //double *N_vib[NumIso][NumVib];
-
     std::vector<double> v[NumIso];     // transition frequencies, Hz
     std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
     std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
     std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
     std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition
     std::vector<int> j_lo[NumIso];     // rotational quantum number of the lower level of the transition
-    //double *gainSpectrum;
     std::vector<double> gainSpectrum;
     std::vector<std::complex<double>> rho[NumIso];
 
@@ -343,6 +341,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 std::string toString(int num);
 std::string toString(double num);
+void UnwrapPhase(const std::complex<double>* Field, double* Phase);
 
 /////////////////////////// input.cpp ////////////////////////////
 std::string ReadCommandLine(int, char**);
