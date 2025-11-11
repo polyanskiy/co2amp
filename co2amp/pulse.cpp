@@ -223,7 +223,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     double Dr2 = to  ->optic->r_max/x0;
     int count=0;
 
-    if(z==0 && Dr1==Dr2)  //nothing to be done
+    if((z==0 || method==0) && Dr1==Dr2)  //nothing to be done
         return;
 
     StatusDisplay(this, from, time, "propagation...");
@@ -234,7 +234,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     Debug(2, "propagation: temporary field arrays created");
 
     if( z==0 || method==0 ) // no propagation - only change calculation grid step
-    {
+    {   
         for(int x=0; x<x0; ++x)
         {
             for(int n=0; n<n0; ++n)
@@ -430,7 +430,7 @@ bool Pulse::LoadPulse(std::string filename)
     Debug(2, "Reading pulse data from file \'" + filename + "\'");
 
     hid_t file = H5Fopen(filename.c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
-    if(file < 0) //H5Fopen reterns a negative value in case of error
+    if(file < 0) // H5Fopen returns a negative value in case of error
     {
         file = H5Fopen((search_dir+"\\"+filename).c_str(),H5F_ACC_RDONLY, H5P_DEFAULT);
         if(file < 0)

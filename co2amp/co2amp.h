@@ -341,7 +341,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 std::string toString(int num);
 std::string toString(double num);
-void UnwrapPhase(const std::complex<double>* Field, double* Phase);
+void UnwrapPhase(Pulse* pulse, int x, double* phase);
 
 /////////////////////////// input.cpp ////////////////////////////
 std::string ReadCommandLine(int, char**);

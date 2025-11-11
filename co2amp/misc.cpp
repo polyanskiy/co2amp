@@ -142,46 +142,38 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x)
     return 0;
 }
 
-void UnwrapPhase(const std::complex<double>* E, double* phase)
+void UnwrapPhase(Pulse* pulse, int x, double* phase)
 {
+    std::vector<std::complex<double>> E1(n0);
     double Emax = 0;
-    for(int n=0; n<n0; ++n)
-    {
-        Emax = std::max(Emax, std::abs(E[n]));
-    }
-
-    double phase_step;
-    phase[0] = 0;
-
-    //double av_phase_step = 0;
     int num_steps = 0;
-
     double chirp = 0;
 
+    for(int n=0; n<n0; ++n)
+    {
+        // invert shift between v0 and vc
+        E1[n] = pulse->E[n0*x+n] * exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+        // find max field
+        Emax = std::max(Emax, std::abs(E1[n]));
+    }
+
+    // 1st run: rough-estimate and subtract chirp
     for(int n=1; n<n0; ++n)
     {
-        if(std::abs(E[n])/Emax < 1e-4) // remove noise
+        if(std::abs(pulse->E[n0*x+n])/Emax > 1e-2) // only consider intense part of the pulse
         {
-            phase_step = 0;
-        }
-        else
-        {
-            phase_step = arg(E[n]) - arg(E[n-1]);
+            double phase_step = arg(E1[n]) - arg(E1[n-1]);
 
-            phase[n] = phase[n-1] + phase_step;
             if(phase_step < -M_PI)
-            {
                 phase_step += 2*M_PI;
-            }
 
             if(phase_step > M_PI)
-            {
                 phase_step -= 2*M_PI;
-            }
 
-            if((t_min+(0.5+n)*Dt) > Dt)
+            double t = t_min+Dt*(0.5+n);
+            if(t > Dt)
             {
-                chirp += phase_step/(2*M_PI)/(t_min+(0.5+n)*Dt);
+                chirp += phase_step/(2*M_PI) / t / Dt;
                 num_steps += 1;
             }
         }
@@ -189,60 +181,42 @@ void UnwrapPhase(const std::complex<double>* E, double* phase)
 
     if(num_steps>0)
         chirp /= num_steps; // average liniar chirp dν/dt
-    //double chirp = av_phase_step/Dv; //dν/dt*/
 
-
-    std::vector<std::complex<double>> E1;
     for(int n=0; n<n0; ++n)
-        E1[n] = E[n];
-
-
-    std::vector<std::complex<double>> E2(n0); // field in frequency domain
-    FFT(E1.data(), E2.data());
-    for(int n=0; n<n0; n++)
     {
-        double v = v_min+Dv*(0.5+n);
-        v -= v0;//pulse->vc; // relative frequency (v-vc)
-        int n1 = (n<n0/2 ? n+n0/2 : n-n0/2);
-        E2[n1] *= exp(-I*M_PI*v*v/chirp); // remove chirp
+        double t = t_min+Dt*(0.5+n);
+        E1[n] *= exp(-I*M_PI*t*t*chirp); // subtracting chirp
     }
-    IFFT(E2.data(), E1.data());
 
-
-
+    // Rub 2: get unwrapped phase of de-chirped pulse
+    phase[0] = 0;
     for(int n=1; n<n0; ++n)
     {
-            phase_step = arg(E1[n]) - arg(E1[n-1]);
+        double phase_step = arg(E1[n]) - arg(E1[n-1]);
 
-            phase[n] = phase[n-1] + phase_step;
-            if(phase_step < -M_PI)
-            {
-                phase[n] += 2*M_PI;
-            }
+        if(phase_step < -M_PI)
+            phase_step += 2*M_PI;
 
-            if(phase_step > M_PI)
-            {
-                phase[n] -= 2*M_PI;
-            }
+        if(phase_step > M_PI)
+            phase_step -= 2*M_PI;
 
-            phase[n] += (t_min+(0.5+n)*Dt)*chirp;
+        // calculate the phase taking chirp into account
+        double t = t_min+Dt*(0.5+n);
+        phase[n] = phase[n-1] + phase_step + 2*M_PI*chirp*t*Dt;
     }
 
-
-
-    // Phase relative to central time point
+    // Shift phase so that the absolute phase at t=0 is preserved
     double offset;
-    if(t_min<-Dt && t_max>Dt)
+    if(t_min<-Dt && t_max>Dt) // t=0 is within the pulse time range
     {
         int zerotime_n = int(-t_min/Dt);
-        offset = phase[zerotime_n] - std::arg(E[zerotime_n]);
+        offset = phase[zerotime_n] - std::arg(pulse->E[n0*x+zerotime_n]);
     }
-    else
+    else // t=0 is not in the pule time range: use middle point (is this scenario realistic???)
     {
-        offset = phase[n0/2] - arg(E[n0/2]);
+        offset = phase[n0/2] - arg(pulse->E[n0*x+n0/2]);
     }
+
     for(int n=0; n<n0; ++n)
-    {
         phase[n] -= offset;
-    }
 }
