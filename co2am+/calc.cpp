@@ -15,7 +15,6 @@ void MainWindow::Calculate()
     arguments << "-t_min"         << lineEdit_t_min->text();
     arguments << "-t_max"         << lineEdit_t_max->text();
     arguments << "-time_tick"     << lineEdit_time_tick->text();
-    arguments << "-save_interval" << spinBox_save_interval->text();
     arguments << "-method"        << QString::number(comboBox_method->currentIndex());
     arguments << "-search_dir"    << def_dir;
     arguments << "-debug"         << spinBox_debug_level->text();

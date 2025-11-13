@@ -71,11 +71,11 @@ Table \ref{table:levels} lists the vibrational levels included in the model. The
 \multicolumn{5}{c}{\boldmath{$1\,1\,0 + 0\,3\,0$} (Group 3)} \\
 [1.5ex]
 7  & $[1\,1^{1e}0,\,0\,3^{1e}0]_{I}$  & $u$ & 3/16 & 7, 8, 9, 10: lower levels of hot bands \\
-8  & $[1\,1^{1e}0,\,0\,3^{1e}0]_{II}$  & $u$ & 3/16 & 11, 12: not currently included in the  \\
-9  & $[1\,1^{1f}0,\,0\,3^{1f}0]_{I}$  & $u$ & 3/16 & amplification model \\
+8  & $[1\,1^{1e}0,\,0\,3^{1e}0]_{II}$  & $u$ & 3/16 & \\
+9  & $[1\,1^{1f}0,\,0\,3^{1f}0]_{I}$  & $u$ & 3/16 & \\
 10 & $[1\,1^{1f}0,\,0\,3^{1f}0]_{II}$  & $u$ & 3/16 & \\
-11 & $0\,3^{3e}0$  & $u$ & 1/8 & \\
-12 & $0\,3^{3f}0$  & $u$ & 1/8 & \\
+11 & $0\,3^{3e}0$  & $u$ & 1/8 & 11, 12: not currently included in the  \\
+12 & $0\,3^{3f}0$  & $u$ & 1/8 & amplification model \\
 [1.5ex]
 \multicolumn{5}{c}{\boldmath{$0\,0\,2$} (Group 4)} \\
 [1.5ex]
@@ -87,6 +87,19 @@ Table \ref{table:levels} lists the vibrational levels included in the model. The
 15 & $[1\,0^{0}1,\,0\,2^{0}1]_{II}$  & $u$ & 1/3 & 14, 15, 16, 17: upper levels of 4\,µm bands \\
 16 & $0\,2^{2e}1$  & $u$ & 1/6 & \\
 17 & $0\,2^{2f}1$  & $u$ & 1/6 & \\
+\multicolumn{5}{c}{\boldmath{$0\,1\,2$} (Group 6)} \\
+ &  &  &  & Reserved for future use \\
+[1.5ex]
+\multicolumn{5}{c}{\boldmath{$1\,1\,1 + 0\,3\,1$} (Group 7)} \\
+ &  &  &  & Reserved for future use \\
+[1.5ex]
+\multicolumn{5}{c}{\boldmath{$0\,0\,3$} (Group 8)} \\
+[1.5ex]
+ &  &  &  & Reserved for future use \\
+ [1.5ex]
+\multicolumn{5}{c}{\boldmath{$1\,0\,2 + 0\,2\,2$} (Group 9)} \\
+[1.5ex]
+ &  &  &  & Reserved for future use \\
 \hline
 \end{tabular}
 \end{table}
@@ -220,7 +233,7 @@ In the above:
     \]
     \item The \textbf{symmetry} refers to the e/f symmetry labels of the rotational-vibrational levels, which are determined by the coupling of rotational angular momentum \( J \) and vibrational angular momentum \( l \). The e/f labels are adapted from the HITRAN database.
     \item For symmetric isotopologues, the statistical weight \( s(J) \) is 2 for allowed rotational levels due to nuclear spin statistical weights, and 0 for forbidden levels.
-    \item For asymmetric isotopologues, there are no symmetry restrictions due to the lack of identical nuclei, so all rotational levels with \( J \geq l \) are equally populated, and \( s(J) = 1 \).
+    \item For asymmetric isotopologues, there are no symmetry restrictions due to the lack of identical nuclei, so all rotational levels with \( J \geq l \) are populated, and \( s(J) = 1 \).
 \end{itemize}
 
 
@@ -284,7 +297,11 @@ N_{1\,0\,0 + 0\,2\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{
 N_{0\,1\,1}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right), \\
 N_{1\,1\,0 + 0\,3\,0} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{3 \times 960}{T_2}\right), \\
 N_{0\,0\,2}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 3380}{T_3}\right), \\
-N_{1\,0\,1 + 0\,2\,1} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right).
+N_{1\,0\,1 + 0\,2\,1} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right), \\
+N_{0\,1\,2}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{960}{T_2}\right) \exp\left(-\frac{2 \times 3380}{T_3}\right), \\
+N_{1\,1\,1 + 0\,3\,1} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{3 \times 960}{T_2}\right) \exp\left(-\frac{3380}{T_3}\right), \\
+N_{0\,0\,3}           &=   \frac{N}{\mathcal{Q}} \exp\left(-\frac{3 \times 3380}{T_3}\right),\\
+N_{1\,0\,2 + 0\,2\,2} &= 2 \frac{N}{\mathcal{Q}} \exp\left(-\frac{2 \times 960}{T_2}\right) \exp\left(-\frac{2 \times 3380}{T_3}\right).
 \end{aligned}
 \end{equation}
 
@@ -294,13 +311,14 @@ Here, $N$ is the density of \ce{CO2} molecules, and $\mathcal{Q}$ is the partiti
 \frac{1}{\mathcal{Q}} = \left(1-\exp\left(-\frac{1920}{T_2}\right)\right) \cdot \left(1-\exp\left(-\frac{3380}{T_3}\right)\right) \cdot \left(1-\exp\left(-\frac{960}{T_2}\right)\right)^2.
 \end{equation}
 
-The intramode vibrational energy thermalization process is typically very fast. However, if the partial pressure of \ce{CO2} is very low or if the active medium pumping is driven by a very short optical pulse, the finite thermalization time must be considered. The thermalization time, $\tau_V$, for vibrational relaxation of the ($10^01$, $02^01$) levels is adopted from~\cite{Finzi-1975}:
+The intra-mode vibrational energy thermalization process is typically very fast. However, if the partial pressure of \ce{CO2} is very low, or if the active medium is pumped by a very short optical pulse, the finite thermalization time must be considered. The thermalization time, $\tau_V$, is assumed to be the same for all vibrational modes and is adopted from~\cite{Finzi-1975}, where the relaxation time of the $(10^01)$ and $(02^01)$ levels is given as:
 
 \begin{equation}\label{eq:tauV}
-\tau_V [\text{s}] = \frac{10^{-6}}{750 \cdot (3.9 P_{\ce{CO2}})},
+\tau_V~[\mathrm{s}] = \frac{10^{-6}}{750\,(3.9\,P_{\ce{CO2}})},
 \end{equation}
 
-where the pressure $P_{\ce{CO2}}$ is measured in bars. Note that, since intra-mode vibrational energy thermalization involves collisional energy transfer between \ce{CO2} molecules, the thermalization time does not depend on the partial pressures of other gases, such as \ce{He} and \ce{N2}.
+where the pressure $P_{\ce{CO2}}$ is measured in bar. Note that since intra-mode vibrational energy thermalization only involves collisional energy transfer between \ce{CO2} molecules, the thermalization time does not depend on the partial pressures of other gases, such as \ce{He} and \ce{N2}.
+
 
 During pumping and amplification, the populations of vibrational levels are treated independently for each \ce{CO2} isotopologue. Thermalization is then accounted for on the "slow" lab time frame. Due to the lack of data on inter-isotopologue vibrational energy transfer rates and to simplify calculations, the same relaxation time, $\tau_V$, is used for both inter-mode and intra-isotopologue thermalization.
 
@@ -405,11 +423,19 @@ For optical pumping, the pumping rates are calculated using the following expres
 \begin{equation}\label{eq:pumping_rates_optical}
 \begin{aligned}
 &p_{e4} = 0, \\
-&p_{e3} = \Phi \sigma, \\
+&p_{e3} = \begin{cases}
+  \Phi \sigma   & \text{direct excitation of } (00^01) \text{ at } \sim 4.3~\mu\text{m}, \\
+  \Phi \sigma   & \text{excitation via } (10^01, 02^01) \text{ at } \sim 2.8~\mu\text{m}, \\
+  \Phi \sigma   & \text{excitation via } (20^01, 12^01, 04^01) \text{ at } \sim 2.0~\mu\text{m}, \\
+  2 \Phi \sigma & \text{excitation via } (00^02) \text{ at } \sim 2.2~\mu\text{m}, \\
+  3 \Phi \sigma & \text{excitation via } (00^03) \text{ at } \sim 1.4~\mu\text{m}.
+\end{cases} \\
 &p_{e2} = \begin{cases} 
   0             & \text{direct excitation of } (00^01) \text{ at } \sim 4.3~\mu\text{m}, \\
   2 \Phi \sigma & \text{excitation via } (10^01, 02^01) \text{ at } \sim 2.8~\mu\text{m}, \\
-  4 \Phi \sigma & \text{excitation via } (20^01, 12^01, 04^01) \text{ at } \sim 2.0~\mu\text{m}.
+  4 \Phi \sigma & \text{excitation via } (20^01, 12^01, 04^01) \text{ at } \sim 2.0~\mu\text{m}, \\
+  0             & \text{excitation via } (00^02) \text{ at } \sim 2.2~\mu\text{m}, \\
+  0             & \text{excitation via } (00^03) \text{ at } \sim 1.4~\mu\text{m}.
 \end{cases}
 \end{aligned}
 \end{equation}
@@ -518,7 +544,7 @@ I[\text{W/m}^2] = 2 h[\text{J·s}] \nu _c[\text{s}^{-1}] |E|^2
 Dephasing and relaxation times are defined by the following equations:
 \begin{equation}\label{eq:relaxation}
 \begin{aligned}
-&\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.733P_{N2}+0.64P_{He})},\\
+&\tau_2[\text{s}] = \frac{10^{- 6}}{\pi \times 7.61 \times 750 \times (P_{CO2}+0.73P_{N2}+0.64P_{He})},\\
 &\tau _R[\text{s}] = \frac{10^{-7}}{750 \times (1.3P_{CO2}+1.2P_{N2}+0.6P_{He})},
 \end{aligned}
 \end{equation}

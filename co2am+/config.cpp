@@ -16,7 +16,6 @@ void MainWindow::UpdateConfigurationFiles()
     settings.setValue("grid/t_min",          lineEdit_t_min->text());
     settings.setValue("grid/t_max",          lineEdit_t_max->text());
     settings.setValue("grid/time_tick",      lineEdit_time_tick->text());
-    settings.setValue("grid/save_interval",  spinBox_save_interval->text());
     settings.setValue("calc/method",         comboBox_method->currentIndex());
     settings.setValue("plot/optic",          comboBox_optic->currentIndex());
     settings.setValue("plot/pulse",          comboBox_pulse->currentIndex());
@@ -117,9 +116,6 @@ void MainWindow::ReadConfigurationFiles()
     lineEdit_t_min         -> setText        (settings.value("grid/t_min", "-250e-12").toString());
     lineEdit_t_max         -> setText        (settings.value("grid/t_max",  "250e-12").toString());
     lineEdit_time_tick     -> setText        (settings.value("grid/time_tick", "2e-9").toString());
-    spinBox_save_interval  ->blockSignals(true);
-    spinBox_save_interval  -> setValue       (settings.value("grid/save_interval",     1).toInt ());
-    spinBox_save_interval  ->blockSignals(false);
     comboBox_method        -> setCurrentIndex(settings.value("calc/method",         1).toInt());
     comboBox_optic         -> setCurrentIndex(settings.value("plot/optic",          0).toInt());
     comboBox_pulse         -> setCurrentIndex(settings.value("plot/pulse",          0).toInt());

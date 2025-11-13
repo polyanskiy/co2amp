@@ -1,6 +1,6 @@
 # Configuration YAML file, type A
-# - Discahrge pumped active medium -
-# template v.2024-11-21
+# - Discharge pumped active medium -
+# template v.2025-11-12
 
 # Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
@@ -32,16 +32,21 @@ C13: 0
 T0: 300
 
 # Bands included in calculations
-# default: band_reg: true
-#          band_seq: true
-#          band_hot: true
-#          band_4um: false
+band_reg: true
 band_seq: true
 band_hot: true
+band_4um: false
+
+# Molecular dynamics save interval (s)
+# (distance between points in pumping and molecular dynamics data files)
+save_interval: 1e-9
 
 # Pumping type (discharge/optical)
 pumping: discharge
 ############ if pumping == discharge ############
+# Time (s) between re-solving Boltzmann equation for discharge energy deposition channels
+# (linear interpolation is used between solutions)
+solve_interval: 25e-9
 # Discharge volume (m^3)
 Vd: 8.5e-3
 # Inter-electrode distance (m)

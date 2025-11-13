@@ -337,13 +337,13 @@ where \(I\) and \(\Theta\) are the intensity before the \texttt{optic} and the a
 \begin{equation}
  \begin{aligned}
   &\widehat{E}'(\nu,\rho) = \mathcal{F}(E'(t,\rho))\\
-  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (2 \pi i \Delta \nu) \sqrt{\exp(-\alpha_0 \Theta_{\text{eff}})}\\
+  &\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp (i \Delta \phi) \sqrt{\exp(-\alpha_0 \Theta_{\text{eff}})}\\
   &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
  \end{aligned}
 \end{equation}
-where \(\Delta \nu\) is defined as:
+where the phase shift \(\Delta \phi\) is defined as:
 \begin{equation}\label{eq:Delta_nu_disp}
- \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
+ \Delta \phi = 2 \pi \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
 \end{equation}
 \begin{equation}
  \frac{dt}{d\nu'} = \frac{\Theta_{\text{eff}}}{c} \frac{dn_{g}}{d\nu'},
@@ -385,30 +385,32 @@ A \textit{Chirper} introduces a chirp to a pulse and is typically used to model 
 \begin{equation}
 \begin{aligned}
 &\widehat{E}'(\nu,\rho) = \mathcal{F}(E'(t,\rho))\\
-&\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp(2 \pi i \Delta\nu)\\
+&\widehat{E}(\nu,\rho) = \widehat{E}'(\nu,\rho) \exp(i \Delta\phi)\\
 &E(t,\rho) = \mathcal{F}^{-1}(\widehat{E}(\nu,\rho))
 \end{aligned}
 \end{equation}
 where 
 \begin{equation}\label{eq:Delta_nu_chirp}
- \Delta \nu = \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu',
+ \Delta \phi = 2 \pi \int_0^{\nu} (\nu'-\nu_c) \frac{dt}{d\nu'} d\nu'
 \end{equation}
-\(\nu_c\) is the central frequency, and \(\frac{d\nu}{dt}\) is the chirpyness.
+is the phase shift, \(\nu_c\) is the central frequency, and \(\frac{d\nu}{dt}\) is the chirp rate.
 
-In the case of linear chirp, the chirpyness is constant, and Eq.~\ref{eq:Delta_nu_chirp} simplifies to:
+In the case of linear chirp, the chirp rate is constant, and Eq.~\ref{eq:Delta_nu_chirp} simplifies to:
 
 \begin{equation}
 \begin{aligned}
-&\Delta \nu = \int_0^{\nu} \frac{\nu'-\nu_c}{\mathcal{C}} d\nu' = \frac{(\nu-\nu_c)^2}{2\mathcal{C}}\\
+&\Delta \phi = 2 \pi \int_0^{\nu} \frac{\nu'-\nu_c}{\mathcal{C}} d\nu' = \pi \frac{(\nu-\nu_c)^2}{\mathcal{C}}\\
 &\mathcal{C} = \frac{d\nu}{dt}
 \end{aligned}
 \end{equation}
+
+Positive chirp rate corresponds to a red chirp of the pulse.
 
 An example configuration for a \textit{Chirper} with linear chirp is shown below:
 
 \begin{verbatim}
 #=========================
-# stretcher (positive chirpyness => red chirp)
+# stretcher (positive chirp <=> red chirp)
 
 semiDia: 25e-3
 
@@ -416,6 +418,4 @@ chirp: LINEAR
 c: 3.5e21
 #=========================
 \end{verbatim}
-
-Currently, only linear chirp is supported in the program.
 

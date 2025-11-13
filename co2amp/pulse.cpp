@@ -263,6 +263,21 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
 
             for(int n=0; n<n0; ++n)
                 E[n0*x+n] = E1[n0*x1+n]*(1-a) + E1[n0*x2+n]*a;
+
+            // attempt to interpolate amplitude and phase independently
+            // not working properly as of now
+            /*double ampl, phase;
+            std::vector<double> phase_x1(n0);
+            std::vector<double> phase_x2(n0);
+            UnwrapPhase(this, x1, phase_x1.data());
+            UnwrapPhase(this, x2, phase_x2.data());
+
+            for(int n=0; n<n0; ++n)
+            {
+                ampl  = std::abs(E1[n0*x1+n])*(1-a) + std::abs(E1[n0*x2+n])*a;
+                phase = phase_x1[n]*(1-a) + phase_x2[n]*a;
+                E[n0*x+n] = ampl * exp(I*phase);
+            }*/
         }
     }
 

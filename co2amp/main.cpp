@@ -13,7 +13,6 @@ double v0;                 // central frequency of the calculation grid
 double t_min, t_max;       // pulse (fast) time limits
 double time_tick;          // main (slow) time step
 int x0, n0;                // number of points in radial and time grids
-int save_interval;         // # of ticks between data entries in dynamics files
 // --- CALCULATED GRID PARAMETERS --
 // *** Be very careful not to confuse limits and values in the outer bins of the grid ***
 // t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
@@ -35,7 +34,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-11-10";
+    std::string version = "2025-11-13";
 
     std::clock_t stopwatch = std::clock();
 
@@ -49,7 +48,6 @@ int main(int argc, char **argv)
 
     if (command == "" )
     {
-        //std::cout << "Input ERROR: Missing command line argument(s)\n";
         std::cout << "Error in command line. Aborting.\n";
         return EXIT_FAILURE;
     }
@@ -160,7 +158,6 @@ void Calculations()
 
                 if(n_max > n0-1 && n_min <= n0-1)
                     n_max = n0-1;
-
 
                 if(0<=n_min && n_min<n0 && 0<=n_max && n_max<n0)
                 {

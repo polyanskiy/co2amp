@@ -43,23 +43,22 @@ void A::InternalDynamics(double time)
 
     if(pumping == "discharge")
     {
-        // re-solve Boltzmann equation every 25 ns, use linear interpolation otherwise
+        // re-solve Boltzmann equation periodically, use linear interpolation otherwise
         // 'Slow' calculations of discharge energy deposition coefficients q
-        // are done for time_a and time_b separated by 25ns step.
+        // are done for time_a and time_b separated by solve_interval.
         // time_a is before the current calculation time and time_b is after
         // Linear interpolation is used to approximate energy deposition in any time between time_a and time_b
-        // When time moves to after time_b, time_b is moved forward by 25 ns and time_a becomes time_b
+        // When time moves to after time_b, time_b is moved forward by solve_interval and time_a becomes time_b
         // q's are then calculated for the new time_b
-        double step = 25e-9;
+        //double step = 25e-9;
         if(time >= time_b) // MUST be called at time==0 !!!
         {
-            //std::cout << std::endl;
             q2_a = q2_b;
             q3_a = q3_b;
             q4_a = q4_b;
             qT_a = qT_b;
             time_a = time_b;
-            time_b += step;
+            time_b += solve_interval;
             Boltzmann(time_b);
             q2_b = q2;
             q3_b = q3;
@@ -225,7 +224,6 @@ void A::InternalDynamics(double time)
             N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;// 102 + 022
             N_grp[is][9][x] += (N_grp0 - N_grp[is][9][x]) * vib_relax;
 
-
             // UPDATE VIBRATIONAL LEVELS
             // 001 (Group 0)
             N_vib[is][0][x]  = N_grp[is][0][x];          // upper reg
@@ -276,7 +274,10 @@ void A::InternalDynamics(double time)
         }
     }
 
-    if(llround(time / time_tick) % save_interval == 0)
+
+    // Update pumping and molecular dynamics files if time is around an integer number of save intervals
+    int save_number = llround(time / save_interval); // number of point to be saved around the current time
+    if( time-time_tick/2 <= save_interval*save_number && save_interval*save_number < time+time_tick/2 )
     {
         UpdateDynamicsFiles(time);
     }

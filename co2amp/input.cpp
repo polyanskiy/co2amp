@@ -9,7 +9,6 @@ std::string ReadCommandLine(int argc, char **argv)
     t_min = -1;        // Pulse time calculation limit, s
     t_max = -1;        // Pulse shift from 0, s
     time_tick = -1;    // Time step for main (slow) time, s
-    save_interval = 1; // # of ticks between data entries in dynamics files
     method = 1;        // Fresnell diffraction with cylindrical symmetry
     debug_level = 1;   // Only the debugging info relevant for user
     search_dir = "";   // Additional directory for HDF5 pulse files
@@ -57,8 +56,6 @@ std::string ReadCommandLine(int argc, char **argv)
             count = count | 32;
         }
         // Optional parameters
-        if (!strcmp(argv[i], "-save_interval"))
-            save_interval = atof(argv[i+1]);
         if (!strcmp(argv[i], "-method"))
             method = atoi(argv[i+1]);
         if (!strcmp(argv[i], "-debug"))
@@ -75,11 +72,10 @@ std::string ReadCommandLine(int argc, char **argv)
         return "";
     }
 
-
     Dt = (t_max-t_min)/n0;
     Dv = 1.0/(t_max-t_min);
     v_min = v0 - 0.5/Dt;
-    //v_max = v0 + 0.5/Dt;
+    //v_max = v0 + 0.5/Dt; // not used - keep for future reference
 
     if(time_tick <= Dt)
     {
@@ -97,19 +93,6 @@ bool ReadConfigFiles(std::string path)
     std::istringstream iss, iss2;
 
     Debug(2, "Reading configuration file list \'" + path + "\'");
-    /*std::ifstream in = std::ifstream(path, std::ios::in);
-    if(in)
-    {
-        file_content_str = std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-        in.close();
-    }
-    else{
-        std::cout << "Error reading configuration file list \"" << path << "\"\n";
-        return false;
-    }
-    Debug(3, path + " content:\n-------\n" + file_content_str + "\n-------");*/
-
-    //std::string file_content_str="";
 
     if(!YamlReadFile(path, &file_content_str))
     {

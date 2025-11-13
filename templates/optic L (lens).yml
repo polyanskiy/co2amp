@@ -1,9 +1,10 @@
 # Configuration YAML file, type L
 # - Lens -
-# template v.2020-05-25
+# template v.2025-11-12
 
 # Semi-diameter of the limiting aperture, m
 semiDia: 25e-3
 
 # Focal length, m
+# 0 = infinity
 F: 1.0

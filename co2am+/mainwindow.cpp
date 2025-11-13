@@ -52,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent)
     comboBox_size      -> setCurrentIndex(settings.value("plot_size",      0).toInt());
     spinBox_width      -> setValue       (settings.value("plot_width",  1600).toInt());
     spinBox_height     -> setValue       (settings.value("plot_height", 1200).toInt());
-    //doubleSpinBox_zoom -> setValue       (settings.value("plot_zoom",    1.0).toFloat());
     checkBox_grid      -> setChecked     (settings.value("plot_grid",      1).toBool());
     checkBox_labels    -> setChecked     (settings.value("plot_labels",    1).toBool());
     tabWidget_main     -> setCurrentIndex(0); // always set to input tab

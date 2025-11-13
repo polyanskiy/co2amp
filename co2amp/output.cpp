@@ -138,55 +138,6 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
 
     UnwrapPhase(pulse, 0, phase.data()); // 0 is x value in the center
 
-    // Unwrap the phase in the following (not limit to +/- Pi)
-
-
-    /*double Emax = 0;
-    for(int n=0; n<n0; ++n)
-    {
-        Emax = std::max(Emax, std::abs(E[n]));
-    }
-
-    double phase_step;
-    phase[0] = 0;
-    for(int n=1; n<n0; ++n)
-    {
-        if(std::abs(E[n])/Emax < 1e-4) // remove noise
-        {
-            phase_step = 0;
-        }
-        else
-        {
-            phase_step = arg(E[n]) - arg(E[n-1]);
-        }
-
-        phase[n] = phase[n-1] + phase_step;
-        if(phase_step < -M_PI)
-        {
-            phase[n] += 2*M_PI;
-        }
-
-        if(phase_step > M_PI)
-        {
-            phase[n] -= 2*M_PI;
-        }
-    }
-
-    // Phase relative to central time point
-    double offset;
-    if(t_min<-Dt && t_max>Dt)
-    {
-        offset = phase[-t_min/Dt] - arg(E[-t_min/Dt]);
-    }
-    else
-    {
-        offset = phase[n0/2] - arg(E[n0/2]);
-    }
-    for(int n=0; n<n0; ++n)
-    {
-        phase[n] -= offset;
-    }*/
-
     // Write phase file
     file = fopen((basename+"_phase.dat").c_str(), "w");
     fprintf(file, "#Data format: Time[s] Phase[rad]\n");

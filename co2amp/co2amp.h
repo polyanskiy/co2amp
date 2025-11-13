@@ -104,7 +104,9 @@ private:
     bool band_hot;
     bool band_4um;
     // --------- PUMPING ---------
-    std::string pumping; // pumping type ("discharge" or "optical")
+    std::string pumping;   // pumping type ("discharge" or "optical")
+    double save_interval;  // interval between data entries in pumping and population dynamics files (default 1e-9 s)
+    double solve_interval; // interval between re-solving Boltzman equation (efault 25e-9 s)
     // for discharge
     std::vector<double> discharge_time;
     std::vector<double> discharge_voltage;
@@ -147,19 +149,11 @@ private:
     std::vector<std::complex<double>> rho[NumIso];
 
     // -------- BOLTZMANN --------
-    static constexpr int b0 = 1024; // Number of points in calculations
-    //int b0;
+    static constexpr int b0 = 1024;  // Number of points in calculations
     double E_over_N;
     double Y1, Y2, Y3;
     double Du;
     double M1, M2, M3, C1, C2, B;
-    /*double *u;
-    double *Q;
-    double *Qm1, *Qm2, *Qm3;
-    double **Q1, **Q2;
-    double u1[11], u2[16];
-    double **M;
-    double *f;*/
     double u[b0];
     double Q[b0];
     double Qm1[b0], Qm2[b0], Qm3[b0];
@@ -304,7 +298,6 @@ extern double v0;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
 extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
-extern int save_interval;         // # of ticks between data entries in dynamics files
 // --- CALCULATED GRID PARAMETERS --
 // *** Be very careful not to confuse limits and values in the outer bins of the grid ***
 // t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
@@ -356,9 +349,6 @@ void SaveOutputField(void);
 void FFT(std::complex<double> *in, std::complex<double> *out);
 void IFFT(std::complex<double> *in, std::complex<double> *out);
 void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert);
-//void FFTCore(std::complex<double> *out, bool Invert);
 int BitReversal(int x);
-//void Rearrange(std::complex<double> *in, std::complex<double> *out);
-
 
 #endif // CO2AMP_H

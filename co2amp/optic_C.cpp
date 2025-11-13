@@ -33,7 +33,7 @@ C::C(std::string id)
         return;
     }
     std::string chirp_type = value;
-    Debug(2, "chirp = " + chirp_type);
+    Debug(2, "chirp (chirp type) = " + chirp_type);
 
     Chirp.resize(n0);
 
@@ -94,7 +94,6 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int
     #pragma omp parallel for // mulithread
     for(int x=0; x<x0; ++x)
     {
-
         // this can be used with any chirp profile
         double v;
         double phase_shift = 0;
@@ -125,7 +124,7 @@ void C::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int
         }
         IFFT(E1.data(), &pulse->E[n0*x]);*/
 
-        // supposed to work with linear chirp (but doesn't)
+        // this only imposes a chirp on the phase in time domain - pulse is not stretched
         /*double t;
         double chirp = Chirp[0];
         for(int n=0; n<n0; n++)

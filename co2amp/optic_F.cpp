@@ -32,12 +32,12 @@ F::F(std::string id)
         configuration_error = true;
         return;
     }
-    std::string filter = value;
-    Debug(2, "filter = " + filter);
+    std::string filter_type = value;
+    Debug(2, "filter (filter type) = " + filter_type);
 
     Transmittance = new double[x0];
 
-    if(filter == "ND")
+    if(filter_type == "ND")
     {
         if(!YamlGetValue(&value, &yaml_content, "T"))
         {
@@ -53,7 +53,7 @@ F::F(std::string id)
     }
 
     // APERTURE is useful when we don't want to resample the beam (keep semiDia)
-    if(filter == "APERTURE")
+    if(filter_type == "APERTURE")
     {
         if(!YamlGetValue(&value, &yaml_content, "R"))
         {
@@ -68,7 +68,7 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "MASK")
+    if(filter_type == "MASK")
     {
         if(!YamlGetValue(&value, &yaml_content, "R"))
         {
@@ -83,7 +83,7 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "SIN")
+    if(filter_type == "SIN")
     {
         if(!YamlGetValue(&value, &yaml_content, "R"))
         {
@@ -117,7 +117,7 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "GAUSS")
+    if(filter_type == "GAUSS")
     {
         if(!YamlGetValue(&value, &yaml_content, "R"))
         {
@@ -139,7 +139,7 @@ F::F(std::string id)
         return;
     }
 
-    if(filter == "FREEFORM")
+    if(filter_type == "FREEFORM")
     {
         std::vector<double> pos;
         std::vector<double> transm;

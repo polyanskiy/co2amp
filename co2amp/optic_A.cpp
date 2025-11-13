@@ -41,6 +41,15 @@ A::A(std::string id)
 
 
     // ------- PUMPING -------
+
+    // Number of lab time ticks between data entries in pumping and population dynamics files
+    save_interval = 1e-9;
+    if(YamlGetValue(&value, &yaml_content, "save_interval", false))
+    {
+        save_interval = std::stod(value);
+    }
+    Debug(2, "save_interval = " + toExpString(save_interval) + " lab time ticks");
+
     // pumping type (must be "discharge" or "optical")
     if(!YamlGetValue(&value, &yaml_content, "pumping"))
     {
@@ -58,6 +67,16 @@ A::A(std::string id)
 
     if(pumping == "discharge")
     {
+        // Time between re-solving Boltzmann equation for determining pump energy distribution
+        // (slow calculation because cannot be parallelized)
+        // between solutions, linear interpolation is applied to estimate 'q' coefficients
+        solve_interval = 25e-9;
+        if(YamlGetValue(&value, &yaml_content, "solve_interval", false))
+        {
+            solve_interval = std::stod(value);
+        }
+        Debug(2, "solve_interval = " + toExpString(solve_interval) + " s (interval between re-solving Boltzmann equation)");
+
         if(!YamlGetValue(&value, &yaml_content, "Vd"))
         {
             configuration_error = true;

@@ -32,13 +32,13 @@ S::S(std::string id)
         configuration_error = true;
         return;
     }
-    std::string filter = value;
-    Debug(2, "filter = " + filter);
+    std::string filter_type = value;
+    Debug(2, "filter (filter type) = " + filter_type);
 
     //Transmittance = new double[n0];
     std::vector<double> Transmittance(n0);
 
-    if(filter == "HIGHPASS")
+    if(filter_type == "HIGHPASS")
     {
         if(!YamlGetValue(&value, &yaml_content, "cutoff"))
         {
@@ -54,7 +54,7 @@ S::S(std::string id)
         return;
     }
 
-    if(filter == "LOWPASS"){
+    if(filter_type == "LOWPASS"){
         if(!YamlGetValue(&value, &yaml_content, "cutoff"))
         {
             configuration_error = true;
@@ -69,7 +69,7 @@ S::S(std::string id)
         return;
     }
 
-    if(filter == "BANDPASS"){
+    if(filter_type == "BANDPASS"){
         if(!YamlGetValue(&value, &yaml_content, "cutoff_lo"))
         {
             configuration_error = true;
@@ -92,7 +92,7 @@ S::S(std::string id)
         return;
     }
 
-    if(filter == "FREEFORM")
+    if(filter_type == "FREEFORM")
     {
         std::vector<double> nu;
         std::vector<double> transm;
