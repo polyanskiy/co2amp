@@ -12,6 +12,7 @@ SOURCES += \
     input.cpp \
     main.cpp \
     misc.cpp \
+    optic.cpp \
     optic_A.cpp \
     optic_A_amplification.cpp \
     optic_A_band.cpp \

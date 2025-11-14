@@ -50,71 +50,29 @@ pump_level: 021
 pump_wl: 2.68e-6
 # Optical pumping sbsorption cross-section (m^2)
 pump_sigma: 4e-24
-# Optical pumping pulse profile (s W/m^2)
-pump_pulse: |
-    0.000E+00 8.586E+05
-    6.103E-09 1.663E+06
-    1.221E-08 3.155E+06
-    1.831E-08 5.863E+06
-    2.441E-08 1.067E+07
-    3.052E-08 1.903E+07
-    3.662E-08 3.325E+07
-    4.272E-08 5.689E+07
-    4.883E-08 9.534E+07
-    5.493E-08 1.565E+08
-    6.104E-08 2.517E+08
-    6.714E-08 3.966E+08
-    7.324E-08 6.119E+08
-    7.935E-08 9.250E+08
-    8.545E-08 1.370E+09
-    9.155E-08 1.986E+09
-    9.766E-08 2.822E+09
-    1.038E-07 3.928E+09
-    1.099E-07 5.354E+09
-    1.160E-07 7.150E+09
-    1.221E-07 9.353E+09
-    1.282E-07 1.198E+10
-    1.343E-07 1.504E+10
-    1.404E-07 1.849E+10
-    1.465E-07 2.227E+10
-    1.526E-07 2.627E+10
-    1.587E-07 3.036E+10
-    1.648E-07 3.437E+10
-    1.709E-07 3.811E+10
-    1.770E-07 4.139E+10
-    1.831E-07 4.403E+10
-    1.892E-07 4.589E+10
-    1.953E-07 4.685E+10
-    2.014E-07 4.685E+10
-    2.075E-07 4.589E+10
-    2.136E-07 4.403E+10
-    2.197E-07 4.139E+10
-    2.258E-07 3.811E+10
-    2.319E-07 3.437E+10
-    2.380E-07 3.036E+10
-    2.441E-07 2.627E+10
-    2.502E-07 2.227E+10
-    2.563E-07 1.849E+10
-    2.625E-07 1.504E+10
-    2.686E-07 1.198E+10
-    2.747E-07 9.353E+09
-    2.808E-07 7.150E+09
-    2.869E-07 5.354E+09
-    2.930E-07 3.928E+09
-    2.991E-07 2.822E+09
-    3.052E-07 1.986E+09
-    3.113E-07 1.370E+09
-    3.174E-07 9.250E+08
-    3.235E-07 6.119E+08
-    3.296E-07 3.966E+08
-    3.357E-07 2.517E+08
-    3.418E-07 1.565E+08
-    3.479E-07 9.534E+07
-    3.540E-07 5.689E+07
-    3.601E-07 3.325E+07
-    3.662E-07 1.903E+07
-    3.723E-07 1.067E+07
-    3.784E-07 5.863E+06
-    3.845E-07 3.155E+06
-    3.906E-07 1.663E+06
-    3.967E-07 8.586E+05
+
+
+
+# Optical pumping beam profile (GAUSS/SUPERGAUSS4/SUPERGAUSS6/SUPERGAUSS8/SUPERGAUSS10/FLATTOP/FREEFORM)
+pump_beam: GAUSS
+# if beam == GAUSS or SUPERGAUSS or FLATTOP: beam radius @ 1/e^2, m
+w: 10e-3
+# if beam == FREEFORM: tabulated beam profile
+# format: r I (radial coordinate, m and relative intensity)
+#beam_form: |
+#    00e-3 1.0
+#    05e-3 0.8
+#    10e-3 0.1
+#    15e-3 0.0
+
+# Optical pumping pulse profile (GAUSS/FLATTOP/FREEFORM)
+pump_pulse: FREEFORM
+# if pump_pulse == GAUSS or FLATTOP: pulse duration (FWHM) and center position, s
+#fwhm: 20e-9
+#t0: 50e-9
+# if pulse == FREEFORM: tabulated pulse profile
+# format: t I (time, s and relative intensity)
+pulse_form: |
+    0 1.0
+    19.999e-9 1.0
+    20.001e-9 0

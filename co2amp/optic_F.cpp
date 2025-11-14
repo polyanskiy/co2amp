@@ -1,14 +1,15 @@
 #include "co2amp.h"
 
 
-F::F(std::string id)
+//F::F(std::string id)
+void F::Initialize()
 {  
-    this->id = id;
-    type = "F";
-    yaml_path = id + ".yml";
+    //this->id = id;
+    //type = "F";
+    //yaml_path = id + ".yml";
     std::string value="";
 
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+    /*Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
 
     if(!YamlReadFile(yaml_path, &yaml_content))
     {
@@ -24,7 +25,7 @@ F::F(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;
+    Dr = r_max/x0;*/
 
     // filter type
     if(!YamlGetValue(&value, &yaml_content, "filter"))

@@ -42,13 +42,6 @@ void Pulse::Initialize()
             configuration_error = true;
             return;
         }
-        /* --moved to LoadPulse()--
-        // frequency shift between the central frequency of the pulse (vc)
-        // and the central frequency of the calculation grid (v0)
-        for(int x=0; x<x0; ++x)
-            for(int n=0; n<n0; ++n)
-                E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
-        */
         return;
     }
 

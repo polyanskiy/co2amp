@@ -129,11 +129,12 @@ void Calculations()
     // for this section we will call entire pulse time-frame a "pulse"
     double pulse_duration = t_max - t_min;
 
-    int n_steps = (pulses.back()->time_in + planes.back()->time_from_first_plane + pulse_duration) / time_tick + 1; //rounding toward 0
+    int n_ticks = (pulses.back()->time_in + planes.back()->time_from_first_plane + pulse_duration) / time_tick + 1; //rounding toward 0
 
-    for (int i = 0; i < n_steps; ++i)
+    for (int i = 0; i < n_ticks; ++i)
     {
-        double time = time_tick * i;
+        //double time = time_tick * i;
+        double time = time_tick * (0.5+i);
 
         // Internal dynamics in the optic
         for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
@@ -143,8 +144,10 @@ void Calculations()
         {
             for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
-                double t0 = time_tick * i;
-                double t1 = time_tick * (i+1);
+                //double t0 = time_tick * i;
+                //double t1 = time_tick * (i+1);
+                double t0 = time_tick * (0.5+i);
+                double t1 = time_tick * (1.5+i);
 
                 // moments (in lab time frame) when the pulse enters the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
@@ -187,42 +190,6 @@ void Calculations()
             }
         }
     }
-
-
-    /*int n_steps = llround( (pulses.back()->time_in + planes.back()->time_from_first_plane + t_max-t_min) / time_tick ) + 1;
-
-    for (int i = 0; i < n_steps; ++i)
-    {
-        double time = i * time_tick;
-
-        for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
-            optics[optic_n]->InternalDynamics(time);
-
-        for(size_t plane_n=0; plane_n<planes.size(); ++plane_n)
-        {
-            for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
-            {
-                double time_of_arival = planes[plane_n]->time_from_first_plane + pulses[pulse_n]->time_in;
-
-                if(time-time_tick/2 < time_of_arival && time+time_tick/2 >= time_of_arival)
-                {
-                    // 1: Propagate beam to(!) this plane
-                    if(plane_n != 0)
-                        pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
-
-                    // 2: Save pulse parameters at plane location (before interaction!!!)
-                    StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
-
-                    //UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time);
-                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], time_of_arival);
-
-                    // 3: Do Interaction (amplification etc.)
-                    if(plane_n != planes.size()-1) // interact with this palne
-                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time, 0, n0-1);
-                }
-            }
-        }
-    }*/
 
 }
 

@@ -1,18 +1,13 @@
 #include "co2amp.h"
 
 
-A::A(std::string id)
-{
-    this->id = id;
+//A::Optic(std::string id, std::string type)
+//{
+    /*this->id = id;
     type = "A";
     yaml_path = id + ".yml";
-    std::string value="";
 
     flag_interaction = false;
-
-    Debug(1, "*** AMPLIFIER SECTION \'" + id + "\' ***");
-
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
 
     if(!YamlReadFile(yaml_path, &yaml_content))
     {
@@ -20,7 +15,7 @@ A::A(std::string id)
         return;
     }
 
-    // r_max (semiDia)
+    std::string value="";
     if(!YamlGetValue(&value, &yaml_content, "semiDia"))
     {
         configuration_error = true;
@@ -28,7 +23,22 @@ A::A(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;
+    Dr = r_max/x0;*/
+
+
+    // cannot initialize pulse here: need process optics and layout (planes) first:
+    // time to the last plane and t_in of the last pulse needed to initialize optical pumping pulse
+    // Use Initialize() instead.
+//}
+
+
+void A::Initialize()
+{
+    std::string value="";
+
+    Debug(1, "*** AMPLIFIER SECTION \'" + id + "\' ***");
+
+    //Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
 
     // Length (L)
     if(!YamlGetValue(&value, &yaml_content, "L"))
@@ -65,6 +75,7 @@ A::A(std::string id)
         return;
     }
 
+    //================================ DISCHARGE PUMPING ====================================
     if(pumping == "discharge")
     {
         // Time between re-solving Boltzmann equation for determining pump energy distribution
@@ -95,8 +106,8 @@ A::A(std::string id)
 
         // Discharge profile: time(s) Current(A) Voltage(V)
         if(!YamlGetData(&discharge_time, &yaml_content, "discharge", 0)
-                || !YamlGetData(&discharge_current, &yaml_content, "discharge", 1)
-                || !YamlGetData(&discharge_voltage, &yaml_content, "discharge", 2))
+            || !YamlGetData(&discharge_current, &yaml_content, "discharge", 1)
+            || !YamlGetData(&discharge_voltage, &yaml_content, "discharge", 2))
         {
             configuration_error = true;
             return;
@@ -112,8 +123,10 @@ A::A(std::string id)
                           << std::endl;
     }
 
+    //================================= OPTICAL PUMPING =====================================
     if(pumping == "optical")
     {
+        //------------------------ Basic optical pumping parameters -------------------------
         if(!YamlGetValue(&value, &yaml_content, "pump_level"))
         {
             configuration_error = true;
@@ -144,9 +157,177 @@ A::A(std::string id)
         pump_sigma = std::stod(value); // m^2
         Debug(2, "pump_sigma (optical pumping absorption cross-section) = " + toExpString(pump_sigma) + " m^2");
 
-        // Optical pumping pulse: Time(s) Intensity(W/m^2)
+        if(!YamlGetValue(&value, &yaml_content, "pump_E"))
+        {
+            configuration_error = true;
+            return;
+        }
+        double pump_E = std::stod(value);
+        Debug(2, "pump_E = " + toExpString(pump_E) + " J");
+
+        //--------------------------- Pump beam spatial profile -----------------------------
+        if(!YamlGetValue(&value, &yaml_content, "pump_beam"))
+        {
+            configuration_error = true;
+            return;
+        }
+        std::string pump_beam = value;
+        Debug(2, "pump_beam = " + pump_beam);
+
+        fluence.resize(x0);
+        if(pump_beam == "GAUSS" || pump_beam == "SUPERGAUSS4" || pump_beam == "SUPERGAUSS6"
+            || pump_beam == "SUPERGAUSS8" || pump_beam == "SUPERGAUSS10" || pump_beam == "FLATTOP")
+        {
+            if(!YamlGetValue(&value, &yaml_content, "w"))
+            {
+                configuration_error = true;
+                return;
+            }
+            double w0 = std::stod(value);
+            Debug(2, "w = " + toExpString(w0) + " m");
+            if(pump_beam == "GAUSS")
+                for(int x=0; x<x0; ++x)
+                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 2));
+            if(pump_beam == "SUPERGAUSS4")
+                for(int x=0; x<x0; ++x)
+                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 4));
+            if(pump_beam == "SUPERGAUSS6")
+                for(int x=0; x<x0; ++x)
+                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 6));
+            if(pump_beam == "SUPERGAUSS8")
+                for(int x=0; x<x0; ++x)
+                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 8));
+            if(pump_beam == "SUPERGAUSS10")
+                for(int x=0; x<x0; ++x)
+                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 10));
+            if(pump_beam == "FLATTOP")
+                for(int x=0; x<x0; ++x)
+                    Dr*(0.5+x)<=w0 ? fluence[x]=1 : fluence[x]=0;
+        }
+        else if(pump_beam == "FREEFORM")
+        {
+            std::vector<double> r;
+            std::vector<double> A;
+            if(!YamlGetData(&r, &yaml_content, "beam_form", 0) || !YamlGetData(&A, &yaml_content, "beam_form", 1))
+            {
+                configuration_error = true;
+                return;
+            }
+            Debug(2, "Beam profile loaded (use debug level 3 to display)");
+            Debug(3, "Beam profile [r(m) amplitude(a.u)]");
+            if(debug_level >= 3)
+                for(size_t i=0; i<r.size(); i++)
+                    std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
+            for(int x=0; x<x0; ++x)
+                fluence[x] = Interpolate(&r, &A, Dr*(0.5+x));
+        }
+        else
+        {
+            std::cout << "ERROR: wrong \'pump_beam\' in config file \'" << yaml_path << "\'" << std::endl;
+            configuration_error = true;
+        }
+
+        // convert beam profile to absolute fluence
+        double E_au = 0; // beam energy for given profile in arbitraty units
+        for(int x=0; x<x0; ++x)
+            E_au += fluence[x] * M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+        for(int x=0; x<x0; ++x)
+            fluence[x] *= pump_E/E_au;
+
+
+
+        //-------------------------- Pump pulse temporal profile ----------------------------
+        if(!YamlGetValue(&value, &yaml_content, "pump_pulse"))
+        {
+            configuration_error = true;
+            return;
+        }
+        std::string pump_pulse = value;
+        Debug(2, "pump_pulse = " + pump_pulse);
+
+        double pulse_duration = t_max - t_min; // pulse time frame duration
+        int n_ticks = (pulses.back()->time_in + planes.back()->time_from_first_plane + pulse_duration) / time_tick + 1; //rounding toward 0
+        normalized_intensity.resize(n_ticks);
+
+        double pump_pulse_integral = 0;
+        if(pump_pulse == "GAUSS" || pump_pulse == "FLATTOP")
+        {
+            if(!YamlGetValue(&value, &yaml_content, "t0"))
+            {
+                configuration_error = true;
+                return;
+            }
+            double t0 = std::stod(value);
+            Debug(2, "t0 = " + toExpString(t0) + " s");
+
+            if(!YamlGetValue(&value, &yaml_content, "fwhm"))
+            {
+                configuration_error = true;
+                return;
+            }
+            double fwhm = std::stod(value);
+            Debug(2, "fwhm = " + toExpString(fwhm) + " s");
+
+            if(pump_pulse == "GAUSS")
+            {
+                double tau = fwhm/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)
+                pump_pulse_integral = tau*sqrt(M_PI/2);
+                for(int i=0; i<n_ticks; ++i)
+                    normalized_intensity[i] = exp(-2*pow((time_tick*(0.5+i)-t0)/tau, 2));
+
+            }
+            if(pump_pulse == "FLATTOP")
+            {
+                pump_pulse_integral = fwhm;
+                for(int i=0; i<n_ticks; ++i)
+                {
+                    if( t0-fwhm/2 <= time_tick*(0.5+i) || time_tick*(0.5+i) <= t0+fwhm/2)
+                        normalized_intensity[i] = 1;
+                    else
+                        normalized_intensity[i] = 0;
+                }
+            }
+        }
+        else if(pump_pulse == "FREEFORM")
+        {
+            std::vector<double> t;
+            std::vector<double> A;
+            if(!YamlGetData(&t, &yaml_content, "pulse_form", 0) || !YamlGetData(&A, &yaml_content, "pulse_form", 1))
+            {
+                configuration_error = true;
+                return;
+            }
+            Debug(2, "Pulse profile loaded (use debug level 3 to display)");
+            Debug(3, "Pulse profile [t(s) amplitude(a.u)]");
+            if(debug_level >= 3)
+            {
+                for(size_t i=0; i<t.size(); i++)
+                    std::cout << toExpString(t[i]) <<  " " << toExpString(A[i]) << std::endl;
+            }
+
+            for(size_t i=0; i<t.size()-1; ++i)
+                pump_pulse_integral += (A[i]+A[i+1])/2 * (t[i+1]-t[i]);
+
+            for(int i=0; i<n_ticks; ++i)
+                normalized_intensity[i] = Interpolate(&t, &A, time_tick*(0.5+i));
+        }
+        else
+        {
+            std::cout << "ERROR: wrong \'pump_pulse\' in config file \'" << yaml_path << "\'" << std::endl;
+            configuration_error = true;
+        }
+
+        // normalize intensity profile so that normalized_intensity[t] * fluence[x] gives absloute intensity in point x at time t
+        if(pump_pulse_integral != 0)
+        {
+            for(int i=0; i<n_ticks; ++i)
+                normalized_intensity[i] /= pump_pulse_integral;
+        }
+
+
+        /*// Optical pumping pulse: Time(s) Intensity(W/m^2)
         if(!YamlGetData(&pump_pulse_time, &yaml_content, "pump_pulse", 0)
-                || !YamlGetData(&pump_pulse_intensity, &yaml_content, "pump_pulse", 1))
+            || !YamlGetData(&pump_pulse_intensity, &yaml_content, "pump_pulse", 1))
         {
             configuration_error = true;
             return;
@@ -162,7 +343,7 @@ A::A(std::string id)
                           << toExpString(pump_pulse_intensity[i])
                           << std::endl;
             }
-        }
+        }*/
     }
 
     // ------- GAS MIXTURE -------
@@ -494,5 +675,4 @@ A::A(std::string id)
         q4_b = q4;
         qT_b = qT;
     }
-
 }

@@ -48,7 +48,8 @@ private:
 class Optic
 {
 public:
-    Optic(){}
+    Optic(std::string id, std::string type);
+    virtual void Initialize(void);
     virtual void InternalDynamics(double){}
     virtual void PulseInteraction(Pulse*, Plane*, double, int, int){}
 
@@ -80,7 +81,9 @@ public:
 class A: public Optic // Amplifier section
 {
 public:
-    A(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //A(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
@@ -116,8 +119,9 @@ private:
     double q2_a, q3_a, q4_a, qT_a, time_a;
     double q2_b, q3_b, q4_b, qT_b, time_b;
     // for optical
-    std::vector<double> pump_pulse_time;
-    std::vector<double> pump_pulse_intensity;
+    std::vector<double> pulse;
+    std::vector<double> fluence;
+    //double I0; // intensity in the center of the pulse/beam
     std::string pump_level; // energy level for optical pumping
                             // "001": direct pumping @ ~4.3 um
                             // "021": combination (101+021) vibration @ ~2.8 um
@@ -162,6 +166,10 @@ private:
     double M[b0][b0];
     double f[b0];
 
+
+    /////////////////////////////// optic_A.cpp ///////////////////////////////
+    void InitializePumpPulse(void);
+
     //////////////////////////// optic_A_band.cpp /////////////////////////////
     void AmplificationBand(void);
 
@@ -194,7 +202,9 @@ private:
 class C: public Optic // Chirp (Stretcher/Compressor)
 {
 public:
-    C(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //C(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
@@ -206,7 +216,9 @@ private:
 class L: public Optic // Lens
 {
 public:
-    L(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //L(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
     double F; // focal length, m
@@ -216,7 +228,9 @@ public:
 class M: public Optic // Matter (window, air)
 {
 public:
-    M(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //M(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
@@ -254,7 +268,9 @@ private:
 class F: public Optic // Spatial (ND) filter
 {
 public:
-    F(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //F(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:
@@ -266,7 +282,9 @@ private:
 class P: public Optic // Probe
 {
 public:
-    P(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //P(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 };
@@ -275,7 +293,9 @@ public:
 class S: public Optic // Spectral filter
 {
 public:
-    S(std::string yaml_path);
+    using Optic::Optic;
+    virtual void Initialize(void);
+    //S(std::string yaml_path);
     virtual void InternalDynamics(double time);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
 private:

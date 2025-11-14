@@ -1,9 +1,10 @@
 #include "co2amp.h"
 
 
-P::P(std::string id)
+//P::P(std::string id)
+void P::Initialize()
 {
-    this->id = id;
+    /*this->id = id;
     type = "P";
     yaml_path = id + ".yml";
     std::string value="";
@@ -24,7 +25,7 @@ P::P(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;
+    Dr = r_max/x0;*/
 }
 
 

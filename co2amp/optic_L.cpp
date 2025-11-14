@@ -4,14 +4,15 @@
 //////////////////////////////// LENS ///////////////////////////////////////
 
 
-L::L(std::string id)
+//L::L(std::string id)
+void L::Initialize()
 {
-    this->id = id;
-    type = "L";
-    yaml_path = id + ".yml";
+    //this->id = id;
+    //type = "L";
+    //yaml_path = id + ".yml";
     std::string value="";
 
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+    /*Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
 
     if(!YamlReadFile(yaml_path, &yaml_content))
     {
@@ -27,7 +28,7 @@ L::L(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;
+    Dr = r_max/x0;*/
 
     // F
     if(!YamlGetValue(&value, &yaml_content, "F"))

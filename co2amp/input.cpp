@@ -151,7 +151,8 @@ bool ReadConfigFiles(std::string path)
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
-    // ... and then initialize pulses (Rmin of first layout element is needed for 'InitializeE')
+    // ... then initialize pulses
+    // (Rmin of first layout element is needed for 'InitializeE')
     for(size_t i=0; i<pulses.size(); ++i)
     {
         pulses[i]->number = i;
@@ -170,6 +171,16 @@ bool ReadConfigFiles(std::string path)
                 std::cout << "Error: Delay between pulses \"" << pulses[i-1]->id << "\" and \"" << pulses[i]->id << "\" must be longer than pulse time range (" << (t_max-t_min) << " s)\n";
                 return false;
             }
+        }
+    }
+
+    // ... and finally initialize amplifier sections
+    // (time to the last plane and t_in of the last pulse needed for 'InitializePumpPulse')
+    for(size_t i=0; i<optics.size(); ++i)
+    {
+        if(optics[i]->type=="A")
+        {
+            optics[i]->Initialize();
         }
     }
 

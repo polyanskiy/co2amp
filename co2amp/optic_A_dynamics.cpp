@@ -298,7 +298,9 @@ double A::Voltage(double time)
 
 double A::PumpPulseIntensity(double time)
 {
-    return Interpolate(&pump_pulse_time, &pump_pulse_intensity, time);
+    //return Interpolate(&pump_pulse_time, &pump_pulse_intensity, time);
+    int i = llround(time/time_tick-0.5);
+    return normalized_intensity[i] * fluence[x];
 }
 
 
