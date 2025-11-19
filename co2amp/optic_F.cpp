@@ -172,19 +172,19 @@ void F::Initialize()
 }
 
 
-void F::InternalDynamics(double)
+void F::InternalDynamics(int)
 {
 
 }
 
 
-void F::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+void F::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 {    
     if(n_min!=0)
         return;
 
     Debug(2, "Interaction with spatial filter");
-    StatusDisplay(pulse, plane, time, "spatial filtering...");
+    StatusDisplay(pulse, plane, m, "spatial filtering...");
 
     for(int x=0; x<x0; ++x)
         for(int n=0; n<n0; n++)

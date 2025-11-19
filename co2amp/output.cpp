@@ -1,7 +1,7 @@
 #include  "co2amp.h"
 
 
-void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time)
 {
     int pulse_n = pulse->number;
     int plane_n = plane->number;
@@ -73,7 +73,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double clock_time)
     }
     else
         file = fopen("energy.dat", "a");
-    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", clock_time, Energy, pulse_n, optic_n, pass_n);
+    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", time, Energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////

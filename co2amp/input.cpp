@@ -119,19 +119,19 @@ bool ReadConfigFiles(std::string path)
         {
             Debug(2, "Found entry: ID \"" + id + "\", Type \"" + type + "\"");
             if(type=="A")
-                optics.push_back(new A(id));
+                optics.push_back(new A(id, type));
             if(type=="C")
-                optics.push_back(new C(id));
+                optics.push_back(new C(id, type));
             if(type=="F")
-                optics.push_back(new F(id));
+                optics.push_back(new F(id, type));
             if(type=="L")
-                optics.push_back(new L(id));
+                optics.push_back(new L(id, type));
             if(type=="M")
-                optics.push_back(new M(id));
+                optics.push_back(new M(id, type));
             if(type=="P")
-                optics.push_back(new P(id));
+                optics.push_back(new P(id, type));
             if(type=="S")
-                optics.push_back(new S(id));
+                optics.push_back(new S(id, type));
             if(type=="LAYOUT")
                 layout_file_name = id + ".yml";
             if(type=="PULSE")
@@ -151,8 +151,13 @@ bool ReadConfigFiles(std::string path)
     if(!ReadLayoutConfigFile(layout_file_name))
         return false;
 
-    // ... then initialize pulses
-    // (Rmin of first layout element is needed for 'InitializeE')
+    // add plane numbers to all layout planes
+    for(size_t i=0; i<planes.size(); ++i)
+        planes[i]->number = i;
+
+    // Once basic geometry is established, finalize initialization of pulses and optics
+
+    // Initialize pulses
     for(size_t i=0; i<pulses.size(); ++i)
     {
         pulses[i]->number = i;
@@ -174,19 +179,20 @@ bool ReadConfigFiles(std::string path)
         }
     }
 
-    // ... and finally initialize amplifier sections
-    // (time to the last plane and t_in of the last pulse needed for 'InitializePumpPulse')
+    // now we can calculate number of points in the lab (slow) time grid
+    // (t_max-t_min) is the duration of the pulse (slow) time grid
+    m0 = (pulses.back()->time_in + planes.back()->time_from_first_plane + (t_max-t_min)) / time_tick + 1; //rounding toward 0
+
+    Debug(1, "m0 = " + std::to_string(m0));
+
+    // Initialize optics
     for(size_t i=0; i<optics.size(); ++i)
     {
-        if(optics[i]->type=="A")
-        {
-            optics[i]->Initialize();
-        }
+        Debug(2, "Initializing optic \'" + optics[i]->id + "\' using content of \'" + optics[i]->yaml_path + "\'");
+        optics[i]->Initialize();
+        if(configuration_error)
+            return false;
     }
-
-    // add plane numbers to all layout planes
-    for(size_t i=0; i<planes.size(); ++i)
-        planes[i]->number = i;
 
     return true;
 }

@@ -144,7 +144,7 @@ void Pulse::Initialize()
             return;
         }
         double fwhm = std::stod(value);
-        Debug(2, "tau = " + toExpString(fwhm) + " s");
+        Debug(2, "fwhm = " + toExpString(fwhm) + " s");
         if(pulse == "GAUSS")
         {
             double tau = fwhm/sqrt(log(2.0)*2.0);	//(fwhm -> half-width @ 1/e^2)

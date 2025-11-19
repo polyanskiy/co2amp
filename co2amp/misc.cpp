@@ -160,7 +160,7 @@ void UnwrapPhase(Pulse* pulse, int x, double* phase)
     // 1st run: rough-estimate and subtract chirp
     for(int n=1; n<n0; ++n)
     {
-        if(std::abs(pulse->E[n0*x+n])/Emax > 1e-2) // only consider intense part of the pulse
+        if(std::abs(E1[n])/Emax > 1e-2) // only consider intense part of the pulse
         {
             double phase_step = arg(E1[n]) - arg(E1[n-1]);
 
@@ -188,21 +188,25 @@ void UnwrapPhase(Pulse* pulse, int x, double* phase)
         E1[n] *= exp(-I*M_PI*t*t*chirp); // subtracting chirp
     }
 
-    // Rub 2: get unwrapped phase of de-chirped pulse
+    // 2nd run: get unwrapped phase of de-chirped pulse
     phase[0] = 0;
     for(int n=1; n<n0; ++n)
     {
-        double phase_step = arg(E1[n]) - arg(E1[n-1]);
+        phase[n] = 0;
+        if(std::abs(E1[n])/Emax > 1e-4) // only consider intense part of the pulse (but wider range than 1st run)
+        {
+            double phase_step = arg(E1[n]) - arg(E1[n-1]);
 
-        if(phase_step < -M_PI)
-            phase_step += 2*M_PI;
+            if(phase_step < -M_PI)
+                phase_step += 2*M_PI;
 
-        if(phase_step > M_PI)
-            phase_step -= 2*M_PI;
+            if(phase_step > M_PI)
+                phase_step -= 2*M_PI;
 
-        // calculate the phase taking chirp into account
-        double t = t_min+Dt*(0.5+n);
-        phase[n] = phase[n-1] + phase_step + 2*M_PI*chirp*t*Dt;
+            // calculate the phase taking chirp into account
+            double t = t_min+Dt*(0.5+n);
+            phase[n] = phase[n-1] + phase_step + 2*M_PI*chirp*t*Dt;
+        }
     }
 
     // Shift phase so that the absolute phase at t=0 is preserved

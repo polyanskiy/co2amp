@@ -1,12 +1,16 @@
 #include  "co2amp.h"
 
-void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int n_max)
+void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max)
 {
     if(p_CO2+p_N2+p_He <= 0 || length == 0)
         return;
 
-    Debug(2, "Amplification");
-    StatusDisplay(pulse, plane, time, "amplification...");
+    //Debug(2, "Amplification");
+    StatusDisplay(pulse, plane, m, "amplification...");
+    if(debug_level >= 3)
+        std::cout << std::endl;
+    //std::string tmp_str = "amplification... time steps: " + std::to_string(n_min) + "-"  + std::to_string(n_max);
+    //StatusDisplay(pulse, plane, m, tmp_str);
 
     flag_interaction = n_max==n0-1 ? false : true;
 
@@ -40,20 +44,21 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, double time, int n_min, int
             exp_phase[is].push_back(exp(I*M_PI*(pulse->vc-v[is][tr])*Dt)); //half-step: note factor 2.0 in front of "PI" removed
     }
 
+
     // ====================== AMPLIFICATIOIN ======================
-    int count = 0;
+    //int count = 0;
     #pragma omp parallel for// multithreaded
     for(int x=0; x<x0; ++x)
     {
-        if(debug_level >= 0)
+        // this block freezes the output at large x0
+        /*if(debug_level >= 0)
         {
             std::string tmp_str = "amplification... time " + std::to_string(n_min) + "-"  + std::to_string(n_max) + "; coord ";
             #pragma omp critical
             {
-                StatusDisplay(pulse, plane, time, tmp_str + std::to_string(++count));
-                          //"amplification: " + std::to_string(++count) + " of " + std::to_string(x0));
+                StatusDisplay(pulse, plane, m, tmp_str + std::to_string(++count));
             }
-        }
+        }*/
 
         double N_vib0[NumIso][NumVib];
         std::vector<double> Dn[NumIso];               // Population inversions (rotational transitions)

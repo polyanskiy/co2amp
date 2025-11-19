@@ -444,21 +444,38 @@ void MainWindow::Plot()
             proc9->start(path_to_gnuplot, QStringList("script_q.gp"));
         }
 
-        // GnuPlot script: pumping pulse
+        // GnuPlot script: pumping pulse power
         QProcess *proc10 = new QProcess(this);
-        if(QFile::exists(optic_id + "_pumping_pulse.dat"))
+        if(QFile::exists(optic_id + "_pumping_power.dat"))
         {
-            file.setFileName("script_pumping_pulse.gp");
+            file.setFileName("script_pumping_power.gp");
             file.open(QFile::WriteOnly | QFile::Truncate);
             out << common_file_head
-                << "set output \"fig_pumping_pulse.svg\"\n"
+                << "set output \"fig_pumping_power.svg\"\n"
                 << "set xlabel \"Time (" << time_unit << ")\"\n"
-                << "set ylabel \"Intensity (" << intensity_unit << ")\"\n"
-                << "plot \"" << optic_id << "_pumping_pulse.dat\" "
-                << "using ($1*" << time_mult << "):($2*" << intensity_mult << ")"
-                << "with lines ti \"Pumping pulse\"\n";
+                << "set ylabel \"Power (" << power_unit << ")\"\n"
+                << "plot \"" << optic_id << "_pumping_power.dat\" "
+                << "using ($1*" << time_mult << "):($2*" << power_mult << ")"
+                << "with lines ti \"Pumping pulse power\"\n";
             file.close();
-            proc10->start(path_to_gnuplot, QStringList("script_pumping_pulse.gp"));
+            proc10->start(path_to_gnuplot, QStringList("script_pumping_power.gp"));
+        }
+
+        // GnuPlot script: pumping pulse fluence
+        QProcess *proc11 = new QProcess(this);
+        if(QFile::exists(optic_id + "_pumping_fluence.dat"))
+        {
+            file.setFileName("script_pumping_fluence.gp");
+            file.open(QFile::WriteOnly | QFile::Truncate);
+            out << common_file_head
+                << "set output \"fig_pumping_fluence.svg\"\n"
+                << "set xlabel \"r (" << length_unit << ")\"\n"
+                << "set ylabel \"Fluence (" << fluence_unit << ")\"\n"
+                << "plot \"" << optic_id << "_pumping_fluence.dat\" "
+                << " using ($1*" << length_mult << "):($2*" << fluence_mult << ")"
+                << "with lines ti \"Pumping pulse fluence\"\n";
+            file.close();
+            proc11->start(path_to_gnuplot, QStringList("script_pumping_fluence.gp"));
         }
 
         proc5->waitForFinished();
@@ -467,6 +484,7 @@ void MainWindow::Plot()
         proc8->waitForFinished();
         proc9->waitForFinished();
         proc10->waitForFinished();
+        proc11->waitForFinished();
     }
 
     if(optic_type == "C")
@@ -576,12 +594,14 @@ void MainWindow::Plot()
         svg_fig3->load(QString("fig_gain.svg"));
         if(QFile::exists("fig_discharge.svg"))
             svg_fig6->load(QString("fig_discharge.svg"));
-        if(QFile::exists("fig_pumping_pulse.svg"))
-            svg_fig6->load(QString("fig_pumping_pulse.svg"));
+        if(QFile::exists("fig_pumping_power.svg"))
+            svg_fig6->load(QString("fig_pumping_power.svg"));
         svg_fig7->load(QString("fig_temperatures.svg"));
         svg_fig8->load(QString("fig_e.svg"));
         if(QFile::exists("fig_q.svg"))
             svg_fig9->load(QString("fig_q.svg"));
+        if(QFile::exists("fig_pumping_fluence.svg"))
+            svg_fig9->load(QString("fig_pumping_fluence.svg"));
     } 
     if(optic_type == "C") // chirper
         svg_fig3->load(QString("fig_chirp.svg"));

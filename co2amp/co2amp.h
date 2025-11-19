@@ -49,9 +49,9 @@ class Optic
 {
 public:
     Optic(std::string id, std::string type);
-    virtual void Initialize(void);
-    virtual void InternalDynamics(double){}
-    virtual void PulseInteraction(Pulse*, Plane*, double, int, int){}
+    virtual void Initialize(void){}
+    virtual void InternalDynamics(int){}
+    virtual void PulseInteraction(Pulse*, Plane*, int, int, int){}
 
     std::string type;
     std::string id;
@@ -83,9 +83,8 @@ class A: public Optic // Amplifier section
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //A(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     // ---------- FLAGS ----------
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
@@ -111,17 +110,16 @@ private:
     double save_interval;  // interval between data entries in pumping and population dynamics files (default 1e-9 s)
     double solve_interval; // interval between re-solving Boltzman equation (efault 25e-9 s)
     // for discharge
-    std::vector<double> discharge_time;
-    std::vector<double> discharge_voltage;
-    std::vector<double> discharge_current;
+    std::vector<double> voltage;
+    std::vector<double> current;
     double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
-    double q2, q3, q4, qT;
-    double q2_a, q3_a, q4_a, qT_a, time_a;
-    double q2_b, q3_b, q4_b, qT_b, time_b;
+    std::vector<double> q2, q3, q4, qT;
+    //double q2, q3, q4, qT;
+    //double q2_a, q3_a, q4_a, qT_a, time_a;
+    //double q2_b, q3_b, q4_b, qT_b, time_b;
     // for optical
-    std::vector<double> pulse;
+    std::vector<double> normalized_intensity;
     std::vector<double> fluence;
-    //double I0; // intensity in the center of the pulse/beam
     std::string pump_level; // energy level for optical pumping
                             // "001": direct pumping @ ~4.3 um
                             // "021": combination (101+021) vibration @ ~2.8 um
@@ -154,7 +152,7 @@ private:
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations
-    double E_over_N;
+    /*double E_over_N;
     double Y1, Y2, Y3;
     double Du;
     double M1, M2, M3, C1, C2, B;
@@ -164,38 +162,34 @@ private:
     double Q1[11][b0], Q2[16][b0];
     double u1[11], u2[16];
     double M[b0][b0];
-    double f[b0];
+    double f[b0];*/
 
 
     /////////////////////////////// optic_A.cpp ///////////////////////////////
     void InitializePumpPulse(void);
+    void WritePumpingFiles(void);
 
     //////////////////////////// optic_A_band.cpp /////////////////////////////
     void AmplificationBand(void);
 
     /////////////////////////// optic_A_dynamics.cpp //////////////////////////
-    double Current(double);
-    double Voltage(double);
-    double PumpPulseIntensity(double);
+    //double Current(double);
+    //double Voltage(double);
+    //double PumpPulseIntensity(int m, int x);
     double e2e(double);
     void InitializePopulations(void);
     double VibrationalTemperatures(int x, int mode);
-    void UpdateDynamicsFiles(double time);
+    void UpdateDynamicsFiles(int m);
 
     ///////////////////////// optic_A_amplification.cpp /////////////////////////
-    void Amplification(int pulse, int k, double t, int am_section, double length);
+    //void Amplification(int pulse, int k, int m, int am_section, double length);
     void SaveGainSpectrum(Pulse *pulse, Plane *plane);
 
     /////////////////////////// optic_A_boltzmann.cpp ///////////////////////////
-    void Boltzmann(double);
-    //void AllocateMemoryBoltzmann(void);
-    //void FreeMemoryBoltzmann(void);
-    void WriteEquations(void);
-    void SolveEquations(void);
-    void CalculateQ(void);
-    void InitInputArrays(void);
-    void InterpolateArray(double*, double*, int, double*);
-    void Save_f(void); //debug (test Boltzmann solver)
+    void Boltzmann(int, double[5]);
+    void WriteAndSolveEquations(double, double, double*, double*, bool);
+    void InterpolateArray(double*, double*, int, double, double*);
+    void Save_f(double, double*); //debug (test Boltzmann solver)
 };
 
 
@@ -205,8 +199,10 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //C(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    //virtual void InternalDynamics(double time);
+    virtual void InternalDynamics(int m);
+    //virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
     void WriteChirpFile();
@@ -219,8 +215,8 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //L(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
     double F; // focal length, m
 };
 
@@ -231,8 +227,8 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //M(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     // ------- GENERAL -------
     std::string material;
@@ -271,8 +267,8 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //F(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -285,8 +281,8 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //P(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 };
 
 
@@ -296,8 +292,8 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     //S(std::string yaml_path);
-    virtual void InternalDynamics(double time);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
+    virtual void InternalDynamics(int m);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -318,6 +314,7 @@ extern double v0;                 // central frequency
 extern double t_min, t_max;       // pulse (fast) time limits
 extern double time_tick;          // lab (slow) time step
 extern int x0, n0;                // number of points in radial and time grids
+extern int m0;                    // number of points in lab (slow) time grid
 // --- CALCULATED GRID PARAMETERS --
 // *** Be very careful not to confuse limits and values in the outer bins of the grid ***
 // t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
@@ -341,7 +338,7 @@ extern int method;                // propagation method
 
 //////////////////////////// main.cpp ///////////////////////////
 void Calculations(void);
-void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status);
+void StatusDisplay(Pulse *pulse, Plane *plane, int m, std::string status);
 void Debug(int level, std::string str);
 
 /////////////////////////// misc.cpp /////////////////////////////

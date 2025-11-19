@@ -41,19 +41,19 @@ void L::Initialize()
 }
 
 
-void L::InternalDynamics(double)
+void L::InternalDynamics(int)
 {
 
 }
 
 
-void L::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+void L::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 {
     if(F==0.0 || n_min!=0)
         return;
 
     Debug(2, "Interaction with lens, F = " + toExpString(F) + " m");
-    StatusDisplay(pulse, plane, time, "lens...");
+    StatusDisplay(pulse, plane, m, "lens...");
 
     #pragma omp parallel for
     for(int x=0; x<x0; ++x)

@@ -11,8 +11,9 @@ std::vector<Plane*> planes;
 // ------- CALCULATION GRID --------
 double v0;                 // central frequency of the calculation grid
 double t_min, t_max;       // pulse (fast) time limits
-double time_tick;          // main (slow) time step
+double time_tick;          // time step in lab (slow) time grid
 int x0, n0;                // number of points in radial and time grids
+int m0;                    // number of points in lab (slow) time grid
 // --- CALCULATED GRID PARAMETERS --
 // *** Be very careful not to confuse limits and values in the outer bins of the grid ***
 // t[0] = t_min+0.5*Dt;   t[n] = t_min+(n+0.5)*Dt;   t[n0-1] = t_min+(n0-0.5)*Dt = t_max-0.5*Dt
@@ -34,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-11-13";
+    std::string version = "2025-11-19a";
 
     std::clock_t stopwatch = std::clock();
 
@@ -126,28 +127,23 @@ void Calculations()
 
     std::cout << "*** CALCULATION ***\n";
 
-    // for this section we will call entire pulse time-frame a "pulse"
-    double pulse_duration = t_max - t_min;
+    double pulse_duration = t_max - t_min; // duration of pulse time grid
 
-    int n_ticks = (pulses.back()->time_in + planes.back()->time_from_first_plane + pulse_duration) / time_tick + 1; //rounding toward 0
-
-    for (int i = 0; i < n_ticks; ++i)
+    for (int m = 0; m < m0; ++m)
     {
         //double time = time_tick * i;
-        double time = time_tick * (0.5+i);
+        double time = time_tick * (0.5+m);
 
         // Internal dynamics in the optic
         for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
-            optics[optic_n]->InternalDynamics(time);
+            optics[optic_n]->InternalDynamics(m);
 
         for(size_t plane_n=0; plane_n<planes.size(); ++plane_n)
         {
             for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
-                //double t0 = time_tick * i;
-                //double t1 = time_tick * (i+1);
-                double t0 = time_tick * (0.5+i);
-                double t1 = time_tick * (1.5+i);
+                double t0 = time_tick * m;
+                double t1 = time_tick * (m+1);
 
                 // moments (in lab time frame) when the pulse enters the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
@@ -174,7 +170,7 @@ void Calculations()
                         //    only save if distance from previous amplifier is longer than pulse time frame
                         if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
                         {
-                            StatusDisplay(pulses[pulse_n], planes[plane_n], time, "saving...");
+                            StatusDisplay(pulses[pulse_n], planes[plane_n], m, "saving...");
                             UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
                         }
                     }
@@ -183,8 +179,8 @@ void Calculations()
                     if(plane_n != planes.size()-1) // interact with this palne
                     {
                         if(planes[plane_n]->optic->type=="A")
-                            Debug(3, "plane " + std::to_string(plane_n) + "; n_min=" + std::to_string(n_min) + "; n_max=" + std::to_string(n_max));
-                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], time, n_min, n_max);
+                            Debug(3, "pulse time steps: " + std::to_string(n_min) + "-" + std::to_string(n_max));
+                        planes[plane_n]->optic->PulseInteraction(pulses[pulse_n], planes[plane_n], m, n_min, n_max);
                     }
                 }
             }
@@ -194,8 +190,10 @@ void Calculations()
 }
 
 
-void StatusDisplay(Pulse *pulse, Plane *plane, double time, std::string status)
+void StatusDisplay(Pulse *pulse, Plane *plane, int m, std::string status)
 {
+    double time = time_tick*(m+0.5);
+
     if(pulse == nullptr)
     {
         if(time < 0)

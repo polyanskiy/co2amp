@@ -1,6 +1,6 @@
 # Configuration YAML file, type A
 # - Optically pumped active medium -
-# template v.2025-11-12
+# template v.2025-11-17
 
 # Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
@@ -48,10 +48,10 @@ pumping: optical
 pump_level: 021
 # Optical pumping wavelength (m)
 pump_wl: 2.68e-6
-# Optical pumping sbsorption cross-section (m^2)
+# Optical pumping absorption cross-section (m^2)
 pump_sigma: 4e-24
-
-
+# Optical pumping pulse energy, J
+pump_E: 1
 
 # Optical pumping beam profile (GAUSS/SUPERGAUSS4/SUPERGAUSS6/SUPERGAUSS8/SUPERGAUSS10/FLATTOP/FREEFORM)
 pump_beam: GAUSS

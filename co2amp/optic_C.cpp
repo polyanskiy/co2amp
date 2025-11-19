@@ -78,19 +78,19 @@ void C::Initialize()
 }
 
 
-void C::InternalDynamics(double)
+void C::InternalDynamics(int)
 {
 
 }
 
 
-void C::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+void C::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 {
     if(n_min!=0)
         return;
 
     Debug(2, "Interaction with chirper");
-    StatusDisplay(pulse, plane, time, "chirping/de-chirping...");
+    StatusDisplay(pulse, plane, m, "chirping/de-chirping...");
 
     #pragma omp parallel for // mulithread
     for(int x=0; x<x0; ++x)

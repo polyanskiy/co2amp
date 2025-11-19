@@ -1,14 +1,15 @@
 #include "co2amp.h"
 
 
-M::M(std::string id)
+//M::M(std::string id)
+void M::Initialize()
 {
-    this->id = id;
-    type = "M";
-    yaml_path = id + ".yml";
+    //this->id = id;
+    //type = "M";
+    //yaml_path = id + ".yml";
     std::string value="";
 
-    Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
+    /*Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
 
     if(!YamlReadFile(yaml_path, &yaml_content))
     {
@@ -24,7 +25,7 @@ M::M(std::string id)
     }
     r_max = std::stod(value);
     Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;
+    Dr = r_max/x0;*/
 
     // material
     if(!YamlGetValue(&value, &yaml_content, "material"))
@@ -172,7 +173,7 @@ M::M(std::string id)
 }
 
 
-void M::InternalDynamics(double)
+void M::InternalDynamics(int)
 {
     // temporary - nonlinear absorption in Ge
     /*if(!strcmp(material,"Ge") || !strcmp(material,"Ge-Brewster"))
@@ -187,13 +188,13 @@ void M::InternalDynamics(double)
 }
 
 
-void M::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 {
     if(n_min!=0)
         return;
 
     Debug(2, "Interaction with a material");
-    StatusDisplay(pulse, plane, time, "material...");
+    StatusDisplay(pulse, plane, m, "material...");
 
     // account for tilt
     // tilt = angle of incidence  (radians) - "Theta1"
@@ -228,7 +229,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int
         {
             #pragma omp critical
             {
-                StatusDisplay(pulse, plane, time,
+                StatusDisplay(pulse, plane, m,
                           "material: " + std::to_string(++count) + " of " + std::to_string(x0));
             }
         }

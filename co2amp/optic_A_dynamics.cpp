@@ -1,12 +1,14 @@
 #include  "co2amp.h"
 
 
-void A::InternalDynamics(double time)
+void A::InternalDynamics(int m)
 {
     if(p_CO2+p_N2+p_He <= 0)
         return;
 
-    StatusDisplay(nullptr, nullptr, time, "molecular dynamics...");
+    StatusDisplay(nullptr, nullptr, m, "molecular dynamics...");
+
+    double time = time_tick*(m+0.5);
 
     // Thermalization time for semi-population model
     // k = 3.9e6 (s torr)^{-1}   [Finzi & Moore 1975 - https://doi.org/10.1063/1.431678]
@@ -27,13 +29,13 @@ void A::InternalDynamics(double time)
     // Discharge power
     double W = 0;
 
-    // pumping of vibrational modes
+    /*// pumping of vibrational modes
     double pump2 = 0;
     double pump3 = 0;
     double pump4 = 0;
 
     // pumping of groups of vibrational levels
-    double pump_gr[NumGrp] = {}; // initialized with zeros
+    double pump_gr[NumGrp] = {}; // initialized with zeros*/
 
     // populations before interaction
     std::vector<double> N_vib0[NumIso][NumVib];
@@ -41,7 +43,7 @@ void A::InternalDynamics(double time)
         for (int vl = 0; vl < NumVib; ++vl)
             N_vib0[is][vl].resize(x0);
 
-    if(pumping == "discharge")
+    /*if(pumping == "discharge")
     {
         // re-solve Boltzmann equation periodically, use linear interpolation otherwise
         // 'Slow' calculations of discharge energy deposition coefficients q
@@ -58,8 +60,16 @@ void A::InternalDynamics(double time)
             q4_a = q4_b;
             qT_a = qT_b;
             time_a = time_b;
-            time_b += solve_interval;
-            Boltzmann(time_b);
+            //time_b += solve_interval;
+
+            int m_b = llround(solve_interval/time_tick) + m;
+            if(m_b >= m0)
+                m_b = m0-1;
+
+            time_b = time_tick*(0.5 + m_b);
+
+            //Boltzmann(time_b);
+            Boltzmann(m_b);
             q2_b = q2;
             q3_b = q3;
             q4_b = q4;
@@ -71,54 +81,12 @@ void A::InternalDynamics(double time)
         q4 = q4_a+(q4_b-q4_a)*(time-time_a)/(time_b-time_a);
         qT = qT_a+(qT_b-qT_a)*(time-time_a)/(time_b-time_a);
 
-        W = Current(time)*Voltage(time) / Vd;     // W/m^3
-        pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
-        pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
-        pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
-    }
-
-    if(pumping == "optical")
-    {
-        double photon_flux = PumpPulseIntensity(time) / (h*c/pump_wl); // photons/(m^2 * s)
-
-        if(pump_level == "001") // direct excitation of (001) level @ ~4.3 um
-        {
-            pump3 = photon_flux * pump_sigma;
-            pump2 = 0;
-            pump_gr[0] = pump3;
-        }
-
-        if(pump_level == "021") // excitation via combinational vibration (101,021) @ ~2.8 um
-        {
-            pump3 = photon_flux * pump_sigma;
-            pump2 = 2 * pump3;
-            pump_gr[5] = pump3;
-        }
-
-        if(pump_level == "041") // excitation via combinational vibration (201,121,041) @ ~2.0 um
-                                // ! excitation level is not directly involved in any laser transition
-                                //   and thus not associated with a "group" of levels
-        {
-            pump3 = photon_flux * pump_sigma;
-            pump2 = 4 * pump3;
-        }
-
-        if(pump_level == "002") // excitation via 2nd overtone level @ ~2.2 um
-                                // ! only possible for non-symmetric molecules
-        {
-            pump3 = 2 * photon_flux * pump_sigma;
-            pump2 = 0;
-            pump_gr[4] = pump3;
-        }
-
-        if(pump_level == "003") // excitation via 3rd overtone level @ ~1.4 um
-        {
-            pump3 = 3 * photon_flux * pump_sigma;
-            pump2 = 0;
-            pump_gr[8] = pump3;
-        }
-
-    }
+        W = current[m]*voltage[m] / Vd;     // W/m^3
+        //W = Current(time)*Voltage(time) / Vd;     // W/m^3
+        //pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
+        //pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
+        //pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
+    }*/
 
     #pragma omp parallel for// multithreaded
     for(int x=0; x<x0; ++x)
@@ -148,6 +116,67 @@ void A::InternalDynamics(double time)
 
         f2 = 2 * pow(1+e2[x],2) / (2+6*e2[x]+3*pow(e2[x],2));
         f3 = e3[x]*pow(1+e2[x]/2,3) - (1+e3[x])*pow(e2[x]/2,3)*exp(-500/T[x]);
+
+
+        // Pumping rates, 1/s
+        // - vibrational modes
+        double pump2 = 0;
+        double pump3 = 0;
+        double pump4 = 0;
+        // - groups of vibrational levels
+        double pump_gr[NumGrp] = {}; // initialized with zeros
+
+        if(pumping == "discharge")
+        {
+            W = current[m]*voltage[m] / Vd;              // W/m^3
+            pump4 = y2!=0.0 ? 0.8e-6*q4[m]/N/y2*W : 0;   // 1/s
+            pump3 = y1!=0.0 ? 0.8e-6*q3[m]/N/y1*W : 0;   // 1/s
+            pump2 = y1!=0.0 ? 2.8e-6*q2[m]/N/y1*W : 0;   // 1/s
+        }
+
+        if(pumping == "optical")
+        {
+            double photon_flux = normalized_intensity[m] * fluence[x] / (h*c/pump_wl); // photons/(m^2 * s)
+
+            if(pump_level == "001") // direct excitation of (001) level @ ~4.3 um
+            {
+                pump3 = photon_flux * pump_sigma;
+                pump2 = 0;
+                pump_gr[0] = pump3;
+            }
+
+            if(pump_level == "021") // excitation via combinational vibration (101,021) @ ~2.8 um
+            {
+                pump3 = photon_flux * pump_sigma;
+                pump2 = 2 * pump3;
+                pump_gr[5] = pump3;
+            }
+
+            if(pump_level == "041") // excitation via combinational vibration (201,121,041) @ ~2.0 um
+            // ! excitation level is not directly involved in any laser transition
+            //   and thus not associated with a "group" of levels
+            {
+                pump3 = photon_flux * pump_sigma;
+                pump2 = 4 * pump3;
+            }
+
+            if(pump_level == "002") // excitation via 2nd overtone level @ ~2.2 um
+            // ! only possible for non-symmetric molecules
+            {
+                pump3 = 2 * photon_flux * pump_sigma;
+                pump2 = 0;
+                pump_gr[4] = pump3;
+            }
+
+            if(pump_level == "003") // excitation via 3rd overtone level @ ~1.4 um
+            {
+                pump3 = 3 * photon_flux * pump_sigma;
+                pump2 = 0;
+                pump_gr[8] = pump3;
+            }
+        }
+
+
 
         // pumping and collisional relaxation
         D_e2 = 0;
@@ -183,7 +212,7 @@ void A::InternalDynamics(double time)
             // No group for 2.0 um (201+121+041): corresponding levels are not involved in laser transitions (?)
         }
 
-        T[x] += ( y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT/N/cv ) * time_tick;
+        T[x] += ( y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT[m]/N/cv ) * time_tick;
 
         // Include non-zero thermalization time
         double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
@@ -274,34 +303,14 @@ void A::InternalDynamics(double time)
         }
     }
 
-
     // Update pumping and molecular dynamics files if time is around an integer number of save intervals
-    int save_number = llround(time / save_interval); // number of point to be saved around the current time
-    if( time-time_tick/2 <= save_interval*save_number && save_interval*save_number < time+time_tick/2 )
+    double target_save_time = time_tick/2 + save_interval*std::floor(time / save_interval);
+    if( time-time_tick/2 <= target_save_time && target_save_time < time+time_tick/2 )
     {
-        UpdateDynamicsFiles(time);
+        UpdateDynamicsFiles(m);
     }
 }
 
-
-double A::Current(double time)
-{
-    return Interpolate(&discharge_time, &discharge_current, time);
-}
-
-
-double A::Voltage(double time)
-{
-    return Interpolate(&discharge_time, &discharge_voltage, time);
-}
-
-
-double A::PumpPulseIntensity(double time)
-{
-    //return Interpolate(&pump_pulse_time, &pump_pulse_intensity, time);
-    int i = llround(time/time_tick-0.5);
-    return normalized_intensity[i] * fluence[x];
-}
 
 
 /*double Cv(double T) //T -temperature in K
@@ -428,13 +437,15 @@ double A::VibrationalTemperatures(int x, int mode){
 }
 
 
-void A::UpdateDynamicsFiles(double time)
+void A::UpdateDynamicsFiles(int m)
 {
+    double time = time_tick * (0.5+m);
+
     FILE *file;
 
-    if(pumping == "discharge"){
-        //////////////////////// Discharge ////////////////////////
-        if(time==0)
+        /*if(pumping == "discharge"){
+       //////////////////////// Discharge ////////////////////////
+        if(m==0)
         {
             file = fopen((id+"_discharge.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] current[A] voltage[V]\n");
@@ -445,32 +456,19 @@ void A::UpdateDynamicsFiles(double time)
         fclose(file);
 
         //////////////////////////// q ////////////////////////////
-        if(time==0)
+        if(m==0)
         {
             file = fopen((id+"_q.dat").c_str(), "w");
             fprintf(file, "#Data format: time[s] q2 q3 q4\n");
         }
         else
             file = fopen((id+"_q.dat").c_str(), "a");
-        fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, q2, q3, q4, qT);
+        fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, q2[m], q3[m], q4[m], qT[m]);
         fclose(file);
-    }
-
-    if(pumping == "optical"){
-        ////////////////////// Pumping pulse ///////////////////////
-        if(time==0)
-        {
-            file = fopen((id+"_pumping_pulse.dat").c_str(), "w");
-            fprintf(file, "#Data format: time[s] intensity[W/m^2]\n");
-        }
-        else
-            file = fopen((id+"_pumping_pulse.dat").c_str(), "a");
-        fprintf(file, "%e\t%e\n", time, PumpPulseIntensity(time));
-        fclose(file);
-    }
+    }*/
 
     /////////////// e (average number of quanta in vibration modes) ////////////////
-    if(time==0)
+    if(m==0)
     {
         file = fopen((id+"_e.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] e1 e2 e3 e4\n");
@@ -484,7 +482,7 @@ void A::UpdateDynamicsFiles(double time)
     fclose(file);
 
     ///////////////////////// Temperatures /////////////////////////
-    if(time==0)
+    if(m==0)
     {
         file = fopen((id+"_temperatures.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] T[K] T2[K] T3[K] T4[K]\n");

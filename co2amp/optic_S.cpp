@@ -120,19 +120,19 @@ void S::Initialize()
 }
 
 
-void S::InternalDynamics(double)
+void S::InternalDynamics(int)
 {
 
 }
 
 
-void S::PulseInteraction(Pulse *pulse, Plane* plane, double time, int n_min, int)
+void S::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 {
     if(n_min!=0)
         return;
 
     Debug(2, "Interaction with spectral filter");
-    StatusDisplay(pulse, plane, time, "spectral filtering...");
+    StatusDisplay(pulse, plane, m, "spectral filtering...");
 
     #pragma omp parallel for
     for(int x=0; x<x0; ++x)
