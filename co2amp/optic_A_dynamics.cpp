@@ -8,8 +8,6 @@ void A::InternalDynamics(int m)
 
     StatusDisplay(nullptr, nullptr, m, "molecular dynamics...");
 
-    double time = time_tick*(m+0.5);
-
     // Thermalization time for semi-population model
     // k = 3.9e6 (s torr)^{-1}   [Finzi & Moore 1975 - https://doi.org/10.1063/1.431678]
     double tauV = 1e-6 / (3.9*750*p_CO2); // intra-mode vibrational thermalization time
@@ -29,64 +27,11 @@ void A::InternalDynamics(int m)
     // Discharge power
     double W = 0;
 
-    /*// pumping of vibrational modes
-    double pump2 = 0;
-    double pump3 = 0;
-    double pump4 = 0;
-
-    // pumping of groups of vibrational levels
-    double pump_gr[NumGrp] = {}; // initialized with zeros*/
-
     // populations before interaction
     std::vector<double> N_vib0[NumIso][NumVib];
     for (int is = 0; is < NumIso; ++is)
         for (int vl = 0; vl < NumVib; ++vl)
             N_vib0[is][vl].resize(x0);
-
-    /*if(pumping == "discharge")
-    {
-        // re-solve Boltzmann equation periodically, use linear interpolation otherwise
-        // 'Slow' calculations of discharge energy deposition coefficients q
-        // are done for time_a and time_b separated by solve_interval.
-        // time_a is before the current calculation time and time_b is after
-        // Linear interpolation is used to approximate energy deposition in any time between time_a and time_b
-        // When time moves to after time_b, time_b is moved forward by solve_interval and time_a becomes time_b
-        // q's are then calculated for the new time_b
-        //double step = 25e-9;
-        if(time >= time_b) // MUST be called at time==0 !!!
-        {
-            q2_a = q2_b;
-            q3_a = q3_b;
-            q4_a = q4_b;
-            qT_a = qT_b;
-            time_a = time_b;
-            //time_b += solve_interval;
-
-            int m_b = llround(solve_interval/time_tick) + m;
-            if(m_b >= m0)
-                m_b = m0-1;
-
-            time_b = time_tick*(0.5 + m_b);
-
-            //Boltzmann(time_b);
-            Boltzmann(m_b);
-            q2_b = q2;
-            q3_b = q3;
-            q4_b = q4;
-            qT_b = qT;
-        }
-
-        q2 = q2_a+(q2_b-q2_a)*(time-time_a)/(time_b-time_a);
-        q3 = q3_a+(q3_b-q3_a)*(time-time_a)/(time_b-time_a);
-        q4 = q4_a+(q4_b-q4_a)*(time-time_a)/(time_b-time_a);
-        qT = qT_a+(qT_b-qT_a)*(time-time_a)/(time_b-time_a);
-
-        W = current[m]*voltage[m] / Vd;     // W/m^3
-        //W = Current(time)*Voltage(time) / Vd;     // W/m^3
-        //pump4 = y2!=0.0 ? 0.8e-6*q4/N/y2*W : 0;   // 1/s
-        //pump3 = y1!=0.0 ? 0.8e-6*q3/N/y1*W : 0;   // 1/s
-        //pump2 = y1!=0.0 ? 2.8e-6*q2/N/y1*W : 0;   // 1/s
-    }*/
 
     #pragma omp parallel for// multithreaded
     for(int x=0; x<x0; ++x)
@@ -116,7 +61,6 @@ void A::InternalDynamics(int m)
 
         f2 = 2 * pow(1+e2[x],2) / (2+6*e2[x]+3*pow(e2[x],2));
         f3 = e3[x]*pow(1+e2[x]/2,3) - (1+e3[x])*pow(e2[x]/2,3)*exp(-500/T[x]);
-
 
         // Pumping rates, 1/s
         // - vibrational modes
@@ -176,8 +120,6 @@ void A::InternalDynamics(int m)
             }
         }
 
-
-
         // pumping and collisional relaxation
         D_e2 = 0;
         D_e3 = 0;
@@ -197,8 +139,12 @@ void A::InternalDynamics(int m)
 
         // Remember populations of vibrational levels before pulse interaction
         for(int is=0; is<NumIso; ++is)
+        {
             for(int vl=0; vl<NumVib; ++vl)
+            {
                 N_vib0[is][vl][x] = N_vib[is][vl][x];
+            }
+        }
 
         // In our model 3 groups can be pumped directly in case of optical pumping
         // In othr cases, pump energy first goes to corresponding vibrational modes
@@ -212,7 +158,10 @@ void A::InternalDynamics(int m)
             // No group for 2.0 um (201+121+041): corresponding levels are not involved in laser transitions (?)
         }
 
-        T[x] += ( y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) + 2.7e-3*W*qT[m]/N/cv ) * time_tick;
+        T[x] += y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) * time_tick;
+
+        if(pumping=="discharge")
+            T[x] += 2.7e-3*W*qT[m]/N/cv * time_tick;
 
         // Include non-zero thermalization time
         double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
@@ -283,8 +232,11 @@ void A::InternalDynamics(int m)
     }
 
     // ROTATIONAL LEVELS
-    // we only care about energy distribution between rotational sub-level during the amplification process
-    // (when a pulse is interacting witht the amplifier section)
+    // We only care about energy distribution between rotational sub-level during the amplification process
+    // Rotational relaxation is included in the amplification model that uses a faster time scale.
+    // Here, we only consider how the change in vibrational energy in the result of pumping and vibrational
+    //   relaxation distributes between rotational levels during amplificaiton. Rotational relaxation
+    //   is NOT modelled here.
     if(flag_interaction == true)
     {
         #pragma omp parallel for collapse(3)// schedule(static)
@@ -303,11 +255,14 @@ void A::InternalDynamics(int m)
         }
     }
 
-    // Update pumping and molecular dynamics files if time is around an integer number of save intervals
-    double target_save_time = time_tick/2 + save_interval*std::floor(time / save_interval);
-    if( time-time_tick/2 <= target_save_time && target_save_time < time+time_tick/2 )
+    // Update pumping and molecular dynamics files
+    int n_ticks = std::llround(save_interval/time_tick); // number of ticks between saves
+    if(n_ticks<1)
+        n_ticks=1;
+    if(m % n_ticks == 0)
     {
-        UpdateDynamicsFiles(m);
+        //std::cout << std::endl << "m = " << m  << "\t n_ticks = " << n_ticks << "\t m0 = " << m0 << std::endl << std::flush;
+        Update_eT_Files(m);
     }
 }
 
@@ -437,35 +392,11 @@ double A::VibrationalTemperatures(int x, int mode){
 }
 
 
-void A::UpdateDynamicsFiles(int m)
+void A::Update_eT_Files(int m)
 {
     double time = time_tick * (0.5+m);
 
     FILE *file;
-
-        /*if(pumping == "discharge"){
-       //////////////////////// Discharge ////////////////////////
-        if(m==0)
-        {
-            file = fopen((id+"_discharge.dat").c_str(), "w");
-            fprintf(file, "#Data format: time[s] current[A] voltage[V]\n");
-        }
-        else
-            file = fopen((id+"_discharge.dat").c_str(), "a");
-        fprintf(file, "%e\t%e\t%e\n", time, Current(time), Voltage(time));
-        fclose(file);
-
-        //////////////////////////// q ////////////////////////////
-        if(m==0)
-        {
-            file = fopen((id+"_q.dat").c_str(), "w");
-            fprintf(file, "#Data format: time[s] q2 q3 q4\n");
-        }
-        else
-            file = fopen((id+"_q.dat").c_str(), "a");
-        fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time, q2[m], q3[m], q4[m], qT[m]);
-        fclose(file);
-    }*/
 
     /////////////// e (average number of quanta in vibration modes) ////////////////
     if(m==0)

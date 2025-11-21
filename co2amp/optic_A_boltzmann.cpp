@@ -7,15 +7,15 @@ void A::Boltzmann(int m, double* q)
     double Du;
     double u_lim;
 
-    ////////////////////////// Stage 1: coarse net //////////////////////
+    ////////////////////////// Stage 1: coarse grid //////////////////////
     u_lim = 1000;
     Du = u_lim/(b0-1); // Electron energy net step, eV
 
-    Debug(3, "Writing and solving Boltzmann equations - Stage 1 (coarse net)...");
-    WriteAndSolveEquations(voltage[m], Du, f, q, false);
+    Debug(3, "Writing and solving Boltzmann equations - Stage 1 (coarse grid)...");
+    WriteAndSolveEquations(m, Du, false, f, q);
     Debug(3, "Stage 1 completed");
 
-    ////////////////////////// Stage 2: fine net //////////////////////
+    ////////////////////////// Stage 2: fine grid //////////////////////
     for(int i=0; i<b0; ++i)
     {
         if(f[1]/f[i] >= 1e6)
@@ -25,10 +25,19 @@ void A::Boltzmann(int m, double* q)
         }
     }
 
-    Du = u_lim/(b0-1); // Electron energy net step, eV
+    /*// zero out coefficient array
+    for(int i=0; i<b0; ++i)
+    {
+        for(int j=0; j<b0; ++j)
+        {
+            M[i][j] = 0;
+        }
+    }*/
 
-    Debug(3, "Writing and solving Boltzmann equations - Stage 1 (coarse net)...");
-    WriteAndSolveEquations(voltage[m], Du, f, q, true);
+    Du = u_lim/(b0-1); // Electron energy grid step, eV
+
+    Debug(3, "Writing and solving Boltzmann equations - Stage 2 (fine grid)...");
+    WriteAndSolveEquations(m, Du, true, f, q);
     Debug(3, "Stage 2 completed");
 
 
@@ -38,8 +47,9 @@ void A::Boltzmann(int m, double* q)
 }
 
 
-void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool calculate_q)
+void A::WriteAndSolveEquations(int m, double Du, bool calculate_q,  double* f, double *q)
 {
+    // See 2007-11-16
 
     // =========================================== INPUT ARRAYS ===========================================
 
@@ -226,11 +236,11 @@ void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool c
     double Y2 = p_N2/(p_CO2+p_N2+p_He);
     double Y3 = p_He/(p_CO2+p_N2+p_He);
 
-    double E = U/(D*1e2); // Electric field stretch, V/cm
+    double E = voltage[m]/(D*1e2); // Electric field stretch, V/cm
     double N = 2.7e19*(p_CO2+p_N2+p_He); // Total molecule number density, 1/cm^3
-    double E_over_N = E/N*1e16;
+    double EoN = E/N*1e16;
 
-    //double M[b0][b0];
+    // M[b0][b0];
     std::vector<std::vector<double>> M(b0, std::vector<double>(b0, 0.0)); // zero-fill
 
     double M1 = 44.0;
@@ -247,38 +257,38 @@ void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool c
 
     for(int i=0; i<b0; ++i)
     {
-        // Coeffitients of f_i
+        // Coeffitients of f[i]
         M[i][i] += -u[i]*Y1 * ( Q1[1][i]+Q1[2][i]+Q1[3][i]+Q1[4][i]+Q1[5][i]+Q1[6][i]+Q1[7][i]+Q1[8][i]+Q1[9][i]+Q1[10][i] );
         M[i][i] += -u[i]*Y2 * (	Q2[1][i]+Q2[2][i]+Q2[3][i]+Q2[4][i]+Q2[5][i]+Q2[6][i]+Q2[7][i]+Q2[8][i]+Q2[9][i]+Q2[10][i]+Q2[11][i]+Q2[12][i]+Q2[13][i]+Q2[14][i]+Q2[15][i] );
-        if(i < b0-1)
-            M[i][i] += -1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i+1]/(Y1*Qm1[i+1] + Y2*Qm2[i+1] + Y3*Qm3[i+1]);
-        if(i > 0)
-            M[i][i] += -1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i-1]/(Y1*Qm1[i-1] + Y2*Qm2[i-1] + Y3*Qm3[i-1]);
-        // Coefficients of f_[i+uxx/Du]
+        if(i+1 < b0)
+            M[i][i] += -1.0/3*EoN*EoN/(4*Du*Du) * u[i+1]/(Y1*Qm1[i+1] + Y2*Qm2[i+1] + Y3*Qm3[i+1]);
+        if(i-1 >= 0)
+            M[i][i] += -1.0/3*EoN*EoN/(4*Du*Du) * u[i-1]/(Y1*Qm1[i-1] + Y2*Qm2[i-1] + Y3*Qm3[i-1]);
+        // Coefficients of f[i+u_x/Du]
         for(int k=1; k<11; k++)
         {
-            int j = (int)floor((u[i]+u1[k])/Du + 0.5);
+            int j = i + std::llround(u1[k]/Du);
             if(j < b0)
                 M[i][j] += Y1*u[j]*Q1[k][j];
         }
         for(int k=1; k<16; k++)
         {
-            int j = (int)floor((u[i]+u2[k])/Du + 0.5);
+            int j = i + std::llround(u2[k]/Du);
             if(j < b0)
                 M[i][j] += Y2*u[j]*Q2[k][j];
         }
-        // Coefficients of f_[i+1]
+        // Coefficients of f[i+1]
         if(i+1 < b0)
-            M[i][i+1] += 1.09e-3/2/Du*pow(u[i+1],2)*(Y1/M1*Qm1[i+1] + Y2/M2*Qm2[i+1] + Y3/M3*Qm3[i+1]) + Y1*C1*u[i+1]/2/Du + Y2*C2*u[i+1]/2/Du + 6*B*Y2*u[i+1]/2/Du*Q[i+1];
-        // Coefficients of f_[i-1]
+            M[i][i+1] +=  1.09e-3/(2*Du)*u[i+1]*u[i+1]*(Y1/M1*Qm1[i+1] + Y2/M2*Qm2[i+1] + Y3/M3*Qm3[i+1]) + Y1*C1*u[i+1]/(2*Du) + Y2*C2*u[i+1]/(2*Du) + 6*B*Y2*u[i+1]/(2*Du)*Q[i+1];
+        // Coefficients of f[i-1]
         if(i-1 >= 0)
-            M[i][i-1] += -1.09e-3/2/Du*pow(u[i-1],2)*(Y1/M1*Qm1[i-1] + Y2/M2*Qm2[i-1] + Y3/M3*Qm3[i-1]) - Y1*C1*u[i-1]/2/Du - Y2*C2*u[i-1]/2/Du - 6*B*Y2*u[i-1]/2/Du*Q[i-1];
-        // Coefficients of f_[i+2]
+            M[i][i-1] += -1.09e-3/(2*Du)*u[i-1]*u[i-1]*(Y1/M1*Qm1[i-1] + Y2/M2*Qm2[i-1] + Y3/M3*Qm3[i-1]) - Y1*C1*u[i-1]/(2*Du) - Y2*C2*u[i-1]/(2*Du) - 6*B*Y2*u[i-1]/(2*Du)*Q[i-1];
+        // Coefficients of f[i+2]
         if(i+2 < b0)
-            M[i][i+2] += 1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i+1]/(Y1*Qm1[i+1] + Y2*Qm2[i+1] + Y3*Qm3[i+1]);
-        // Coefficients of f_[i-2]
+            M[i][i+2] += 1.0/3*EoN*EoN/(4*Du*Du) * u[i+1]/(Y1*Qm1[i+1] + Y2*Qm2[i+1] + Y3*Qm3[i+1]);
+        // Coefficients of f[i-2]
         if(i-2 >=0)
-            M[i][i-2] += 1.0/3*pow(E_over_N,2)/4/pow(Du,2) * u[i-1]/(Y1*Qm1[i-1] + Y2*Qm2[i-1] + Y3*Qm3[i-1]);
+            M[i][i-2] += 1.0/3*EoN*EoN/(4*Du*Du) * u[i-1]/(Y1*Qm1[i-1] + Y2*Qm2[i-1] + Y3*Qm3[i-1]);
     }
 
     Debug(3, "Equations written");
@@ -294,20 +304,18 @@ void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool c
     {
         if(M[i-1][i-1]==0.0)
         {
-            std::cout << "! " << i-1 << std::endl << std::flush;
+            std::cout << "Boltzmann solver warning:! M[" << i-1 << "][" << i-1 << "] == 0" << std::endl << std::flush;
             int ii = i;
             while(ii<b0-1 && M[ii][ii]==0.0)
                 ii++;
             for(int j=0; j<b0; ++j) // swap i and ii lines;
             {
-                a = M[i-1][j];
-                M[i-1][j] = M[ii][j];
-                M[ii][j] = a;
+                std::swap(M[i-1][j], M[ii][j]);
             }
         }
         if(M[i-1][i-1]==0.0)
         {
-            std::cout << "Error !!!!!!!!!!!!!!!!!!! " << i-1 << std::endl << std::flush;
+            std::cout << "Boltzmann solver error: M[" << i-1 << "][" << i-1 << "] == 0" << std::endl << std::flush;
         }
         for(int ii=i; ii<b0; ++ii)
         {
@@ -327,7 +335,7 @@ void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool c
     }
 
     // Normalization
-    a=0;
+    a =0;
     for(int i=0; i<b0; i++)
         a += f[i]*Du;
     for(int i=0; i<b0; i++)
@@ -356,29 +364,24 @@ void A::WriteAndSolveEquations(double U, double Du, double* f, double *q, bool c
     // rotations
     double zr = 0;
 
-    for(int i=0; i<b0-1; i++)
-        v += -5.93e7 * 1.0/3.0*E_over_N * Du* Du*(i+0.5) * 1.0/(Y1*(Qm1[i]+Qm1[i+1])/2.0 + Y2*(Qm2[i]+Qm2[i+1])/2.0 + Y3*(Qm3[i]+Qm3[i+1])/2.0) * (f[i+1]-f[i])/Du;
+    for(int i=1; i<b0-1; i++)
+        v += -5.93e7 / 3 * EoN * Du* u[i] / (Y1*Qm1[i] + Y2*Qm2[i] + Y3*Qm3[i]) * (f[i+1]-f[i-1])/(2*Du);
 
-    for(int i=0; i<b0-1; i++)
+    for(int i=0; i<b0; i++)
     {
         for(int k=1; k<11; k++)
-            w1[k] += 5.93e-9 * Du * Du*(i+0.5) * (Q1[k][i]+Q1[k][i+1])/2.0 * (f[i]+f[i+1])/2.0;
+            w1[k] += 5.93e-9 * u[i] * Q1[k][i] * f[i] * Du;
         for(int k=1; k<16; k++)
-            w2[k] += 5.93e-9 * Du * Du*(i+0.5) * (Q2[k][i]+Q2[k][i+1])/2.0 * (f[i]+f[i+1])/2.0;
-
-        zt += 5.93e7 * 1.09e-3 * Du * pow(Du*(i+0.5),2) *
-              (Y1/M1*(Qm1[i]+Qm1[i+1])/2.0 + Y2/M2*(Qm2[i]+Qm2[i+1])/2.0 + Y3/M3*(Qm3[i]+Qm3[i+1])/2.0) /
-              E_over_N / v * (f[i]+f[i+1])/2.0;
-
-        zr += 5.93e7 * (Y1*C1+Y2*C2) * Du * Du*(i+0.5) * (f[i]+f[i+1])/2.0 / E_over_N / v;
-        zr += 5.93e7 * 6.0*Y2*B * Du * Du*(i+0.5) * (Q[i]+Q[i+1])/2.0 * (f[i]+f[i+1])/2.0 / E_over_N / v;
+            w2[k] += 5.93e-9 * u[i] * Q2[k][i] * f[i] * Du;
+        zt += 5.93e7 * 1.09e-3 * u[i]*u[i] * (Y1/M1*Qm1[i] + Y2/M2*Qm2[i] + Y3/M3*Qm3[i]) * f[i] * Du / EoN / v;
+        zr += 5.93e7 * u[i] * (Y1*C1 + Y2*C2 + 6*Y2*B*Q[i]) * f[i] * Du / EoN / v;
     }
 
     for(int k=1; k<11; k++)
-        z1[k] = 1e16 * Y1 * u1[k] * w1[k] / E_over_N / v;
+        z1[k] = 1e16 * Y1 * u1[k] * w1[k] / EoN / v;
 
     for(int k=1; k<16; k++)
-        z2[k] = 1e16 * Y2 * u2[k] * w2[k] / E_over_N / v;
+        z2[k] = 1e16 * Y2 * u2[k] * w2[k] / EoN / v;
 
     // N2
     double q4 = 0;
@@ -483,7 +486,7 @@ void A::InterpolateArray(double* input_x, double* input_y, int input_size, doubl
 }
 
 
-void A::Save_f(double Du, double* f)
+/*void A::Save_f(double Du, double* f)
 {
     FILE *file;
 
@@ -495,4 +498,4 @@ void A::Save_f(double Du, double* f)
         fprintf(file, "%.4E\t%.4E\n", Du*i, f[i]);
 
     fclose(file);
-}
+}*/

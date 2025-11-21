@@ -1,31 +1,8 @@
 #include "co2amp.h"
 
-
-//M::M(std::string id)
 void M::Initialize()
 {
-    //this->id = id;
-    //type = "M";
-    //yaml_path = id + ".yml";
     std::string value="";
-
-    /*Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
-
-    if(!YamlReadFile(yaml_path, &yaml_content))
-    {
-        configuration_error = true;
-        return;
-    }
-
-    // r_max (semiDia)
-    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
-    {
-        configuration_error = true;
-        return;
-    }
-    r_max = std::stod(value);
-    Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;*/
 
     // material
     if(!YamlGetValue(&value, &yaml_content, "material"))
@@ -270,7 +247,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                //intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
                 intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 
@@ -310,7 +286,6 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
             //integral = 0;
             for(int n=0; n<n0; n++)
             {
-                //intensity = 2.0 * h * pulse->vc * pow(abs(pulse->E[n0*x+n]), 2); // W/m2
                 intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
                 intensity *= tilt_factor; // reduced intensity in tilted windows
 

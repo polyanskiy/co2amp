@@ -27,7 +27,7 @@ SOURCES += \
     output.cpp \
     pulse.cpp
 HEADERS += co2amp.h
-QMAKE_CXXFLAGS += -fopenmp # -Wno-sign-compare# -O3 -march=native -ffast-math
+QMAKE_CXXFLAGS += -fopenmp -O3 #don't use -ffast-math!
 QMAKE_LFLAGS += -fopenmp
 
 

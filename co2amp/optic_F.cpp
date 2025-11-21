@@ -1,31 +1,9 @@
 #include "co2amp.h"
 
 
-//F::F(std::string id)
 void F::Initialize()
 {  
-    //this->id = id;
-    //type = "F";
-    //yaml_path = id + ".yml";
     std::string value="";
-
-    /*Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
-
-    if(!YamlReadFile(yaml_path, &yaml_content))
-    {
-        configuration_error = true;
-        return;
-    }
-
-    // r_max (semiDia) - note the difference between the user interface- and internal- notation
-    if(!YamlGetValue(&value, &yaml_content, "semiDia"))
-    {
-        configuration_error = true;
-        return;
-    }
-    r_max = std::stod(value);
-    Debug(2, "semiDia = " + toExpString(r_max) + " m");
-    Dr = r_max/x0;*/
 
     // filter type
     if(!YamlGetValue(&value, &yaml_content, "filter"))

@@ -7,8 +7,6 @@ void A::Initialize()
 
     Debug(1, "*** AMPLIFIER SECTION \'" + id + "\' ***");
 
-    //Debug(2, "Creating optic type \'" + type + "\' from file \'" + yaml_path + "\'");
-
     // Length (L)
     if(!YamlGetValue(&value, &yaml_content, "L"))
     {
@@ -219,15 +217,21 @@ void A::Initialize()
 
     // ------- PUMPING -------
 
-    // Number of lab time ticks between data entries in pumping and population dynamics files
+    // interval between saving e and T data points (to be rounded to neareat whole number of time_ticks)
     save_interval = 1e-9;
     if(YamlGetValue(&value, &yaml_content, "save_interval", false))
     {
         save_interval = std::stod(value);
     }
-    Debug(2, "save_interval = " + toExpString(save_interval) + " lab time ticks");
+    Debug(2, "save_interval = " + toExpString(save_interval) + " s (time interval between saving e and T data points)");
+    if(save_interval <= 0)
+    {
+        configuration_error = true;
+        std::cout << "ERROR: \'save_interval\' must be > 0\n";
+        return;
+    }
 
-    // pumping type (must be "discharge" or "optical")
+    // pumping type
     if(!YamlGetValue(&value, &yaml_content, "pumping"))
     {
         configuration_error = true;
@@ -246,14 +250,19 @@ void A::Initialize()
     if(pumping == "discharge")
     {
         // Time between re-solving Boltzmann equation for determining pump energy distribution
-        // (slow calculation because cannot be parallelized)
         // between solutions, linear interpolation is applied to estimate 'q' coefficients
         solve_interval = 25e-9;
         if(YamlGetValue(&value, &yaml_content, "solve_interval", false))
         {
             solve_interval = std::stod(value);
         }
-        Debug(2, "solve_interval = " + toExpString(solve_interval) + " s (interval between re-solving Boltzmann equation)");
+        Debug(2, "solve_interval = " + toExpString(solve_interval) + " s (time interval between re-solving Boltzmann equation)");
+        if(solve_interval <= 0)
+        {
+            configuration_error = true;
+            std::cout << "ERROR: \'solve_interval\' must be > 0\n";
+            return;
+        }
 
         if(!YamlGetValue(&value, &yaml_content, "Vd"))
         {
@@ -306,34 +315,53 @@ void A::Initialize()
             voltage[m] = Interpolate(&coarse_t, &coarse_U, time_tick*(0.5+m));
         }
 
-
         // populate q arrays (includes solving Boltzmann equations)
+        // solve Botzman on coarse time grid first, then interpolate
+        int n_ticks = std::llround(solve_interval/time_tick); // number of time_ticks between solves
+        if(n_ticks<1)
+            n_ticks = 1;
+        int n_solves = m0/n_ticks;
+        // make sure that solution at m = m0-1 is included
+        // Examples mor m0=8 (ensure solution at m=7)
+        // n_ticks=1 => n_solves=8 (solve at m = 0, 1, 2, 3, 4, 5, 6, 7)
+        // n_ticks=2 => n_solves=5 (solve at m = 0, 2, 4, 6, 7)
+        // n_ticks=3 => n_solves=4 (solve at m = 0, 3, 6, 7)
+        while(n_ticks*(n_solves-1) < m0-1)
+        {
+            if(n_solves==m0) // n_ticks==1
+                break;
+            n_solves++;
+        }
 
-        std::vector<double> coarse_q2, coarse_q3, coarse_q4, coarse_qT;
+        /*int n_solves = m0;             // e.g., m0=8; n_ticks=1 => n_solves=8 (solve at m = 0, 1, 2, 3, 4, 5, 6, 7)
+        if(n_ticks>1)
+        {
+            n_solves = m0/n_ticks + 1; // e.g., m0=8; n_ticks=2 => n_solves=5 (solve at m = 0, 2, 4, 6, 7)
+                                       // !!! solution at m = m0-1 (7 in this example) must be present for covering whole time range !!!
+            if(m0 % n_ticks > 0)
+                n_solves += 1;         // e.g., m0=8; n_ticks=3 => n_solves=4 (solve at m = 0, 3, 6, 7)
+        }*/
 
-        // number of lab time ticks in solve_interval (rounded)
-        int coarse_time_step = std::llround(solve_interval/time_tick);
-        int n_coarse_steps = std::floor(m0/coarse_time_step)+2;
-        coarse_q2.resize(n_coarse_steps);
-        coarse_q3.resize(n_coarse_steps);
-        coarse_q4.resize(n_coarse_steps);
-        coarse_qT.resize(n_coarse_steps);
-        coarse_t.resize(n_coarse_steps);
+        std::vector<double> coarse_q2(n_solves);
+        std::vector<double> coarse_q3(n_solves);
+        std::vector<double> coarse_q4(n_solves);
+        std::vector<double> coarse_qT(n_solves);
+        coarse_t.resize(n_solves);
+
         int count = 0;
 
         #pragma omp parallel for
-        for(int i=0; i<n_coarse_steps; ++i)
+        for(int i=0; i<n_solves; ++i)
         {
-            //if(debug_level >= 0)
-            //{
-                #pragma omp critical
-                {
-                    StatusDisplay(NULL, NULL, 0, this->id +
-                                  ": solving Boltzmann equations: " + std::to_string(++count) + " of " + std::to_string(n_coarse_steps));
-                }
-            //}
+            #pragma omp critical
+            {
+                StatusDisplay(nullptr, nullptr, -1, this->id +
+                              ": solving Boltzmann equations: " + std::to_string(++count) + " of " + std::to_string(n_solves));
+            }
 
-            int m = coarse_time_step*i;
+            //std::vector<std::vector<double>> M(b0, std::vector<double>(b0, 0.0)); // zero-fill
+
+            int m = i * n_ticks;
             if(m>m0-1)
                 m=m0-1;
             coarse_t[i] = time_tick*(0.5+m);
@@ -563,7 +591,6 @@ void A::Initialize()
     }
 
 
-
     // ------- BANDS TO CONSIDER -------
 
     // defaults
@@ -685,23 +712,11 @@ void A::Initialize()
     // Populations and field initialization
     InitializePopulations();
 
-    /*// Initial q's
-    if(pumping == "discharge")
-    {
-        Debug(2, "Initializing q's...");
-        Boltzmann(0); // initialize q's
-        time_b = 0;
-        q2_b = q2;
-        q3_b = q3;
-        q4_b = q4;
-        qT_b = qT;
-        Debug(2, "Initializing q's done");
-    }*/
+    // No pulse interacting with the amplifier yet (thus, no need to concider pump energy distribution betweenrotational levels)
+    flag_interaction = false;
 
     Debug(2, "Writing pumping files...");
-
     WritePumpingFiles();
-
     Debug(2, "Writing pumping files done");
 }
 

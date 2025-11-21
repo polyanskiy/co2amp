@@ -107,16 +107,13 @@ private:
     bool band_4um;
     // --------- PUMPING ---------
     std::string pumping;   // pumping type ("discharge" or "optical")
-    double save_interval;  // interval between data entries in pumping and population dynamics files (default 1e-9 s)
-    double solve_interval; // interval between re-solving Boltzman equation (efault 25e-9 s)
+    double save_interval;  // time interval between data points in e & T files (default 1e-9 s)
+    double solve_interval; // time interval between re-solving Boltzman equation (default 25e-9 s)
     // for discharge
     std::vector<double> voltage;
     std::vector<double> current;
     double Vd, D; // discharge pumping parameters (current and voltage profile is provided in the 'discharge.txt')
     std::vector<double> q2, q3, q4, qT;
-    //double q2, q3, q4, qT;
-    //double q2_a, q3_a, q4_a, qT_a, time_a;
-    //double q2_b, q3_b, q4_b, qT_b, time_b;
     // for optical
     std::vector<double> normalized_intensity;
     std::vector<double> fluence;
@@ -152,18 +149,6 @@ private:
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations
-    /*double E_over_N;
-    double Y1, Y2, Y3;
-    double Du;
-    double M1, M2, M3, C1, C2, B;
-    double u[b0];
-    double Q[b0];
-    double Qm1[b0], Qm2[b0], Qm3[b0];
-    double Q1[11][b0], Q2[16][b0];
-    double u1[11], u2[16];
-    double M[b0][b0];
-    double f[b0];*/
-
 
     /////////////////////////////// optic_A.cpp ///////////////////////////////
     void InitializePumpPulse(void);
@@ -173,23 +158,19 @@ private:
     void AmplificationBand(void);
 
     /////////////////////////// optic_A_dynamics.cpp //////////////////////////
-    //double Current(double);
-    //double Voltage(double);
-    //double PumpPulseIntensity(int m, int x);
     double e2e(double);
     void InitializePopulations(void);
     double VibrationalTemperatures(int x, int mode);
-    void UpdateDynamicsFiles(int m);
+    void Update_eT_Files(int m);
 
     ///////////////////////// optic_A_amplification.cpp /////////////////////////
-    //void Amplification(int pulse, int k, int m, int am_section, double length);
     void SaveGainSpectrum(Pulse *pulse, Plane *plane);
 
     /////////////////////////// optic_A_boltzmann.cpp ///////////////////////////
     void Boltzmann(int, double[5]);
-    void WriteAndSolveEquations(double, double, double*, double*, bool);
+    void WriteAndSolveEquations(int, double, bool, double*, double*);
     void InterpolateArray(double*, double*, int, double, double*);
-    void Save_f(double, double*); //debug (test Boltzmann solver)
+    //void Save_f(double, double*); //debug (test Boltzmann solver)
 };
 
 
@@ -198,10 +179,7 @@ class C: public Optic // Chirp (Stretcher/Compressor)
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //C(std::string yaml_path);
-    //virtual void InternalDynamics(double time);
     virtual void InternalDynamics(int m);
-    //virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, double time=0, int n_min=0, int n_max=0);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
     std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
@@ -214,7 +192,6 @@ class L: public Optic // Lens
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //L(std::string yaml_path);
     virtual void InternalDynamics(int m);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
     double F; // focal length, m
@@ -226,7 +203,6 @@ class M: public Optic // Matter (window, air)
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //M(std::string yaml_path);
     virtual void InternalDynamics(int m);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
@@ -266,7 +242,6 @@ class F: public Optic // Spatial (ND) filter
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //F(std::string yaml_path);
     virtual void InternalDynamics(int m);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:
@@ -280,7 +255,6 @@ class P: public Optic // Probe
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //P(std::string yaml_path);
     virtual void InternalDynamics(int m);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 };
@@ -291,7 +265,6 @@ class S: public Optic // Spectral filter
 public:
     using Optic::Optic;
     virtual void Initialize(void);
-    //S(std::string yaml_path);
     virtual void InternalDynamics(int m);
     virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
 private:

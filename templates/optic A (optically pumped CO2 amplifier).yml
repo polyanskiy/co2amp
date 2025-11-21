@@ -1,6 +1,6 @@
 # Configuration YAML file, type A
 # - Optically pumped active medium -
-# template v.2025-11-17
+# template v.2025-11-20
 
 # Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
@@ -37,8 +37,7 @@ band_seq: true
 band_hot: true
 band_4um: false
 
-# Molecular dynamics save interval (s)
-# (distance between points in pumping and molecular dynamics data files)
+# Time (s) between points in T's and e's data files
 save_interval: 1e-9
 
 # Pumping type (discharge/optical)
@@ -50,15 +49,15 @@ pump_level: 021
 pump_wl: 2.68e-6
 # Optical pumping absorption cross-section (m^2)
 pump_sigma: 4e-24
-# Optical pumping pulse energy, J
+# Optical pumping pulse energy (J)
 pump_E: 1
 
 # Optical pumping beam profile (GAUSS/SUPERGAUSS4/SUPERGAUSS6/SUPERGAUSS8/SUPERGAUSS10/FLATTOP/FREEFORM)
 pump_beam: GAUSS
-# if beam == GAUSS or SUPERGAUSS or FLATTOP: beam radius @ 1/e^2, m
+# if beam == GAUSS or SUPERGAUSS or FLATTOP: beam radius @ 1/e^2 (m)
 w: 10e-3
 # if beam == FREEFORM: tabulated beam profile
-# format: r I (radial coordinate, m and relative intensity)
+# format: r I (radial coordinate (m) and relative intensity)
 #beam_form: |
 #    00e-3 1.0
 #    05e-3 0.8
@@ -67,11 +66,11 @@ w: 10e-3
 
 # Optical pumping pulse profile (GAUSS/FLATTOP/FREEFORM)
 pump_pulse: FREEFORM
-# if pump_pulse == GAUSS or FLATTOP: pulse duration (FWHM) and center position, s
+# if pump_pulse == GAUSS or FLATTOP: FWHM pulse duration (s) and center position (s)
 #fwhm: 20e-9
 #t0: 50e-9
 # if pulse == FREEFORM: tabulated pulse profile
-# format: t I (time, s and relative intensity)
+# format: t I (time (s) and relative intensity)
 pulse_form: |
     0 1.0
     19.999e-9 1.0

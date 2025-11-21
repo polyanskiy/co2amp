@@ -1,6 +1,6 @@
 # Configuration YAML file, type A
 # - Discharge pumped active medium -
-# template v.2025-11-12
+# template v.2025-11-20
 
 # Semi-diameter of the limiting aperture (m)
 semiDia: 25e-3
@@ -37,8 +37,7 @@ band_seq: true
 band_hot: true
 band_4um: false
 
-# Molecular dynamics save interval (s)
-# (distance between points in pumping and molecular dynamics data files)
+# Time (s) between points in T's and e's data files
 save_interval: 1e-9
 
 # Pumping type (discharge/optical)
