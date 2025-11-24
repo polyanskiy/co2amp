@@ -333,15 +333,6 @@ void A::Initialize()
             n_solves++;
         }
 
-        /*int n_solves = m0;             // e.g., m0=8; n_ticks=1 => n_solves=8 (solve at m = 0, 1, 2, 3, 4, 5, 6, 7)
-        if(n_ticks>1)
-        {
-            n_solves = m0/n_ticks + 1; // e.g., m0=8; n_ticks=2 => n_solves=5 (solve at m = 0, 2, 4, 6, 7)
-                                       // !!! solution at m = m0-1 (7 in this example) must be present for covering whole time range !!!
-            if(m0 % n_ticks > 0)
-                n_solves += 1;         // e.g., m0=8; n_ticks=3 => n_solves=4 (solve at m = 0, 3, 6, 7)
-        }*/
-
         std::vector<double> coarse_q2(n_solves);
         std::vector<double> coarse_q3(n_solves);
         std::vector<double> coarse_q4(n_solves);
@@ -726,6 +717,10 @@ void A::WritePumpingFiles()
 {
     FILE *file;
 
+    int n_ticks = std::llround(save_interval/time_tick); // number of ticks between saves
+    if(n_ticks<1)
+        n_ticks=1;
+
     if(pumping == "optical")
     {
         // Write fluence file
@@ -745,7 +740,8 @@ void A::WritePumpingFiles()
         {
             energy += fluence[x] *  M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
         }
-        for(int m=0; m<m0; ++m)
+        //for(int m=0; m<m0; ++m)
+        for(int m=0; m<m0; m+=n_ticks)
         {
             double power = energy * normalized_intensity[m];
             fprintf(file, "%.8E\t%e\n", time_tick*(0.5+m), power);
@@ -758,7 +754,8 @@ void A::WritePumpingFiles()
         // Write discharge (current & voltage) file
         file = fopen((id+"_discharge.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] current[A] voltage[V]\n");
-        for(int m=0; m<m0; ++m)
+        //for(int m=0; m<m0; ++m)
+        for(int m=0; m<m0; m+=n_ticks)
         {
             fprintf(file, "%e\t%e\t%e\n", time_tick*(0.5+m), current[m], voltage[m]);
         }
@@ -767,7 +764,8 @@ void A::WritePumpingFiles()
         // Write q (pump energy distribution) file
         file = fopen((id+"_q.dat").c_str(), "w");
         fprintf(file, "#Data format: time[s] q2 q3 q4\n");
-        for(int m=0; m<m0; ++m)
+        //for(int m=0; m<m0; ++m)
+        for(int m=0; m<m0; m+=n_ticks)
         {
             fprintf(file, "%e\t%e\t%e\t%e\t%e\n", time_tick*(0.5+m), q2[m], q3[m], q4[m], qT[m]);
         }

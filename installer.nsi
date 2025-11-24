@@ -6,7 +6,7 @@
 
 ;General
 Name "co2amp"
-OutFile "co2amp_v.20251121_setup.exe"
+OutFile "co2amp_v.20251124_setup.exe"
 Unicode True
 
 ;Default install path
@@ -53,7 +53,7 @@ Section "Section_01" Sec01
 
   ;Write files to installation directory
   SetOutPath "$INSTDIR\doc"
-  File "doc\co2amp\co2amp.pdf"
+  File "doc\co2amp.pdf"
   SetOutPath "$INSTDIR\templates"
   File "templates\*.yml"
   SetOutPath "$INSTDIR\examples"

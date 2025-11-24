@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
        <enum>QTabWidget::TabShape::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>2</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>

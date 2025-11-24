@@ -416,7 +416,7 @@ void A::Update_eT_Files(int m)
     if(m==0)
     {
         file = fopen((id+"_temperatures.dat").c_str(), "w");
-        fprintf(file, "#Data format: time[s] T[K] T2[K] T3[K] T4[K]\n");
+        fprintf(file, "#Data format: time[s] T2[K] T3[K] T4[K] T[K]\n");
     }
     else
         file = fopen((id+"_temperatures.dat").c_str(), "a");

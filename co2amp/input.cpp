@@ -183,7 +183,7 @@ bool ReadConfigFiles(std::string path)
     // (t_max-t_min) is the duration of the pulse (slow) time grid
     m0 = (pulses.back()->time_in + planes.back()->time_from_first_plane + (t_max-t_min)) / time_tick + 1; //rounding toward 0
 
-    Debug(1, "m0 = " + std::to_string(m0));
+    Debug(2, "m0 (number of steps in lab time grid) = " + std::to_string(m0));
 
     // Initialize optics
     for(size_t i=0; i<optics.size(); ++i)

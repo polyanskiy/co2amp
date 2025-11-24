@@ -74,12 +74,9 @@ void MainWindow::Plot()
     svg_fig4->setHidden(false);
     svg_fig5->setHidden(false);
     svg_fig6->setHidden(optic_type != "A" && optic_type != "F" && optic_type != "P");
-    //svg_fig6->setHidden(optic_type != "A" && optic_type != "F");
     svg_fig7->setHidden(optic_type != "A");
     svg_fig8->setHidden(optic_type != "A");
     svg_fig9->setHidden(optic_type != "A");
-
-    //double zoom = doubleSpinBox_zoom->value();
 
     QSize size(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
     switch(comboBox_size->currentIndex())
@@ -582,6 +579,33 @@ void MainWindow::Plot()
     proc2->waitForFinished();
     proc3->waitForFinished();
     proc4->waitForFinished();
+
+    ////////////////////////////////// Hide non-existing figures /////////////////////////////////////
+
+    /*svg_fig1->setHidden(
+        !(QFile("fig_energy.svg").exists() && QFile("fig_energy.svg").size() > 0) );
+    svg_fig2->setHidden(
+        !(QFile("fig_spectra.svg").exists() && QFile("fig_spectra.svg").size() > 0) );
+    svg_fig3->setHidden(
+        !(QFile("fig_gain.svg").exists() && QFile("fig_gain.svg").size() > 0) &&
+        !(QFile("fig_chirp.svg").exists() && QFile("fig_chirp.svg").size() > 0) &&
+        !(optic_type == "S" && QFile("fig_transmittance.svg").exists() && QFile("fig_transmittance.svg").size() >0 ) );
+    svg_fig4->setHidden(
+        !(QFile("fig_spectra.svg").exists() && QFile("fig_spectra.svg").size() > 0) );
+    svg_fig5->setHidden(
+        !(QFile("fig_power.svg").exists() && QFile("fig_power.svg").size() > 0) );
+    svg_fig6->setHidden(
+        !(QFile("fig_discharge.svg").exists() && QFile("fig_discharge.svg").size() > 0) &&
+        !(QFile("fig_pumping_power.svg").exists() && QFile("fig_pumping_power.svg").size() > 0) &&
+        !(QFile("fig_phase.svg").exists() && QFile("fig_phase.svg").size() > 0) &&
+        !(optic_type == "F" && QFile("fig_transmittance.svg").exists() && QFile("fig_transmittance.svg").size() > 0 ) );
+    svg_fig7->setHidden(
+        !(QFile("fig_temperatures.svg").exists() && QFile("fig_temperatures.svg").size() > 0) );
+    svg_fig8->setHidden(
+        !(QFile("fig_e.svg").exists() && QFile("fig_e.svg").size() > 0) );
+    svg_fig9->setHidden(
+        !(QFile("fig_q.svg").exists() && QFile("fig_q.svg").size() > 0) &&
+        !(QFile("fig_pumping_fluence.svg").exists() && QFile("fig_pumping_fluence.svg").size() > 0) );*/
 
     /////////////////////////////////////// Display figures //////////////////////////////////////////
 

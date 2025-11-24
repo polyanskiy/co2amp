@@ -23,9 +23,14 @@ int MainWindow::FigureMenu()
 
 /////////////////////////////// COPY FIGURE OR DATA /////////////////////////////////////
 
-
 void MainWindow::on_svg_fig1_customContextMenuRequested() // Energy
 {
+
+    if( !(QFile("fig_energy.svg").exists() && QFile("fig_energy.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
 
     if(m==1) // data
@@ -39,6 +44,11 @@ void MainWindow::on_svg_fig1_customContextMenuRequested() // Energy
 
 void MainWindow::on_svg_fig2_customContextMenuRequested() // Spectra
 {
+    if( !(QFile("fig_spectra.svg").exists() && QFile("fig_spectra.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
 
     if(m==1) //data
@@ -53,36 +63,39 @@ void MainWindow::on_svg_fig2_customContextMenuRequested() // Spectra
 void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
 {
     QString optic_id = comboBox_optic->currentText();
-    int m = FigureMenu();   
+
+    if( !(QFile("fig_gain.svg").exists() && QFile("fig_gain.svg").size() > 0) &&
+        !(QFile("fig_chirp.svg").exists() && QFile("fig_chirp.svg").size() > 0) &&
+        !(Type(optic_id) == "S" && QFile("fig_transmittance.svg").exists() && QFile("fig_transmittance.svg").size() >0 ) )
+    {
+        return;
+    }
+
+    int m = FigureMenu();
+
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig3);
 
     if(Type(optic_id)=="A")
     {
         if(m==1) //data
             CopyMultipassData("_gain.dat");
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig3);
         if(m==3) // SVG
             SaveSVG("fig_gain.svg");
     }
 
-
-
     if(Type(optic_id)=="C")
     {
         if(m==1) //data
-            CopyDataFromFile(optic_id + "_chirpyness.dat");
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig3);
+            CopyDataFromFile(optic_id + "_chirp.dat");
         if(m==3) // SVG
-            SaveSVG("fig_chirpyness.svg");
+            SaveSVG("fig_chirp.svg");
     }
 
     if(Type(optic_id)=="S")
     {
         if(m==1) //data
             CopyDataFromFile(optic_id + "_transmittance.dat");
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig3);
         if(m==3) // SVG
             SaveSVG("fig_transmittance.svg");
     }
@@ -91,6 +104,11 @@ void MainWindow::on_svg_fig3_customContextMenuRequested() // Gain spectrum
 
 void MainWindow::on_svg_fig4_customContextMenuRequested() // Fluence
 {
+    if( !(QFile("fig_fluence.svg").exists() && QFile("fig_fluence.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
 
     if(m==1) //data
@@ -105,6 +123,11 @@ void MainWindow::on_svg_fig4_customContextMenuRequested() // Fluence
 
 void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 {
+    if( !(QFile("fig_power.svg").exists() && QFile("fig_power.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
 
     if(m==1) //data
@@ -119,7 +142,19 @@ void MainWindow::on_svg_fig5_customContextMenuRequested() // Power
 void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumping pulse
 {
     QString optic_id = comboBox_optic->currentText();
+
+    if( !(QFile("fig_discharge.svg").exists() && QFile("fig_discharge.svg").size() > 0) &&
+        !(QFile("fig_pumping_power.svg").exists() && QFile("fig_pumping_power.svg").size() > 0) &&
+        !(QFile("fig_phase.svg").exists() && QFile("fig_phase.svg").size() > 0) &&
+        !(Type(optic_id) == "F" && QFile("fig_transmittance.svg").exists() && QFile("fig_transmittance.svg").size() > 0 ) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
+
+    if(m==2) // pixmap
+        CopyPixmap(svg_fig6);
 
     if(Type(optic_id)=="A")
     {
@@ -127,21 +162,22 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
         {
             if(QFile::exists(optic_id + "_discharge.dat"))
                 CopyDataFromFile(optic_id + "_discharge.dat");
-            if(QFile::exists(optic_id + "_pumping_pulse.dat"))
-                CopyDataFromFile(optic_id + "_pumping_pulse.dat");
+            if(QFile::exists(optic_id + "_pumping_power.dat"))
+                CopyDataFromFile(optic_id + "_pumping_power.dat");
         }
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig6);
         if(m==3) // SVG
-            SaveSVG("fig_discharge.svg");
+        {
+            if(QFile::exists("fig_discharge.svg"))
+                SaveSVG("fig_discharge.svg");
+            if(QFile::exists("fig_pumping_power.svg"))
+                SaveSVG("fig_pumping_power.svg");
+        }
     }
 
     if(Type(optic_id)=="F")
     {
         if(m==1) //data
             CopyDataFromFile(optic_id + "_transmittance.dat");
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig6);
         if(m==3) // SVG
             SaveSVG("fig_transmittance.svg");
     }
@@ -150,8 +186,6 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
     {
         if(m==1) //data
             CopyMultipassData("_phase.dat");
-        if(m==2) // pixmap
-            CopyPixmap(svg_fig6);
         if(m==3) // SVG
             SaveSVG("fig_phase.svg");
     }
@@ -161,6 +195,12 @@ void MainWindow::on_svg_fig6_customContextMenuRequested() // Discharge or Pumpin
 void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
 {
     QString optic_id = comboBox_optic->currentText();
+
+    if( !(QFile("fig_temperatures.svg").exists() && QFile("fig_temperatures.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu(); 
 
     if(m==1) //data
@@ -175,6 +215,12 @@ void MainWindow::on_svg_fig7_customContextMenuRequested() // Temperatures
 void MainWindow::on_svg_fig8_customContextMenuRequested() // e (# of quanta / molequle)
 {
     QString optic_id = comboBox_optic->currentText();
+
+    if( !(QFile("fig_e.svg").exists() && QFile("fig_e.svg").size() > 0) )
+    {
+        return;
+    }
+
     int m = FigureMenu();
 
     if(m==1) //data
@@ -190,17 +236,30 @@ void MainWindow::on_svg_fig9_customContextMenuRequested() // q
 {
     QString optic_id = comboBox_optic->currentText();
 
-    if(!QFile::exists(optic_id + "_q.dat"))
+    if( !(QFile("fig_q.svg").exists() && QFile("fig_q.svg").size() > 0) &&
+        !(QFile("fig_pumping_fluence.svg").exists() && QFile("fig_pumping_fluence.svg").size() > 0) )
+    {
         return;
+    }
 
     int m = FigureMenu();
 
     if(m==1) //data
-        CopyDataFromFile(optic_id + "_q.dat");
+    {
+        if(QFile::exists(optic_id + "_q.dat"))
+            CopyDataFromFile(optic_id + "_q.dat");
+        if(QFile::exists(optic_id + "_pumping_fluence.dat"))
+            CopyDataFromFile(optic_id + "_pumping_fluence.dat");
+    }
     if(m==2) // pixmap
         CopyPixmap(svg_fig9);
     if(m==3) // SVG
-        SaveSVG("fig_q.svg");
+    {
+        if(QFile::exists("fig_q.svg"))
+            SaveSVG("fig_q.svg");
+        if(QFile::exists("fig_pumping_fluence.svg"))
+            SaveSVG("fig_pumping_fluence.svg");
+    }
 }
 
 
