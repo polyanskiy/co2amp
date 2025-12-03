@@ -216,7 +216,7 @@ void A::AmplificationBand(void)
             if(band == 9) // no match found => not one of the supported vibrational bands
                 continue;
 
-            // skip if the band excluded from calculations by user
+            // skip if the band is excluded from calculations by user
             if( !band_reg && (band == 0 || band == 1) )
                 continue;
             if( !band_hot && (band == 2 || band == 3) )

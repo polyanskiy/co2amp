@@ -535,7 +535,7 @@ void A::Initialize()
                 pump_pulse_integral = fwhm;
                 for(int m=0; m<m0; ++m)
                 {
-                    if( t0-fwhm/2 <= time_tick*(0.5+m) || time_tick*(0.5+m) <= t0+fwhm/2)
+                    if( t0-fwhm/2 <= time_tick*(0.5+m) && time_tick*(0.5+m) <= t0+fwhm/2)
                         normalized_intensity[m] = 1;
                     else
                         normalized_intensity[m] = 0;
