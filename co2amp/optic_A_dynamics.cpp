@@ -146,15 +146,26 @@ void A::InternalDynamics(int m)
             }
         }
 
-        // In our model 3 groups can be pumped directly in case of optical pumping
-        // In othr cases, pump energy first goes to corresponding vibrational modes
+        // In our model 4 groups can be pumped directly in case of optical pumping
+        // In other cases, pump energy first goes to corresponding vibrational modes
         // and then re-distibutes between levels through intramode thermalization
         for(int is=0; is<NumIso; ++is)
         {
-            N_grp[is][0][x] += N_iso[is] * pump_gr[0] * time_tick; // 4.3 um - 001
+            // 001 (Group 0): optical pumping @ ~4.3 um
+            N_grp[is][0][x] += N_iso[is] * pump_gr[0] * time_tick; //  - 001
+            N_vib[is][0][x] += N_iso[is] * pump_gr[0] * time_tick;;
+            // 002 (Group 4): optical pumping @ ~2.2 um
             N_grp[is][4][x] += N_iso[is] * pump_gr[4] * time_tick; // 2.2 um - 002 (non-symmetric molecules only)
+            N_vib[is][13][x] += N_iso[is] * pump_gr[4] * time_tick;
+            // 101 + 021 (Group 5): optical pumping @ ~2.8 um
             N_grp[is][5][x] += N_iso[is] * pump_gr[5] * time_tick; // 2.8 um - 101+021
+            N_vib[is][14][x] += N_iso[is] * pump_gr[5] * time_tick / 3;     // lower seq 10 um; upper 4um
+            N_vib[is][15][x] += N_iso[is] * pump_gr[5] * time_tick / 3;     // lower seq 9 um;  upper 4um
+            N_vib[is][16][x] += N_iso[is] * pump_gr[5] * time_tick / 6;     //                  upper 4um
+            N_vib[is][17][x] += N_iso[is] * pump_gr[5] * time_tick / 6;
+            // 003 (Group 8): optical pumping @ ~1.43 um
             N_grp[is][8][x] += N_iso[is] * pump_gr[8] * time_tick; // 1.4 um - 003
+
             // No group for 2.0 um (201+121+041): corresponding levels are not involved in laser transitions (?)
         }
 
@@ -171,38 +182,38 @@ void A::InternalDynamics(int m)
 
         for(int is=0; is<NumIso; ++is)
         {
-            // INTRA-MODE THERMALIZATION
+            /*// INTRA-MODE THERMALIZATION
             N_grp0 =     N_iso[is]*exp(-3380/Temp3)/Q;                    // 001
             N_grp[is][0][x] += (N_grp0 - N_grp[is][0][x]) * vib_relax;
 
-            N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)/Q;                   // 100 + 020
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)/Q;                   // 100 + 020
             N_grp[is][1][x] += (N_grp0 - N_grp[is][1][x]) * vib_relax;
 
-            N_grp0 =     N_iso[is]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;    // 011
+            N_grp0 = 2 * N_iso[is]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;    // 011
             N_grp[is][2][x] += (N_grp0 - N_grp[is][2][x]) * vib_relax;
 
-            N_grp0 = 2 * N_iso[is]*exp(-3*960/Temp2)/Q;                   // 110 + 030
+            N_grp0 = 6 * N_iso[is]*exp(-3*960/Temp2)/Q;                   // 110 + 030
             N_grp[is][3][x] += (N_grp0 - N_grp[is][3][x]) * vib_relax;
 
             N_grp0 =     N_iso[is]*exp(-2*3380/Temp3)/Q;                  // 002
             N_grp[is][4][x] += (N_grp0 - N_grp[is][4][x]) * vib_relax;
 
-            N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;  // 101 + 021
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;  // 101 + 021
             N_grp[is][5][x] += (N_grp0 - N_grp[is][5][x]) * vib_relax;
 
-            N_grp0 =     N_iso[is]*exp(-960/Temp2)*exp(-2*3380/Temp3)/Q;  // 012
+            N_grp0 = 2 * N_iso[is]*exp(-960/Temp2)*exp(-2*3380/Temp3)/Q;  // 012
             N_grp[is][6][x] += (N_grp0 - N_grp[is][6][x]) * vib_relax;
 
-            N_grp0 = 2 * N_iso[is]*exp(-3*960/Temp2)*exp(-3380/Temp3)/Q;  // 111 + 031
+            N_grp0 = 6 * N_iso[is]*exp(-3*960/Temp2)*exp(-3380/Temp3)/Q;  // 111 + 031
             N_grp[is][7][x] += (N_grp0 - N_grp[is][7][x]) * vib_relax;
 
             N_grp0 =     N_iso[is]*exp(-3*3380/Temp3)/Q;                  // 003
             N_grp[is][8][x] += (N_grp0 - N_grp[is][8][x]) * vib_relax;
 
-            N_grp0 = 2 * N_iso[is]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;// 102 + 022
-            N_grp[is][9][x] += (N_grp0 - N_grp[is][9][x]) * vib_relax;
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;// 102 + 022
+            N_grp[is][9][x] += (N_grp0 - N_grp[is][9][x]) * vib_relax;*/
 
-            // UPDATE VIBRATIONAL LEVELS
+            /*// UPDATE VIBRATIONAL LEVELS
             // 001 (Group 0)
             N_vib[is][0][x]  = N_grp[is][0][x];          // upper reg
             // 100 + 020 (Group 1)
@@ -226,8 +237,58 @@ void A::InternalDynamics(int m)
             N_vib[is][14][x] = N_grp[is][5][x] / 3;      // lower seq 10 um; upper 4um
             N_vib[is][15][x] = N_grp[is][5][x] / 3;      // lower seq 9 um;  upper 4um
             N_vib[is][16][x] = N_grp[is][5][x] / 6;      //                  upper 4um
-            N_vib[is][17][x] = N_grp[is][5][x] / 6;      //                  upper 4um
+            N_vib[is][17][x] = N_grp[is][5][x] / 6;      //                  upper 4um*/
 
+
+            // INTRA-MODE THERMALIZATION
+            // 001 (Group 0)
+            N_grp0 = N_iso[is]*exp(-3380/Temp3)/Q;
+            N_grp[is][0][x] += (N_grp0 - N_grp[is][0][x]) * vib_relax;
+            N_vib[is][0][x] += (N_grp0 - N_vib[is][0][x]) * vib_relax;        // upper reg
+            // 100 + 020 (Group 1)
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)/Q;
+            N_grp[is][1][x] += (N_grp0 - N_grp[is][1][x]) * vib_relax;
+            N_vib[is][1][x] += (N_grp0/3 - N_vib[is][1][x]) * vib_relax;      // lower reg 10 um; lower 4um
+            N_vib[is][2][x] += (N_grp0/3 - N_vib[is][2][x]) * vib_relax;      // lower reg 9 um;  lower 4um
+            N_vib[is][3][x] += (N_grp0/6 - N_vib[is][3][x]) * vib_relax;      //                  lower 4um
+            N_vib[is][4][x] += (N_grp0/6 - N_vib[is][4][x]) * vib_relax;      //                  lower 4um
+            // 011 (Group 2)
+            N_grp0 = 2 * N_iso[is]*exp(-960/Temp2)*exp(-3380/Temp3)/Q;
+            N_grp[is][2][x] += (N_grp0 - N_grp[is][2][x]) * vib_relax;
+            N_vib[is][5][x] += (N_grp0/2 - N_vib[is][5][x]) * vib_relax;      // upper hot-e
+            N_vib[is][6][x] += (N_grp0/2 - N_vib[is][6][x]) * vib_relax;      // upper hot-f
+            // 110 + 030 (Group 3)
+            N_grp0 = 6 * N_iso[is]*exp(-3*960/Temp2)/Q;
+            N_grp[is][3][x]  += (N_grp0 - N_grp[is][3][x]) * vib_relax;
+            N_vib[is][7][x]  += (N_grp0*3/16 - N_vib[is][7][x]) * vib_relax;  // lower hot-e 10 um
+            N_vib[is][8][x]  += (N_grp0*3/16 - N_vib[is][8][x]) * vib_relax;  // lower hot-e 9 um
+            N_vib[is][9][x]  += (N_grp0*3/16 - N_vib[is][9][x]) * vib_relax;  // lower hot-f 10 um
+            N_vib[is][10][x] += (N_grp0*3/16 - N_vib[is][10][x]) * vib_relax; // lower hot-f 9 um
+            N_vib[is][11][x] += (N_grp0/8 - N_vib[is][11][x]) * vib_relax;
+            N_vib[is][12][x] += (N_grp0/8 - N_vib[is][12][x]) * vib_relax;
+            // 002 (Group 4)
+            N_grp0 = N_iso[is]*exp(-2*3380/Temp3)/Q;
+            N_grp[is][4][x] += (N_grp0 - N_grp[is][4][x]) * vib_relax;
+            N_vib[is][13][x] += (N_grp0 - N_vib[is][13][x]) * vib_relax;       // upper seq
+            // 101 + 021 (Group 5)
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)*exp(-3380/Temp3)/Q;
+            N_grp[is][5][x] += (N_grp0 - N_grp[is][5][x]) * vib_relax;
+            N_vib[is][14][x] += (N_grp0/3 - N_vib[is][14][x]) * vib_relax;     // lower seq 10 um; upper 4um
+            N_vib[is][15][x] += (N_grp0/3 - N_vib[is][15][x]) * vib_relax;     // lower seq 9 um;  upper 4um
+            N_vib[is][16][x] += (N_grp0/6 - N_vib[is][16][x]) * vib_relax;     //                  upper 4um
+            N_vib[is][17][x] += (N_grp0/6 - N_vib[is][17][x]) * vib_relax;     //                  upper 4um
+            // 012 (Group 6)
+            N_grp0 = 2 * N_iso[is]*exp(-960/Temp2)*exp(-2*3380/Temp3)/Q;
+            N_grp[is][6][x] += (N_grp0 - N_grp[is][6][x]) * vib_relax;
+            // 111 + 031 (Group 7)
+            N_grp0 = 6 * N_iso[is]*exp(-3*960/Temp2)*exp(-3380/Temp3)/Q;
+            N_grp[is][7][x] += (N_grp0 - N_grp[is][7][x]) * vib_relax;
+            // 003 (Group 8)
+            N_grp0 = N_iso[is]*exp(-3*3380/Temp3)/Q;
+            N_grp[is][8][x] += (N_grp0 - N_grp[is][8][x]) * vib_relax;
+            // 102 + 022 (Group 9)
+            N_grp0 = 4 * N_iso[is]*exp(-2*960/Temp2)*exp(-2*3380/Temp3)/Q;
+            N_grp[is][9][x] += (N_grp0 - N_grp[is][9][x]) * vib_relax;
         }
     }
 
@@ -303,15 +364,15 @@ void A::InitializePopulations()
         {
             // GROUPS
             N_grp[is][0][x] =     N_iso[is]*exp(-3380/T0)/Q;                 // 001
-            N_grp[is][1][x] = 2 * N_iso[is]*exp(-2*960/T0)/Q;                // 100 + 020
-            N_grp[is][2][x] =     N_iso[is]*exp(-960/T0)*exp(-3380/T0)/Q;    // 011
-            N_grp[is][3][x] = 2 * N_iso[is]*exp(-3*960/T0)/Q;                // 110 + 030
+            N_grp[is][1][x] = 4 * N_iso[is]*exp(-2*960/T0)/Q;                // 100 + 020
+            N_grp[is][2][x] = 2 * N_iso[is]*exp(-960/T0)*exp(-3380/T0)/Q;    // 011
+            N_grp[is][3][x] = 6 * N_iso[is]*exp(-3*960/T0)/Q;                // 110 + 030
             N_grp[is][4][x] =     N_iso[is]*exp(-2*3380/T0)/Q;               // 002
-            N_grp[is][5][x] = 2 * N_iso[is]*exp(-2*960/T0)*exp(-3380/T0)/Q;  // 101 + 021
-            N_grp[is][6][x] =     N_iso[is]*exp(-4*960/T0)*exp(-3380/T0)/Q;  // 012
-            N_grp[is][7][x] = 2 * N_iso[is]*exp(-3*960/T0)*exp(-3380/T0)/Q;  // 111 + 031
+            N_grp[is][5][x] = 4 * N_iso[is]*exp(-2*960/T0)*exp(-3380/T0)/Q;  // 101 + 021
+            N_grp[is][6][x] = 2 * N_iso[is]*exp(-4*960/T0)*exp(-3380/T0)/Q;  // 012
+            N_grp[is][7][x] = 6 * N_iso[is]*exp(-3*960/T0)*exp(-3380/T0)/Q;  // 111 + 031
             N_grp[is][8][x] =     N_iso[is]*exp(-3*3380/T0)/Q;               // 003
-            N_grp[is][9][x] = 2 * N_iso[is]*exp(-2*960/T0)*exp(-2*3380/T0)/Q;// 102 + 022
+            N_grp[is][9][x] = 4 * N_iso[is]*exp(-2*960/T0)*exp(-2*3380/T0)/Q;// 102 + 022
 
             // VIBRATIONAL LEVELS
             // 001 (Group 0)
