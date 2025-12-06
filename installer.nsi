@@ -65,11 +65,11 @@ Section "Section_01" Sec01
   File "co2amp\release\co2amp.exe"
   File "co2am+\release\co2am+.exe"
   ;QT
-  File "C:\Qt\6.8.0\mingw_64\bin\Qt6Core.dll"
-  File "C:\Qt\6.8.0\mingw_64\bin\Qt6Gui.dll"
-  File "C:\Qt\6.8.0\mingw_64\bin\Qt6Widgets.dll"
-  File "C:\Qt\6.8.0\mingw_64\bin\Qt6Svg.dll"
-  File "C:\Qt\6.8.0\mingw_64\bin\Qt6SvgWidgets.dll"
+  File "C:\Qt\6.10.1\mingw_64\bin\Qt6Core.dll"
+  File "C:\Qt\6.10.1\mingw_64\bin\Qt6Gui.dll"
+  File "C:\Qt\6.10.1\mingw_64\bin\Qt6Widgets.dll"
+  File "C:\Qt\6.10.1\mingw_64\bin\Qt6Svg.dll"
+  File "C:\Qt\6.10.1\mingw_64\bin\Qt6SvgWidgets.dll"
   ;MinGW
   File "C:\Qt\Tools\mingw1310_64\bin\libgcc_s_seh-1.dll"
   File "C:\Qt\Tools\mingw1310_64\bin\libgomp-1.dll"
@@ -80,9 +80,9 @@ Section "Section_01" Sec01
   File "C:\Program Files\HDF_Group\HDF5\1.14.6\bin\hdf5_hl.dll"
   ;Platforms
   SetOutPath "$INSTDIR\platforms"
-  File "C:\Qt\6.8.0\mingw_64\plugins\platforms\qwindows.dll"
+  File "C:\Qt\6.10.1\mingw_64\plugins\platforms\qwindows.dll"
   SetOutPath "$INSTDIR\imageformats"
-  File "C:\Qt\6.8.0\mingw_64\plugins\imageformats\qsvg.dll"
+  File "C:\Qt\6.10.1\mingw_64\plugins\imageformats\qsvg.dll"
   
   ;Write Start menu entries
   SetShellVarContext all
