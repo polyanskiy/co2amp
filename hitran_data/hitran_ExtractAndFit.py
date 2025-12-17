@@ -4,11 +4,11 @@ from scipy.optimize import curve_fit
 
 # ================================== INPUT ====================================
 filename = 'HITRAN_CO2.par'  # HITRAN data file
-iso_id = 'A'  # Isotopologue id
+iso_id = '1'  # Isotopologue id
 # 626: 1, 727: 9, 828: 7, 636: 2, 737: B, 838: 0
 # 627: 4, 628: 3, 728: 8, 637: 6, 638: 5, 738: A
 
-V_up = ' 0 0 0 11'
+#V_up = ' 0 0 0 11'
 #V_up = ' 0 0 0 21'
 #V_up = ' 0 1 1 01'
 #V_up = ' 0 1 1 11'
@@ -16,16 +16,16 @@ V_up = ' 0 0 0 11'
 #V_up = ' 0 2 2 11'
 #V_up = ' 0 3 3 01'
 #V_up = ' 1 0 0 11'
-#V_up = ' 1 0 0 12'
+V_up = ' 1 0 0 12'
 #V_up = ' 1 1 1 01'
 #V_up = ' 1 1 1 02'
 
-V_lo = ' 0 0 0 01'
+#V_lo = ' 0 0 0 01'
 #V_lo = ' 0 0 0 11'
 #V_lo = ' 0 1 1 01'
 #V_lo = ' 0 2 2 01'
 #V_lo = ' 1 0 0 01'
-#V_lo = ' 1 0 0 02'
+V_lo = ' 1 0 0 02'
 #V_lo = ' 1 1 1 01'
 #V_lo = ' 1 1 1 02'
 
@@ -37,13 +37,13 @@ symmetry = 'e'
 # use 'fit' for not fixed parameters
 # example: fixed_lo = "0 fit fit fit fit"
 
-fixed_up = "fit fit fit fit fit"
+#fixed_up = "fit fit fit fit fit"
 #fixed_up = "3.841755e+13 fit fit fit fit"
-#fixed_up = "1.039876e+14 1.062791e+10 3.922476e+03 5.014599e-03 -1.272138e-08"
+fixed_up = "1.083102e+14 1.161705e+10 4.722355e+03 6.514604e-03 -1.655007e-08"
 
-#fixed_lo = "fit fit fit fit fit"
-fixed_lo = "0 fit fit fit fit"
-#fixed_lo = "6.763179e+13 1.061985e+10 3.328566e+03 1.629353e-04 5.193608e-09"
+fixed_lo = "fit fit fit fit fit"
+#fixed_lo = "0 fit fit fit fit"
+#fixed_lo = "0.000000e+00 1.169847e+10 3.997874e+03 3.422140e-04 1.833945e-09"
 
 # =============================================================================
 

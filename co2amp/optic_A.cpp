@@ -658,7 +658,7 @@ void A::Initialize()
         N_iso[is] = 2.7e25*p_iso[is];
     }
 
-    // allocate memory
+    // allocate memory 
     e2.resize(x0);
     e3.resize(x0);
     e4.resize(x0);
@@ -666,11 +666,6 @@ void A::Initialize()
 
     for(int is=0; is<NumIso; ++is) // isotopologues
     {
-        for(int gr=0; gr<NumGrp; ++gr) // groups of vib. levels
-        {
-            N_grp[is][gr].resize(x0);
-        }
-
         for(int vl=0; vl<NumVib; ++vl) // vibrational levels
         {
             N_vib[is][vl].resize(x0);
@@ -678,7 +673,6 @@ void A::Initialize()
             {
                 N_rot[is][vl][j].resize(x0);
             }
-
         }
     }
 

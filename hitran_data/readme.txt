@@ -3,7 +3,7 @@ in supported vibrational bands
 
 Make sure that transitions are not duplicated in multiple files!
 
-The following bands are supported as of 2024-11-21
+The following bands are supported as of 2025-12-17
 
    -------------------------------------------------------------
   |band #|   levels (HITRAN)    | levels (co2amp) | description |
@@ -11,8 +11,8 @@ The following bands are supported as of 2024-11-21
   |  0   | 00^01(1) -> 10^00(1) |    0 -> 1       | reg 10 um   |
   |  1   | 00^01(1) -> 10^00(2) |    0 -> 2       | reg  9 um   |
   |  2e  | 01^11(1) -> 11^10(1) |    5 -> 7  (e)  | hot 10 um   |
-  |  2f  |                      |    6 -> 9  (f)  | "           |
-  |  3e  | 01^11(1) -> 11^10(2) |    5 -> 8  (e)  | hot  9 um   |
+  |  2f  |                      |    6 -> 8  (f)  | "           |
+  |  3e  | 01^11(1) -> 11^10(2) |    5 -> 9  (e)  | hot  9 um   |
   |  3f  |                      |    6 -> 10 (f)  | "           |
   |  4   | 00^02(1) -> 10^01(1) |   13 -> 14      | seq 10 um   |
   |  5   | 00^02(1) -> 10^01(2) |   13 -> 15      | seq  9 um   |

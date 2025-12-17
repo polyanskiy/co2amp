@@ -14,9 +14,9 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
     flag_interaction = n_max==n0-1 ? false : true;
 
-    double T2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
+    double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
-    double gamma = 1 / T2;   // Lorentzian HWHM (for gain spectrum calculation)
+    double gamma = 1 / tau2;   // Lorentzian HWHM (for gain spectrum calculation)
 
     // number of ro-vibrational transitions extracted from HITRAN files
     int num_tr[NumIso];
@@ -36,7 +36,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
     // Pre-calculate re-usable expressios to accelerate computations
     double rot_relax = 1.0 - exp(-Dt/tauR/2);// half-step (rotational relaxation during Dt/2)
-    double exp_T2 = exp(-Dt/T2/2); // half-step (polarization dephasing during Dt/2)
+    double exp_tau2 = exp(-Dt/tau2/2); // half-step (polarization dephasing during Dt/2)
     std::vector<std::complex<double>> exp_phase[NumIso]; // half-step
     for(int is=0; is<NumIso; ++is)
     {
@@ -83,7 +83,6 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
                     }
                 }
             }
-
 
             // Initialize transition arrays
             for(int tr=0; tr<num_tr[is]; ++tr)
@@ -135,11 +134,11 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
                 for(int tr=0; tr<num_tr[is]; ++tr)
                 {
                     // Eq 2
-                    rho[is][num_tr[is]*x+tr] *= exp_T2; // relaxation (half-step 1)
+                    rho[is][num_tr[is]*x+tr] *= exp_tau2; // relaxation (half-step 1)
                     rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 1)
-                    rho[is][num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*T2)*Dt; // excitation (full step)
+                    rho[is][num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*tau2)*Dt; // excitation (full step)
                     rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 2)
-                    rho[is][num_tr[is]*x+tr] *= exp_T2; // relaxation (half-step 2)
+                    rho[is][num_tr[is]*x+tr] *= exp_tau2; // relaxation (half-step 2)
                     // Eq 1
                     pulse->E[n0*x+n] -= rho[is][num_tr[is]*x+tr] * length;
                 }
@@ -192,53 +191,46 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
         double DeltaN_nu3 = 0; // change of number of nu_3 quanta
         double DeltaN_nu2 = 0; // change of number of nu_2 quanta (+ double the change of nu_1 quanta)
-        double DeltaN_grp[NumIso][NumGrp] = {}; // change of populations of groups of vibrational levels
 
         for(int is=0; is<NumIso; ++is)
         {
             if(N_iso[is]==0.0)
                 continue;
 
-            // change of populations of groups of vibrational levels
-            // each isotopologue counted separately:
-            DeltaN_grp[is][0] += N_vib[is][0][x]  - N_vib0[is][0];    // 00^01(1)
-            DeltaN_grp[is][1] += N_vib[is][1][x]  - N_vib0[is][1]   + // 10^00(1)
-                                 N_vib[is][2][x]  - N_vib0[is][2]   + // 10^00(2)
-                                 N_vib[is][3][x]  - N_vib0[is][3]   + // 02^20(1)e
-                                 N_vib[is][4][x]  - N_vib0[is][4];    // 02^20(1)f
-            DeltaN_grp[is][2] += N_vib[is][5][x]  - N_vib0[is][5]   + // 01^11(1)e
-                                 N_vib[is][6][x]  - N_vib0[is][6];    // 01^11(1)f
-            DeltaN_grp[is][3] += N_vib[is][7][x]  - N_vib0[is][7]   + // 11^10(1)e
-                                 N_vib[is][8][x]  - N_vib0[is][8]   + // 11^10(2)e
-                                 N_vib[is][9][x]  - N_vib0[is][9]   + // 11^10(1)f
-                                 N_vib[is][10][x] - N_vib0[is][10]  + // 11^10(2)f
-                                 N_vib[is][11][x] - N_vib0[is][11]  + // 03^30(1)e
-                                 N_vib[is][12][x] - N_vib0[is][12];   // 03^30(1)f
-            DeltaN_grp[is][4] += N_vib[is][13][x] - N_vib0[is][13];   // 00^02(1)
-            DeltaN_grp[is][5] += N_vib[is][14][x] - N_vib0[is][14]  + // 10^01(1)
-                                 N_vib[is][15][x] - N_vib0[is][15]  + // 10^01(2)
-                                 N_vib[is][16][x] - N_vib0[is][16]  + // 02^21(1)e
-                                 N_vib[is][17][x] - N_vib0[is][17];   // 02^21(1)f
-
-            for(int gr=0; gr<NumGrp; ++gr)
-                N_grp[is][gr][x] += DeltaN_grp[is][gr];
-
             // change of nuber of vibrational quanta per molecule
             // all isotopologues are added together:
 
             // nu3
-            DeltaN_nu3 += DeltaN_grp[is][0] + DeltaN_grp[is][2] + 2*DeltaN_grp[is][4] + DeltaN_grp[is][5];
-            //              + 2*DeltaN_grp[is][6] + DeltaN_grp[is][7] + 3*DeltaN_grp[is][8] + 2*DeltaN_grp[is][9];
+            DeltaN_nu3 +=      N_vib[is][0][x]  - N_vib0[is][0]   // 001
+                        +      N_vib[is][5][x]  - N_vib0[is][5]   // 011
+                        +      N_vib[is][6][x]  - N_vib0[is][6]
+                        + 2 * (N_vib[is][13][x] - N_vib0[is][13]) // 002
+                        +      N_vib[is][14][x] - N_vib0[is][14]  // 101+021
+                        +      N_vib[is][15][x] - N_vib0[is][15]
+                        +      N_vib[is][16][x] - N_vib0[is][16]
+                        +      N_vib[is][17][x] - N_vib0[is][17];
 
             // nu2 + 2*nu1 (Fermi-coupled vibrations)
-            DeltaN_nu2 += 2*DeltaN_grp[is][1] + DeltaN_grp[is][2] + 3*DeltaN_grp[is][3] + 2*DeltaN_grp[is][5];
-            //              + DeltaN_grp[is][6] + 3*DeltaN_grp[is][7] + 2*DeltaN_grp[is][9];
+            DeltaN_nu2 += 2 * (N_vib[is][1][x]  - N_vib0[is][1]   // 100+020
+                        +      N_vib[is][2][x]  - N_vib0[is][2]
+                        +      N_vib[is][3][x]  - N_vib0[is][3]
+                        +      N_vib[is][4][x]  - N_vib0[is][4])
+                        +      N_vib[is][5][x]  - N_vib0[is][5]   // 011
+                        +      N_vib[is][6][x]  - N_vib0[is][6]
+                        + 3 * (N_vib[is][7][x]  - N_vib0[is][7]   // 110+030
+                        +      N_vib[is][8][x]  - N_vib0[is][8]
+                        +      N_vib[is][9][x]  - N_vib0[is][9]
+                        +      N_vib[is][10][x] - N_vib0[is][10])
+                        + 2 * (N_vib[is][14][x] - N_vib0[is][14]  // 101+021
+                        +      N_vib[is][15][x] - N_vib0[is][15]
+                        +      N_vib[is][16][x] - N_vib0[is][16]
+                        +      N_vib[is][17][x] - N_vib0[is][17]);
         }
 
         // change of vibrational temerature
-        double Temp2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
-        double e1_0 = 1/(exp(1920/Temp2)-1);
-        double e2_0 = 2/(exp(960/Temp2)-1);
+        double T2 = VibrationalTemperatures(x, 2); // equilibrium vibrational temperature of nu1 and nu2 modes
+        double e1_0 = 1/(exp(1920/T2)-1);
+        double e2_0 = 2/(exp(960/T2)-1);
         e3[x] += DeltaN_nu3/N_CO2;
         e2[x] += DeltaN_nu2/N_CO2 * e2_0/(2*e1_0+e2_0); // last term describes distribution between nu1 and nu2
     }

@@ -90,7 +90,7 @@ private:
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
     // -------- CONSTANTS --------
     static constexpr int NumIso = 12; // Number of isotopologues
-    static constexpr int NumGrp = 10; // Groups of vibrational levels (for Boltzman distribution calculations)
+    //static constexpr int NumGrp = 10; // Groups of vibrational levels (for Boltzman distribution calculations)
     static constexpr int NumVib = 18; // Vibrational levels
     static constexpr int NumRot = 80; // Rotational sub-levels with J = 0...79
     // -------- GEOMETRY ---------
@@ -130,9 +130,12 @@ private:
     std::vector<double> T, e2, e3, e4;
 
     // Population number densities (for each coordinate)
-    std::vector<double> N_grp[NumIso][NumGrp];         // Groups of vibrational levels
     std::vector<double> N_vib[NumIso][NumVib];         // Vibrational levels
     std::vector<double> N_rot[NumIso][NumVib][NumRot]; // Rotational levels
+
+      // Molecular constants (Hz)
+    double B[NumIso][NumVib];
+    double G[NumIso][NumVib];
 
     // Fractional populations of rotational sublevels
     // (normalized Boltzmann distribution)
@@ -298,7 +301,7 @@ extern double Dt, Dv;             // time and frequency steps
 extern int debug_level;           // debug output control 0: nothing; 1: some; 2: a lot; 3: everything
 extern bool flag_status_or_debug; // last message displayed: True if status False if debug
 // --- MISC CONSTANTS AND FLAGS ----
-extern double c, h;               // spped of light [m/s]; Plank's [J s]
+extern double c, h, kB;           // spped of light [m/s]; Plank [J s]; Boltzmann [J/K]
 extern bool configuration_error;  // true if error in a configuration file is detected
 extern std::string search_dir;    // additional directory for HDF5 pulse files
 extern int method;                // propagation method

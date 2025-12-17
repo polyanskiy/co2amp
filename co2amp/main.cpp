@@ -28,18 +28,20 @@ int debug_level;           // debug output control
                            // -1: less than nothing 0: nothing; 1: some; 2: a lot; 3: everything
 bool flag_status_or_debug; // last message displayed: True if status False if debug
 // --- MISC CONSTANTS AND FLAGS ----
-double c, h;               // spped of light [m/s]; Plank's constant [J s]
+double c, h, kB;           // spped of light [m/s]; Plank [J s]; Boltzmann [J/K]
 bool configuration_error = false;
 std::string search_dir;    // Additional directory for HDF5 pulse files
 
 
 int main(int argc, char **argv)
 {
-    std::string version = "2025-12-05";
+    std::string version = "2025-12-17";
     std::clock_t stopwatch = std::clock();
 
-    c = 2.99792458e8; // m/s
-    h = 6.626069e-34; // J*s
+    // constants
+    c  = 2.99792458e8; // m/s
+    h  = 6.626069e-34; // J*s
+    kB = 1.380649e-23; // J/K
 
     debug_level = 1;
     flag_status_or_debug = true;
