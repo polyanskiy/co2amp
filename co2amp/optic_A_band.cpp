@@ -92,7 +92,7 @@ void A::AmplificationBand(void)
     //  -----------------------------------------------------------
 
     double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.73*p_N2+0.64*p_He));  // transition dipole dephasing time, s
-    double gamma = 1 / tau2;   // Lorentzian HWHM
+    double gammaL = 1 / tau2;   // Lorentzian HWHM of the transition (homogineous collisional broadeneig)
 
 
     // Rotational constants B, Hz
@@ -140,6 +140,15 @@ void A::AmplificationBand(void)
             B[is][vl] = B_tmp[is][vl];
             G[is][vl] = G_tmp[is][vl];
         }
+    }
+
+    // masses of a CO2 molecules [kg]
+    double amu = 1.66053906660e-27; //atomic mass unit [kg]
+                         // 626 727 828 636 737 838 627 628 728 637 638 738
+    double m_iso[NumIso] = {44, 46, 48, 45, 47, 49, 45, 46, 47, 46, 47, 48};
+    for(int is=0; is<NumIso; ++is)
+    {
+        m_iso[is] *= amu;
     }
 
 
@@ -346,7 +355,14 @@ void A::AmplificationBand(void)
             // Transition cross-sections, m^2
             double A = std::stod(line.substr(25, 10)); // Einstein coefficient A (1/s)
 
-            sigma[is].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma) ); // wn*100: 1/cm -> 1/m
+            // Doppler HWHM (Hz)
+            double gammaD = v_Hz * sqrt(2.0 * kB * T0 * log(2.0) / (m_iso[is] * c * c));  // Hz
+
+            // Olivero–Longbothum approximation for effective HWHM (combining collisional and Dopler widths)
+            double gamma_eff = 0.5346 * gammaL + sqrt(0.2166 * gammaL*gammaL + gammaD*gammaD);
+
+            sigma[is].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma_eff) ); // wn*100: 1/cm -> 1/m
+            gamma[is].push_back(gamma_eff);
 
             //if(J==20)
             if(debug_level >= 3)

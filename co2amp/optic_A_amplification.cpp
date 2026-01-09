@@ -16,7 +16,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
     double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
     double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
-    double gamma = 1 / tau2;   // Lorentzian HWHM (for gain spectrum calculation)
+    //double gammaL = 1 / tau2;   // Lorentzian HWHM (for gain spectrum calculation)
 
     // number of ro-vibrational transitions extracted from HITRAN files
     int num_tr[NumIso];
@@ -116,8 +116,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
                     {
                         for(int n1=0; n1<n0; n1++)
                         {
-                            gainSpectrum[n1] += sigma[is][tr]*(M_PI*gamma) * Dn[is][tr]
-                                                * gamma/M_PI/(pow(2*M_PI*(v0+Dv*(n1-n0/2)-v[is][tr]),2)+pow(gamma,2)); // Gain [m-1]
+                            gainSpectrum[n1] += sigma[is][tr]*(M_PI*gamma[is][tr]) * Dn[is][tr]
+                                                * gamma[is][tr]/M_PI/(pow(2*M_PI*(v0+Dv*(n1-n0/2)-v[is][tr]),2)+pow(gamma[is][tr],2)); // Gain [m-1]
                         }
 
                     }
