@@ -116,8 +116,8 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
                     {
                         for(int n1=0; n1<n0; n1++)
                         {
-                            gainSpectrum[n1] += sigma[is][tr]*(M_PI*gamma[is][tr]) * Dn[is][tr]
-                                                * gamma[is][tr]/M_PI/(pow(2*M_PI*(v0+Dv*(n1-n0/2)-v[is][tr]),2)+pow(gamma[is][tr],2)); // Gain [m-1]
+                            gainSpectrum[n1] += sigma[is][tr] * Dn[is][tr] * pow(fwhm[is][tr]/2,2)
+                                                / ( pow((v0+Dv*(n1-n0/2)-v[is][tr]),2) + pow(fwhm[is][tr]/2,2) ); // Gain [m-1]
                         }
 
                     }

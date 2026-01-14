@@ -142,7 +142,7 @@ private:
 
     std::vector<double> v[NumIso];     // transition frequencies, Hz
     std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
-    std::vector<double> gamma[NumIso]; // transition HWHM, Hz
+    std::vector<double> fwhm[NumIso]; // transition FWHM, Hz
     std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
     std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
     std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition
