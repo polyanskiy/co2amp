@@ -180,7 +180,7 @@ bool ReadConfigFiles(std::string path)
     }
 
     // now we can calculate number of points in the lab (slow) time grid
-    // (t_max-t_min) is the duration of the pulse (slow) time grid
+    // (t_max-t_min) is the duration of the pulse (fast) time grid
     m0 = (pulses.back()->time_in + planes.back()->time_from_first_plane + (t_max-t_min)) / time_tick + 1; //rounding toward 0
 
     Debug(2, "m0 (number of steps in lab time grid) = " + std::to_string(m0));
