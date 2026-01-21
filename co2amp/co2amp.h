@@ -90,7 +90,6 @@ private:
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
     // -------- CONSTANTS --------
     static constexpr int NumIso = 12; // Number of isotopologues
-    //static constexpr int NumGrp = 10; // Groups of vibrational levels (for Boltzman distribution calculations)
     static constexpr int NumVib = 18; // Vibrational levels
     static constexpr int NumRot = 80; // Rotational sub-levels with J = 0...79
     // -------- GEOMETRY ---------
@@ -143,6 +142,7 @@ private:
 
     std::vector<double> v[NumIso];     // transition frequencies, Hz
     std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
+    std::vector<double> fwhm[NumIso]; // transition FWHM, Hz
     std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
     std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
     std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition

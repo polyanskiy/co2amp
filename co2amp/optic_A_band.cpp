@@ -92,8 +92,6 @@ void A::AmplificationBand(void)
     //  -----------------------------------------------------------
 
     double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.73*p_N2+0.64*p_He));  // transition dipole dephasing time, s
-    double gamma = 1 / tau2;   // Lorentzian HWHM
-
 
     // Rotational constants B, Hz
     // B[is][vl]
@@ -140,6 +138,15 @@ void A::AmplificationBand(void)
             B[is][vl] = B_tmp[is][vl];
             G[is][vl] = G_tmp[is][vl];
         }
+    }
+
+    // masses of a CO2 molecules [kg]
+    double amu = 1.66053906660e-27; //atomic mass unit [kg]
+                         // 626 727 828 636 737 838 627 628 728 637 638 738
+    double m_iso[NumIso] = {44, 46, 48, 45, 47, 49, 45, 46, 47, 46, 47, 48};
+    for(int is=0; is<NumIso; ++is)
+    {
+        m_iso[is] *= amu;
     }
 
 
@@ -346,7 +353,20 @@ void A::AmplificationBand(void)
             // Transition cross-sections, m^2
             double A = std::stod(line.substr(25, 10)); // Einstein coefficient A (1/s)
 
-            sigma[is].push_back( pow(1/(wn*100),2) * A / 4 / (M_PI*gamma) ); // wn*100: 1/cm -> 1/m
+            // Lorentzian FWHM of the transition (homogineous collisional broadeneig) [Hz]
+            double fwhm_L = 1 / (M_PI*tau2);
+
+            // Doppler FWHM [Hz]
+            double fwhm_D = v_Hz * sqrt(8 * kB * T0 * log(2) / (m_iso[is] * c*c));
+
+            // Effective FWHM - Lorentzian+Doppler [Hz]
+            double fwhm_eff = sqrt(fwhm_L*fwhm_L + fwhm_D*fwhm_D);
+
+            double lambda = 1/(wn*100); // m
+
+            sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff) ); // peak cross-section
+
+            fwhm[is].push_back(fwhm_eff);
 
             //if(J==20)
             if(debug_level >= 3)
@@ -355,7 +375,10 @@ void A::AmplificationBand(void)
                           << "Isot: " << isotopologue[is] << "; "
                           << "Band:" << Vup_id << " ->" << Vlo_id << " " << std::string(1,pqr) << std::to_string(J) << std::string(1,ef) << "; "
                           << "freq = " << std::to_string(v[is].back()/1e12) << " THz; "
-                          << "A = " + std::to_string(A) + " 1/s"
+                          << "A = " + std::to_string(A) + " 1/s; "
+                          << "fwhm_L = " + std::to_string(fwhm_L/1e6) + " MHz; "
+                          << "fwhm_D = " + std::to_string(fwhm_D/1e6) + " MHz; "
+                          << "fwhm = " + std::to_string(fwhm_eff/1e6) + " MHz"
                           << std::endl;
             }
         }
