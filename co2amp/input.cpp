@@ -346,10 +346,19 @@ bool ReadLayoutConfigFile(std::string path)
                           << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m)\n";
                 return false;
             }
-            std::cout << "Warning: Distance between amplifier sections \"" << planes[i]->optic->id
+
+            if(planes[i]->space != 0)
+            {
+                std::cout << "Layout error: Distance between amplifier sections \""
+                          << planes[i]->optic->id << "\" and " << planes[i+1]->optic->id
+                          << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m) or 0\n";
+                return false;
+            }
+
+            /*std::cout << "Warning: Distance between amplifier sections \"" << planes[i]->optic->id
                       << "\" and " << planes[i+1]->optic->id << "\" is less than pulse time range ("
                       << (t_max-t_min)*c << " m)\n";
-            std::cout << "         pulse at \"" << planes[i+1]->optic->id << "\" will not be saved for corresponding pass\n";
+            std::cout << "         pulse at \"" << planes[i+1]->optic->id << "\" will not be saved for corresponding pass\n";*/
         }
     }
 

@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2026-01-13";
+    std::string version = "2026-01-22";
     std::clock_t stopwatch = std::clock();
 
     // constants
@@ -132,9 +132,6 @@ void Calculations()
 
     for (int m = 0; m < m0; ++m)
     {
-        //double time = time_tick * i;
-        double time = time_tick * (0.5+m);
-
         // Internal dynamics in the optic
         for(size_t optic_n=0; optic_n<optics.size(); ++optic_n)
             optics[optic_n]->InternalDynamics(m);
@@ -165,7 +162,7 @@ void Calculations()
                     {
                         // 1: Propagate beam to(!) this plane
                         if(plane_n != 0)
-                            pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], time);
+                            pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], m);
 
                         // 2: Save pulse parameters at plane location (before interaction!!!)
                         //    only save if distance from previous amplifier is longer than pulse time frame

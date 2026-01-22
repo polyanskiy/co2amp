@@ -209,7 +209,7 @@ void Pulse::Initialize()
 }
 
 
-void Pulse::Propagate(Plane *from, Plane *to, double time)
+void Pulse::Propagate(Plane *from, Plane *to, int m)
 {
     double z   = from->space;
     double Dr1 = from->optic->r_max/x0;
@@ -219,7 +219,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
     if((z==0 || method==0) && Dr1==Dr2)  //nothing to be done
         return;
 
-    StatusDisplay(this, from, time, "propagation...");
+    StatusDisplay(this, from, m, "propagation...");
 
     // Create temporary field arrays
     std::vector<std::complex<double>> E1(x0*n0);
@@ -290,7 +290,7 @@ void Pulse::Propagate(Plane *from, Plane *to, double time)
             {
                 #pragma omp critical
                 {
-                    StatusDisplay(this, from, time,
+                    StatusDisplay(this, from, m,
                               "propagation: " + std::to_string(++count) + " of " + std::to_string(x0));
                 }
             }
