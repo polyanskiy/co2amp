@@ -29,7 +29,7 @@ class Pulse
 public:
     Pulse(std::string yaml_path);
     void Initialize(void);
-    void Propagate(Plane *from, Plane *to, double time);
+    void Propagate(Plane *from, Plane *to, int m);
     void SavePulse(void); // HDF5 .pulse file
     void SaveBeam(void); // Zemax beam file (.zbf) and ASCII (.asc) beam profile
     std::string id;
