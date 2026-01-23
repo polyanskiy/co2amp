@@ -128,8 +128,6 @@ void Calculations()
 
     std::cout << "*** CALCULATION ***\n";
 
-    double pulse_duration = t_max - t_min; // duration of pulse time grid
-
     for (int m = 0; m < m0; ++m)
     {
         // Internal dynamics in the optic
@@ -158,20 +156,15 @@ void Calculations()
 
                 if(0<=n_min && n_min<n0 && 0<=n_max && n_max<n0)
                 {
+                    // 1: Propagate beam to(!) this plane
                     if(n_min==0)
                     {
-                        // 1: Propagate beam to(!) this plane
                         if(plane_n != 0)
                             pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], m);
-
-                        // 2: Save pulse parameters at plane location (before interaction!!!)
-                        //    only save if distance from previous amplifier is longer than pulse time frame
-                        if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
-                        {
-                            StatusDisplay(pulses[pulse_n], planes[plane_n], m, "saving...");
-                            UpdateOutputFiles(pulses[pulse_n], planes[plane_n]);
-                        }
                     }
+
+                    // 2: Save pulse parameters at plane location (before interaction!!!)
+                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], n_min, n_max);
 
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne

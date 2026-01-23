@@ -1,14 +1,21 @@
 #include  "co2amp.h"
 
 
-void UpdateOutputFiles(Pulse *pulse, Plane *plane)
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
 {
+    // In case of non-amplifier optics interaction is done at once when pulse time frame reaches the optic
+    // therefore, we only run this function ones at n_min=0
+    if(plane->optic->type != "A")
+    {
+        if(n_min != 0)
+            return;
+        n_max = n0-1;
+    }
+
     double time = pulse->time_in + plane->time_from_first_plane;
     int pulse_n = pulse->number;
     int plane_n = plane->number;
     int optic_n = plane->optic->number;
-    std::vector<double> fluence(x0);
-    std::vector<double> power(n0);
     double energy;
     double Dr = plane->optic->Dr;
     FILE *file;
@@ -18,23 +25,22 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane)
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
     for(int x=0; x<x0; ++x)
-        fluence[x] = 0;
-    for(int n=0; n<n0; ++n)
-        power[n]=0;
-
-    for(int x=0; x<x0; ++x)
     {
-        for(int n=0; n<n0; ++n)
+        for(int n=n_min; n<=n_max; ++n)
         {
             double intensity = 2 * h * pulse->vc * std::norm(E[n0*x+n]);
-            power[n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
-            fluence[x] += intensity * Dt; // J/m^2
+            plane->input_power[n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            plane->input_fluence[x] += intensity * Dt; // J/m^2
         }
     }
 
+    // Write files only when pulse interaction is completed
+    if(n_max != n0-1)
+        return;
+
     energy = 0;
     for(int n=0; n<n0; ++n)
-        energy += power[n] * Dt; // J
+        energy += plane->input_power[n] * Dt; // J
 
     // Count pass number through current element
     int pass_n = 0;
@@ -50,14 +56,14 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane)
     file = fopen((basename+"_fluence.dat").c_str(), "w");
     fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     for(int x=0; x<x0; ++x)
-        fprintf(file, "%e\t%e\n", Dr*(0.5+x), fluence[x]);
+        fprintf(file, "%e\t%e\n", Dr*(0.5+x), plane->input_fluence[x]);
     fclose(file);
 
     // Write power file
     file = fopen((basename+"_power.dat").c_str(), "w");
     fprintf(file, "#Data format:  time[s] power[W]\n");
     for(int n=0; n<n0; ++n)
-        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), power[n]);
+        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), plane->input_power[n]);
     fclose(file);
 
     // Write energy file

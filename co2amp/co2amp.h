@@ -87,7 +87,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     // ---------- FLAGS ----------
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
@@ -186,7 +186,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
     void WriteChirpFile();
@@ -199,7 +199,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
     double F; // focal length, m
 };
 
@@ -210,7 +210,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     // ------- GENERAL -------
     std::string material;
@@ -249,7 +249,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -262,7 +262,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 };
 
 
@@ -272,7 +272,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -338,7 +338,7 @@ bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(Pulse *pulse, Plane *plane);
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max);
 void SaveOutputField(void);
 
 ///////////////////////////// calc.cpp /////////////////////////////
