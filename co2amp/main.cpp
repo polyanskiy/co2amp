@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2026-01-22";
+    std::string version = "2026-01-23";
     std::clock_t stopwatch = std::clock();
 
     // constants
@@ -143,7 +143,7 @@ void Calculations()
                 double t0 = time_tick * m;
                 double t1 = time_tick * (m+1);
 
-                // moments (in lab time frame) when the pulse enters the plane
+                // moment (in lab time frame) when the pulse enters the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
 
                 // calculation limits for pulse interaction (mainly amplification)
@@ -169,7 +169,7 @@ void Calculations()
                         if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
                         {
                             StatusDisplay(pulses[pulse_n], planes[plane_n], m, "saving...");
-                            UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
+                            UpdateOutputFiles(pulses[pulse_n], planes[plane_n]);
                         }
                     }
 

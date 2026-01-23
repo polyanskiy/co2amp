@@ -216,7 +216,7 @@ void Pulse::Propagate(Plane *from, Plane *to, int m)
     double Dr2 = to  ->optic->r_max/x0;
     int count=0;
 
-    if((z==0 || method==0) && Dr1==Dr2)  //nothing to be done
+    if((z==0 || method==0) && from->optic->r_max == to->optic->r_max)  //nothing to be done
         return;
 
     StatusDisplay(this, from, m, "propagation...");

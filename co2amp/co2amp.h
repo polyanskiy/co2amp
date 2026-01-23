@@ -335,7 +335,7 @@ bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time);
+void UpdateOutputFiles(Pulse *pulse, Plane *plane);
 void SaveOutputField(void);
 
 ///////////////////////////// calc.cpp /////////////////////////////

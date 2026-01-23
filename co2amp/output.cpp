@@ -1,45 +1,40 @@
 #include  "co2amp.h"
 
 
-void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time)
+void UpdateOutputFiles(Pulse *pulse, Plane *plane)
 {
+    double time = pulse->time_in + plane->time_from_first_plane;
     int pulse_n = pulse->number;
     int plane_n = plane->number;
     int optic_n = plane->optic->number;
-    std::vector<double> Fluence(x0);
-    std::vector<double> Power(n0);
-    double Energy;
+    std::vector<double> fluence(x0);
+    std::vector<double> power(n0);
+    double energy;
     double Dr = plane->optic->Dr;
     FILE *file;
 
-    //std::complex<double> **E = pulse->E;
     auto& E = pulse->E;
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
-    Energy = 0;
     for(int x=0; x<x0; ++x)
-        Fluence[x] = 0;
+        fluence[x] = 0;
     for(int n=0; n<n0; ++n)
-        Power[n]=0;
+        power[n]=0;
 
-    //#pragma omp parallel for reduction(+:Energy)
     for(int x=0; x<x0; ++x)
     {
         for(int n=0; n<n0; ++n)
         {
-            Energy += 2.0 * h * pulse->vc
-                    * std::norm(E[n0*x+n])
-                    * M_PI*pow(Dr,2)*(2*x+1) //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
-                    * Dt; // J
-
-            Power[n] += 2.0 * h * pulse->vc
-                    * std::norm(E[n0*x+n])
-                    * M_PI*pow(Dr,2)*(2*x+1);
-
-            Fluence[x] += 2.0 * h * pulse->vc * std::norm(E[n0*x+n]) * Dt; // J/m^2
+            double intensity = 2 * h * pulse->vc * std::norm(E[n0*x+n]);
+            power[n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            fluence[x] += intensity * Dt; // J/m^2
         }
     }
+
+    energy = 0;
+    for(int n=0; n<n0; ++n)
+        energy += power[n] * Dt; // J
 
     // Count pass number through current element
     int pass_n = 0;
@@ -55,14 +50,14 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time)
     file = fopen((basename+"_fluence.dat").c_str(), "w");
     fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     for(int x=0; x<x0; ++x)
-        fprintf(file, "%e\t%e\n", Dr*(0.5+x), Fluence[x]);
+        fprintf(file, "%e\t%e\n", Dr*(0.5+x), fluence[x]);
     fclose(file);
 
     // Write power file
     file = fopen((basename+"_power.dat").c_str(), "w");
     fprintf(file, "#Data format:  time[s] power[W]\n");
     for(int n=0; n<n0; ++n)
-        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), Power[n]);
+        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), power[n]);
     fclose(file);
 
     // Write energy file
@@ -73,7 +68,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time)
     }
     else
         file = fopen("energy.dat", "a");
-    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", time, Energy, pulse_n, optic_n, pass_n);
+    fprintf(file, "%e\t%e\t%d\t%d\t%d\n", time, energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
@@ -117,7 +112,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time)
     }
     for(int n=0; n<n0; ++n)
     {
-        average_spectrum[n] *= Energy/integrated_spectrum/Dv;
+        average_spectrum[n] *= energy/integrated_spectrum/Dv;
     }
 
     // Write spectrum file
