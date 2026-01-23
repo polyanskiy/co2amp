@@ -429,7 +429,7 @@ void A::Initialize()
         std::string pump_beam = value;
         Debug(2, "pump_beam = " + pump_beam);
 
-        fluence.resize(x0);
+        pump_fluence.resize(x0);
         if(pump_beam == "GAUSS" || pump_beam == "SUPERGAUSS4" || pump_beam == "SUPERGAUSS6"
             || pump_beam == "SUPERGAUSS8" || pump_beam == "SUPERGAUSS10" || pump_beam == "FLATTOP")
         {
@@ -442,22 +442,22 @@ void A::Initialize()
             Debug(2, "w = " + toExpString(w0) + " m");
             if(pump_beam == "GAUSS")
                 for(int x=0; x<x0; ++x)
-                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 2));
+                    pump_fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 2));
             if(pump_beam == "SUPERGAUSS4")
                 for(int x=0; x<x0; ++x)
-                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 4));
+                    pump_fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 4));
             if(pump_beam == "SUPERGAUSS6")
                 for(int x=0; x<x0; ++x)
-                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 6));
+                    pump_fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 6));
             if(pump_beam == "SUPERGAUSS8")
                 for(int x=0; x<x0; ++x)
-                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 8));
+                    pump_fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 8));
             if(pump_beam == "SUPERGAUSS10")
                 for(int x=0; x<x0; ++x)
-                    fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 10));
+                    pump_fluence[x] = exp(-2*pow(Dr*(0.5+x)/w0, 10));
             if(pump_beam == "FLATTOP")
                 for(int x=0; x<x0; ++x)
-                    Dr*(0.5+x)<=w0 ? fluence[x]=1 : fluence[x]=0;
+                    Dr*(0.5+x)<=w0 ? pump_fluence[x]=1 : pump_fluence[x]=0;
         }
         else if(pump_beam == "FREEFORM")
         {
@@ -474,7 +474,7 @@ void A::Initialize()
                 for(size_t i=0; i<r.size(); i++)
                     std::cout << toExpString(r[i]) <<  " " << toExpString(A[i]) << std::endl;
             for(int x=0; x<x0; ++x)
-                fluence[x] = Interpolate(&r, &A, Dr*(0.5+x));
+                pump_fluence[x] = Interpolate(&r, &A, Dr*(0.5+x));
         }
         else
         {
@@ -486,9 +486,9 @@ void A::Initialize()
         // convert beam profile to absolute fluence
         double E_au = 0; // beam energy for given profile in arbitraty units
         for(int x=0; x<x0; ++x)
-            E_au += fluence[x] * M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            E_au += pump_fluence[x] * M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
         for(int x=0; x<x0; ++x)
-            fluence[x] *= pump_E/E_au;
+            pump_fluence[x] *= pump_E/E_au;
 
 
 
@@ -722,7 +722,7 @@ void A::WritePumpingFiles()
         fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
         for(int x=0; x<x0; ++x)
         {
-            fprintf(file, "%e\t%e\n", Dr*(0.5+x), fluence[x]);
+            fprintf(file, "%e\t%e\n", Dr*(0.5+x), pump_fluence[x]);
         }
         fclose(file);
 
@@ -732,7 +732,7 @@ void A::WritePumpingFiles()
         double energy = 0;
         for(int x=0; x<x0; ++x)
         {
-            energy += fluence[x] *  M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            energy += pump_fluence[x] *  M_PI*pow(Dr,2)*(2*x+1); //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
         }
         //for(int m=0; m<m0; ++m)
         for(int m=0; m<m0; m+=n_ticks)

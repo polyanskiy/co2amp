@@ -66,15 +66,18 @@ public:
 class Plane // Layout component
 {
 public:
-    Plane(Optic *optic)
-    {
+    Plane(Optic *optic);
+    /*{
         this->optic = optic;
         this->space = 0;
-    }
+    }*/
     Optic *optic;
     double space;
     double time_from_first_plane;
     int number;
+
+    std::vector<double> input_fluence;
+    std::vector<double> input_power;
 };
 
 
@@ -115,7 +118,7 @@ private:
     std::vector<double> q2, q3, q4, qT;
     // for optical
     std::vector<double> normalized_intensity;
-    std::vector<double> fluence;
+    std::vector<double> pump_fluence;
     std::string pump_level; // energy level for optical pumping
                             // "001": direct pumping @ ~4.3 um
                             // "021": combination (101+021) vibration @ ~2.8 um
