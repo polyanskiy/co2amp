@@ -1,3 +1,6 @@
+> ⚠️ **NOTICE: Jan 26, 2026**  
+> The instructions are for an old, outdated structure of the co2amp. Please make appropriate adjustments and update this file if you are compiling and running co2amp on Linux.
+
 # Installation Guide for co2amp on Ubuntu 14.04
 
 ## Download co2amp
