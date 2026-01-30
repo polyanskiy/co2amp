@@ -20,18 +20,18 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     double Dr = plane->optic->Dr;
     FILE *file;
 
-    auto& E = pulse->E;
-
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
-    for(int x=0; x<x0; ++x)
+    for(int n=n_min; n<=n_max; ++n)
     {
-        for(int n=n_min; n<=n_max; ++n)
+        for(int x=0; x<x0; ++x)
         {
-            double intensity = 2 * h * pulse->vc * std::norm(E[n0*x+n]);
-            plane->input_power[n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
-            plane->input_fluence[x] += intensity * Dt; // J/m^2
+            double intensity = 2 * h * pulse->vc * std::norm(pulse->E[n0*x+n]);
+            plane->input_power[pulse_n*n0+n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            plane->input_fluence[pulse_n*x0+x] += intensity * Dt; // J/m^2
         }
+
+        plane->input_E_center[pulse_n*n0+n] = pulse->E[n]; // x=0
     }
 
     // Write files only when pulse interaction is completed
@@ -40,11 +40,11 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
 
     energy = 0;
     for(int n=0; n<n0; ++n)
-        energy += plane->input_power[n] * Dt; // J
+        energy += plane->input_power[pulse_n*n0+n] * Dt; // J
 
     // Count pass number through current element
     int pass_n = 0;
-    for(int i=0; i<plane_n; i++)
+    for(int i=0; i<plane_n; ++i)
         if(planes[i]->optic == planes[plane_n]->optic)
             pass_n++;
 
@@ -56,14 +56,14 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     file = fopen((basename+"_fluence.dat").c_str(), "w");
     fprintf(file, "#Data format: r[m] fluence[J/m^2]\n");
     for(int x=0; x<x0; ++x)
-        fprintf(file, "%e\t%e\n", Dr*(0.5+x), plane->input_fluence[x]);
+        fprintf(file, "%e\t%e\n", Dr*(0.5+x), plane->input_fluence[pulse_n*x0+x]);
     fclose(file);
 
     // Write power file
     file = fopen((basename+"_power.dat").c_str(), "w");
     fprintf(file, "#Data format:  time[s] power[W]\n");
     for(int n=0; n<n0; ++n)
-        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), plane->input_power[n]);
+        fprintf(file, "%.8E\t%e\n", (t_min + Dt*(0.5+n)), plane->input_power[pulse_n*n0+n]);
     fclose(file);
 
     // Write energy file
@@ -77,48 +77,50 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     fprintf(file, "%e\t%e\t%d\t%d\t%d\n", time, energy, pulse_n, optic_n, pass_n);
     fclose(file);
 
+
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
-    std::vector<double> average_spectrum(n0);
-    std::vector<std::complex<double>> spectrum(n0);
+    std::vector<std::complex<double>> field_spectrum(n0);
+    std::vector<double> intensity_spectrum(n0);
 
-    for(int n=0; n<n0; ++n)
-        average_spectrum[n] = 0;
-
-    // FAST: single point spectrum (comment SLOW or FAST)
-    //FFT(E[0], spectrum);
-    //for(int n=0; n<n0; ++n)
-    //    average_spectrum[n] = pow(cabs(spectrum[n]), 2);
-
-    // SLOW: averaged across the beam (comment SLOW or FAST)
-    //#pragma omp parallel for shared(average_spectrum)// multithreaded
-    for(int x=0; x<x0; ++x)
+    if(plane->optic->type == "A") // spectrum in the beam center
     {
-        FFT(&E[n0*x], spectrum.data());
+        FFT(&plane->input_E_center[pulse_n*n0], field_spectrum.data());
         for(int n=0; n<n0; ++n)
         {
-            average_spectrum[n] += std::norm(spectrum[n]) * (2*x+1);    // norm() returns the squared magnitude
-                                                                        //(2*x+1) is proportional to ring area:
-                                                                        //dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            intensity_spectrum[n] = std::norm(field_spectrum[n]);
         }
     }
 
-    // spectrum normalization
-    /*double max_int=0;
-    for(int n=0; n<n0; ++n)
-        if(average_spectrum[n] >= max_int)
-            max_int = average_spectrum[n];
-    for(int n=0; n<n0 && max_int>0; ++n)
-            average_spectrum[n] /= max_int;*/
+    else // average spectrum of the entire beam
+    {
+        std::fill_n(intensity_spectrum.begin(), n0, 0.0);
+
+        for(int x=0; x<x0; ++x)
+        {
+            FFT(&pulse->E[n0*x], field_spectrum.data());
+            for(int n=0; n<n0; ++n)
+            {
+                intensity_spectrum[n] += std::norm(field_spectrum[n]) * (2*x+1);
+
+                // ---------------------------------------------------
+                // norm() returns squared magnitude
+                // (2*x+1) is proportional to ring area:
+                // dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+                // ---------------------------------------------------
+            }
+        }
+
+    }
 
     // convert spectrum to absolute units (J/Hz)
-    double integrated_spectrum = 0;
+    double integral = 0;
     for(int n=0; n<n0; ++n)
     {
-        integrated_spectrum += average_spectrum[n];
+        integral += intensity_spectrum[n];
     }
     for(int n=0; n<n0; ++n)
     {
-        average_spectrum[n] *= energy/integrated_spectrum/Dv;
+        intensity_spectrum[n] *= energy/integral/Dv;
     }
 
     // Write spectrum file
@@ -127,12 +129,15 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     for(int n=0; n<n0; ++n)
     {
         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-        fprintf(file, "%.8E\t%e\n", v_min+Dv*(0.5+n), average_spectrum[n1]);
+        fprintf(file, "%.8E\t%e\n", v_min+Dv*(0.5+n), intensity_spectrum[n1]);
     }
     fclose(file);
 
 
     ////////////////////////////////////// Phase //////////////////////////////////////////////
+
+    if(plane->optic->type != "P")
+        return;
 
     // Phase in the center of the beam!
     std::vector<double> phase(n0);

@@ -676,23 +676,26 @@ void A::Initialize()
         }
     }
 
-    gainSpectrum.resize(n0);
-
-    // Fill out spectroscoic arrays &
+    // Fill out spectroscoic arrays
     AmplificationBand();
 
-    // Create polarization arrays (must be called after transitions are counted in AmplificationBand()
+    // Prepare arrays for step-wise interaction modelling (when lab-time-frame tick is shorter than pulse time frame)
+    // (transitions must be counted in AmplificationBand() by now for sizing rho)
+
+    int num_pulses = pulses.size();
+
+    int num_passes = 0; // how many times each pulse passes this a.m. section
+    for(size_t i=0; i<planes.size(); ++i)
+        if(planes[i]->optic == this)
+            num_passes++;
+
     for(int is=0; is<NumIso; ++is)
     {
-        int n_tr = v[is].size();
-        rho[is].resize(n_tr*x0);
+        int num_tr = v[is].size();
+        rho[is].resize(num_pulses * num_passes * x0 * num_tr);
     }
 
-    // zero-out all rho arrays
-    for (auto& v : rho)
-    {
-        std::fill(v.begin(), v.end(), 0.0);
-    }
+    gainSpectrum.resize(n0);
 
     // Populations and field initialization
     InitializePopulations();

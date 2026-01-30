@@ -67,10 +67,6 @@ class Plane // Layout component
 {
 public:
     Plane(Optic *optic);
-    /*{
-        this->optic = optic;
-        this->space = 0;
-    }*/
     Optic *optic;
     double space;
     double time_from_first_plane;
@@ -78,6 +74,7 @@ public:
 
     std::vector<double> input_fluence;
     std::vector<double> input_power;
+    std::vector<std::complex<double>> input_E_center; // Field in the beam center (for spectrum calculation)
 };
 
 
@@ -145,13 +142,22 @@ private:
 
     std::vector<double> v[NumIso];     // transition frequencies, Hz
     std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
-    std::vector<double> fwhm[NumIso]; // transition FWHM, Hz
+    std::vector<double> fwhm[NumIso];  // transition FWHM, Hz
+    std::vector<double> tau2[NumIso];  // effective dephasing time, s
     std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
     std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
     std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition
     std::vector<int> j_lo[NumIso];     // rotational quantum number of the lower level of the transition
+
+    // ------- TEMPORARY AVN CONVENIENCE VARIABLES ------
+
+    // Arrays to assist step-wise interaction modelling (when lab-time-frame tick is shorter than pulse time frame)
+    std::vector<std::complex<double>> rho[NumIso]; // Polarization
     std::vector<double> gainSpectrum;
-    std::vector<std::complex<double>> rho[NumIso];
+
+    // Pre-calculated expressions for faster calculations
+    std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
+    std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations
