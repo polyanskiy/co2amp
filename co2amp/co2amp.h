@@ -156,8 +156,10 @@ private:
     std::vector<double> gainSpectrum;
 
     // Pre-calculated expressions for faster calculations
-    std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
-    std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
+    //std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
+    //std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
+    std::vector<std::complex<double>> precalc_a[NumIso];
+    std::vector<std::complex<double>> precalc_exp[NumIso];
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations
@@ -336,7 +338,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 std::string toString(int num);
 std::string toString(double num);
-void UnwrapPhase(Pulse* pulse, int x, double* phase);
+void UnwrapPhase(std::complex<double> *field, double vc, double* phase);
 
 /////////////////////////// input.cpp ////////////////////////////
 std::string ReadCommandLine(int, char**);

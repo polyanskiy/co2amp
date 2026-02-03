@@ -38,7 +38,8 @@ void FFTCore(std::complex<double> *in, std::complex<double> *out, bool Invert)
         //   Jump to the next entry of the same transform factor
         Jump = Step*2;
         //   Angle increment
-        delta = Invert ? -M_PI/Step : M_PI/Step;
+        //delta = Invert ? -M_PI/Step : M_PI/Step;
+        delta = Invert ? M_PI/Step : -M_PI/Step; // standard conversion if physical field is defined as Re(E*exp(-2pi*i*nu*t))
         //   Auxiliary sin(delta / 2)
         Sine = sin(delta * .5);
         //   Multiplier for trigonometric recurrence

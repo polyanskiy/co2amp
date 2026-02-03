@@ -191,7 +191,7 @@ void Pulse::Initialize()
     // and central frequency of the calculation grid (v0)
     for(int x=0; x<x0; ++x)
         for(int n=0; n<n0; ++n)
-            E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+            E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     // Normalize intensity
     double Energy = 0;
@@ -407,7 +407,7 @@ void Pulse::SavePulse()
     // and central frequency of the calculation grig (v0)
     for(int x=0; x<x0; ++x)
         for(int n=0; n<n0; ++n)
-            E1[n0*x+n] = E[n0*x+n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+            E1[n0*x+n] = E[n0*x+n] * exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
 
     for(int i=0; i<x0*n0; i++)
     {
@@ -418,6 +418,9 @@ void Pulse::SavePulse()
     hsize_t dims[] = {(hsize_t)x0,(hsize_t)n0};
 
     hid_t file = H5Fcreate((id+".pulse").c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+    double format_version = 2026.2;
+    H5LTset_attribute_double(file, "/", "format_version", &format_version, 1);
 
     H5Gcreate(file, "pulse", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -446,6 +449,14 @@ bool Pulse::LoadPulse(std::string filename)
             std::cout << "ERROR: Cannot open HDF5 file \'" << filename << "\'\n";
             return false;
         }
+    }
+
+    // -------------- READ FILE FORMAT VERSION (default "2020" if missing) --------------
+    double format_version = 2020.0; // default for legacy files
+    if (H5Aexists_by_name(file, "/", "format_version", H5P_DEFAULT) > 0)
+    {
+        if (H5LTget_attribute_double(file, "/", "format_version", &format_version) < 0)
+            format_version = 2020.0;
     }
 
     // ------------------------------ READ ATTRIBUTES -----------------------------------
@@ -479,7 +490,6 @@ bool Pulse::LoadPulse(std::string filename)
     // ------------------------------ PREPARE  ARRRAYS ----------------------------------
     std::vector<double> re(x01*n01);
     std::vector<double> im(x01*n01);
-    //std::vector<std::complex<double>> E1(x01*n01);
 
     // ------------------------------- READ PULSE DATA ----------------------------------
     status += H5Dread(dataset_re, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, re.data());
@@ -493,11 +503,6 @@ bool Pulse::LoadPulse(std::string filename)
         H5Fclose(file);
         return false;
     }
-
-    /*for(int i=0; i<x01*n01; i++)
-    {
-        E1[i] = re[i] + I*im[i];
-    }*/
 
     // -------------------------------- CLOSE RESOURCES ---------------------------------
     H5Dclose(dataset_re);
@@ -526,58 +531,29 @@ bool Pulse::LoadPulse(std::string filename)
         return false;
     }
 
-
-    // ----------------------------- INTERPOLATE IF NEEDED ------------------------------
     for(int i=0; i<x01*n01; i++)
     {
         E[i] = re[i] + I*im[i];
     }
 
-    //double Dr = planes[0]->optic->Dr;
-    //double Dr1 = r_max1/x01;
-    //double Dt1 = (t_max1-t_min1)/n01;
 
-    /*#pragma omp parallel for
-    for(int x=0; x<x0; ++x)
+
+    // non-standard phase convention was used in the old code - applying correction...
+    if(format_version < 2026)
     {
-        double r = Dr*(0.5+x);
-        for(int n=0; n<n0; ++n)
-        {
-            double t = t_min + Dt*(0.5+n);
-            if(r>r_max1 || t<t_min1 || t>t_max1)
-            {
-                E[n0*x+n] = 0;
-            }
-            else
-            {
-                int x1 = (int)floor(r/Dr1 - 0.5);
-                int x2 = x1+1;
-                int n1 = (int)floor((t-t_min1)/Dt1 - 0.5);
-                int n2 = n1+1;
-
-                if(x1<0) x1=0;
-                if(n1<0) n1=0;
-                if(x1>=x01) x1=x01-1;
-                if(n1>=n01) n1=n01-1;
-                if(x2<0) x2=0;
-                if(n2<0) n2=0;
-                if(x2>=x01) x2=x01-1;
-                if(n2>=n01) n2=n01-1;
-                double a = r/Dr1 - (x1+0.5);
-                double b = (t-t_min1)/Dt1 - (n1+0.5);
-                E[n0*x+n] = E1[n01*x1+n1] * (1-a) * (1-b)
-                        + E1[n01*x2+n1] * a     * (1-b)
-                        + E1[n01*x1+n2] * (1-a) * b
-                        + E1[n01*x2+n2] * a     * b;
+        for (int x = 0; x < x0; ++x) {
+            for (int n = 0; n < n0; ++n) {
+                E[n0*x+n] = std::conj(E[n0*x+n]);
             }
         }
-    }*/
+    }
 
     // frequency shift between the central frequency of the pulse (vc)
     // and the central frequency of the calculation grid (v0)
     for(int x=0; x<x0; ++x)
         for(int n=0; n<n0; ++n)
-            E[n0*x+n] *= exp(I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+            E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
+
 
     // ------------------------------------ SUCCESS! ------------------------------------
     Debug(2, "Pulse read from file done!");

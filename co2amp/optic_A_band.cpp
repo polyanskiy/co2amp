@@ -359,42 +359,35 @@ void A::AmplificationBand(void)
             double fwhm_L = 1 / (M_PI*tau2_L);
 
             // Doppler FWHM [Hz]
-            //double fwhm_D = v_Hz * sqrt(8 * kB * T0 * log(2) / (m_iso[is] * c*c));
+            double fwhm_D = v_Hz * sqrt(8 * kB * T0 * log(2) / (m_iso[is] * c*c));
 
             // Effective FWHM - Lorentzian+Doppler [Hz]
-            //double fwhm_eff = sqrt(fwhm_L*fwhm_L + fwhm_D*fwhm_D);
+            double fwhm_eff = sqrt(fwhm_L*fwhm_L + fwhm_D*fwhm_D);
 
             // Effective tau2: not very accurate physically, but allows to account for
             // Doppler broadening without breaking internal consistency of the model
-            //double tau2_eff = 1 / (M_PI*fwhm_eff);
+            double tau2_eff = 1 / (M_PI*fwhm_eff);
 
             // Wavelength, m
             double lambda = 1/(wn*100); // m
 
-            /*sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff) ); // peak cross-section
+            sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff) ); // peak cross-section
 
             fwhm[is].push_back(fwhm_eff);
 
-            tau2[is].push_back(tau2_eff);*/
-
-            sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_L) ); // peak cross-section
-
-            fwhm[is].push_back(fwhm_L);
-
-            tau2[is].push_back(tau2_L);
-
+            tau2[is].push_back(tau2_eff);
 
             // Polarization dephasing factor (tau2): half-time-step
             // (same for all pulses)
-
             //dephase_exp[is].push_back( exp(-0.5*Dt / tau2_eff) );
-            dephase_exp[is].push_back( exp(-0.5*Dt / tau2_L) );
 
             // Detuning phase factor (rho rotation): half-time-step
             // (may be different for different pulses if different vc)
             for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
             {
-                detune_exp[is].push_back( exp(-I*M_PI*(pulses[pulse_n]->vc - v_Hz)*Dt) );
+                std::complex<double> a = 1.0 / tau2_eff + I * (2.0*M_PI*(pulses[pulse_n]->vc - v_Hz));
+                precalc_a[is].push_back( a );
+                precalc_exp[is].push_back( exp(-a*Dt) );
             }
 
             //if(J==20)
@@ -406,8 +399,8 @@ void A::AmplificationBand(void)
                           << "freq = " << std::to_string(v[is].back()/1e12) << " THz; "
                           << "A = " + std::to_string(A) + " 1/s; "
                           << "fwhm_L = " + std::to_string(fwhm_L/1e6) + " MHz; "
-                          //<< "fwhm_D = " + std::to_string(fwhm_D/1e6) + " MHz; "
-                          //<< "fwhm = " + std::to_string(fwhm_eff/1e6) + " MHz"
+                          << "fwhm_D = " + std::to_string(fwhm_D/1e6) + " MHz; "
+                          << "fwhm = " + std::to_string(fwhm_eff/1e6) + " MHz"
                           << std::endl;
             }
         }

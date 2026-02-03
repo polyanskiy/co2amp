@@ -142,7 +142,7 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     // Phase in the center of the beam!
     std::vector<double> phase(n0);
 
-    UnwrapPhase(pulse, 0, phase.data()); // 0 is x value in the center
+    UnwrapPhase(&pulse->E[0], pulse->vc, phase.data()); // 0 is x value in the center
 
     // Write phase file
     file = fopen((basename+"_phase.dat").c_str(), "w");
