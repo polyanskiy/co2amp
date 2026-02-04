@@ -369,9 +369,12 @@ void A::AmplificationBand(void)
             double tau2_eff = 1 / (M_PI*fwhm_eff);
 
             // Wavelength, m
-            double lambda = 1/(wn*100); // m
+            double lambda = 1/(wn*100);
 
-            sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff) ); // peak cross-section
+            // peak cross-section, m^2
+            double sigma_eff = lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff);
+
+            sigma[is].push_back(sigma_eff);
 
             fwhm[is].push_back(fwhm_eff);
 
@@ -389,6 +392,7 @@ void A::AmplificationBand(void)
                 precalc_a[is].push_back( a );
                 precalc_exp[is].push_back( exp(-a*Dt) );
             }
+            precalc_b_part[is].push_back( - sigma_eff / (2*tau2_eff) ); // b = b_part * Dn * E_in
 
             //if(J==20)
             if(debug_level >= 3)

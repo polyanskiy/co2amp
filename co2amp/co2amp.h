@@ -155,11 +155,12 @@ private:
     std::vector<std::complex<double>> rho[NumIso]; // Polarization
     std::vector<double> gainSpectrum;
 
-    // Pre-calculated expressions for faster calculations
+    // Pre-calculated expressions for faster calculations (polarization part of amplification equations)
     //std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
     //std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
     std::vector<std::complex<double>> precalc_a[NumIso];
     std::vector<std::complex<double>> precalc_exp[NumIso];
+    std::vector<double> precalc_b_part[NumIso]; // partial pre-calculation of b
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations

@@ -141,39 +141,31 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
                 for(int tr=0; tr<num_tr[is]; ++tr)
                 {
+                    /*
                     // Eq 2
-                    /*rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 1)
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 1)
                     rho[is][offset[is]+num_tr[is]*x+tr] *= detune_exp[is][num_pulses*tr + pulse_n];           // phase detuning (half-step 1)
                     rho[is][offset[is]+num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*tau2[is][tr])*Dt; // excitation (full step)
                     rho[is][offset[is]+num_tr[is]*x+tr] *= detune_exp[is][num_pulses*tr + pulse_n];           // phase detuning (half-step 2)
-                    rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 2)*/
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 2)
+                    */
 
-                    // Eq 2 (exact linear+drive update over full Dt)
-                    //
-                    // dρ/dt = -a ρ + b,  with
+                    // Eq 2
+                    // *** exact solution over Dt for fixed Dn and E_in ***
+                    // dρ/dt = -a ρ + b
                     // a = 1/tau2 + i*2π*(vc - v_j)
-                    // b = -(sigma * Dn * E_in) / (2*tau2)
-                    //
+                    // b = - sigma / (2*tau2) * Dn * E_in
                     // Exact: ρ <- ρ*exp(-a*Dt) + b*(1-exp(-a*Dt))/a
 
-
-                    //std::complex<double> a = 1.0 / tau2[is][tr] + I * (2.0*M_PI*(pulse->vc - v[is][tr]));
-
-                    std::complex<double> a = precalc_a[is][num_pulses*tr + pulse_n];
-
-                    std::complex<double> b = - sigma[is][tr] * Dn[is][tr] * E_in * 0.5 / tau2[is][tr];
-
-                    //std::complex<double> U = exp(-a * Dt);  // homogeneous one-step propagator for rho: exp[-(1/tau2 + i2πΔν)Δt]
-                    std::complex<double> exp = precalc_exp[is][num_pulses*tr + pulse_n]; // homogeneous one-step propagator for rho: exp[-(1/tau2 + i2πΔν)Δt]
-
-
+                    // a (and exp) may differ between pulses if vc is different
+                    std::complex<double> a   = precalc_a[is][num_pulses*tr + pulse_n];
+                    std::complex<double> exp = precalc_exp[is][num_pulses*tr + pulse_n];
+                    // b doesn't depend on pulse_n
+                    std::complex<double> b   = precalc_b_part[is][tr] * Dn[is][tr] * E_in;
 
                     auto &rho_ = rho[is][offset[is] + num_tr[is]*x + tr];
 
                     rho_ = rho_ * exp + b * (1.0 - exp) / a;
-
-                    //rho[is][offset[is]+num_tr[is]*x+tr] *= precalc_exp[is][num_pulses*tr + pulse_n];
-                    //rho[is][offset[is]+num_tr[is]*x+tr] += b * (1.0 - precalc_exp[is][num_pulses*tr + pulse_n]) / precalc_a[is][num_pulses*tr + pulse_n];
 
                     // Eq 1
                     pulse->E[n0*x+n] -= rho[is][offset[is]+num_tr[is]*x+tr] * length;

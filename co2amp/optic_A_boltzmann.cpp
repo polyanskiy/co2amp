@@ -25,15 +25,6 @@ void A::Boltzmann(int m, double* q)
         }
     }
 
-    /*// zero out coefficient array
-    for(int i=0; i<b0; ++i)
-    {
-        for(int j=0; j<b0; ++j)
-        {
-            M[i][j] = 0;
-        }
-    }*/
-
     Du = u_lim/(b0-1); // Electron energy grid step, eV
 
     Debug(3, "Writing and solving Boltzmann equations - Stage 2 (fine grid)...");

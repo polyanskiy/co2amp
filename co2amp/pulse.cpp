@@ -459,6 +459,12 @@ bool Pulse::LoadPulse(std::string filename)
             format_version = 2020.0;
     }
 
+    if(format_version<2026)
+    {
+        std::cout << "ERROR: outdated pulse file format: \'" << filename << "\'\n";
+        return false;
+    }
+
     // ------------------------------ READ ATTRIBUTES -----------------------------------
     double r_max1, t_min1, t_max1;
     int status=0;
@@ -536,24 +542,28 @@ bool Pulse::LoadPulse(std::string filename)
         E[i] = re[i] + I*im[i];
     }
 
-
-
-    // non-standard phase convention was used in the old code - applying correction...
+    /*// non-standard phase convention was used in the old code - applying correction
+    // (must be done before frequency shift to v_0)
     if(format_version < 2026)
     {
-        for (int x = 0; x < x0; ++x) {
-            for (int n = 0; n < n0; ++n) {
+        for (int x = 0; x < x0; ++x)
+        {
+            for (int n = 0; n < n0; ++n)
+            {
                 E[n0*x+n] = std::conj(E[n0*x+n]);
             }
         }
-    }
+    }*/
 
     // frequency shift between the central frequency of the pulse (vc)
     // and the central frequency of the calculation grid (v0)
     for(int x=0; x<x0; ++x)
+    {
         for(int n=0; n<n0; ++n)
+        {
             E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
-
+        }
+    }
 
     // ------------------------------------ SUCCESS! ------------------------------------
     Debug(2, "Pulse read from file done!");
