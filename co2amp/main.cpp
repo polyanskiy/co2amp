@@ -35,7 +35,7 @@ std::string search_dir;    // Additional directory for HDF5 pulse files
 
 int main(int argc, char **argv)
 {
-    std::string version = "2026-01-22";
+    std::string version = "2026-02-04";
     std::clock_t stopwatch = std::clock();
 
     // constants
@@ -128,8 +128,6 @@ void Calculations()
 
     std::cout << "*** CALCULATION ***\n";
 
-    double pulse_duration = t_max - t_min; // duration of pulse time grid
-
     for (int m = 0; m < m0; ++m)
     {
         // Internal dynamics in the optic
@@ -143,7 +141,7 @@ void Calculations()
                 double t0 = time_tick * m;
                 double t1 = time_tick * (m+1);
 
-                // moments (in lab time frame) when the pulse enters the plane
+                // moment (in lab time frame) when the pulse enters the plane
                 double t_in = pulses[pulse_n]->time_in + planes[plane_n]->time_from_first_plane;
 
                 // calculation limits for pulse interaction (mainly amplification)
@@ -158,20 +156,15 @@ void Calculations()
 
                 if(0<=n_min && n_min<n0 && 0<=n_max && n_max<n0)
                 {
+                    // 1: Propagate beam to(!) this plane
                     if(n_min==0)
                     {
-                        // 1: Propagate beam to(!) this plane
                         if(plane_n != 0)
                             pulses[pulse_n]->Propagate(planes[plane_n-1], planes[plane_n], m);
-
-                        // 2: Save pulse parameters at plane location (before interaction!!!)
-                        //    only save if distance from previous amplifier is longer than pulse time frame
-                        if(plane_n == 0 || planes[plane_n-1]->optic->type != "A" || planes[plane_n-1]->space > pulse_duration*c )
-                        {
-                            StatusDisplay(pulses[pulse_n], planes[plane_n], m, "saving...");
-                            UpdateOutputFiles(pulses[pulse_n], planes[plane_n], t_in);
-                        }
                     }
+
+                    // 2: Save pulse parameters at plane location (before interaction!!!)
+                    UpdateOutputFiles(pulses[pulse_n], planes[plane_n], n_min, n_max);
 
                     // 3: Do Interaction (amplification etc.)
                     if(plane_n != planes.size()-1) // interact with this palne

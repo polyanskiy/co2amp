@@ -199,6 +199,19 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 
     int count = 0;
     int n_peak = 0;
+
+    // find time position (n) of peak intensity (at x=0)
+    for(int n=0; n<n0; n++)
+    {
+        double intensity = std::norm(pulse->E[n]); // arb. units
+        if(intensity > peak_intensity)
+        {
+            peak_intensity = intensity;
+            n_peak = n;
+        }
+    }
+    peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
+
     #pragma omp parallel for
     for(int x=0; x<x0; ++x)
     {
@@ -221,7 +234,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
 
 
         // find time position (n) of peak intensity
-        if(x==0)
+        /*if(x==0)
         {
             //double peak_intensity = 0;
             for(int n=0; n<n0; n++)
@@ -235,7 +248,7 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
                 }
             }
             peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
-        }
+        }*/
 
         // Pulse interaction with each slice
         for(int i=0; i<slices; i++)

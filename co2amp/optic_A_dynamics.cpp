@@ -80,7 +80,7 @@ void A::InternalDynamics(int m)
 
         if(pumping == "optical")
         {
-            double photon_flux = normalized_intensity[m] * fluence[x] / (h*c/pump_wl); // photons/(m^2 * s)
+            double photon_flux = normalized_intensity[m] * pump_fluence[x] / (h*c/pump_wl); // photons/(m^2 * s)
 
             if(pump_level == "001") // direct excitation of (001) level @ ~4.3 um
             {

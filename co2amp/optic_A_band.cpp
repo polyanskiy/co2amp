@@ -91,7 +91,6 @@ void A::AmplificationBand(void)
     // |    |                      |   17 -> 4  (f)  | "           |
     //  -----------------------------------------------------------
 
-    double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.73*p_N2+0.64*p_He));  // transition dipole dephasing time, s
 
     // Rotational constants B, Hz
     // B[is][vl]
@@ -353,8 +352,11 @@ void A::AmplificationBand(void)
             // Transition cross-sections, m^2
             double A = std::stod(line.substr(25, 10)); // Einstein coefficient A (1/s)
 
+            // Transition dipole dephasing time, s (real tau2 associated with collisons)
+            double tau2_L = 1e-6 / (M_PI*7.61*750*(p_CO2+0.73*p_N2+0.64*p_He));
+
             // Lorentzian FWHM of the transition (homogineous collisional broadeneig) [Hz]
-            double fwhm_L = 1 / (M_PI*tau2);
+            double fwhm_L = 1 / (M_PI*tau2_L);
 
             // Doppler FWHM [Hz]
             double fwhm_D = v_Hz * sqrt(8 * kB * T0 * log(2) / (m_iso[is] * c*c));
@@ -362,11 +364,35 @@ void A::AmplificationBand(void)
             // Effective FWHM - Lorentzian+Doppler [Hz]
             double fwhm_eff = sqrt(fwhm_L*fwhm_L + fwhm_D*fwhm_D);
 
-            double lambda = 1/(wn*100); // m
+            // Effective tau2: not very accurate physically, but allows to account for
+            // Doppler broadening without breaking internal consistency of the model
+            double tau2_eff = 1 / (M_PI*fwhm_eff);
 
-            sigma[is].push_back( lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff) ); // peak cross-section
+            // Wavelength, m
+            double lambda = 1/(wn*100);
+
+            // peak cross-section, m^2
+            double sigma_eff = lambda*lambda * A / (4*M_PI*M_PI*fwhm_eff);
+
+            sigma[is].push_back(sigma_eff);
 
             fwhm[is].push_back(fwhm_eff);
+
+            tau2[is].push_back(tau2_eff);
+
+            // Polarization dephasing factor (tau2): half-time-step
+            // (same for all pulses)
+            //dephase_exp[is].push_back( exp(-0.5*Dt / tau2_eff) );
+
+            // Detuning phase factor (rho rotation): half-time-step
+            // (may be different for different pulses if different vc)
+            for(size_t pulse_n=0; pulse_n<pulses.size(); ++pulse_n)
+            {
+                std::complex<double> a = 1.0 / tau2_eff + I * (2.0*M_PI*(pulses[pulse_n]->vc - v_Hz));
+                precalc_a[is].push_back( a );
+                precalc_exp[is].push_back( exp(-a*Dt) );
+            }
+            precalc_b_part[is].push_back( - sigma_eff / (2*tau2_eff) ); // b = b_part * Dn * E_in
 
             //if(J==20)
             if(debug_level >= 3)

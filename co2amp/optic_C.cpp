@@ -24,8 +24,8 @@ void C::Initialize()
             return;
         }
         for(int n=0; n<n0; n++)
-            Chirp[n] = std::stof(value);
-        Debug(2, "c (chirp rate, dν/dt) = " + toExpString(Chirp[n0]) + " Hz/s");
+            Chirp[n] = std::stod(value);
+        Debug(2, "c (chirp rate, dν/dt) = " + toExpString(Chirp[n0/2]) + " Hz/s");
         WriteChirpFile();
         return;
     }

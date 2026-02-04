@@ -14,34 +14,42 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
     flag_interaction = n_max==n0-1 ? false : true;
 
-    double tau2 = 1e-6 / (M_PI*7.61*750*(p_CO2+0.733*p_N2+0.64*p_He)); // transition dipole dephasing time, s
-    double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He));        // rotational thermalization time, s
-    //double gammaL = 1 / tau2;   // Lorentzian HWHM (for gain spectrum calculation)
+    double tauR = 1e-7 / (750*(1.3*p_CO2+1.2*p_N2+0.6*p_He)); // rotational thermalization time, s
+    double rot_relax = 1.0 - exp(-Dt/tauR/2); // half-step (rotational relaxation during Dt/2)
 
-    // number of ro-vibrational transitions extracted from HITRAN files
-    int num_tr[NumIso];
+
+
+    int num_pulses = pulses.size();
+    int pulse_n = pulse->number;
+
+    int num_passes = 0; // how many times each pulse passes this a.m. section
+    for(size_t i=0; i<planes.size(); ++i)
+        if(planes[i]->optic == this)
+            num_passes++;
+
+    // Count pass number through current element
+    int pass_n = 0;
+    for(int i=0; i<plane->number; ++i)
+        if(planes[i]->optic == plane->optic)
+            pass_n++;
+
+    int num_tr[NumIso]; // number of transitions to concider
+    int offset[NumIso]; // index offset in the rho vector corresponding to given pulse and pass number
     for(int is=0; is<NumIso; ++is)
+    {
         num_tr[is] = v[is].size();
+        offset[is] = pulse_n*num_passes*x0*num_tr[is] + pass_n*x0*num_tr[is];
+    }
 
     // zero-out arrays when new pulse enters the amplifier section
     if(n_min==0)
     {
-        // polarization
-        for (auto& v : rho)
-            std::fill(v.begin(), v.end(), 0.0);
+        // polarization (only zero-out elements corresponding to the present pulse and pass number
+        for(int is=0; is<NumIso; ++is)
+            std::fill_n(rho[is].begin()+offset[is], x0*num_tr[is], 0.0);
 
         // spectrum
-        std::fill(gainSpectrum.begin(), gainSpectrum.end(), 0.0);
-    }
-
-    // Pre-calculate re-usable expressios to accelerate computations
-    double rot_relax = 1.0 - exp(-Dt/tauR/2);// half-step (rotational relaxation during Dt/2)
-    double exp_tau2 = exp(-Dt/tau2/2); // half-step (polarization dephasing during Dt/2)
-    std::vector<std::complex<double>> exp_phase[NumIso]; // half-step
-    for(int is=0; is<NumIso; ++is)
-    {
-        for(int tr=0; tr<num_tr[is]; ++tr)
-            exp_phase[is].push_back(exp(I*M_PI*(pulse->vc-v[is][tr])*Dt)); //half-step: note factor 2.0 in front of "PI" removed
+        std::fill_n(gainSpectrum.begin(), n0, 0.0);
     }
 
 
@@ -94,7 +102,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
         for(int n=n_min; n<=n_max; ++n)
         {
             // shift center frequency to pulse->vc
-            pulse->E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+            pulse->E[n0*x+n] *= exp(I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
             // population inversions
             for(int is=0; is<NumIso; ++is) // for each isotopologue
             {
@@ -133,14 +141,34 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
 
                 for(int tr=0; tr<num_tr[is]; ++tr)
                 {
+                    /*
                     // Eq 2
-                    rho[is][num_tr[is]*x+tr] *= exp_tau2; // relaxation (half-step 1)
-                    rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 1)
-                    rho[is][num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*tau2)*Dt; // excitation (full step)
-                    rho[is][num_tr[is]*x+tr] *= exp_phase[is][tr]; // phase relaxation (half-step 2)
-                    rho[is][num_tr[is]*x+tr] *= exp_tau2; // relaxation (half-step 2)
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 1)
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= detune_exp[is][num_pulses*tr + pulse_n];           // phase detuning (half-step 1)
+                    rho[is][offset[is]+num_tr[is]*x+tr] -= sigma[is][tr]*Dn[is][tr]*E_in/(2*tau2[is][tr])*Dt; // excitation (full step)
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= detune_exp[is][num_pulses*tr + pulse_n];           // phase detuning (half-step 2)
+                    rho[is][offset[is]+num_tr[is]*x+tr] *= dephase_exp[is][tr];                               // polarization dephasing (half-step 2)
+                    */
+
+                    // Eq 2
+                    // *** exact solution over Dt for fixed Dn and E_in ***
+                    // dρ/dt = -a ρ + b
+                    // a = 1/tau2 + i*2π*(vc - v_j)
+                    // b = - sigma / (2*tau2) * Dn * E_in
+                    // Exact: ρ <- ρ*exp(-a*Dt) + b*(1-exp(-a*Dt))/a
+
+                    // a (and exp) may differ between pulses if vc is different
+                    std::complex<double> a   = precalc_a[is][num_pulses*tr + pulse_n];
+                    std::complex<double> exp = precalc_exp[is][num_pulses*tr + pulse_n];
+                    // b doesn't depend on pulse_n
+                    std::complex<double> b   = precalc_b_part[is][tr] * Dn[is][tr] * E_in;
+
+                    auto &rho_ = rho[is][offset[is] + num_tr[is]*x + tr];
+
+                    rho_ = rho_ * exp + b * (1.0 - exp) / a;
+
                     // Eq 1
-                    pulse->E[n0*x+n] -= rho[is][num_tr[is]*x+tr] * length;
+                    pulse->E[n0*x+n] -= rho[is][offset[is]+num_tr[is]*x+tr] * length;
                 }
             }
 
@@ -162,8 +190,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
                 // STIMULATED TRANSITIONS (full step)
                 for(int tr=0; tr<num_tr[is]; ++tr)
                 {
-                    //delta = 4 * real(rho[is][tr]*conj((E_in+pulse->E[n0*x+n])/2.0)) * Dt;
-                    delta = 4 * real(rho[is][num_tr[is]*x+tr]*conj((E_in+pulse->E[n0*x+n])/2.0)) * Dt;
+                    delta = 4 * real(rho[is][offset[is]+num_tr[is]*x+tr]*conj((E_in+pulse->E[n0*x+n])/2.0)) * Dt;
                     // NOTE: E_in+pulse->E[n0*x+n])/2.0 is the average field (before and after amplification)
 
                     // upper level
@@ -186,7 +213,7 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
             }
 
             // shift center frequency back to v0 (center of the calculation grid)
-            pulse->E[n0*x+n] *= exp(I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+            pulse->E[n0*x+n] *= exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
         }
 
         double DeltaN_nu3 = 0; // change of number of nu_3 quanta

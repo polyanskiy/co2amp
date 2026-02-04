@@ -142,7 +142,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x)
     return 0;
 }
 
-void UnwrapPhase(Pulse* pulse, int x, double* phase)
+void UnwrapPhase(std::complex<double> *field, double vc, double* phase)
 {
     std::vector<std::complex<double>> E1(n0);
     double Emax = 0;
@@ -152,7 +152,7 @@ void UnwrapPhase(Pulse* pulse, int x, double* phase)
     for(int n=0; n<n0; ++n)
     {
         // invert shift between v0 and vc
-        E1[n] = pulse->E[n0*x+n] * exp(-I*2.0*M_PI*(v0-pulse->vc)*Dt*(0.5+n));
+        E1[n] = field[n] * exp(-I*2.0*M_PI*(v0-vc)*Dt*(0.5+n));
         // find max field
         Emax = std::max(Emax, std::abs(E1[n]));
     }
@@ -214,11 +214,11 @@ void UnwrapPhase(Pulse* pulse, int x, double* phase)
     if(t_min<-Dt && t_max>Dt) // t=0 is within the pulse time range
     {
         int zerotime_n = int(-t_min/Dt);
-        offset = phase[zerotime_n] - std::arg(pulse->E[n0*x+zerotime_n]);
+        offset = phase[zerotime_n] - std::arg(field[zerotime_n]);
     }
     else // t=0 is not in the pule time range: use middle point (is this scenario realistic???)
     {
-        offset = phase[n0/2] - arg(pulse->E[n0*x+n0/2]);
+        offset = phase[n0/2] - arg(field[n0/2]);
     }
 
     for(int n=0; n<n0; ++n)

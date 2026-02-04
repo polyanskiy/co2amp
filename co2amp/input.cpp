@@ -347,11 +347,12 @@ bool ReadLayoutConfigFile(std::string path)
                 return false;
             }
 
-            if(planes[i]->space != 0)
+            if( (planes[i]->space != 0 && method != 0) || planes[i]->optic->r_max != planes[i+1]->optic->r_max)
             {
                 std::cout << "Layout error: Distance between amplifier sections \""
                           << planes[i]->optic->id << "\" and " << planes[i+1]->optic->id
-                          << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m) or 0\n";
+                          << "\" must be longer than pulse time range (" << (t_max-t_min)*c << " m)\n"
+                          << "(unless distance = 0 or propagation method = 0, and semi-diameters are same)\n";
                 return false;
             }
 

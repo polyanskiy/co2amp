@@ -66,15 +66,15 @@ public:
 class Plane // Layout component
 {
 public:
-    Plane(Optic *optic)
-    {
-        this->optic = optic;
-        this->space = 0;
-    }
+    Plane(Optic *optic);
     Optic *optic;
     double space;
     double time_from_first_plane;
     int number;
+
+    std::vector<double> input_fluence;
+    std::vector<double> input_power;
+    std::vector<std::complex<double>> input_E_center; // Field in the beam center (for spectrum calculation)
 };
 
 
@@ -84,7 +84,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     // ---------- FLAGS ----------
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
@@ -115,7 +115,7 @@ private:
     std::vector<double> q2, q3, q4, qT;
     // for optical
     std::vector<double> normalized_intensity;
-    std::vector<double> fluence;
+    std::vector<double> pump_fluence;
     std::string pump_level; // energy level for optical pumping
                             // "001": direct pumping @ ~4.3 um
                             // "021": combination (101+021) vibration @ ~2.8 um
@@ -142,13 +142,25 @@ private:
 
     std::vector<double> v[NumIso];     // transition frequencies, Hz
     std::vector<double> sigma[NumIso]; // transition cross-sections, m^2
-    std::vector<double> fwhm[NumIso]; // transition FWHM, Hz
+    std::vector<double> fwhm[NumIso];  // transition FWHM, Hz
+    std::vector<double> tau2[NumIso];  // effective dephasing time, s
     std::vector<int> vl_up[NumIso];    // upper vibrational level of the transition (see initialization for numbering)
     std::vector<int> vl_lo[NumIso];    // lower vibrational level of the transition
     std::vector<int> j_up[NumIso];     // rotational quantum number of the upper level of the transition
     std::vector<int> j_lo[NumIso];     // rotational quantum number of the lower level of the transition
+
+    // ------- TEMPORARY AVN CONVENIENCE VARIABLES ------
+
+    // Arrays to assist step-wise interaction modelling (when lab-time-frame tick is shorter than pulse time frame)
+    std::vector<std::complex<double>> rho[NumIso]; // Polarization
     std::vector<double> gainSpectrum;
-    std::vector<std::complex<double>> rho[NumIso];
+
+    // Pre-calculated expressions for faster calculations (polarization part of amplification equations)
+    //std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
+    //std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
+    std::vector<std::complex<double>> precalc_a[NumIso];
+    std::vector<std::complex<double>> precalc_exp[NumIso];
+    std::vector<double> precalc_b_part[NumIso]; // partial pre-calculation of b
 
     // -------- BOLTZMANN --------
     static constexpr int b0 = 1024;  // Number of points in calculations
@@ -183,7 +195,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     std::vector<double> Chirp; // Chirp array (Hz/s) in frequency domain
     void WriteChirpFile();
@@ -196,7 +208,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
     double F; // focal length, m
 };
 
@@ -207,7 +219,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     // ------- GENERAL -------
     std::string material;
@@ -246,7 +258,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -259,7 +271,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 };
 
 
@@ -269,7 +281,7 @@ public:
     using Optic::Optic;
     virtual void Initialize(void);
     virtual void InternalDynamics(int m);
-    virtual void PulseInteraction(Pulse *pulse, Plane *plane=nullptr, int m=0, int n_min=0, int n_max=0);
+    virtual void PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max);
 private:
     double *Transmittance; // transmittance array
     void WriteTransmittanceFile();
@@ -327,7 +339,7 @@ double Interpolate(std::vector<double> *X, std::vector<double> *Y, double x);
 std::string toExpString(double num);
 std::string toString(int num);
 std::string toString(double num);
-void UnwrapPhase(Pulse* pulse, int x, double* phase);
+void UnwrapPhase(std::complex<double> *field, double vc, double* phase);
 
 /////////////////////////// input.cpp ////////////////////////////
 std::string ReadCommandLine(int, char**);
@@ -335,7 +347,7 @@ bool ReadConfigFiles(std::string);
 bool ReadLayoutConfigFile(std::string);
 
 /////////////////////////// output.cpp ///////////////////////////
-void UpdateOutputFiles(Pulse *pulse, Plane *plane, double time);
+void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max);
 void SaveOutputField(void);
 
 ///////////////////////////// calc.cpp /////////////////////////////
