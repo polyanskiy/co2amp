@@ -17,7 +17,6 @@
 #include <unordered_map>
 #include <string>
 
-
 #define I std::complex<double>(0,1)
 
 
@@ -156,8 +155,6 @@ private:
     std::vector<double> gainSpectrum;
 
     // Pre-calculated expressions for faster calculations (polarization part of amplification equations)
-    //std::vector<double> dephase_exp[NumIso];              // polarization dephasing factor (tau2): half-time-step
-    //std::vector<std::complex<double>> detune_exp[NumIso]; // phase detuning factor (rho rotation): half-time-step
     std::vector<std::complex<double>> precalc_a[NumIso];
     std::vector<std::complex<double>> precalc_exp[NumIso];
     std::vector<double> precalc_b_part[NumIso]; // partial pre-calculation of b
