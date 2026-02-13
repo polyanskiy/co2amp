@@ -22,12 +22,14 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
 
     ///////////////////////////////// Fluence, Power, Energy //////////////////////////////////
 
+    #pragma omp parallel for
     for(int n=n_min; n<=n_max; ++n)
     {
         for(int x=0; x<x0; ++x)
         {
             double intensity = 2 * h * pulse->vc * std::norm(pulse->E[n0*x+n]);
-            plane->input_power[pulse_n*n0+n] += intensity * M_PI*pow(Dr,2)*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            plane->input_power[pulse_n*n0+n] += intensity * M_PI*Dr*Dr*(2*x+1); //ring area dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+            #pragma omp atomic
             plane->input_fluence[pulse_n*x0+x] += intensity * Dt; // J/m^2
         }
 
@@ -79,11 +81,12 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
 
 
     ////////////////////////////////////// Spectra //////////////////////////////////////////////
-    std::vector<std::complex<double>> field_spectrum(n0);
+    //std::vector<std::complex<double>> field_spectrum(n0);
     std::vector<double> intensity_spectrum(n0);
 
     if(plane->optic->type == "A") // spectrum in the beam center
     {
+        std::vector<std::complex<double>> field_spectrum(n0);
         FFT(&plane->input_E_center[pulse_n*n0], field_spectrum.data());
         for(int n=0; n<n0; ++n)
         {
@@ -95,18 +98,27 @@ void UpdateOutputFiles(Pulse *pulse, Plane *plane, int n_min, int n_max)
     {
         std::fill_n(intensity_spectrum.begin(), n0, 0.0);
 
-        for(int x=0; x<x0; ++x)
+        #pragma omp parallel
         {
-            FFT(&pulse->E[n0*x], field_spectrum.data());
-            for(int n=0; n<n0; ++n)
-            {
-                intensity_spectrum[n] += std::norm(field_spectrum[n]) * (2*x+1);
+            // allocate once per thread, not for each iteration
+            // (e.g. if x0=1024 and there are 16 threads, only 16 allocations are made)
+            std::vector<std::complex<double>> field_spectrum(n0);
 
-                // ---------------------------------------------------
-                // norm() returns squared magnitude
-                // (2*x+1) is proportional to ring area:
-                // dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
-                // ---------------------------------------------------
+            #pragma omp for
+            for(int x=0; x<x0; ++x)
+            {
+                FFT(&pulse->E[n0*x], field_spectrum.data());
+                for(int n=0; n<n0; ++n)
+                {
+                    #pragma omp atomic
+                    intensity_spectrum[n] += std::norm(field_spectrum[n]) * (2*x+1);
+
+                    // ---------------------------------------------------
+                    // norm() returns squared magnitude
+                    // (2*x+1) is proportional to ring area:
+                    // dS = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+                    // ---------------------------------------------------
+                }
             }
         }
 

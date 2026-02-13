@@ -341,7 +341,7 @@ void A::Initialize()
 
         int count = 0;
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(std::min(n_solves, std::min(4, omp_get_max_threads()))) // use 4 threads max (seems to be an optimum)
         for(int i=0; i<n_solves; ++i)
         {
             #pragma omp critical
@@ -349,8 +349,6 @@ void A::Initialize()
                 StatusDisplay(nullptr, nullptr, -1, this->id +
                               ": solving Boltzmann equations: " + std::to_string(++count) + " of " + std::to_string(n_solves));
             }
-
-            //std::vector<std::vector<double>> M(b0, std::vector<double>(b0, 0.0)); // zero-fill
 
             int m = i * n_ticks;
             if(m>m0-1)
