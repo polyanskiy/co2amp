@@ -212,111 +212,112 @@ void M::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
     }
     peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
 
-    #pragma omp parallel for
-    for(int x=0; x<x0; ++x)
+    #pragma omp parallel
     {
-        if(debug_level >= 0)
+        std::vector<std::complex<double>> E1(n0);  //temporary - field in frequency domain
+
+        #pragma omp for
+        for(int x=0; x<x0; ++x)
         {
-            #pragma omp critical
+            if(debug_level >= 0)
             {
-                StatusDisplay(pulse, plane, m,
-                          "material: " + std::to_string(++count) + " of " + std::to_string(x0));
-            }
-        }
-
-        double intensity, chirp, shift, v;
-        /*
-        double alphaNL;
-        double integral; // proportional to the number of created free carriers
-        */
-
-        //std::complex<double> *E1; //field in frequency domaine
-
-
-        // find time position (n) of peak intensity
-        /*if(x==0)
-        {
-            //double peak_intensity = 0;
-            for(int n=0; n<n0; n++)
-            {
-                //intensity = pow(abs(pulse->E[n0*x+n]), 2); // arb. units
-                intensity = std::norm(pulse->E[n0*x+n]); // arb. units
-                if(intensity > peak_intensity)
+                #pragma omp critical
                 {
-                    peak_intensity = intensity;
-                    n_peak = n;
+                    StatusDisplay(pulse, plane, m,
+                              "material: " + std::to_string(++count) + " of " + std::to_string(x0));
                 }
             }
-            peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
-        }*/
 
-        // Pulse interaction with each slice
-        for(int i=0; i<slices; i++)
-        {
-            // -------------- REFRACTION AND ABSORPTION --------------
-            // - Use split-step method for each slice -
+            double intensity, chirp, shift, v;
+            /*
+            double alphaNL;
+            double integral; // proportional to the number of created free carriers
+            */
 
-            // nonlinear refraction [and absorption] Step 1 (half-thickness of the slice)
-            //integral = 0;
-            for(int n=0; n<n0; n++)
+            // find time position (n) of peak intensity
+            /*if(x==0)
             {
-                intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
-                intensity *= tilt_factor; // reduced intensity in tilted windows
+                //double peak_intensity = 0;
+                for(int n=0; n<n0; n++)
+                {
+                    //intensity = pow(abs(pulse->E[n0*x+n]), 2); // arb. units
+                    intensity = std::norm(pulse->E[n0*x+n]); // arb. units
+                    if(intensity > peak_intensity)
+                    {
+                        peak_intensity = intensity;
+                        n_peak = n;
+                    }
+                }
+                peak_intensity *= 2.0 * h * pulse->vc; // W/m^2
+            }*/
 
-                // nonlinear refraction
-                shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
-                pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
-
-                /*
-                // nonlinear absorption
-                alphaNL = pow(alpha1*intensity,chi) + integral;
-                pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
-                //integral += alphaNL*intensity*Dt;
-                integral += pow(alpha2*intensity,chi)*Dt;
-                */
-
-                // B-integral
-                if(x==0 && n==n_peak)
-                    B_integral += M_PI * pulse->vc / c * intensity * n2 * th; // 2 ommitted: half-thickness
-            }
-
-            // linear dispersion and absorption (full thickness of the slice)
-            std::vector<std::complex<double>> E1(n0);
-            FFT(&pulse->E[n0*x], E1.data());
-            shift = 0;
-            for(int n=0; n<n0; n++)
+            // Pulse interaction with each slice
+            for(int i=0; i<slices; i++)
             {
-                v = v_min+Dv*(0.5+n);
-                chirp = c/th / (GroupIndex(v0+Dv/2)-GroupIndex(v0-Dv/2));// " * Dv " omitted
-                shift += (v-pulse->vc) / chirp; // " * Dv " omitted
-                int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                E1[n1] *= exp(I*2.0*M_PI*shift); // refraction
-                E1[n1] *= sqrt(exp(-AbsorptionCoefficient(v)*th)); //linear absorption
-            }
-            IFFT(E1.data(), &pulse->E[n0*x]);
+                // -------------- REFRACTION AND ABSORPTION --------------
+                // - Use split-step method for each slice -
 
-            // nonlinear refraction [and absorption] Step 2 (half-thickness of the slice)
-            //integral = 0;
-            for(int n=0; n<n0; n++)
-            {
-                intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
-                intensity *= tilt_factor; // reduced intensity in tilted windows
+                // nonlinear refraction [and absorption] Step 1 (half-thickness of the slice)
+                //integral = 0;
+                for(int n=0; n<n0; n++)
+                {
+                    intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
+                    intensity *= tilt_factor; // reduced intensity in tilted windows
 
-                // nonlinear refraction
-                shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
-                pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
+                    // nonlinear refraction
+                    shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
+                    pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
 
-                /*
-                // nonlinear absorption
-                alphaNL = pow(alpha1*intensity,chi) + integral;
-                pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
-                //integral += alphaNL*intensity*Dt;
-                integral += pow(alpha2*intensity,chi)*Dt;
-                */
+                    /*
+                    // nonlinear absorption
+                    alphaNL = pow(alpha1*intensity,chi) + integral;
+                    pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
+                    //integral += alphaNL*intensity*Dt;
+                    integral += pow(alpha2*intensity,chi)*Dt;
+                    */
 
-                // B-integral
-                if(x==0 && n==n_peak)
-                    B_integral += M_PI * pulse->vc / c * intensity * n2 * th; // 2 ommitted: half-thickness
+                    // B-integral
+                    if(x==0 && n==n_peak)
+                        B_integral += M_PI * pulse->vc / c * intensity * n2 * th; // 2 ommitted: half-thickness
+                }
+
+                // linear dispersion and absorption (full thickness of the slice)
+                FFT(&pulse->E[n0*x], E1.data());
+                shift = 0;
+                for(int n=0; n<n0; n++)
+                {
+                    v = v_min+Dv*(0.5+n);
+                    chirp = c/th / (GroupIndex(v0+Dv/2)-GroupIndex(v0-Dv/2));// " * Dv " omitted
+                    shift += (v-pulse->vc) / chirp; // " * Dv " omitted
+                    int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
+                    E1[n1] *= exp(I*2.0*M_PI*shift); // refraction
+                    E1[n1] *= sqrt(exp(-AbsorptionCoefficient(v)*th)); //linear absorption
+                }
+                IFFT(E1.data(), &pulse->E[n0*x]);
+
+                // nonlinear refraction [and absorption] Step 2 (half-thickness of the slice)
+                //integral = 0;
+                for(int n=0; n<n0; n++)
+                {
+                    intensity = 2.0 * h * pulse->vc * std::norm(pulse->E[n0*x+n]); // W/m2
+                    intensity *= tilt_factor; // reduced intensity in tilted windows
+
+                    // nonlinear refraction
+                    shift = pulse->vc * th/2.0/c * (n2*intensity);// + n4*pow(intensity,2));
+                    pulse->E[n0*x+n] *= exp(I*2.0*M_PI*shift);
+
+                    /*
+                    // nonlinear absorption
+                    alphaNL = pow(alpha1*intensity,chi) + integral;
+                    pulse->E[n0*x+n] *= sqrt(exp(-alphaNL*th/2.0));
+                    //integral += alphaNL*intensity*Dt;
+                    integral += pow(alpha2*intensity,chi)*Dt;
+                    */
+
+                    // B-integral
+                    if(x==0 && n==n_peak)
+                        B_integral += M_PI * pulse->vc / c * intensity * n2 * th; // 2 ommitted: half-thickness
+                }
             }
         }
     }

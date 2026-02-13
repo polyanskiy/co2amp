@@ -164,9 +164,13 @@ void F::PulseInteraction(Pulse *pulse, Plane* plane, int m, int n_min, int)
     Debug(2, "Interaction with spatial filter");
     StatusDisplay(pulse, plane, m, "spatial filtering...");
 
+    #pragma omp parallel for
     for(int x=0; x<x0; ++x)
+    {
+        double trans = sqrt(Transmittance[x]);
         for(int n=0; n<n0; n++)
-            pulse->E[n0*x+n] *=  sqrt(Transmittance[x]);
+            pulse->E[n0*x+n] *= trans;
+    }
 }
 
 

@@ -199,7 +199,7 @@ void Pulse::Initialize()
         for(int x=0; x<x0; ++x)
             Energy += 2.0 * h * vc
                     * std::norm(E[n0*x+n]) // norm() returns the squared magnitude
-                    * M_PI*pow(Dr,2)*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
+                    * M_PI*Dr*Dr*(2*x+1) //ring area = Pi*(Dr*(x+1))^2 - Pi*(Dr*x)^2 = Pi*Dr^2*(2x+1)
                     * Dt; // J
 
     double af = sqrt(E0/Energy);
@@ -276,12 +276,27 @@ void Pulse::Propagate(Plane *from, Plane *to, int m)
 
     else // diffraction propagation
     {
+        std::vector<double> lambda(n0);
+        std::vector<double> k_wave(n0);
+        std::vector<double> r1(x0);
+
+        for(int n=0; n<n0; ++n)
+        {
+            lambda[n] = c/(v_min+Dv*(0.5+n));
+            k_wave[n] = 2.0*M_PI/lambda[n];
+        }
+
+        for(int x=0; x<x0; ++x)
+        {
+            r1[x] = Dr1*(0.5+x); // input plane
+        }
+
+        #pragma omp parallel for
         for(int x=0; x<x0; ++x)
         {
             FFT(&E[x*n0], &E1[x*n0]); // time -> frequency domain
-            for(int n=0; n<n0; ++n)
-                E[n0*x+n] = 0;
         }
+        std::fill(E.begin(), E.end(), 0); // set all elements to 0
 
         #pragma omp parallel for
         for(int x2=0; x2<x0; x2++) // output plane
@@ -295,26 +310,21 @@ void Pulse::Propagate(Plane *from, Plane *to, int m)
                 }
             }
 
-            double r1;
             double r2 = Dr2*(0.5+x2);
 
             // Fresnell diffraction with cylindrical symmetry
             if(method == 1)
             {
-                double lambda, k_wave;
                 for(int x1=0; x1<x0; ++x1) // input plane
                 {
-                    r1 = Dr1*(0.5+x1);
                     for(int n=0; n<n0; ++n)
                     {
-                        lambda = c/(v_min+Dv*(0.5+n));
-                        k_wave = 2.0*M_PI/lambda;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                         E[x2*n0+n1] += E1[n0*x1+n1]
-                                * 2.0*M_PI*r1*Dr1
-                                * exp(I*k_wave*(pow(r1,2)+pow(r2,2))/2.0/z)
-                                / (I*lambda*z)
-                                * j0(k_wave*r1*r2/z);
+                                           * 2.0*M_PI*r1[x1]*Dr1
+                                           * exp(I*k_wave[n]*(r1[x1]*r1[x1] + r2*r2)/2.0/z)
+                                           / (I*lambda[n]*z)
+                                           * j0(k_wave[n]*r1[x1]*r2/z);
                     }
                 }
             }
@@ -322,68 +332,37 @@ void Pulse::Propagate(Plane *from, Plane *to, int m)
             // Rayleigh-Sommerfeld integral with cylindrical symmetry
             if(method == 2)
             {
-                double lambda, k_wave, R, phi, Dphi;
+                double R, phi, Dphi;
                 double R2, R2max; // R^2
                 std::complex<double> tmp;
                 for(int x1=0; x1<x0; ++x1) // input plane
                 {
-                    r1 = Dr1*(0.5+x1);
-                    //Dphi = M_PI/ceil(M_PI*(x1+0.5));
                     Dphi = 1/ceil(x1+0.5);
-                    R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
+                    R2max = r1[x1]*r1[x1] + r2*r2 + z*z;
                     for(int n=0; n<n0; ++n)
                     {
-                        lambda = c/(v_min+Dv*(0.5+n));
-                        k_wave = 2.0*M_PI/lambda;
                         tmp = 0;
-                        for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
-                            R2 = R2max - 2*r1*r2*cos(phi);
+                        for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi)
+                        {
+                            R2 = R2max - 2*r1[x1]*r2*cos(phi);
                             R = sqrt(R2);
-                            tmp += exp(I*k_wave*(R-z)) / R2;
+                            tmp += exp(I*k_wave[n]*(R-z)) / R2;
                         }
-                        tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
+                        tmp *= 2.0 * Dphi*r1[x1]*Dr1 / (I*lambda[n]) * z;
                         int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
                         E[n0*x2+n1] +=  E1[n0*x1+n1] * tmp;
                     }
                 }
             }
 
-            // Experimental propagation
-            /*if(method == 3)
-            {
-                double lambda, k_wave, R, phi, Dphi;
-                double R2, R2max; // R^2
-                std::complex<double> tmp;
-                for(int x1=0; x1<x0; ++x1) // input plane
-                {
-                    r1 = Dr1*(0.5+x1);
-                    //Dphi = 1/ceil(x1*x2/x0 * (from->optic->r_max + to->optic->r_max)/z +0.5);
-                    Dphi = 1/ceil(x1 * (from->optic->r_max + to->optic->r_max)/z +0.5);
-                    R2max = pow(r1,2) + pow(r2,2) + pow(z,2);
-                    for(int n=0; n<n0; ++n)
-                    {
-                        lambda = c/(v_min+Dv*(0.5+n));
-                        k_wave = 2.0*M_PI/lambda;
-                        tmp = 0;
-                        for(phi=Dphi*0.5; phi<M_PI; phi+=Dphi){
-                            R2 = R2max - 2*r1*r2*cos(phi);
-                            R = sqrt(R2);
-                            tmp += exp(I*k_wave*(R-z)) / R2;
-                        }
-                        tmp *= 2.0 * Dphi*r1*Dr1 / (I*lambda) * z;
-                        int n1 = n<n0/2 ? n+n0/2 : n-n0/2;
-                        E[n0*x2+n1] +=  E1[n0*x1+n1] * tmp;
-                    }
-                }
-            }*/
         }
 
+        #pragma omp parallel for
         for(int x=0; x<x0; ++x)
         {
             IFFT(&E[n0*x], &E1[n0*x]);
-            for(int n=0; n<n0; ++n)
-                E[n0*x+n] = E1[n0*x+n];
         }
+        E = E1; // coppies all elements
 
         Debug(2, "propagation: diffraction integral calculations done");
     }
@@ -596,6 +575,8 @@ void Pulse::SaveBeam()
     std::vector<double> Fluence(x0);
 
     double Fmax = 0;
+
+    #pragma omp parallel for
     for(int x=0; x<x0; ++x)
     {
         for(int n=0; n<n0; ++n)
