@@ -232,11 +232,11 @@ void A::InternalDynamics(int m)
             N_vib[is][13][x] += (N_grp - N_vib[is][13][x]) * vib_relax;       // upper seq
             // 101 + 021
             N_grp = 4 * N_iso[is]*exp(-2*960/T2)*exp(-3380/T3)/Q;
-            w_sum = w[is][13] + w[is][14] + w[is][15] + w[is][16];
-            N_vib[is][13][x] += (N_grp*w[is][13]/w_sum - N_vib[is][13][x]) * vib_relax;
+            w_sum = w[is][14] + w[is][15] + w[is][16] + w[is][17];
             N_vib[is][14][x] += (N_grp*w[is][14]/w_sum - N_vib[is][14][x]) * vib_relax;
             N_vib[is][15][x] += (N_grp*w[is][15]/w_sum - N_vib[is][15][x]) * vib_relax;
             N_vib[is][16][x] += (N_grp*w[is][16]/w_sum - N_vib[is][16][x]) * vib_relax;
+            N_vib[is][17][x] += (N_grp*w[is][17]/w_sum - N_vib[is][17][x]) * vib_relax;
         }
 
 
