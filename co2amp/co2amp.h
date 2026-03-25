@@ -89,7 +89,7 @@ private:
     bool flag_interaction; // true if a pulse is interacting with the amplifier section
     // -------- CONSTANTS --------
     static constexpr int NumIso = 12; // Number of isotopologues
-    static constexpr int NumVib = 18; // Vibrational levels
+    static constexpr int NumVib = 29; // Vibrational levels
     static constexpr int NumRot = 80; // Rotational sub-levels with J = 0...79
     // -------- GEOMETRY ---------
     double length;

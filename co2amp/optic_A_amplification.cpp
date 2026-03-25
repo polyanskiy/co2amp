@@ -228,30 +228,30 @@ void A::PulseInteraction(Pulse *pulse, Plane *plane, int m, int n_min, int n_max
             // all isotopologues are added together:
 
             // nu3
-            DeltaN_nu3 +=      N_vib[is][0][x]  - N_vib0[is][0]   // 001
-                        +      N_vib[is][5][x]  - N_vib0[is][5]   // 011
-                        +      N_vib[is][6][x]  - N_vib0[is][6]
-                        + 2 * (N_vib[is][13][x] - N_vib0[is][13]) // 002
-                        +      N_vib[is][14][x] - N_vib0[is][14]  // 101+021
+            DeltaN_nu3 +=      N_vib[is][1][x]  - N_vib0[is][1]   // 001
+                        + 2 * (N_vib[is][2][x]  - N_vib0[is][2])  // 002
+                        +      N_vib[is][14][x] - N_vib0[is][14]  // 011
                         +      N_vib[is][15][x] - N_vib0[is][15]
-                        +      N_vib[is][16][x] - N_vib0[is][16]
-                        +      N_vib[is][17][x] - N_vib0[is][17];
+                        +      N_vib[is][16][x] - N_vib0[is][16]  // 101+021
+                        +      N_vib[is][17][x] - N_vib0[is][17]
+                        +      N_vib[is][18][x] - N_vib0[is][18]
+                        +      N_vib[is][19][x] - N_vib0[is][19];
 
             // nu2 + 2*nu1 (Fermi-coupled vibrations)
-            DeltaN_nu2 += 2 * (N_vib[is][1][x]  - N_vib0[is][1]   // 100+020
-                        +      N_vib[is][2][x]  - N_vib0[is][2]
-                        +      N_vib[is][3][x]  - N_vib0[is][3]
-                        +      N_vib[is][4][x]  - N_vib0[is][4])
-                        +      N_vib[is][5][x]  - N_vib0[is][5]   // 011
+            DeltaN_nu2 += 2 * (N_vib[is][4][x]  - N_vib0[is][4]   // 100+020
+                        +      N_vib[is][5][x]  - N_vib0[is][5]
                         +      N_vib[is][6][x]  - N_vib0[is][6]
-                        + 3 * (N_vib[is][7][x]  - N_vib0[is][7]   // 110+030
-                        +      N_vib[is][8][x]  - N_vib0[is][8]
+                        +      N_vib[is][7][x]  - N_vib0[is][7])
+                        + 3 * (N_vib[is][8][x]  - N_vib0[is][8]   // 110+030
                         +      N_vib[is][9][x]  - N_vib0[is][9]
-                        +      N_vib[is][10][x] - N_vib0[is][10])
-                        + 2 * (N_vib[is][14][x] - N_vib0[is][14]  // 101+021
+                        +      N_vib[is][10][x] - N_vib0[is][10]
+                        +      N_vib[is][11][x] - N_vib0[is][11])
+                        +      N_vib[is][14][x] - N_vib0[is][14]  // 011
                         +      N_vib[is][15][x] - N_vib0[is][15]
-                        +      N_vib[is][16][x] - N_vib0[is][16]
-                        +      N_vib[is][17][x] - N_vib0[is][17]);
+                        + 2 * (N_vib[is][16][x] - N_vib0[is][16]  // 101+021
+                        +      N_vib[is][17][x] - N_vib0[is][17]
+                        +      N_vib[is][18][x] - N_vib0[is][18]
+                        +      N_vib[is][19][x] - N_vib0[is][19]);
         }
 
         // change of vibrational temerature
