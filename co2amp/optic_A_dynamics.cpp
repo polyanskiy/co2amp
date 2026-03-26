@@ -67,24 +67,38 @@ void A::InternalDynamics(int m)
         double pump2 = 0;
         double pump3 = 0;
         double pump4 = 0;
-        // - groups of vibrational levels
+        // - vibrational levels
         double pump_vl[NumVib] = {}; // initialized with zeros
 
         if(pumping == "discharge")
         {
             W = current[m]*voltage[m] / Vd;              // W/m^3
-            pump4 = y2!=0.0 ? 0.8e-6*q4[m]/N/y2*W : 0;   // 1/s
-            pump3 = y1!=0.0 ? 0.8e-6*q3[m]/N/y1*W : 0;   // 1/s
-            pump2 = y1!=0.0 ? 2.8e-6*q2[m]/N/y1*W : 0;   // 1/s
+            pump4 = y2!=0.0 ? 0.8e-6*q4[m]/(N*y2)*W : 0;   // 1/s
+            pump3 = y1!=0.0 ? 0.8e-6*q3[m]/(N*y1)*W : 0;   // 1/s
+            pump2 = y1!=0.0 ? 2.8e-6*q2[m]/(N*y1)*W : 0;   // 1/s
         }
 
         if(pumping == "optical")
         {
             double photon_flux = normalized_intensity[m] * pump_fluence[x] / (h*c/pump_wl); // photons/(m^2 * s)
 
+            // total population of ground state
+            // N_gs/(N*y1): fraction of CO2 molecules on ground state (use to account for GS depletion)
+            double N_gs = 0; // density of CO2 molecules on ground state
+            double N_ex = 0; // density of CO2 molecules on excitation level
+            for(int is=0; is<NumIso; ++is)
+            {
+                N_gs += N_vib[is][0][x];
+            }
+            //N_gs = N_CO2;
+
             if(pump_level == "001") // direct excitation of (001) level @ ~4.3 um
             {
-                pump3 = photon_flux * pump_sigma;
+                for(int is=0; is<NumIso; ++is)
+                {
+                    N_ex += N_vib[is][1][x];
+                }
+                pump3 = photon_flux * pump_sigma * (N_gs-N_ex)/N_CO2;
                 pump2 = 0;
                 pump_vl[1] = pump3;
             }
@@ -92,21 +106,40 @@ void A::InternalDynamics(int m)
             if(pump_level == "002") // excitation via 2nd overtone level @ ~2.2 um
             // ! only possible for non-symmetric molecules
             {
-                pump3 = 2 * photon_flux * pump_sigma;
+                for(int is=0; is<NumIso; ++is)
+                {
+                    N_ex += N_vib[is][2][x];
+                }
+                pump3 = 2 * photon_flux * pump_sigma * (N_gs-N_ex)/N_CO2;
                 pump2 = 0;
                 pump_vl[2] = pump3 / 2;
             }
 
             if(pump_level == "003") // excitation via 3rd overtone level @ ~1.4 um
             {
-                pump3 = 3 * photon_flux * pump_sigma;
+                for(int is=0; is<NumIso; ++is)
+                {
+                    N_ex += N_vib[is][3][x];
+                }
+                pump3 = 3 * photon_flux * pump_sigma * (N_gs-N_ex)/N_CO2;
                 pump2 = 0;
                 pump_vl[3] = pump3 / 3;
             }
 
             if(pump_level == "021") // excitation via combinational vibration (101,021) @ ~2.8 um
             {
-                pump3 = photon_flux * pump_sigma;
+                for(int is=0; is<NumIso; ++is)
+                {
+                    for(int vl=16; vl<=19; ++vl)
+                    {
+                        N_ex += N_vib[is][vl][x];
+                    }
+                }
+                N_ex /= 4; // pump energy distributed between 4 levels
+                           // we assume equal distribution for now
+                           // ideally, all energy should be put into a specific excitation level
+
+                pump3 = photon_flux * pump_sigma * (N_gs-N_ex)/N_CO2;
                 pump2 = 2 * pump3;
                 pump_vl[16] = pump3 / 4;
                 pump_vl[17] = pump3 / 4;
@@ -116,7 +149,18 @@ void A::InternalDynamics(int m)
 
             if(pump_level == "041") // excitation via combinational vibration (201,121,041) @ ~2.0 um
             {
-                pump3 = photon_flux * pump_sigma;
+                for(int is=0; is<NumIso; ++is)
+                {
+                    for(int vl=20; vl<=28; ++vl)
+                    {
+                        N_ex += N_vib[is][vl][x];
+                    }
+                }
+                N_ex /= 9; // pump energy distributed between 9 levels
+                           // we assume equal distribution for now
+                           // ideally, all energy should be put into a specific excitation level
+
+                pump3 = photon_flux * pump_sigma * (N_gs-N_ex)/N_CO2;
                 pump2 = 4 * pump3;
                 pump_vl[20] = pump3 / 9;
                 pump_vl[21] = pump3 / 9;
@@ -164,15 +208,6 @@ void A::InternalDynamics(int m)
                 N_vib[is][vl][x] += delta;
                 N_vib[is][0][x]  -= delta; // depletion of the ground state
             }
-            /*// 001      optical pumping @ ~4.3 um
-            N_vib[is][1][x] += N_iso[is] * pump_vl[1] * time_tick;
-            // 002      optical pumping @ ~2.2 um (non-symmetric molecules only)
-            N_vib[is][13][x] += N_iso[is] * pump_vl[4] * time_tick;
-            // 101+021  optical pumping @ ~2.8 um
-            N_vib[is][14][x] += N_iso[is] * pump_vl[14] * time_tick;
-            N_vib[is][15][x] += N_iso[is] * pump_vl[15] * time_tick;
-            N_vib[is][16][x] += N_iso[is] * pump_vl[16] * time_tick;
-            N_vib[is][17][x] += N_iso[is] * pump_vl[17] * time_tick;*/
         }
 
         T[x] += y1/cv * (500*r3*f3 + 960*r2*(e2[x]-e2e(T[x]))) * time_tick;
@@ -195,7 +230,6 @@ void A::InternalDynamics(int m)
 
             for(int vl=1; vl<4; ++vl) // nu3 only
             {
-                //w[is][vl]  = 1;
                 w[is][vl]  = exp( -h *  G[is][vl] / (kB*T3) );
             }
 
@@ -209,31 +243,15 @@ void A::InternalDynamics(int m)
                 w[is][vl]  = exp( -h *  (G[is][vl]-G[is][1]) / (kB*T2) ) // energy in nu1/nu2
                            * exp( -h *  G[is][1] / (kB*T3) );            // energy in nu3
             }
-
-            /*w[is][0]  = 1;                                            // 001
-            w[is][1]  = exp( -h *  G[is][1]              / (kB*T2) ); // 100+020
-            w[is][2]  = exp( -h *  G[is][2]              / (kB*T2) );
-            w[is][3]  = exp( -h *  G[is][3]              / (kB*T2) );
-            w[is][4]  = exp( -h *  G[is][4]              / (kB*T2) );
-            w[is][5]  = exp( -h * (G[is][5] - G[is][0])  / (kB*T2) ); // 011 (ignore energy in nu3)
-            w[is][6]  = exp( -h * (G[is][6] - G[is][0])  / (kB*T2) );
-            w[is][7]  = exp( -h *  G[is][7]              / (kB*T2) ); // 110+030
-            w[is][8]  = exp( -h *  G[is][8]              / (kB*T2) );
-            w[is][9]  = exp( -h *  G[is][9]              / (kB*T2) );
-            w[is][10] = exp( -h *  G[is][10]             / (kB*T2) );
-            w[is][11] = exp( -h *  G[is][11]             / (kB*T2) );
-            w[is][12] = exp( -h *  G[is][12]             / (kB*T2) );
-            w[is][13] = 1;                                            // 002
-            w[is][14] = exp( -h * (G[is][14] - G[is][0]) / (kB*T2) ); // 101+021 (ignore energy in nu3)
-            w[is][15] = exp( -h * (G[is][15] - G[is][0]) / (kB*T2) );
-            w[is][16] = exp( -h * (G[is][16] - G[is][0]) / (kB*T2) );
-            w[is][17] = exp( -h * (G[is][17] - G[is][0]) / (kB*T2) );*/
         }
 
         for(int is=0; is<NumIso; ++is)
         {
             // INTRA-MODE THERMALIZATION
 
+            // Ground state
+            N_grp = N_iso[is]/Q;
+            N_vib[is][0][x] += (N_grp - N_vib[is][0][x]) * vib_relax;
             // 001
             N_grp = N_iso[is]*exp(-3380/T3)/Q;
             N_vib[is][1][x] += (N_grp - N_vib[is][1][x]) * vib_relax;
@@ -283,41 +301,6 @@ void A::InternalDynamics(int m)
             N_vib[is][26][x] += (N_grp*w[is][26]/w_sum - N_vib[is][26][x]) * vib_relax;
             N_vib[is][27][x] += (N_grp*w[is][27]/w_sum - N_vib[is][27][x]) * vib_relax;
             N_vib[is][28][x] += (N_grp*w[is][28]/w_sum - N_vib[is][28][x]) * vib_relax;
-
-            /*// 001
-            N_grp = N_iso[is]*exp(-3380/T3)/Q;
-            N_vib[is][0][x] += (N_grp - N_vib[is][0][x]) * vib_relax;
-            // 100 + 020
-            N_grp = 4 * N_iso[is]*exp(-2*960/T2)/Q;
-            w_sum = w[is][1] + w[is][2] + w[is][3] + w[is][4];
-            N_vib[is][1][x]  += (N_grp*w[is][1]/w_sum  - N_vib[is][1][x]) * vib_relax;
-            N_vib[is][2][x]  += (N_grp*w[is][2]/w_sum  - N_vib[is][2][x]) * vib_relax;
-            N_vib[is][3][x]  += (N_grp*w[is][3]/w_sum  - N_vib[is][3][x]) * vib_relax;
-            N_vib[is][4][x]  += (N_grp*w[is][4]/w_sum  - N_vib[is][4][x]) * vib_relax;
-            // 011
-            N_grp = 2 * N_iso[is]*exp(-960/T2)*exp(-3380/T3)/Q;
-            w_sum = w[is][5] + w[is][6];
-            N_vib[is][5][x]  += (N_grp*w[is][5]/w_sum  - N_vib[is][5][x]) * vib_relax;
-            N_vib[is][6][x]  += (N_grp*w[is][6]/w_sum  - N_vib[is][6][x]) * vib_relax;
-            // 110 + 030
-            N_grp = 6 * N_iso[is]*exp(-3*960/T2)/Q;
-            w_sum = w[is][7] + w[is][8] + w[is][9] + w[is][10] + w[is][11] + w[is][12];
-            N_vib[is][7][x]  += (N_grp*w[is][7]/w_sum  - N_vib[is][7][x]) * vib_relax;
-            N_vib[is][8][x]  += (N_grp*w[is][8]/w_sum  - N_vib[is][8][x]) * vib_relax;
-            N_vib[is][9][x]  += (N_grp*w[is][9]/w_sum  - N_vib[is][9][x]) * vib_relax;
-            N_vib[is][10][x] += (N_grp*w[is][10]/w_sum - N_vib[is][10][x]) * vib_relax;
-            N_vib[is][11][x] += (N_grp*w[is][11]/w_sum - N_vib[is][11][x]) * vib_relax;
-            N_vib[is][12][x] += (N_grp*w[is][12]/w_sum - N_vib[is][12][x]) * vib_relax;
-            // 002
-            N_grp = N_iso[is]*exp(-2*3380/T3)/Q;
-            N_vib[is][13][x] += (N_grp - N_vib[is][13][x]) * vib_relax;       // upper seq
-            // 101 + 021
-            N_grp = 4 * N_iso[is]*exp(-2*960/T2)*exp(-3380/T3)/Q;
-            w_sum = w[is][14] + w[is][15] + w[is][16] + w[is][17];
-            N_vib[is][14][x] += (N_grp*w[is][14]/w_sum - N_vib[is][14][x]) * vib_relax;
-            N_vib[is][15][x] += (N_grp*w[is][15]/w_sum - N_vib[is][15][x]) * vib_relax;
-            N_vib[is][16][x] += (N_grp*w[is][16]/w_sum - N_vib[is][16][x]) * vib_relax;
-            N_vib[is][17][x] += (N_grp*w[is][17]/w_sum - N_vib[is][17][x]) * vib_relax;*/
         }
 
 
@@ -403,7 +386,7 @@ void A::InitializePopulations()
         e3[x] = 1/(exp(3380/T0)-1);
         e4[x] = 1/(exp(3350/T0)-1);
 
-        for(int is=0; is<12; ++is)
+        for(int is=0; is<NumIso; ++is)
         {
             // VIBRATIONAL LEVELS
             // Ground state
@@ -457,44 +440,6 @@ void A::InitializePopulations()
             N_vib[is][26][x] = N_grp*w[is][26]/w_sum;
             N_vib[is][27][x] = N_grp*w[is][27]/w_sum;
             N_vib[is][28][x] = N_grp*w[is][28]/w_sum;
-
-
-
-            /*// VIBRATIONAL LEVELS
-            // 001
-            N_grp = N_iso[is]*exp(-3380/T0)/Q;
-            N_vib[is][0][x]  = N_grp;
-            // 100 + 020
-            N_grp = 4 * N_iso[is]*exp(-2*960/T0)/Q;
-            w_sum = w[is][1] + w[is][2] + w[is][3] + w[is][4];
-            N_vib[is][1][x]  = N_grp * w[is][1] / w_sum;
-            N_vib[is][2][x]  = N_grp * w[is][2] / w_sum;
-            N_vib[is][3][x]  = N_grp * w[is][3] / w_sum;
-            N_vib[is][4][x]  = N_grp * w[is][4] / w_sum;
-            // 011
-            N_grp = 2 * N_iso[is] * exp(-960/T0) * exp(-3380/T0) / Q;
-            w_sum = w[is][5] + w[is][6];
-            N_vib[is][5][x]  = N_grp * w[is][5] / w_sum;
-            N_vib[is][6][x]  = N_grp * w[is][6] / w_sum;
-            // 110 + 030
-            N_grp = 6 * N_iso[is] * exp(-3*960/T0) / Q;
-            w_sum = w[is][7] + w[is][8] + w[is][9] + w[is][10] + w[is][11] + w[is][12];
-            N_vib[is][7][x]  = N_grp * w[is][7]  / w_sum;
-            N_vib[is][8][x]  = N_grp * w[is][8]  / w_sum;
-            N_vib[is][9][x]  = N_grp * w[is][9]  / w_sum;
-            N_vib[is][10][x] = N_grp * w[is][10] / w_sum;
-            N_vib[is][11][x] = N_grp * w[is][11] / w_sum;
-            N_vib[is][12][x] = N_grp * w[is][12] / w_sum;
-            // 002
-            N_grp = N_iso[is]*exp(-2*3380/T0)/Q;
-            N_vib[is][13][x] = N_grp;
-            // 101 + 021
-            N_grp = 4 * N_iso[is] * exp(-2*960/T0) * exp(-3380/T0) / Q;
-            w_sum = w[is][14] + w[is][15] + w[is][16] + w[is][17];
-            N_vib[is][14][x]  = N_grp * w[is][14] / w_sum;
-            N_vib[is][15][x]  = N_grp * w[is][15] / w_sum;
-            N_vib[is][16][x]  = N_grp * w[is][16] / w_sum;
-            N_vib[is][17][x]  = N_grp * w[is][17] / w_sum;*/
 
             // ROTATIONAL LEVELS
             for(int vl=0; vl<NumVib; ++vl)
