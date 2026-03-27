@@ -361,8 +361,8 @@ void MainWindow::Plot()
             << "set ylabel \"e (quanta / molecule)\"\n"
             << "set yrange [0:*]\n"
             // (Qstring(...) used below to solve a unicode problem - "μ" is not written to file correctly)
-            << "plot \"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($2) with lines ls 4 ti \"Lower 10 μm (symm stretch): e1\",\\\n")
-            <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($3) with lines ls 1 ti \"Lower 9 μm (bend): e2\",\\\n")
+            << "plot \"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($2) with lines ls 4 ti \"Lower (symm stretch): e1\",\\\n")
+            <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult << QString("):($3) with lines ls 1 ti \"Lower (bend): e2\",\\\n")
             <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($4) with lines ls 2 ti \"Upper (asymm stretch): e3\",\\\n"
             <<      "\"" << optic_id << "_e.dat\" using ($1*" << time_mult <<         "):($5) with lines ls 3 ti \"N2: e4\"\n";
         file.close();
